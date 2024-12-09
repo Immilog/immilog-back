@@ -58,7 +58,7 @@ class JobBoardInquiryServiceTest {
                 .bookmarkUsers(Collections.emptyList())
                 .country(Countries.SOUTH_KOREA)
                 .region("region")
-                .industry(com.backend.immilog.user.domain.model.enums.Industry.IT)
+                .industry(com.backend.immilog.user.domain.enums.Industry.IT)
                 .deadline(now)
                 .experience(Experience.JUNIOR)
                 .salary("salary")

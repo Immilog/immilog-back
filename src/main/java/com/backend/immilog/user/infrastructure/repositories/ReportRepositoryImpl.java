@@ -24,7 +24,7 @@ public class ReportRepositoryImpl implements ReportRepository {
     }
 
     @Override
-    public Report saveEntity(
+    public Report save(
             Report report
     ) {
         return reportJpaRepository.save(ReportEntity.from(report)).toDomain();

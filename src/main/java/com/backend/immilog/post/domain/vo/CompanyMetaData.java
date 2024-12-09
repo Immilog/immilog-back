@@ -1,7 +1,7 @@
 package com.backend.immilog.post.domain.vo;
 
 import com.backend.immilog.post.domain.model.enums.Experience;
-import com.backend.immilog.user.domain.model.enums.Industry;
+import com.backend.immilog.user.domain.enums.Industry;
 import lombok.*;
 
 import jakarta.persistence.Embeddable;

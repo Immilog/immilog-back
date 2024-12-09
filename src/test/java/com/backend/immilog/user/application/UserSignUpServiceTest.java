@@ -1,16 +1,14 @@
 package com.backend.immilog.user.application;
 
 import com.backend.immilog.user.application.services.UserSignUpService;
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.user.User;
 import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.exception.UserException;
-import com.backend.immilog.user.infrastructure.jpa.repositories.UserJpaRepository;
 import com.backend.immilog.user.presentation.request.UserSignUpRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +17,6 @@ import java.util.Optional;
 
 import static com.backend.immilog.user.exception.UserErrorCode.EXISTING_USER;
 import static com.backend.immilog.user.exception.UserErrorCode.USER_NOT_FOUND;
-import static com.backend.immilog.user.domain.model.enums.UserStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -57,7 +54,7 @@ class UserSignUpServiceTest {
                 .build();
 
         User user = User.builder().seq(1L).nickName("test").build();
-        when(userRepository.saveEntity(any(User.class))).thenReturn(user);
+        when(userRepository.save(any(User.class))).thenReturn(user);
         when(passwordEncoder.encode(anyString())).thenReturn("test1234");
         Pair<Long, String> seqAndNickName = userSignUpService.signUp(param.toCommand());
         // then

@@ -13,16 +13,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import static com.backend.immilog.user.domain.model.enums.ReportReason.FRAUD;
-import static com.backend.immilog.user.domain.model.enums.UserCountry.INDONESIA;
-import static com.backend.immilog.user.domain.model.enums.UserCountry.JAPAN;
-import static com.backend.immilog.user.domain.model.enums.UserStatus.ACTIVE;
+import static com.backend.immilog.user.domain.enums.ReportReason.FRAUD;
+import static com.backend.immilog.user.domain.enums.UserCountry.INDONESIA;
+import static com.backend.immilog.user.domain.enums.UserCountry.JAPAN;
+import static com.backend.immilog.user.domain.enums.UserStatus.ACTIVE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.*;

@@ -4,7 +4,7 @@ import com.backend.immilog.post.application.result.CommentResult;
 import com.backend.immilog.post.domain.model.enums.PostStatus;
 import com.backend.immilog.post.domain.model.Comment;
 import com.backend.immilog.user.application.result.UserInfoResult;
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @AllArgsConstructor

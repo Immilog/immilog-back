@@ -1,8 +1,8 @@
 package com.backend.immilog.user.infrastructure.jpa.entity;
 
 import com.backend.immilog.user.domain.model.Company;
-import com.backend.immilog.user.domain.model.enums.Industry;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.Industry;
+import com.backend.immilog.user.domain.enums.UserCountry;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -2,7 +2,7 @@ package com.backend.immilog.user.infrastructure.jpa.entity;
 
 import com.backend.immilog.global.model.BaseDateEntity;
 import com.backend.immilog.user.domain.model.Report;
-import com.backend.immilog.user.domain.model.enums.ReportReason;
+import com.backend.immilog.user.domain.enums.ReportReason;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

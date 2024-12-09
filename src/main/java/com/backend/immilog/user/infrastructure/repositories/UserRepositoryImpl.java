@@ -1,6 +1,6 @@
 package com.backend.immilog.user.infrastructure.repositories;
 
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.user.User;
 import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.infrastructure.jpa.entity.UserEntity;
 import com.backend.immilog.user.infrastructure.jpa.repositories.UserJpaRepository;
@@ -42,7 +42,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User saveEntity(
+    public User save(
             User of
     ) {
         return userJpaRepository.save(UserEntity.from(of)).toDomain();

@@ -1,8 +1,8 @@
 package com.backend.immilog.user.presentation.request;
 
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
+import com.backend.immilog.user.domain.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 

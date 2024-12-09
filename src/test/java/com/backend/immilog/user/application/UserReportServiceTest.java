@@ -2,14 +2,14 @@ package com.backend.immilog.user.application;
 
 import com.backend.immilog.global.infrastructure.lock.RedisDistributedLock;
 import com.backend.immilog.user.application.services.UserReportService;
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.ReportReason;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.ReportReason;
 import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.exception.UserException;
-import com.backend.immilog.user.domain.model.vo.Location;
-import com.backend.immilog.user.domain.model.vo.ReportInfo;
+import com.backend.immilog.user.domain.model.user.Location;
+import com.backend.immilog.user.domain.model.user.ReportInfo;
 import com.backend.immilog.user.domain.model.Report;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.repositories.ReportRepository;
 import com.backend.immilog.user.presentation.request.UserReportRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,8 +25,8 @@ import java.util.Optional;
 import static com.backend.immilog.global.enums.UserRole.ROLE_USER;
 import static com.backend.immilog.user.exception.UserErrorCode.ALREADY_REPORTED;
 import static com.backend.immilog.user.exception.UserErrorCode.CANNOT_REPORT_MYSELF;
-import static com.backend.immilog.user.domain.model.enums.UserCountry.MALAYSIA;
-import static com.backend.immilog.user.domain.model.enums.UserCountry.SOUTH_KOREA;
+import static com.backend.immilog.user.domain.enums.UserCountry.MALAYSIA;
+import static com.backend.immilog.user.domain.enums.UserCountry.SOUTH_KOREA;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -95,7 +95,7 @@ class UserReportServiceTest {
         verify(redisDistributedLock, times(1))
                 .releaseLock("reportUser : ", targetUserSeq.toString());
         verify(reportRepository, times(1))
-                .saveEntity(any(Report.class));
+                .save(any(Report.class));
     }
 
     @Test

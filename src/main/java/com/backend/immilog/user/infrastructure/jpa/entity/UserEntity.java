@@ -2,11 +2,11 @@ package com.backend.immilog.user.infrastructure.jpa.entity;
 
 import com.backend.immilog.global.enums.UserRole;
 import com.backend.immilog.global.model.BaseDateEntity;
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
-import com.backend.immilog.user.domain.model.vo.Location;
-import com.backend.immilog.user.domain.model.vo.ReportInfo;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.UserStatus;
+import com.backend.immilog.user.domain.model.user.Location;
+import com.backend.immilog.user.domain.model.user.ReportInfo;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -55,16 +55,16 @@ public class UserEntity extends BaseDateEntity {
 
     public static UserEntity from(User user) {
         return UserEntity.builder()
-                .seq(user.seq())
-                .nickName(user.nickName())
-                .email(user.email())
-                .password(user.password())
-                .imageUrl(user.imageUrl())
-                .userStatus(user.userStatus())
-                .userRole(user.userRole())
-                .interestCountry(user.interestCountry())
-                .location(user.location())
-                .reportInfo(user.reportInfo())
+                .seq(user.getSeq())
+                .nickName(user.getNickName())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .imageUrl(user.getImageUrl())
+                .userStatus(user.getUserStatus())
+                .userRole(user.getUserRole())
+                .interestCountry(user.getInterestCountry())
+                .location(user.getLocation())
+                .reportInfo(user.getReportInfo())
                 .build();
     }
 
