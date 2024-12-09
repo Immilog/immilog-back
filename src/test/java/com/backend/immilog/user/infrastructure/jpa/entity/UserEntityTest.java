@@ -1,11 +1,11 @@
 package com.backend.immilog.user.infrastructure.jpa.entity;
 
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.global.enums.UserRole;
-import com.backend.immilog.user.domain.model.vo.Location;
-import com.backend.immilog.user.domain.model.vo.ReportInfo;
+import com.backend.immilog.user.domain.model.user.Location;
+import com.backend.immilog.user.domain.model.user.ReportInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

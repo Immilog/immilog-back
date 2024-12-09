@@ -3,7 +3,7 @@ package com.backend.immilog.user.application;
 import com.backend.immilog.user.application.result.CompanyResult;
 import com.backend.immilog.user.application.services.CompanyInquiryService;
 import com.backend.immilog.user.domain.model.Company;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.UserCountry;
 import com.backend.immilog.user.domain.repositories.CompanyRepository;
 import com.backend.immilog.user.infrastructure.jpa.entity.CompanyEntity;
 import org.assertj.core.api.Assertions;

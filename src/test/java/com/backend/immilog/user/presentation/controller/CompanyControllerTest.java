@@ -3,7 +3,7 @@ package com.backend.immilog.user.presentation.controller;
 import com.backend.immilog.user.application.services.CompanyInquiryService;
 import com.backend.immilog.user.application.services.CompanyRegisterService;
 import com.backend.immilog.user.application.command.CompanyRegisterCommand;
-import com.backend.immilog.user.domain.model.enums.Industry;
+import com.backend.immilog.user.domain.enums.Industry;
 import com.backend.immilog.user.presentation.request.CompanyRegisterRequest;
 import com.backend.immilog.user.presentation.response.UserApiResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import static com.backend.immilog.user.domain.model.enums.UserCountry.SOUTH_KOREA;
+import static com.backend.immilog.user.domain.enums.UserCountry.SOUTH_KOREA;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;

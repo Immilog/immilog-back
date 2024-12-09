@@ -3,10 +3,10 @@ package com.backend.immilog.user.application;
 import com.backend.immilog.global.application.ImageService;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
 import com.backend.immilog.user.application.services.UserInformationService;
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.repositories.UserRepository;
-import com.backend.immilog.user.domain.model.vo.Location;
+import com.backend.immilog.user.domain.model.user.Location;
 import com.backend.immilog.user.exception.UserException;
 import com.backend.immilog.user.presentation.request.UserInfoUpdateRequest;
 import com.backend.immilog.user.presentation.request.UserPasswordChangeRequest;
@@ -23,7 +23,6 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.backend.immilog.global.enums.UserRole.ROLE_ADMIN;
 import static com.backend.immilog.global.enums.UserRole.ROLE_USER;
-import static com.backend.immilog.user.domain.model.enums.UserCountry.*;
 import static com.backend.immilog.user.exception.UserErrorCode.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -89,7 +88,7 @@ class UserInformationServiceTest {
                 param.toCommand()
         );
         //then
-        verify(userRepository).saveEntity(any());
+        verify(userRepository).save(any());
     }
 
     @Test
@@ -121,7 +120,7 @@ class UserInformationServiceTest {
         userInformationService.changePassword(userSeq, param);
 
         // then
-        verify(userRepository).saveEntity(any());
+        verify(userRepository).save(any());
     }
 
     @Test
@@ -191,7 +190,7 @@ class UserInformationServiceTest {
         userInformationService.blockOrUnblockUser(userSeq, adminSeq, userStatus);
 
         // then
-        verify(userRepository).saveEntity(any());
+        verify(userRepository).save(any());
     }
 
     @Test
@@ -326,7 +325,7 @@ class UserInformationServiceTest {
 
         // then
         verify(imageService).deleteFile("oldImage");
-        verify(userRepository).saveEntity(any());
+        verify(userRepository).save(any());
     }
 
     @Test
@@ -377,6 +376,6 @@ class UserInformationServiceTest {
         );
 
         // then
-        verify(userRepository, times(1)).saveEntity(any());
+        verify(userRepository, times(1)).save(any());
     }
 }

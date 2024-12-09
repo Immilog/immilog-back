@@ -3,7 +3,7 @@ package com.backend.immilog.user.application;
 import com.backend.immilog.user.application.command.CompanyRegisterCommand;
 import com.backend.immilog.user.application.services.CompanyRegisterService;
 import com.backend.immilog.user.domain.model.Company;
-import com.backend.immilog.user.domain.model.enums.Industry;
+import com.backend.immilog.user.domain.enums.Industry;
 import com.backend.immilog.user.domain.repositories.CompanyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +13,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Optional;
 
-import static com.backend.immilog.user.domain.model.enums.UserCountry.SOUTH_KOREA;
+import static com.backend.immilog.user.domain.enums.UserCountry.SOUTH_KOREA;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
