@@ -5,7 +5,7 @@ import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.repositories.NoticeRepository;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.user.application.services.UserInformationService;
+import com.backend.immilog.user.application.services.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ import static com.backend.immilog.notice.exception.NoticeErrorCode.NOT_AN_ADMIN_
 @Service
 @RequiredArgsConstructor
 public class NoticeModifyService {
-    private final UserInformationService userInformationService;
+    private final UserQueryService userQueryService;
     private final NoticeRepository noticeRepository;
 
     @Transactional
@@ -40,8 +40,9 @@ public class NoticeModifyService {
     private void throwExceptionIfNotAdmin(
             Long userSeq
     ) {
-        Optional.ofNullable(userInformationService.getUser(userSeq))
-                .filter(user -> user.userRole().name().equals("ROLE_ADMIN"))
+        Optional.ofNullable(userQueryService.getUserById(userSeq))
+                .filter(Optional::isPresent)
+                .filter(user -> user.get().getUserRole().name().equals("ROLE_ADMIN"))
                 .orElseThrow(() -> new NoticeException(NOT_AN_ADMIN_USER));
     }
 
