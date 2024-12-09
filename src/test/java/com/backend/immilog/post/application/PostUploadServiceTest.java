@@ -9,9 +9,9 @@ import com.backend.immilog.post.domain.repositories.PostRepository;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.post.presentation.request.PostUploadRequest;
 import com.backend.immilog.user.application.services.UserInformationService;
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
-import com.backend.immilog.user.domain.model.vo.Location;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.UserCountry;
+import com.backend.immilog.user.domain.model.user.Location;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -85,7 +85,7 @@ class PostUploadServiceTest {
         Post post = Post.builder().seq(1L).build();
 
         when(userInformationService.getUser(userSeq)).thenReturn(user);
-        when(postRepository.saveEntity(any(Post.class))).thenReturn(post);
+        when(postRepository.save(any(Post.class))).thenReturn(post);
 
         doNothing().when(preparedStatement).setLong(eq(1), anyLong());
         doNothing().when(preparedStatement).setString(eq(2), anyString());
@@ -99,7 +99,7 @@ class PostUploadServiceTest {
         postUploadService.uploadPost(userSeq, postUploadRequest.toCommand());
 
         // then
-        verify(postRepository).saveEntity(any(Post.class));
+        verify(postRepository).save(any(Post.class));
         verify(bulkInsertRepository).saveAll(
                 anyList(),
                 anyString(),
@@ -141,13 +141,13 @@ class PostUploadServiceTest {
         Post post = Post.builder().seq(1L).build();
 
         when(userInformationService.getUser(userSeq)).thenReturn(user);
-        when(postRepository.saveEntity(any(Post.class))).thenReturn(post);
+        when(postRepository.save(any(Post.class))).thenReturn(post);
 
         // when
         postUploadService.uploadPost(userSeq, postUploadRequest.toCommand());
 
         // then
-        verify(postRepository).saveEntity(any(Post.class));
+        verify(postRepository).save(any(Post.class));
     }
 
     @Test
@@ -172,7 +172,7 @@ class PostUploadServiceTest {
                 .location(location)
                 .build();
         when(userInformationService.getUser(userSeq)).thenReturn(user);
-        when(postRepository.saveEntity(any(Post.class))).thenReturn(Post.builder().seq(1L).build());
+        when(postRepository.save(any(Post.class))).thenReturn(Post.builder().seq(1L).build());
         doThrow(new SQLException("Mock SQL Exception"))
                 .when(preparedStatement).setLong(anyInt(), anyLong());
 

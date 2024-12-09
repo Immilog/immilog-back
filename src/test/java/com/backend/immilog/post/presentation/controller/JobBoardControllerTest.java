@@ -10,6 +10,7 @@ import com.backend.immilog.post.domain.model.enums.PostStatus;
 import com.backend.immilog.post.presentation.request.JobBoardUpdateRequest;
 import com.backend.immilog.post.presentation.request.JobBoardUploadRequest;
 import com.backend.immilog.post.presentation.response.PostApiResponse;
+import com.backend.immilog.user.domain.enums.Industry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -98,7 +99,7 @@ class JobBoardControllerTest {
                 .bookmarkUsers(Collections.emptyList())
                 .country(Countries.SOUTH_KOREA)
                 .region("region")
-                .industry(com.backend.immilog.user.domain.model.enums.Industry.IT)
+                .industry(Industry.IT)
                 .deadline(now)
                 .experience(Experience.JUNIOR)
                 .salary("salary")
