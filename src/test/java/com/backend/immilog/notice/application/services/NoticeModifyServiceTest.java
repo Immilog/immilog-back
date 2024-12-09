@@ -7,11 +7,11 @@ import com.backend.immilog.notice.domain.model.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.repositories.NoticeRepository;
 import com.backend.immilog.notice.exception.NoticeException;
 import com.backend.immilog.user.application.services.UserInformationService;
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
-import com.backend.immilog.user.domain.model.vo.Location;
-import com.backend.immilog.user.domain.model.vo.ReportInfo;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.UserStatus;
+import com.backend.immilog.user.domain.model.user.Location;
+import com.backend.immilog.user.domain.model.user.ReportInfo;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
