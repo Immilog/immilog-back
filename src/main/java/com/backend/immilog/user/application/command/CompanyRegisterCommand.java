@@ -1,7 +1,7 @@
 package com.backend.immilog.user.application.command;
 
-import com.backend.immilog.user.domain.model.enums.Industry;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.Industry;
+import com.backend.immilog.user.domain.enums.UserCountry;
 import lombok.Builder;
 
 @Builder

@@ -1,9 +1,9 @@
 package com.backend.immilog.user.application.result;
 
 import com.backend.immilog.global.enums.UserRole;
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import lombok.Builder;
 
 import java.sql.Date;
@@ -26,17 +26,17 @@ public record UserInfoResult(
             User user
     ) {
         return UserInfoResult.builder()
-                .seq(user.seq())
-                .nickName(user.nickName())
-                .email(user.email())
-                .profileImage(user.imageUrl())
-                .reportedCount(user.reportInfo().getReportedCount())
-                .reportedDate(user.reportInfo().getReportedDate())
-                .country(user.location().getCountry())
-                .region(user.location().getRegion())
-                .interestCountry(user.interestCountry())
-                .userRole(user.userRole())
-                .userStatus(user.userStatus())
+                .seq(user.getSeq())
+                .nickName(user.getNickName())
+                .email(user.getEmail())
+                .profileImage(user.getImageUrl())
+                .reportedCount(user.getReportedCount())
+                .reportedDate(user.getReportedDate())
+                .country(user.getCountry())
+                .region(user.getRegion())
+                .interestCountry(user.getInterestCountry())
+                .userRole(user.getUserRole())
+                .userStatus(user.getUserStatus())
                 .build();
     }
 

@@ -1,7 +1,7 @@
 package com.backend.immilog.user.domain.model;
 
 import com.backend.immilog.user.application.command.UserReportCommand;
-import com.backend.immilog.user.domain.model.enums.ReportReason;
+import com.backend.immilog.user.domain.enums.ReportReason;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

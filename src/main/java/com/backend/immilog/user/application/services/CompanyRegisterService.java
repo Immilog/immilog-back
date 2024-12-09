@@ -2,7 +2,7 @@ package com.backend.immilog.user.application.services;
 
 import com.backend.immilog.user.application.command.CompanyRegisterCommand;
 import com.backend.immilog.user.domain.model.Company;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
+import com.backend.immilog.user.domain.enums.UserCountry;
 import com.backend.immilog.user.domain.repositories.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

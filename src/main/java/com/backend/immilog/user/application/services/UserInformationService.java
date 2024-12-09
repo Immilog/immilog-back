@@ -3,17 +3,16 @@ package com.backend.immilog.user.application.services;
 import com.backend.immilog.global.application.ImageService;
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
-import com.backend.immilog.user.domain.model.User;
-import com.backend.immilog.user.domain.model.enums.UserCountry;
-import com.backend.immilog.user.domain.model.enums.UserStatus;
-import com.backend.immilog.user.domain.repositories.UserRepository;
+import com.backend.immilog.user.application.services.command.UserCommandService;
+import com.backend.immilog.user.application.services.query.UserQueryService;
+import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.exception.UserException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.util.Pair;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -25,63 +24,61 @@ import static com.backend.immilog.user.exception.UserErrorCode.*;
 @RequiredArgsConstructor
 @Service
 public class UserInformationService {
-    private final UserRepository userRepository;
+    private final UserQueryService userQueryService;
+    private final UserCommandService userCommandService;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
 
-    @Transactional
     public void updateInformation(
             Long userSeq,
             CompletableFuture<Pair<String, String>> country,
             UserInfoUpdateCommand userInfoUpdateCommand
     ) {
-        User userDomain = getUser(userSeq);
-        userDomain = setUserCountryIfItsChanged(country, userInfoUpdateCommand, userDomain);
-        userDomain = setUserNickNameIfItsChanged(userInfoUpdateCommand.nickName(), userDomain);
-        userDomain = setUserInterestCountryIfItsChanged(userInfoUpdateCommand.interestCountry(), userDomain);
-        userDomain = setUserStatusIfItsChanged(userInfoUpdateCommand.status(), userDomain);
-        userDomain = setUserImageProfileIfItsChanged(userInfoUpdateCommand.profileImage(), userDomain);
-        userRepository.saveEntity(userDomain);
+        User user = getUser(userSeq);
+        changeCountryIfItsChanged(country, userInfoUpdateCommand, user);
+        changeImageProfileIfItsChanged(userInfoUpdateCommand.profileImage(), user);
+        user.changeNickName(userInfoUpdateCommand.nickName());
+        user.changeInterestCountry(userInfoUpdateCommand.interestCountry());
+        user.changeUserStatus(userInfoUpdateCommand.status());
+        userCommandService.save(user);
     }
 
-    @Transactional
     public void changePassword(
             Long userSeq,
             UserPasswordChangeCommand userPasswordChangeRequest
     ) {
-        User userDomain = getUser(userSeq);
+        User user = getUser(userSeq);
         final String existingPassword = userPasswordChangeRequest.existingPassword();
         final String newPassword = userPasswordChangeRequest.newPassword();
-        final String currentPassword = userDomain.password();
+        final String currentPassword = user.getPassword();
         throwExceptionIfPasswordNotMatch(existingPassword, currentPassword);
-        User copiedUser = userDomain.copyWithNewPassword(passwordEncoder.encode(newPassword));
-        userRepository.saveEntity(copiedUser);
+        user.changePassword(passwordEncoder.encode(newPassword));
+        userCommandService.save(user);
     }
 
-    @Transactional
     public void blockOrUnblockUser(
             Long userSeq,
             Long adminSeq,
             UserStatus userStatus
     ) {
         validateAdminUser(adminSeq);
-        User userDomain = getUser(userSeq);
-        userDomain = userDomain.copyWithNewUserStatus(userStatus);
-        userRepository.saveEntity(userDomain);
+        User user = getUser(userSeq);
+        user.changeUserStatus(userStatus);
+        userCommandService.save(user);
     }
 
-    @Transactional(readOnly = true)
-    public User getUser(
+    private User getUser(
             Long userSeq
     ) {
-        return userRepository.getById(userSeq)
+        return userQueryService
+                .getUserById(userSeq)
                 .orElseThrow(() -> new UserException(USER_NOT_FOUND));
     }
 
     private void validateAdminUser(
             Long userSeq
     ) {
-        if (!getUser(userSeq).userRole().equals(ROLE_ADMIN)) {
+        if (!getUser(userSeq).getUserRole().equals(ROLE_ADMIN)) {
             throw new UserException(NOT_AN_ADMIN_USER);
         }
     }
@@ -95,62 +92,30 @@ public class UserInformationService {
         }
     }
 
-    private static User setUserCountryIfItsChanged(
+    private void changeCountryIfItsChanged(
             CompletableFuture<Pair<String, String>> country,
             UserInfoUpdateCommand userInfoUpdateCommand,
-            User userDomain
+            User user
     ) {
         try {
             if (userInfoUpdateCommand.country() != null && country.get() != null) {
                 Pair<String, String> countryPair = country.join();
-                userDomain.location().setRegion(countryPair.getSecond());
-                userDomain.location().setCountry(userInfoUpdateCommand.country());
+                user.changeRegion(countryPair.getSecond());
+                user.changeCountry(userInfoUpdateCommand.country());
             }
         } catch (InterruptedException | ExecutionException e) {
             log.info(e.getMessage());
         }
-        return userDomain;
     }
 
-    private static User setUserNickNameIfItsChanged(
-            String userNickName,
-            User userDomain
-    ) {
-        if (userNickName != null) {
-            return userDomain.copyWithNewNickName(userNickName);
-        }
-        return userDomain;
-    }
-
-    private static User setUserInterestCountryIfItsChanged(
-            UserCountry interestCountry,
-            User userDomain
-    ) {
-        if (interestCountry != null) {
-            return userDomain.copyWithNewInterestCountry(interestCountry);
-        }
-        return userDomain;
-    }
-
-    private static User setUserStatusIfItsChanged(
-            UserStatus status,
-            User userDomain
-    ) {
-        if (status != null) {
-            return userDomain.copyWithNewUserStatus(status);
-        }
-        return userDomain;
-    }
-
-    private User setUserImageProfileIfItsChanged(
+    private void changeImageProfileIfItsChanged(
             String profileUrl,
-            User userDomain
+            User user
     ) {
         if (profileUrl != null) {
-            imageService.deleteFile(userDomain.imageUrl());
-            return userDomain.copyWithNewImageUrl(profileUrl.isEmpty() ? null : profileUrl);
+            imageService.deleteFile(user.getImageUrl());
+            user.changeImageUrl(profileUrl.isEmpty() ? null : profileUrl);
         }
-        return userDomain;
     }
 
 }

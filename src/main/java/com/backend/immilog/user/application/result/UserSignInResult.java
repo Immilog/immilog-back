@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.result;
 
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.user.User;
 import lombok.Builder;
 
 @Builder
@@ -22,20 +22,19 @@ public record UserSignInResult(
             String refreshToken,
             boolean isLocationMatch
     ) {
-        String interestCountry =
-                user.interestCountry() == null ? null :
-                        user.interestCountry().getCountryName();
+        String interestCountry = user.getInterestCountry() == null ?
+                null : user.getCountry().getCountryName();
 
         return UserSignInResult.builder()
-                .userSeq(user.seq())
-                .email(user.email())
-                .nickname(user.nickName())
+                .userSeq(user.getSeq())
+                .email(user.getEmail())
+                .nickname(user.getNickName())
                 .accessToken(accessToken == null ? "" : accessToken)
                 .refreshToken(refreshToken == null ? "" : refreshToken)
-                .country(user.location().getCountry().getCountryName())
+                .country(user.getCountry().getCountryName())
                 .interestCountry(interestCountry)
-                .region(user.location().getRegion())
-                .userProfileUrl(user.imageUrl())
+                .region(user.getRegion())
+                .userProfileUrl(user.getImageUrl())
                 .isLocationMatch(isLocationMatch)
                 .build();
     }

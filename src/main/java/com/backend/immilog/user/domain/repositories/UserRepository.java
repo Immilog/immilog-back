@@ -1,6 +1,6 @@
 package com.backend.immilog.user.domain.repositories;
 
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.user.User;
 
 import java.util.Optional;
 
@@ -11,5 +11,5 @@ public interface UserRepository {
 
     Optional<User> getById(Long id);
 
-    User saveEntity(User user);
+    User save(User user);
 }

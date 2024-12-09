@@ -1,4 +1,4 @@
-package com.backend.immilog.user.domain.model.enums;
+package com.backend.immilog.user.domain.enums;
 
 import com.backend.immilog.global.enums.GlobalCountry;
 import lombok.Getter;

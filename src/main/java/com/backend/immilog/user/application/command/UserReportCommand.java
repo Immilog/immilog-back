@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.command;
 
-import com.backend.immilog.user.domain.model.enums.ReportReason;
+import com.backend.immilog.user.domain.enums.ReportReason;
 import lombok.Builder;
 
 @Builder

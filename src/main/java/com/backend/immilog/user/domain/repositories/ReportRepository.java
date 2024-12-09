@@ -8,7 +8,5 @@ public interface ReportRepository {
             Long reporterUserSeq
     );
 
-    Report saveEntity(
-            Report report
-    );
+    Report save(Report report);
 }
