@@ -31,7 +31,7 @@ public class CommentUploadService {
         post = post.copyWithNewCommentCount(post.commentCount() + 1);
         ReferenceType reference = ReferenceType.getByString(referenceType);
         Comment comment = Comment.of(userId, postSeq, content, reference);
-        postRepository.saveEntity(post);
+        postRepository.save(post);
         commentRepository.saveEntity(comment);
     }
 

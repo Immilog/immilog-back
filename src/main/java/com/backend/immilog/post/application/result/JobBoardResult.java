@@ -6,7 +6,7 @@ import com.backend.immilog.post.domain.model.enums.Experience;
 import com.backend.immilog.post.domain.model.enums.PostStatus;
 import com.backend.immilog.post.domain.vo.CompanyMetaData;
 import com.backend.immilog.post.domain.vo.PostMetaData;
-import com.backend.immilog.user.domain.model.enums.Industry;
+import com.backend.immilog.user.domain.enums.Industry;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

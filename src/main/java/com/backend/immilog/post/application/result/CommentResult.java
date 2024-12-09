@@ -3,7 +3,7 @@ package com.backend.immilog.post.application.result;
 import com.backend.immilog.post.domain.model.Comment;
 import com.backend.immilog.post.domain.model.enums.PostStatus;
 import com.backend.immilog.user.application.result.UserInfoResult;
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.user.User;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -53,7 +53,7 @@ public record CommentResult(
                 .map(reply -> {
                     return replyUsers.stream()
                             .filter(Objects::nonNull)
-                            .filter(u -> u.seq().equals(reply.userSeq()))
+                            .filter(u -> u.getSeq().equals(reply.userSeq()))
                             .findFirst()
                             .map(replyUser -> CommentResult.of(reply, replyUser))
                             .orElse(null);

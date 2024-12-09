@@ -4,7 +4,7 @@ import com.backend.immilog.post.application.command.PostUploadCommand;
 import com.backend.immilog.post.domain.model.enums.Categories;
 import com.backend.immilog.post.domain.vo.PostMetaData;
 import com.backend.immilog.post.domain.vo.PostUserData;
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.user.User;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -27,14 +27,14 @@ public record Post(
         PostMetaData postMetaData = PostMetaData.of(
                 postUploadCommand.title(),
                 postUploadCommand.content(),
-                user.location().getCountry(),
-                user.location().getRegion()
+                user.getCountry(),
+                user.getRegion()
         );
 
         PostUserData postUserData = PostUserData.builder()
-                .userSeq(user.seq())
-                .profileImage(user.imageUrl())
-                .nickname(user.nickName())
+                .userSeq(user.getSeq())
+                .profileImage(user.getImageUrl())
+                .nickname(user.getNickName())
                 .build();
 
         return Post.builder()

@@ -6,7 +6,6 @@ import com.backend.immilog.post.domain.model.Post;
 import com.backend.immilog.post.domain.model.enums.PostType;
 import com.backend.immilog.post.domain.model.enums.ResourceType;
 import com.backend.immilog.post.domain.repositories.BulkInsertRepository;
-import com.backend.immilog.post.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.post.domain.repositories.PostRepository;
 import com.backend.immilog.post.domain.repositories.PostResourceRepository;
 import com.backend.immilog.post.exception.PostException;
@@ -45,7 +44,7 @@ public class PostUpdateService {
         validateAuthor(userId, post);
         post = updatePostMetaData(post, postUpdateCommand);
         updateResources(postSeq, postUpdateCommand);
-        postRepository.saveEntity(post);
+        postRepository.save(post);
     }
 
     @Async

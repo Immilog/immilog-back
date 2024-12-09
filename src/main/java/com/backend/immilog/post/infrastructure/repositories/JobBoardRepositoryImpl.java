@@ -58,7 +58,7 @@ public class JobBoardRepositoryImpl implements JobBoardRepository {
         QInteractionUserEntity interUser = QInteractionUserEntity.interactionUserEntity;
 
         BooleanBuilder predicateBuilder = new BooleanBuilder();
-        com.backend.immilog.user.domain.model.enums.Industry industryEnum = convertToUserIndustry(industry);
+        com.backend.immilog.user.domain.enums.Industry industryEnum = convertToUserIndustry(industry);
 
         if (isNotNullAndSame(industry, Industry.ALL)) {
             predicateBuilder.and(jobBoard.companyMetaData.industry.eq(industryEnum));
@@ -193,8 +193,8 @@ public class JobBoardRepositoryImpl implements JobBoardRepository {
     }
 
 
-    private static com.backend.immilog.user.domain.model.enums.Industry convertToUserIndustry(Industry industry) {
-        return com.backend.immilog.user.domain.model.enums.Industry.valueOf(industry.name());
+    private static com.backend.immilog.user.domain.enums.Industry convertToUserIndustry(Industry industry) {
+        return com.backend.immilog.user.domain.enums.Industry.valueOf(industry.name());
     }
 
     private <T, E extends Enum<E>> boolean isNotNullAndSame(

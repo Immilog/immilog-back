@@ -38,7 +38,7 @@ public interface PostRepository {
             Long postSeq
     );
 
-    Post saveEntity(
+    Post save(
             Post postEntity
     );
 }
