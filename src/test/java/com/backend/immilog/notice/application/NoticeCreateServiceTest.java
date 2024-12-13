@@ -1,6 +1,7 @@
 package com.backend.immilog.notice.application;
 
 import com.backend.immilog.global.enums.UserRole;
+import com.backend.immilog.global.security.TokenProvider;
 import com.backend.immilog.notice.application.services.NoticeCreateService;
 import com.backend.immilog.notice.application.services.command.NoticeCommandService;
 import com.backend.immilog.notice.domain.model.enums.NoticeType;
@@ -17,7 +18,11 @@ import static org.mockito.Mockito.*;
 @DisplayName("NoticeRegisterService 테스트")
 class NoticeCreateServiceTest {
     private final NoticeCommandService noticeCommandService = mock(NoticeCommandService.class);
-    private final NoticeCreateService noticeRegisterService = new NoticeCreateService(noticeCommandService);
+    private final TokenProvider tokenProvider = mock(TokenProvider.class);
+    private final NoticeCreateService noticeRegisterService = new NoticeCreateService(
+            noticeCommandService,
+            tokenProvider
+    );
 
     @Test
     @DisplayName("공지사항 등록 - 성공")
@@ -26,14 +31,16 @@ class NoticeCreateServiceTest {
         Long userSeq = 1L;
         String title = "제목";
         String content = "내용";
-        String userRole = UserRole.ROLE_ADMIN.name();
+        UserRole userRole = UserRole.ROLE_ADMIN;
         NoticeRegisterRequest param = NoticeRegisterRequest.builder()
                 .title(title)
                 .content(content)
                 .type(NoticeType.NOTICE)
                 .build();
+        when(tokenProvider.getUserRoleFromToken("token")).thenReturn(userRole);
+        when(tokenProvider.getIdFromToken("token")).thenReturn(userSeq);
         // when
-        noticeRegisterService.registerNotice(userSeq, userRole, param.toCommand());
+        noticeRegisterService.registerNotice("token", param.toCommand());
         // then
         verify(noticeCommandService, times(1)).save(any());
     }
@@ -45,15 +52,16 @@ class NoticeCreateServiceTest {
         Long userSeq = 1L;
         String title = "제목";
         String content = "내용";
-        String userRole = UserRole.ROLE_USER.name();
+        UserRole userRole = UserRole.ROLE_USER;
         NoticeRegisterRequest param = NoticeRegisterRequest.builder()
                 .title(title)
                 .content(content)
                 .type(NoticeType.NOTICE)
                 .build();
+        when(tokenProvider.getUserRoleFromToken("token")).thenReturn(userRole);
         // when & then
         Assertions.assertThatThrownBy(
-                        () -> noticeRegisterService.registerNotice(userSeq, userRole, param.toCommand())
+                        () -> noticeRegisterService.registerNotice("token", param.toCommand())
                 )
                 .isInstanceOf(NoticeException.class)
                 .hasMessage(NOT_AN_ADMIN_USER.getMessage());
