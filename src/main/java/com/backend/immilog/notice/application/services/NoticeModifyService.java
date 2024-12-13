@@ -1,11 +1,13 @@
 package com.backend.immilog.notice.application.services;
 
+import com.backend.immilog.global.enums.UserRole;
+import com.backend.immilog.global.security.JwtProvider;
+import com.backend.immilog.global.security.TokenProvider;
 import com.backend.immilog.notice.application.command.NoticeModifyCommand;
 import com.backend.immilog.notice.application.services.command.NoticeCommandService;
 import com.backend.immilog.notice.application.services.query.NoticeQueryService;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.user.application.services.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,17 +21,17 @@ import static com.backend.immilog.notice.exception.NoticeErrorCode.NOT_AN_ADMIN_
 @Service
 @RequiredArgsConstructor
 public class NoticeModifyService {
-    private final UserQueryService userQueryService;
     private final NoticeQueryService noticeQueryService;
     private final NoticeCommandService noticeCommandService;
+    private final TokenProvider tokenProvider;
 
     @Transactional
     public void modifyNotice(
-            Long userSeq,
+            String token,
             Long noticeSeq,
             NoticeModifyCommand command
     ) {
-        throwExceptionIfNotAdmin(userSeq);
+        validateAdmin(token);
         Notice notice = getNoticeBySeq(noticeSeq);
         notice.updateTitle(command.title());
         notice.updateContent(command.content());
@@ -38,12 +40,9 @@ public class NoticeModifyService {
         noticeCommandService.save(notice);
     }
 
-    private void throwExceptionIfNotAdmin(
-            Long userSeq
-    ) {
-        Optional.ofNullable(userQueryService.getUserById(userSeq))
-                .filter(Optional::isPresent)
-                .filter(user -> user.get().getUserRole().name().equals("ROLE_ADMIN"))
+    private void validateAdmin(String token) {
+        Optional.ofNullable(tokenProvider.getUserRoleFromToken(token))
+                .filter(role -> role.equals(UserRole.ROLE_ADMIN))
                 .orElseThrow(() -> new NoticeException(NOT_AN_ADMIN_USER));
     }
 

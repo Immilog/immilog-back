@@ -1,7 +1,5 @@
 package com.backend.immilog.notice.presentation.controller;
 
-import com.backend.immilog.global.aop.ExtractUserId;
-import com.backend.immilog.global.enums.UserRole;
 import com.backend.immilog.notice.application.result.NoticeResult;
 import com.backend.immilog.notice.application.services.NoticeCreateService;
 import com.backend.immilog.notice.application.services.NoticeInquiryService;
@@ -14,10 +12,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.http.HttpStatus.*;
 
 @Tag(name = "Notice API", description = "공지사항 관련 API")
 @RequestMapping("/api/v1/notices")
@@ -29,28 +27,23 @@ public class NoticeController {
     private final NoticeModifyService noticeModifyService;
 
     @PostMapping
-    @ExtractUserId
     @Operation(summary = "공지사항 등록", description = "공지사항을 등록합니다.")
     public ResponseEntity<NoticeApiResponse> registerNotice(
-            @RequestBody NoticeRegisterRequest noticeRegisterRequest,
-            HttpServletRequest request
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @RequestBody NoticeRegisterRequest noticeRegisterRequest
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
-        String userRole = ((UserRole) request.getAttribute("userRole")).name();
-        noticeRegisterService.registerNotice(userSeq, userRole, noticeRegisterRequest.toCommand());
-        return ResponseEntity.status(CREATED).body(NoticeApiResponse.of(true));
+        noticeRegisterService.registerNotice(token, noticeRegisterRequest.toCommand());
+        return ResponseEntity.status(HttpStatus.CREATED).body(NoticeApiResponse.of(true));
     }
 
-    @GetMapping
-    @ExtractUserId
+    @GetMapping("users/{userSeq}")
     @Operation(summary = "공지사항 조회", description = "공지사항을 조회합니다.")
     public ResponseEntity<NoticeApiResponse> getNotices(
-            @RequestParam("page") Integer page,
-            HttpServletRequest request
+            @PathVariable("userSeq") Long userSeq,
+            @RequestParam("page") Integer page
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
         Page<NoticeResult> notices = noticeInquiryService.getNotices(userSeq, page);
-        return ResponseEntity.status(OK).body(NoticeApiResponse.of(notices));
+        return ResponseEntity.status(HttpStatus.OK).body(NoticeApiResponse.of(notices));
     }
 
     @GetMapping("/{noticeSeq}")
@@ -59,43 +52,35 @@ public class NoticeController {
             @PathVariable("noticeSeq") Long noticeSeq
     ) {
         NoticeResult notices = noticeInquiryService.getNoticeDetail(noticeSeq);
-        return ResponseEntity.status(OK).body(NoticeApiResponse.of(notices));
+        return ResponseEntity.status(HttpStatus.OK).body(NoticeApiResponse.of(notices));
     }
 
-    @GetMapping("/unread")
-    @ExtractUserId
+    @GetMapping("/users/{userSeq}/unread")
     @Operation(summary = "공지사항 존재 여부 조회", description = "공지사항이 존재하는지 여부를 조회합니다.")
-    public ResponseEntity<NoticeApiResponse> isNoticeExist(
-            HttpServletRequest request
-    ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
+    public ResponseEntity<NoticeApiResponse> isNoticeExist(@PathVariable("userSeq") Long userSeq) {
         Boolean unreadNoticeExist = noticeInquiryService.isUnreadNoticeExist(userSeq);
-        return ResponseEntity.status(OK).body(NoticeApiResponse.of(unreadNoticeExist));
+        return ResponseEntity.status(HttpStatus.OK).body(NoticeApiResponse.of(unreadNoticeExist));
     }
 
     @PatchMapping("/{noticeSeq}")
-    @ExtractUserId
     @Operation(summary = "공지사항 수정", description = "공지사항을 수정합니다.")
     public ResponseEntity<Void> modifyNotice(
-            HttpServletRequest request,
+            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
             @PathVariable("noticeSeq") Long noticeSeq,
             @RequestBody NoticeModifyRequest param
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
-        noticeModifyService.modifyNotice(userSeq, noticeSeq, param.toCommand());
-        return ResponseEntity.status(NO_CONTENT).build();
+        noticeModifyService.modifyNotice(token, noticeSeq, param.toCommand());
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PatchMapping("/{noticeSeq}")
-    @ExtractUserId
+    @PatchMapping("/{noticeSeq}/users/{userSeq}")
     @Operation(summary = "공지사항 읽음처리", description = "공지사항을 읽음 처리합니다.")
     public ResponseEntity<Void> readNotice(
-            HttpServletRequest request,
-            @PathVariable("noticeSeq") Long noticeSeq
+            @PathVariable("noticeSeq") Long noticeSeq,
+            @PathVariable("userSeq") Long userSeq
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
         noticeModifyService.readNotice(userSeq, noticeSeq);
-        return ResponseEntity.status(NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 
