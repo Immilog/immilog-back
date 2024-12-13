@@ -23,9 +23,6 @@ import static org.springframework.http.HttpStatus.OK;
 public class LocationController {
     private final LocationService locationService;
 
-    /**
-     * 위치 정보
-     */
     @GetMapping
     @Operation(summary = "위치 정보", description = "위치 정보를 가져옵니다.")
     public ResponseEntity<UserApiResponse> getLocation(
