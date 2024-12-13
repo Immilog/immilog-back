@@ -1,6 +1,5 @@
 package com.backend.immilog.post.presentation.controller;
 
-import com.backend.immilog.global.aop.ExtractUserId;
 import com.backend.immilog.post.application.result.JobBoardResult;
 import com.backend.immilog.post.application.services.JobBoardInquiryService;
 import com.backend.immilog.post.application.services.JobBoardUpdateService;
@@ -10,7 +9,6 @@ import com.backend.immilog.post.presentation.request.JobBoardUploadRequest;
 import com.backend.immilog.post.presentation.response.PostApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +25,12 @@ public class JobBoardController {
     private final JobBoardInquiryService jobBoardInquiryService;
     private final JobBoardUpdateService jobBoardUpdateService;
 
-    @PostMapping
-    @ExtractUserId
+    @PostMapping("/users/{userSeq}")
     @Operation(summary = "구인구직 게시글 업로드", description = "구인구직 게시글을 업로드합니다.")
     public ResponseEntity<PostApiResponse> uploadJobBoard(
-            HttpServletRequest request,
+            @PathVariable("userSeq") Long userSeq,
             @RequestBody JobBoardUploadRequest jobBoardRequest
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
         jobBoardUploadService.uploadJobBoard(userSeq, jobBoardRequest.toCommand());
         return ResponseEntity.status(CREATED).build();
     }
@@ -58,32 +54,27 @@ public class JobBoardController {
         return ResponseEntity.status(OK).body(PostApiResponse.of(jobBoards));
     }
 
-    @PatchMapping("/{jobBoardSeq}")
-    @ExtractUserId
+    @PatchMapping("/{jobBoardSeq}/users/{userSeq}")
     @Operation(summary = "구인구직 게시글 수정", description = "구인구직 게시글을 수정합니다.")
     public ResponseEntity<Void> updateJobBoard(
-            HttpServletRequest request,
+            @PathVariable("userSeq") Long userSeq,
             @PathVariable("jobBoardSeq") Long jobBoardSeq,
             @RequestBody JobBoardUpdateRequest jobBoardRequest
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
         jobBoardUpdateService.updateJobBoard(
                 userSeq,
                 jobBoardSeq,
                 jobBoardRequest.toCommand()
         );
-
         return ResponseEntity.status(NO_CONTENT).build();
     }
 
-    @PatchMapping("/{jobBoardSeq}/delete")
-    @ExtractUserId
+    @PatchMapping("/{jobBoardSeq}/delete/users/{userSeq}")
     @Operation(summary = "구인구직 게시글 삭제", description = "구인구직 게시글을 삭제합니다.")
     public ResponseEntity<Void> deleteJobBoard(
-            HttpServletRequest request,
+            @PathVariable("userSeq") Long userSeq,
             @PathVariable("jobBoardSeq") Long jobBoardSeq
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
         jobBoardUpdateService.deactivateJobBoard(userSeq, jobBoardSeq);
         return ResponseEntity.status(NO_CONTENT).build();
     }

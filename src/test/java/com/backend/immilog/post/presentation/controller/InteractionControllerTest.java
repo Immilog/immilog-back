@@ -23,13 +23,10 @@ class InteractionControllerTest {
         String interactionType = "like";
         String postType = "post";
         Long postSeq = 1L;
-        HttpServletRequest request = mock(HttpServletRequest.class);
         Long userSeq = 1L;
-        when(request.getAttribute("userSeq")).thenReturn(userSeq);
 
         // when
-        interactionController.createInteraction(interactionType, postType, postSeq, request);
-
+        interactionController.createInteraction(interactionType, postType, postSeq,userSeq);
         // then
         verify(interactionCreationService).createInteraction(userSeq, postSeq, postType, interactionType);
     }

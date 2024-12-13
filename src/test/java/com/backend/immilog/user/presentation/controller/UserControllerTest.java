@@ -87,7 +87,6 @@ class UserControllerTest {
                 .longitude(127.1234)
                 .build();
 
-
         when(locationService.getCountry(param.latitude(), param.longitude()))
                 .thenReturn(CompletableFuture.completedFuture(Pair.of("대한민국", "서울")));
         when(userSignInService.signIn(
@@ -117,12 +116,11 @@ class UserControllerTest {
                         .status(ACTIVE)
                         .build();
 
-        when(request.getAttribute("userSeq")).thenReturn(1L);
+        Long userSeq = 1L;
         when(locationService.getCountry(param.latitude(), param.longitude()))
                 .thenReturn(CompletableFuture.completedFuture(Pair.of("Japan", "Tokyo")));
         // when
-        ResponseEntity<UserApiResponse> response =
-                userController.updateInformation(request, param);
+        ResponseEntity<UserApiResponse> response = userController.updateInformation(userSeq, param);
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(OK);
@@ -137,15 +135,13 @@ class UserControllerTest {
     @DisplayName("사용자 비밀번호 변경")
     void resetPassword() {
         // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
+        Long userSeq = 1L;
         UserPasswordChangeRequest param = UserPasswordChangeRequest.builder()
                 .existingPassword("existingPassword")
                 .newPassword("newPassword")
                 .build();
-        when(request.getAttribute("userSeq")).thenReturn(1L);
         // when
-        ResponseEntity<UserApiResponse> response =
-                userController.changePassword(request, param);
+        ResponseEntity<UserApiResponse> response = userController.changePassword(userSeq, param);
 
         // then
         verify(userInformationService, times(1))
@@ -161,8 +157,7 @@ class UserControllerTest {
         when(userSignUpService.checkNickname(nickname)).thenReturn(true);
 
         // when
-        ResponseEntity<UserApiResponse> response =
-                userController.checkNickname(nickname);
+        ResponseEntity<UserApiResponse> response = userController.checkNickname(nickname);
 
         // then
         UserApiResponse body = Objects.requireNonNull(response.getBody());
@@ -181,8 +176,7 @@ class UserControllerTest {
         when(request.getAttribute("userSeq")).thenReturn(1L);
 
         // when
-        ResponseEntity<Void> response =
-                userController.blockUser(request, userSeq, status);
+        ResponseEntity<Void> response = userController.blockUser(userSeq, userSeq, status);
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(NO_CONTENT);
@@ -194,17 +188,13 @@ class UserControllerTest {
         // given
         Long targetUserSeq = 2L;
         Long userSeq = 1L;
-        HttpServletRequest request = mock(HttpServletRequest.class);
         UserReportRequest param = UserReportRequest.builder()
                 .reason(FRAUD)
                 .build();
-        when(request.getAttribute("userSeq")).thenReturn(1L);
         // when
-        ResponseEntity<Void> response =
-                userController.reportUser(request, targetUserSeq, param);
+        ResponseEntity<Void> response = userController.reportUser(userSeq, targetUserSeq, param);
         // then
         assertThat(response.getStatusCode()).isEqualTo(NO_CONTENT);
-        verify(userReportService, times(1))
-                .reportUser(targetUserSeq, userSeq, param.toCommand());
+        verify(userReportService, times(1)).reportUser(targetUserSeq, userSeq, param.toCommand());
     }
 }

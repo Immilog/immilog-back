@@ -33,7 +33,7 @@ class CompanyControllerTest {
     @DisplayName("회사정보 등록 - 성공")
     void registerCompany() {
         // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
+        Long userSeq = 1L;
         CompanyRegisterRequest param = CompanyRegisterRequest.builder()
                 .industry(Industry.IT)
                 .companyName("회사명")
@@ -46,9 +46,8 @@ class CompanyControllerTest {
                 .companyLogo("로고")
                 .build();
         CompanyRegisterCommand command = param.toCommand();
-        when(request.getAttribute("userSeq")).thenReturn(1L);
         // when
-        ResponseEntity<UserApiResponse> response = companyController.registerCompany(request, param);
+        ResponseEntity<UserApiResponse> response = companyController.registerCompany(userSeq, param);
         // then
         verify(companyRegisterService).registerOrEditCompany(anyLong(), any());
     }
@@ -57,10 +56,9 @@ class CompanyControllerTest {
     @DisplayName("본인 회사정보 조회 - 성공")
     void getCompany() {
         // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getAttribute("userSeq")).thenReturn(1L);
+        Long userSeq = 1L;
         // when
-        ResponseEntity<UserApiResponse> response = companyController.getCompany(request);
+        ResponseEntity<UserApiResponse> response = companyController.getCompany(userSeq);
         // then
         verify(companyInquiryService).getCompany(anyLong());
     }

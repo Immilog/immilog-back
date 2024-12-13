@@ -1,13 +1,18 @@
 package com.backend.immilog.notice.application.services;
 
+import com.backend.immilog.global.enums.UserRole;
+import com.backend.immilog.global.security.JwtProvider;
+import com.backend.immilog.global.security.TokenProvider;
 import com.backend.immilog.notice.application.command.NoticeUploadCommand;
 import com.backend.immilog.notice.application.services.command.NoticeCommandService;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.exception.NoticeException;
+import com.backend.immilog.user.application.services.query.UserQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.backend.immilog.notice.exception.NoticeErrorCode.NOT_AN_ADMIN_USER;
 
@@ -15,21 +20,24 @@ import static com.backend.immilog.notice.exception.NoticeErrorCode.NOT_AN_ADMIN_
 @RequiredArgsConstructor
 public class NoticeCreateService {
     private final NoticeCommandService noticeCommandService;
+    private final TokenProvider tokenProvider;
 
     public void registerNotice(
-            Long userSeq,
-            String userRole,
+            String token,
             NoticeUploadCommand command
     ) {
-        validateAdminUser(userRole);
+        validateAdminUser(token);
+        Long userSeq = extractUserSeq(token);
         noticeCommandService.save(Notice.of(userSeq, command));
     }
 
-    private static void validateAdminUser(
-            String userRole
-    ) {
-        if (!Objects.equals(userRole, "ROLE_ADMIN")) {
-            throw new NoticeException(NOT_AN_ADMIN_USER);
-        }
+    private void validateAdminUser(String token) {
+        Optional.ofNullable(tokenProvider.getUserRoleFromToken(token))
+                .filter(role -> Objects.equals(role, UserRole.ROLE_ADMIN))
+                .orElseThrow(() -> new NoticeException(NOT_AN_ADMIN_USER));
+    }
+
+    private Long extractUserSeq(String token) {
+        return tokenProvider.getIdFromToken(token);
     }
 }

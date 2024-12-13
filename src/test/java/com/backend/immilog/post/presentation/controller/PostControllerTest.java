@@ -14,7 +14,6 @@ import com.backend.immilog.post.presentation.response.PostApiResponse;
 import com.backend.immilog.user.domain.enums.UserCountry;
 import com.backend.immilog.user.domain.model.user.Location;
 import com.backend.immilog.user.domain.model.user.User;
-import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -59,12 +58,11 @@ class PostControllerTest {
                 .seq(1L)
                 .location(location)
                 .build();
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getAttribute("userSeq")).thenReturn(1L);
+        Long userSeq = 1L;
 
         // when
         ResponseEntity<PostApiResponse> response = postController.createPost(
-                request,
+                userSeq,
                 postUploadRequest
         );
 
@@ -78,8 +76,8 @@ class PostControllerTest {
     void updatePost() {
         // given
         Long postSeq = 1L;
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getAttribute("userSeq")).thenReturn(1L);
+        Long userSeq = 1L;
+
         PostUpdateRequest postUpdateRequest = PostUpdateRequest.builder()
                 .addAttachments(List.of("attachment"))
                 .deleteAttachments(List.of("delete-attachment"))
@@ -93,7 +91,7 @@ class PostControllerTest {
         // when
         ResponseEntity<PostApiResponse> response = postController.updatePost(
                 postSeq,
-                request,
+                userSeq,
                 postUpdateRequest
         );
 
@@ -107,13 +105,12 @@ class PostControllerTest {
     void deletePost() {
         // given
         Long postSeq = 1L;
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        when(request.getAttribute("userSeq")).thenReturn(1L);
+        Long userSeq = 1L;
 
         // when
         ResponseEntity<Void> response = postController.deletePost(
                 postSeq,
-                request
+                userSeq
         );
 
         //then

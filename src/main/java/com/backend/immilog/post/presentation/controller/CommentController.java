@@ -1,6 +1,5 @@
 package com.backend.immilog.post.presentation.controller;
 
-import com.backend.immilog.global.aop.ExtractUserId;
 import com.backend.immilog.post.application.services.CommentUploadService;
 import com.backend.immilog.post.presentation.request.CommentUploadRequest;
 import com.backend.immilog.post.presentation.response.PostApiResponse;
@@ -21,16 +20,14 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class CommentController {
     private final CommentUploadService commentUploadService;
 
-    @PostMapping("/{referenceType}/{postSeq}")
-    @ExtractUserId
+    @PostMapping("/{referenceType}/{postSeq}/users/{userSeq}")
     @Operation(summary = "댓글 작성", description = "댓글을 작성합니다.")
     public ResponseEntity<PostApiResponse> createComment(
             @PathVariable("referenceType") String referenceType,
             @PathVariable("postSeq") Long postSeq,
-            HttpServletRequest request,
+            @PathVariable("userSeq") Long userSeq,
             @Valid @RequestBody CommentUploadRequest commentUploadRequest
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
         commentUploadService.uploadComment(
                 userSeq,
                 postSeq,

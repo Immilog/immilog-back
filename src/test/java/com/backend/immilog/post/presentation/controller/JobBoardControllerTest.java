@@ -41,9 +41,7 @@ class JobBoardControllerTest {
     @DisplayName("구인구직 게시글 업로드 : 성공")
     void uploadJobBoard() {
         // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
         Long userSeq = 1L;
-        when(request.getAttribute("userSeq")).thenReturn(userSeq);
         JobBoardUploadRequest param = new JobBoardUploadRequest(
                 1L,
                 "title",
@@ -59,8 +57,7 @@ class JobBoardControllerTest {
                 PostStatus.NORMAL
         );
         // when
-        ResponseEntity<PostApiResponse> result =
-                jobBoardController.uploadJobBoard(request, param);
+        ResponseEntity<PostApiResponse> result = jobBoardController.uploadJobBoard(userSeq, param);
         // then
         assertThat(result.getStatusCode().is2xxSuccessful()).isTrue();
     }
@@ -105,8 +102,7 @@ class JobBoardControllerTest {
         when(jobBoardInquiryService.getJobBoards(country, sortingMethod, industry, experience, page))
                 .thenReturn(new PageImpl<>(List.of(jobBoardResult)));
         // when
-        ResponseEntity<PostApiResponse> result =
-                jobBoardController.searchJobBoard(
+        ResponseEntity<PostApiResponse> result = jobBoardController.searchJobBoard(
                         country, sortingMethod, industry, experience, page
                 );
         // then
@@ -117,10 +113,7 @@ class JobBoardControllerTest {
     @DisplayName("구인구직 게시글 수정 : 성공")
     void updateJobBoard() {
         // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
         Long userSeq = 1L;
-        when(request.getAttribute("userSeq")).thenReturn(userSeq);
-
         JobBoardUpdateRequest param = new JobBoardUpdateRequest(
                 "title",
                 "content",
@@ -134,7 +127,7 @@ class JobBoardControllerTest {
         );
 
         // when
-        ResponseEntity<Void> result = jobBoardController.updateJobBoard(request, 1L, param);
+        ResponseEntity<Void> result = jobBoardController.updateJobBoard(userSeq, 1L, param);
         // then
         assertThat(result.getStatusCode().is2xxSuccessful()).isTrue();
     }
@@ -143,11 +136,9 @@ class JobBoardControllerTest {
     @DisplayName("구인구직 게시글 삭제 : 성공")
     void deleteJobBoard() {
         // given
-        HttpServletRequest request = mock(HttpServletRequest.class);
         Long userSeq = 1L;
-        when(request.getAttribute("userSeq")).thenReturn(userSeq);
         // when
-        ResponseEntity<Void> result = jobBoardController.deleteJobBoard(request, 1L);
+        ResponseEntity<Void> result = jobBoardController.deleteJobBoard(userSeq, 1L);
         // then
         assertThat(result.getStatusCode().is2xxSuccessful()).isTrue();
     }

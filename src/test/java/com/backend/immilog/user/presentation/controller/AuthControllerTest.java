@@ -60,8 +60,7 @@ class AuthControllerTest {
         when(request.getAttribute("userSeq")).thenReturn(1L);
 
         // when
-        ResponseEntity<UserApiResponse> response =
-                authController.getUser(request, latitude, longitude);
+        ResponseEntity<UserApiResponse> response = authController.getUser(userSeq, latitude, longitude);
 
         // then
         assertThat(response.getStatusCode()).isEqualTo(OK);

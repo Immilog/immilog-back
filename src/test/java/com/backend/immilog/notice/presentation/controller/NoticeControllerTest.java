@@ -36,6 +36,7 @@ class NoticeControllerTest {
         Long userSeq = 1L;
         String title = "제목";
         String content = "내용";
+        String token = "token";
         HttpServletRequest request = mock(HttpServletRequest.class);
         UserRole userRole = UserRole.ROLE_ADMIN;
         when(request.getAttribute("userRole")).thenReturn(userRole);
@@ -45,13 +46,10 @@ class NoticeControllerTest {
                 .content(content)
                 .type(NoticeType.NOTICE)
                 .build();
-
-
         // when
-        ResponseEntity<NoticeApiResponse> response = noticeController.registerNotice(param, request);
-
+        ResponseEntity<NoticeApiResponse> response = noticeController.registerNotice(token, param);
         // then
-        verify(noticeRegisterService).registerNotice(userSeq, userRole.name(), param.toCommand());
+        verify(noticeRegisterService).registerNotice(token, param.toCommand());
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
 
     }
@@ -67,7 +65,7 @@ class NoticeControllerTest {
         when(noticeInquiryService.getNotices(userSeq, page)).thenReturn(null);
 
         // when
-        ResponseEntity<NoticeApiResponse> response = noticeController.getNotices(page, request);
+        ResponseEntity<NoticeApiResponse> response = noticeController.getNotices(userSeq,page);
 
         // then
         verify(noticeInquiryService).getNotices(userSeq, page);
@@ -99,7 +97,7 @@ class NoticeControllerTest {
         when(noticeInquiryService.isUnreadNoticeExist(userSeq)).thenReturn(true);
 
         // when
-        ResponseEntity<NoticeApiResponse> response = noticeController.isNoticeExist(request);
+        ResponseEntity<NoticeApiResponse> response = noticeController.isNoticeExist(userSeq);
 
         // then
         verify(noticeInquiryService).isUnreadNoticeExist(userSeq);
@@ -112,6 +110,7 @@ class NoticeControllerTest {
         // given
         Long userSeq = 1L;
         Long noticeSeq = 1L;
+        String token = "token";
         HttpServletRequest request = mock(HttpServletRequest.class);
         when(request.getAttribute("userSeq")).thenReturn(userSeq);
         NoticeModifyRequest param = new NoticeModifyRequest(
@@ -121,10 +120,10 @@ class NoticeControllerTest {
                 NoticeStatus.NORMAL
         );
         // when
-        ResponseEntity<Void> response = noticeController.modifyNotice(request, noticeSeq, param);
+        ResponseEntity<Void> response = noticeController.modifyNotice(token, noticeSeq, param);
 
         // then
-        verify(noticeModifyService).modifyNotice(userSeq, noticeSeq, param.toCommand());
+        verify(noticeModifyService).modifyNotice(token, noticeSeq, param.toCommand());
         assertThat(response.getStatusCode().is2xxSuccessful()).isTrue();
     }
 }

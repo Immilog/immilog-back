@@ -1,6 +1,5 @@
 package com.backend.immilog.post.presentation.controller;
 
-import com.backend.immilog.global.aop.ExtractUserId;
 import com.backend.immilog.post.application.services.InteractionCreationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,16 +20,14 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 public class InteractionController {
     private final InteractionCreationService interactionCreationService;
 
-    @PostMapping("/{interactionType}/{postType}/{postSeq}")
-    @ExtractUserId
+    @PostMapping("/{interactionType}/posts/{postSeq}/types/{postType}/users/{userSeq}")
     @Operation(summary = "인터랙션 등록", description = "게시물 좋아요/북마크 등록")
     public ResponseEntity<?> createInteraction(
             @PathVariable("interactionType") String interactionType,
             @PathVariable("postType") String postType,
             @PathVariable("postSeq") Long postSeq,
-            HttpServletRequest request
+            @PathVariable("userSeq") Long userSeq
     ) {
-        Long userSeq = (Long) request.getAttribute("userSeq");
         interactionCreationService.createInteraction(
                 userSeq,
                 postSeq,
