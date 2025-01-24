@@ -3,9 +3,9 @@ package com.backend.immilog.post.application;
 import com.backend.immilog.post.application.services.PostUploadService;
 import com.backend.immilog.post.application.services.command.BulkCommandService;
 import com.backend.immilog.post.application.services.command.PostCommandService;
+import com.backend.immilog.post.domain.enums.Categories;
 import com.backend.immilog.post.domain.model.Post;
 import com.backend.immilog.post.domain.model.PostResource;
-import com.backend.immilog.post.domain.enums.Categories;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.post.presentation.request.PostUploadRequest;
 import com.backend.immilog.user.application.services.query.UserQueryService;
@@ -65,10 +65,7 @@ class PostUploadServiceTest {
                 .category(Categories.COMMUNICATION)
                 .content("content")
                 .build();
-        Location location = Location.builder()
-                .country(UserCountry.SOUTH_KOREA)
-                .region("region")
-                .build();
+        Location location = Location.of(UserCountry.SOUTH_KOREA, "region");
         User user = User.builder()
                 .seq(userSeq)
                 .location(location)
@@ -120,10 +117,7 @@ class PostUploadServiceTest {
                 .category(Categories.COMMUNICATION)
                 .content("content")
                 .build();
-        Location location = Location.builder()
-                .country(UserCountry.SOUTH_KOREA)
-                .region("region")
-                .build();
+        Location location = Location.of(UserCountry.SOUTH_KOREA, "region");
         User user = User.builder()
                 .seq(userSeq)
                 .location(location)
@@ -153,10 +147,7 @@ class PostUploadServiceTest {
                 .category(Categories.COMMUNICATION)
                 .content("content")
                 .build();
-        Location location = Location.builder()
-                .country(UserCountry.SOUTH_KOREA)
-                .region("region")
-                .build();
+        Location location = Location.of(UserCountry.SOUTH_KOREA, "region");
         User user = User.builder()
                 .seq(userSeq)
                 .location(location)

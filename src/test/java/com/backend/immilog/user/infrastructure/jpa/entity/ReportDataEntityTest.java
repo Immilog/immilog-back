@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("ReportEntity 테스트")
-class ReportEntityTest {
+class ReportDataEntityTest {
     @Test
     @DisplayName("ReportEntity -> Report")
     void reportEntityFromReport_validReport() {
