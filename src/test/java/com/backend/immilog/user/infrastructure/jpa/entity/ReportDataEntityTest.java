@@ -2,6 +2,7 @@ package com.backend.immilog.user.infrastructure.jpa.entity;
 
 import com.backend.immilog.user.domain.enums.ReportReason;
 import com.backend.immilog.user.domain.model.report.Report;
+import com.backend.immilog.user.infrastructure.jpa.entity.report.ReportEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

@@ -66,6 +66,7 @@ class UserSignInServiceTest {
                 .userStatus(UserStatus.ACTIVE)
                 .userRole(UserRole.ROLE_USER)
                 .location(location)
+                .profile(Profile.of("test", "image", SOUTH_KOREA))
                 .build();
 
         when(userQueryService.getUserByEmail(userSignInRequest.email()))

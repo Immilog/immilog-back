@@ -4,7 +4,9 @@ import com.backend.immilog.global.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserCountry;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.user.*;
+import com.backend.immilog.user.exception.UserException;
 import com.backend.immilog.user.infrastructure.jpa.entity.user.UserEntity;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -86,7 +88,7 @@ class UserEntityTest {
         assertThat(user.getUserStatus()).isEqualTo(UserStatus.ACTIVE);
         assertThat(user.getUserRole()).isEqualTo(UserRole.ROLE_USER);
         assertThat(user.getInterestCountry()).isEqualTo(UserCountry.SOUTH_KOREA);
-        assertThat(user.getLocation()).isEqualTo(country);
+        assertThat(user.getCountry()).isEqualTo(country.country());
         assertThat(user.getReportData()).isEqualTo(repost);
     }
 
@@ -101,17 +103,7 @@ class UserEntityTest {
     @Test
     @DisplayName("UserEntity toDomain - null")
     void userEntityToDomain_nullFields() {
-        UserEntity userEntity = UserEntity.builder().build();
-        User user = userEntity.toDomain();
-        assertThat(user.getSeq()).isNull();
-        assertThat(user.getNickname()).isNull();
-        assertThat(user.getEmail()).isNull();
-        assertThat(user.getPassword()).isNull();
-        assertThat(user.getImageUrl()).isNull();
-        assertThat(user.getUserStatus()).isNull();
-        assertThat(user.getUserRole()).isNull();
-        assertThat(user.getInterestCountry()).isNull();
-        assertThat(user.getLocation()).isNull();
-        assertThat(user.getReportData()).isNull();
+        Assertions.assertThatThrownBy(UserEntity.builder().build()::toDomain)
+                .isInstanceOf(UserException.class);
     }
 }
