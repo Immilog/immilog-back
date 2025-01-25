@@ -4,13 +4,14 @@ import com.backend.immilog.post.application.services.PostUploadService;
 import com.backend.immilog.post.application.services.command.BulkCommandService;
 import com.backend.immilog.post.application.services.command.PostCommandService;
 import com.backend.immilog.post.domain.enums.Categories;
-import com.backend.immilog.post.domain.model.Post;
-import com.backend.immilog.post.domain.model.PostResource;
+import com.backend.immilog.post.domain.model.post.Post;
+import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.post.presentation.request.PostUploadRequest;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.enums.UserCountry;
 import com.backend.immilog.user.domain.model.user.Location;
+import com.backend.immilog.user.domain.model.user.Profile;
 import com.backend.immilog.user.domain.model.user.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -69,6 +70,7 @@ class PostUploadServiceTest {
         User user = User.builder()
                 .seq(userSeq)
                 .location(location)
+                .profile(Profile.of("test", "image.png", UserCountry.SOUTH_KOREA))
                 .build();
         Post post = Post.builder().seq(1L).build();
 
@@ -121,6 +123,7 @@ class PostUploadServiceTest {
         User user = User.builder()
                 .seq(userSeq)
                 .location(location)
+                .profile(Profile.of("test", "image.png", UserCountry.SOUTH_KOREA))
                 .build();
         Post post = Post.builder().seq(1L).build();
 
@@ -151,6 +154,7 @@ class PostUploadServiceTest {
         User user = User.builder()
                 .seq(userSeq)
                 .location(location)
+                .profile(Profile.of("test", "image.png", UserCountry.SOUTH_KOREA))
                 .build();
         when(userQueryService.getUserById(userSeq)).thenReturn(Optional.of(user));
         when(postCommandService.save(any(Post.class))).thenReturn(Post.builder().seq(1L).build());
