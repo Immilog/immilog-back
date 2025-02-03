@@ -2,7 +2,7 @@ package com.backend.immilog.global.enums;
 
 import java.util.Arrays;
 
-public enum GlobalCountry {
+public enum Country {
     ALL("ALL", "전체"),
     MALAYSIA("MY", "말레이시아"),
     SINGAPORE("SG", "싱가포르"),
@@ -27,7 +27,7 @@ public enum GlobalCountry {
     private final String countryCode;
     private final String countryKoreanName;
 
-    GlobalCountry(
+    Country(
             String countryCode,
             String countryKoreanName
     ) {
@@ -35,15 +35,15 @@ public enum GlobalCountry {
         this.countryKoreanName = countryKoreanName;
     }
 
-    public static GlobalCountry getCountryByKoreanName(String countryKoreanName) {
-        return Arrays.stream(GlobalCountry.values())
+    public static Country getCountryByKoreanName(String countryKoreanName) {
+        return Arrays.stream(Country.values())
                 .filter(country -> country.isKoreanNameMatch(countryKoreanName))
                 .findFirst()
                 .orElse(null);
     }
 
     private boolean isKoreanNameMatch(String countryKoreanName) {
-        return Arrays.stream(GlobalCountry.values()).anyMatch(country -> country.koreanName().equals(countryKoreanName));
+        return Arrays.stream(Country.values()).anyMatch(country -> country.koreanName().equals(countryKoreanName));
     }
 
     public String koreanName() {return this.countryKoreanName;}
