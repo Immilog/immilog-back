@@ -15,31 +15,33 @@ import java.util.*
 class S3FileStorageHandler(
     private val amazonS3: AmazonS3,
     private val discordSendingService: DiscordSendingService,
-    @Value("\${cloud.aws.s3.bucket}") private val bucket: String
+    @Value("\${cloud.aws.s3.bucket}") private val bucket: String = "default-bucket"
 ) : FileStorageHandler {
 
-    override fun uploadFile(file: MultipartFile, imagePath: String): String {
-        val originalFileName = generateFileName(file, imagePath)
-        uploadFileToS3(file, originalFileName)
+    override fun uploadFile(file: MultipartFile?, imagePath: String?): String {
+        val originalFileName = this.generateFileName(file, imagePath)
+        this.uploadFileToS3(file, originalFileName)
         return generateFileUrl(originalFileName)
     }
 
-    override fun deleteFile(imagePath: String) {
+    override fun deleteFile(imagePath: String?) {
+        if (imagePath.isNullOrBlank()) return
         amazonS3.deleteObject(bucket, imagePath)
     }
 
-    private fun generateFileName(multipartFile: MultipartFile, imagePath: String): String {
-        return "$imagePath/${randomUUIDString(16)}.${multipartFile.extension}"
+
+    private fun generateFileName(multipartFile: MultipartFile?, imagePath: String?): String {
+        return "$imagePath/${randomUUIDString(16)}.${multipartFile?.extension}"
     }
 
-    private fun uploadFileToS3(multipartFile: MultipartFile, originalFileName: String) {
+    private fun uploadFileToS3(multipartFile: MultipartFile?, originalFileName: String) {
         val metadata = ObjectMetadata().apply {
-            contentLength = multipartFile.size
-            contentType = multipartFile.contentType
+            contentLength = multipartFile?.size ?: 0
+            contentType = multipartFile?.contentType
         }
 
         try {
-            amazonS3.putObject(bucket, originalFileName, multipartFile.inputStream, metadata)
+            amazonS3.putObject(bucket, originalFileName, multipartFile?.inputStream, metadata)
         } catch (e: IOException) {
             discordSendingService.send("S3 파일 업로드", e)
             throw CustomException(CommonErrorCode.IMAGE_UPLOAD_FAILED)

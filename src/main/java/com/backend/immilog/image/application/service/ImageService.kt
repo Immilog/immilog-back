@@ -15,7 +15,12 @@ class ImageService(
     private val imageQueryService: ImageQueryService
 ) {
 
-    fun saveFiles(files: List<MultipartFile>, imagePath: String, imageType: ImageType): List<String> {
+    fun saveFiles(
+        files: List<MultipartFile>?,
+        imagePath: String?,
+        imageType: ImageType?
+    ): List<String> {
+        if (files.isNullOrEmpty()) return emptyList()
         return files.map { file ->
             val url = fileStorageHandler.uploadFile(file, imagePath)
             imageCommandService.save(Image.of(url, imageType))
@@ -23,8 +28,9 @@ class ImageService(
         }
     }
 
-    fun deleteFile(imagePath: String) {
-        imagePath.takeIf { it.isNotBlank() }?.let { path ->
+
+    fun deleteFile(imagePath: String?) {
+        imagePath.takeIf { !it.isNullOrBlank() }?.let { path ->
             fileStorageHandler.deleteFile(path)
             val image = imageQueryService.getImageByPath(path)
             val deletedImage = image.delete()

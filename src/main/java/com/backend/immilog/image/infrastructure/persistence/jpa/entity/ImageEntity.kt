@@ -27,12 +27,17 @@ open class ImageEntity(
     open var status: ImageStatus = ImageStatus.NORMAL
 ) {
     companion object {
-        fun from(image: Image): ImageEntity = ImageEntity(
-            seq = image.seq,
-            path = image.path,
-            imageType = image.imageType,
-            status = image.status
-        )
+        fun from(image: Image): ImageEntity? =
+            if (image.path != null && image.imageType != null && image.status != null) {
+                ImageEntity(
+                    seq = image.seq,
+                    path = image.path,
+                    imageType = image.imageType,
+                    status = image.status
+                )
+            } else {
+                null
+            }
     }
 
     fun toDomain(): Image = Image(
