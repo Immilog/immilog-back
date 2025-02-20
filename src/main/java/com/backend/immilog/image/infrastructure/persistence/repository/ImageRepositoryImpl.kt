@@ -1,30 +1,24 @@
-package com.backend.immilog.image.infrastructure.persistence.repository;
+package com.backend.immilog.image.infrastructure.persistence.repository
 
-import com.backend.immilog.image.domain.model.Image;
-import com.backend.immilog.image.domain.repository.ImageRepository;
-import com.backend.immilog.image.exception.ImageErrorCode;
-import com.backend.immilog.image.exception.ImageException;
-import com.backend.immilog.image.infrastructure.persistence.jpa.entity.ImageEntity;
-import com.backend.immilog.image.infrastructure.persistence.jpa.repository.ImageJpaRepository;
-import org.springframework.stereotype.Repository;
+import com.backend.immilog.image.domain.model.Image
+import com.backend.immilog.image.domain.repository.ImageRepository
+import com.backend.immilog.image.exception.ImageErrorCode
+import com.backend.immilog.image.exception.ImageException
+import com.backend.immilog.image.infrastructure.persistence.jpa.entity.ImageEntity
+import com.backend.immilog.image.infrastructure.persistence.jpa.repository.ImageJpaRepository
+import org.springframework.stereotype.Repository
 
 @Repository
-public class ImageRepositoryImpl implements ImageRepository {
-    private final ImageJpaRepository imageJpaRepository;
-
-    public ImageRepositoryImpl(ImageJpaRepository imageJpaRepository) {
-        this.imageJpaRepository = imageJpaRepository;
+class ImageRepositoryImpl(
+    private val imageJpaRepository: ImageJpaRepository
+) : ImageRepository {
+    override fun save(image: Image): Image {
+        return imageJpaRepository.save(ImageEntity.from(image)).toDomain()
     }
 
-    @Override
-    public Image save(Image image) {
-        return imageJpaRepository.save(ImageEntity.from(image)).toDomain();
-    }
-
-    @Override
-    public Image findByPath(String imagePath) {
+    override fun findByPath(imagePath: String): Image {
         return imageJpaRepository.findByPath(imagePath)
-                .orElseThrow(() -> new ImageException(ImageErrorCode.IMAGE_NOT_FOUND))
-                .toDomain();
+            .orElseThrow { ImageException(ImageErrorCode.IMAGE_NOT_FOUND) }
+            .toDomain()
     }
 }

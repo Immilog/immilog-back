@@ -1,28 +1,30 @@
-package com.backend.immilog.image.presentation.payload;
+package com.backend.immilog.image.presentation.payload
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.http.HttpStatus
 
-import java.util.List;
+@Schema(description = "이미지 응답 DTO")
+data class ImageResponse(
+    @Schema(description = "상태 코드", example = "200")
+    val status: Int,
 
-public record ImageResponse(
-        @Schema(description = "상태 코드", example = "200") Integer status,
-        @Schema(description = "메시지", example = "success") String message,
-        @Schema(description = "이미지 경로 목록", example = "[\"imagePath1\", \"imagePath2\"]") List<String> data
+    @Schema(description = "메시지", example = "success")
+    val message: String,
+
+    @Schema(description = "이미지 경로 목록", example = "[\"imagePath1\", \"imagePath2\"]")
+    val data: List<String>
 ) {
-    public static ImageResponse of(List<String> data) {
-        return new ImageResponse(
-                HttpStatus.OK.value(),
-                "success",
-                data
-        );
-    }
+    companion object {
+        fun of(data: List<String>) = ImageResponse(
+            status = HttpStatus.OK.value(),
+            message = "success",
+            data = data
+        )
 
-    public static ImageResponse success() {
-        return new ImageResponse(
-                HttpStatus.NO_CONTENT.value(),
-                "success",
-                List.of()
-        );
+        fun success() = ImageResponse(
+            status = HttpStatus.NO_CONTENT.value(),
+            message = "success",
+            data = emptyList()
+        )
     }
 }

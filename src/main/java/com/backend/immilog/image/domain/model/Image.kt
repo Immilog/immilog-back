@@ -1,32 +1,24 @@
-package com.backend.immilog.image.domain.model;
+package com.backend.immilog.image.domain.model
 
-import com.backend.immilog.image.domain.enums.ImageStatus;
-import com.backend.immilog.image.domain.enums.ImageType;
-import com.backend.immilog.image.exception.ImageErrorCode;
-import com.backend.immilog.image.exception.ImageException;
+import com.backend.immilog.image.domain.enums.ImageStatus
+import com.backend.immilog.image.domain.enums.ImageType
+import com.backend.immilog.image.exception.ImageErrorCode
+import com.backend.immilog.image.exception.ImageException
 
-public record Image(
-        Long seq,
-        String path,
-        ImageType imageType,
-        ImageStatus status
+data class Image(
+    val seq: Long?,
+    val path: String,
+    val imageType: ImageType,
+    val status: ImageStatus
 ) {
-    public static Image of(
-            String path,
-            ImageType imageType
-    ) {
-        if (path == null || path.trim().isBlank() || imageType == null) {
-            throw new ImageException(ImageErrorCode.INVALID_IMAGE_PATH);
+    companion object {
+        fun of(path: String, imageType: ImageType): Image {
+            if (path.isBlank()) {
+                throw ImageException(ImageErrorCode.INVALID_IMAGE_PATH)
+            }
+            return Image(null, path, imageType, ImageStatus.NORMAL)
         }
-        return new Image(null, path, imageType, ImageStatus.NORMAL);
     }
 
-    public Image delete() {
-        return new Image(
-                this.seq,
-                this.path,
-                this.imageType,
-                ImageStatus.DELETED
-        );
-    }
+    fun delete(): Image = copy(status = ImageStatus.DELETED)
 }

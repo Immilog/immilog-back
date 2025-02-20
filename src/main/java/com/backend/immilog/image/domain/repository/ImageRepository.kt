@@ -1,9 +1,8 @@
-package com.backend.immilog.image.domain.repository;
+package com.backend.immilog.image.domain.repository
 
-import com.backend.immilog.image.domain.model.Image;
+import com.backend.immilog.image.domain.model.Image
 
-public interface ImageRepository {
-    Image save(Image image);
-
-    Image findByPath(String imagePath);
+interface ImageRepository {
+    fun save(image: Image): Image
+    fun findByPath(imagePath: String): Image
 }

@@ -1,12 +1,8 @@
-package com.backend.immilog.image.infrastructure.gateway;
+package com.backend.immilog.image.infrastructure.gateway
 
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartFile
 
-public interface FileStorageHandler {
-    String uploadFile(
-            MultipartFile file,
-            String imagePath
-    );
-
-    void deleteFile(String imagePath);
+interface FileStorageHandler {
+    fun uploadFile(file: MultipartFile, imagePath: String): String
+    fun deleteFile(imagePath: String)
 }

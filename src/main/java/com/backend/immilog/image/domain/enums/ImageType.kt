@@ -1,6 +1,6 @@
-package com.backend.immilog.image.domain.enums;
+package com.backend.immilog.image.domain.enums
 
-public enum ImageType {
+enum class ImageType {
     PROFILE,
     POST,
     JOB_POST

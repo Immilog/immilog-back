@@ -1,88 +1,58 @@
-package com.backend.immilog.image.infrastructure.gateway;
+package com.backend.immilog.image.infrastructure.gateway
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.backend.immilog.global.exception.CustomException;
-import com.backend.immilog.notification.applicaiton.service.DiscordSendingService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
-import java.util.UUID;
-
-import static com.backend.immilog.global.exception.CommonErrorCode.IMAGE_UPLOAD_FAILED;
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.ObjectMetadata
+import com.backend.immilog.global.exception.CommonErrorCode
+import com.backend.immilog.global.exception.CustomException
+import com.backend.immilog.notification.applicaiton.service.DiscordSendingService
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import org.springframework.web.multipart.MultipartFile
+import java.io.IOException
+import java.util.*
 
 @Service
-public class S3FileStorageHandler implements FileStorageHandler {
-    private final AmazonS3 amazonS3;
-    private final DiscordSendingService discordSendingService;
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+class S3FileStorageHandler(
+    private val amazonS3: AmazonS3,
+    private val discordSendingService: DiscordSendingService,
+    @Value("\${cloud.aws.s3.bucket}") private val bucket: String
+) : FileStorageHandler {
 
-    public S3FileStorageHandler(
-            AmazonS3 amazonS3,
-            DiscordSendingService discordSendingService
-    ) {
-        this.amazonS3 = amazonS3;
-        this.discordSendingService = discordSendingService;
+    override fun uploadFile(file: MultipartFile, imagePath: String): String {
+        val originalFileName = generateFileName(file, imagePath)
+        uploadFileToS3(file, originalFileName)
+        return generateFileUrl(originalFileName)
     }
 
-    @Override
-    public String uploadFile(
-            MultipartFile multipartFile,
-            String imagePath
-    ) {
-        String originalFileName = generateFileName(multipartFile, imagePath);
-        uploadFileToS3(multipartFile, originalFileName);
-        return generateFileUrl(originalFileName);
+    override fun deleteFile(imagePath: String) {
+        amazonS3.deleteObject(bucket, imagePath)
     }
 
-    @Override
-    public void deleteFile(String imagePath) {
-        amazonS3.deleteObject(bucket, imagePath);
+    private fun generateFileName(multipartFile: MultipartFile, imagePath: String): String {
+        return "$imagePath/${randomUUIDString(16)}.${multipartFile.extension}"
     }
 
-    private String generateFileName(
-            MultipartFile multipartFile,
-            String imagePath
-    ) {
-        return imagePath + "/" +
-                UUID.randomUUID()
-                        .toString()
-                        .replace("-", "")
-                        .substring(0, 16)
-                + "." + getFileExtension(multipartFile);
-    }
-
-    private void uploadFileToS3(
-            MultipartFile multipartFile,
-            String originalFileName
-    ) {
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(multipartFile.getSize());
-        metadata.setContentType(multipartFile.getContentType());
+    private fun uploadFileToS3(multipartFile: MultipartFile, originalFileName: String) {
+        val metadata = ObjectMetadata().apply {
+            contentLength = multipartFile.size
+            contentType = multipartFile.contentType
+        }
 
         try {
-            amazonS3.putObject(bucket, originalFileName, multipartFile.getInputStream(), metadata);
-        } catch (IOException e) {
-            discordSendingService.send("S3 파일 업로드", e);
-            throw new CustomException(IMAGE_UPLOAD_FAILED);
+            amazonS3.putObject(bucket, originalFileName, multipartFile.inputStream, metadata)
+        } catch (e: IOException) {
+            discordSendingService.send("S3 파일 업로드", e)
+            throw CustomException(CommonErrorCode.IMAGE_UPLOAD_FAILED)
         }
     }
 
-    private String generateFileUrl(String originalFileName) {
-        return amazonS3.getUrl(bucket, originalFileName).toString();
-    }
+    private fun generateFileUrl(originalFileName: String): String =
+        amazonS3.getUrl(bucket, originalFileName).toString()
 
-    private String getFileExtension(MultipartFile file) {
-        String originalFilename = file.getOriginalFilename();
-        if (originalFilename != null) {
-            int lastDotIndex = originalFilename.lastIndexOf(".");
-            if (lastDotIndex != -1) {
-                return originalFilename.substring(lastDotIndex + 1);
-            }
-        }
-        return "png";
-    }
+    private fun randomUUIDString(length: Int): String =
+        UUID.randomUUID().toString().replace("-", "").take(length)
+
+    private val MultipartFile.extension: String
+        get() = originalFilename?.substringAfterLast('.', "png") ?: "png"
+
 }
