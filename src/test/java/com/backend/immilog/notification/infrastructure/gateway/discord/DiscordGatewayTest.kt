@@ -1,57 +1,59 @@
-package com.backend.immilog.notification.infrastructure.gateway.discord;
+package com.backend.immilog.notification.infrastructure.gateway.discord
 
-import com.backend.immilog.notification.applicaiton.command.DiscordCommand;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.web.client.RestClient;
-
-import java.lang.reflect.Field;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import com.backend.immilog.notification.application.command.DiscordCommand
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.*
+import org.springframework.web.client.RestClient
+import java.lang.reflect.Field
 
 @DisplayName("DiscordGateway 클래스 테스트")
 class DiscordGatewayTest {
 
-    private final RestClient restClient = mock(RestClient.class);
-    private final DiscordGateway discordGateway = new DiscordGateway(restClient);
+    private val restClient: RestClient = mock(RestClient::class.java)
+    private val discordGateway = DiscordGateway(restClient)
 
     @BeforeEach
-    void setUp() throws Exception {
-        Field webHookUrlField = DiscordGateway.class.getDeclaredField("webHookUrl");
-        webHookUrlField.setAccessible(true);
-        webHookUrlField.set(discordGateway, "http://test-webhook-url");
+    fun setUp() {
+        val webHookUrlField: Field = DiscordGateway::class.java.getDeclaredField("webHookUrl")
+        webHookUrlField.isAccessible = true
+        webHookUrlField.set(discordGateway, "http://test-webhook-url")
     }
 
     @Test
     @DisplayName("send 메서드 성공")
-    void sendShouldSendCorrectDiscordCommand() {
+    fun sendShouldSendCorrectDiscordCommand() {
         // Given
-        DiscordCommand discordCommand = new DiscordCommand(
-                "Test Content",
-                List.of(new DiscordCommand.Embed("Test Title", List.of(
-                        new DiscordCommand.Field("Field Name", "Field Value", true)
-                )))
-        );
+        val discordCommand = DiscordCommand(
+                content = "Test Content",
+                embeds = listOf(
+                        DiscordCommand.Embed(
+                                title = "Test Title",
+                                fields = listOf(
+                                        DiscordCommand.Embed.Field("Field Name", "Field Value", true)
+                                )
+                        )
+                )
+        )
 
-        ArgumentCaptor<String> bodyCaptor = ArgumentCaptor.forClass(String.class);
-        RestClient.RequestBodyUriSpec requestSpec = mock(RestClient.RequestBodyUriSpec.class);
-        when(restClient.post()).thenReturn(requestSpec);
-        when(requestSpec.uri("http://test-webhook-url")).thenReturn(requestSpec);
-        when(requestSpec.headers(any())).thenReturn(requestSpec);
-        when(requestSpec.body(anyString())).thenReturn(requestSpec);
+        val bodyCaptor: ArgumentCaptor<String> = ArgumentCaptor.forClass(String::class.java)
+        val requestSpec: RestClient.RequestBodyUriSpec = mock(RestClient.RequestBodyUriSpec::class.java)
+        `when`(restClient.post()).thenReturn(requestSpec)
+        `when`(requestSpec.uri("http://test-webhook-url")).thenReturn(requestSpec)
+        `when`(requestSpec.headers(any())).thenReturn(requestSpec)
+        `when`(requestSpec.body(anyString())).thenReturn(requestSpec)
 
         // When
-        discordGateway.send(discordCommand);
+        discordGateway.send(discordCommand)
 
         // Then
-        verify(requestSpec).body(bodyCaptor.capture());
-        String capturedBody = bodyCaptor.getValue();
+        verify(requestSpec).body(bodyCaptor.capture())
+        val capturedBody = bodyCaptor.value
 
-        String expectedJson = """
+        val expectedJson = """
             {
               "content": "Test Content",
               "embeds": [
@@ -67,9 +69,8 @@ class DiscordGatewayTest {
                 }
               ]
             }
-        """;
+        """.trimIndent()
 
-        assertThat(capturedBody).isEqualToIgnoringWhitespace(expectedJson);
+        assertThat(capturedBody).isEqualToIgnoringWhitespace(expectedJson)
     }
-
 }
