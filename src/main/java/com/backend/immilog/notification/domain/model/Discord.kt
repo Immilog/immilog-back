@@ -1,69 +1,43 @@
-package com.backend.immilog.notification.domain.model;
+package com.backend.immilog.notification.domain.model
 
-import com.backend.immilog.notification.applicaiton.command.DiscordCommand;
+import com.backend.immilog.notification.application.command.DiscordCommand
 
-import java.util.List;
-
-public record Discord(
-        String content,
-        List<Embed> embeds
+data class Discord(
+    val content: String,
+    val embeds: List<Embed>
 ) {
-    public static Discord from(
-            String api,
-            Embed embed
-    ) {
-        return new Discord(
-                "[EXTERNAL API] {" + api + "}",
-                List.of(embed)
-        );
+    companion object {
+        fun from(api: String, embed: Embed): Discord =
+            Discord("[EXTERNAL API] {$api}", listOf(embed))
     }
 
-    public DiscordCommand toRequest() {
-        return new DiscordCommand(
-                this.content,
-                this.embeds.stream().map(Embed::toRequest).toList()
-        );
+    fun toRequest(): DiscordCommand =
+        DiscordCommand(content, embeds.map { it.toRequest() })
+
+    data class Embed(
+        val title: String,
+        val fields: List<Field>
+    ) {
+        companion object {
+            fun createWith(field: Field): Embed =
+                Embed("Exception Detail", listOf(field))
+        }
+
+        fun toRequest(): DiscordCommand.Embed =
+            DiscordCommand.Embed(title, fields.map { it.toRequest() })
     }
 
-    public record Embed(
-            String title,
-            List<Field> fields
+    data class Field(
+        val name: String,
+        val value: String,
+        val inline: Boolean
     ) {
-        public static Embed createWith(Field field) {
-            return new Embed(
-                    "Exception Detail",
-                    List.of(field)
-            );
+        companion object {
+            fun from(exception: Exception): Field =
+                Field(exception.javaClass.name, exception.message ?: "", true)
         }
 
-        public DiscordCommand.Embed toRequest() {
-            return new DiscordCommand.Embed(
-                    this.title,
-                    this.fields.stream().map(Field::toRequest).toList()
-            );
-        }
-    }
-
-    public record Field(
-            String name,
-            String value,
-            boolean inline
-    ) {
-
-        public static Discord.Field from(Exception exception) {
-            return new Discord.Field(
-                    exception.getClass().getName(),
-                    exception.getMessage(),
-                    true
-            );
-        }
-
-        public DiscordCommand.Field toRequest() {
-            return new DiscordCommand.Field(
-                    this.name,
-                    this.value,
-                    this.inline
-            );
-        }
+        fun toRequest(): DiscordCommand.Embed.Field =
+            DiscordCommand.Embed.Field(name, value, inline)
     }
 }
