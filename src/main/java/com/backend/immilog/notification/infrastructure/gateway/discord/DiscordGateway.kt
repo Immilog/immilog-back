@@ -38,16 +38,16 @@ class DiscordGateway(
             .body(toJson(discordCommand).toString())
             .retrieve()
             .onStatus(
-                { status: HttpStatusCode -> status.isError },
-                { rs, response ->
-                    log.error(
-                        "메시지 전송 중 오류 발생: 상태 코드 {}, 메시지 {}",
-                        response.statusCode,
-                        response.statusText
-                    )
-                    null
-                }
-            )
+            { status: HttpStatusCode -> status.isError },
+            { _, response ->
+                log.error(
+                    "메시지 전송 중 오류 발생: 상태 코드 {}, 메시지 {}",
+                    response.statusCode,
+                    response.statusText
+                )
+                null
+            }
+        )
             .toEntity(String::class.java)
     }
 
