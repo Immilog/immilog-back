@@ -1,10 +1,11 @@
-package com.backend.immilog.notice.application.services;
+package com.backend.immilog.notice.application.usecase.impl;
 
 import com.backend.immilog.global.enums.UserRole;
 import com.backend.immilog.global.security.TokenProvider;
-import com.backend.immilog.notice.application.command.NoticeModifyCommand;
-import com.backend.immilog.notice.application.services.command.NoticeCommandService;
-import com.backend.immilog.notice.application.services.query.NoticeQueryService;
+import com.backend.immilog.notice.application.dto.NoticeModifyCommand;
+import com.backend.immilog.notice.application.services.NoticeCommandService;
+import com.backend.immilog.notice.application.services.NoticeQueryService;
+import com.backend.immilog.notice.application.usecase.NoticeModifyUseCase;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.exception.NoticeException;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,12 @@ import java.util.Optional;
 import static com.backend.immilog.notice.exception.NoticeErrorCode.NOT_AN_ADMIN_USER;
 
 @Service
-public class NoticeModifyService {
+public class NoticeModifier implements NoticeModifyUseCase {
     private final NoticeQueryService noticeQueryService;
     private final NoticeCommandService noticeCommandService;
     private final TokenProvider tokenProvider;
 
-    public NoticeModifyService(
+    public NoticeModifier(
             NoticeQueryService noticeQueryService,
             NoticeCommandService noticeCommandService,
             TokenProvider tokenProvider
@@ -65,4 +66,3 @@ public class NoticeModifyService {
         noticeCommandService.save(updatedNotice);
     }
 }
-

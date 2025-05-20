@@ -1,9 +1,9 @@
-package com.backend.immilog.notice.application.result;
+package com.backend.immilog.notice.application.dto;
 
 import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.notice.domain.model.Notice;
-import com.backend.immilog.notice.domain.model.enums.NoticeStatus;
-import com.backend.immilog.notice.domain.model.enums.NoticeType;
+import com.backend.immilog.notice.domain.model.NoticeStatus;
+import com.backend.immilog.notice.domain.model.NoticeType;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
 import com.backend.immilog.notice.presentation.response.NoticeDetailResponse;

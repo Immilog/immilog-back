@@ -1,7 +1,7 @@
-package com.backend.immilog.notice.application.services.query;
+package com.backend.immilog.notice.application.services;
 
 import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.notice.application.result.NoticeResult;
+import com.backend.immilog.notice.application.dto.NoticeResult;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.repositories.NoticeRepository;
 import com.backend.immilog.notice.exception.NoticeException;

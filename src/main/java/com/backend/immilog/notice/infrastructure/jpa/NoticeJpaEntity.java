@@ -3,8 +3,8 @@ package com.backend.immilog.notice.infrastructure.jpa;
 import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.model.NoticeDetail;
-import com.backend.immilog.notice.domain.model.enums.NoticeStatus;
-import com.backend.immilog.notice.domain.model.enums.NoticeType;
+import com.backend.immilog.notice.domain.model.NoticeStatus;
+import com.backend.immilog.notice.domain.model.NoticeType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.DynamicUpdate;
@@ -19,7 +19,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @DynamicUpdate
 @Entity
 @Table(name = "notice")
-public class NoticeEntity {
+public class NoticeJpaEntity {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     @Column(name = "seq")
@@ -58,9 +58,9 @@ public class NoticeEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    protected NoticeEntity() {}
+    protected NoticeJpaEntity() {}
 
-    protected NoticeEntity(
+    protected NoticeJpaEntity(
             Long seq,
             Long userSeq,
             String title,
@@ -81,8 +81,8 @@ public class NoticeEntity {
         this.updatedAt = seq == null ? null : LocalDateTime.now();
     }
 
-    public static NoticeEntity from(Notice notice) {
-        return new NoticeEntity(
+    public static NoticeJpaEntity from(Notice notice) {
+        return new NoticeJpaEntity(
                 notice.seq(),
                 notice.userSeq(),
                 notice.title(),
