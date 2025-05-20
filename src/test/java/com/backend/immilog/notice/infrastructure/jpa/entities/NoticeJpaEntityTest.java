@@ -3,9 +3,9 @@ package com.backend.immilog.notice.infrastructure.jpa.entities;
 import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.model.NoticeDetail;
-import com.backend.immilog.notice.domain.model.enums.NoticeStatus;
-import com.backend.immilog.notice.domain.model.enums.NoticeType;
-import com.backend.immilog.notice.infrastructure.jpa.NoticeEntity;
+import com.backend.immilog.notice.domain.model.NoticeStatus;
+import com.backend.immilog.notice.domain.model.NoticeType;
+import com.backend.immilog.notice.infrastructure.jpa.NoticeJpaEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DisplayName("NoticeEntity 테스트")
-class NoticeEntityTest {
+class NoticeJpaEntityTest {
 
     @Test
     @DisplayName("NoticeEntity 생성 테스트")
@@ -28,8 +28,8 @@ class NoticeEntityTest {
                 NoticeDetail.of("Title", "Content", NoticeType.NOTICE, NoticeStatus.NORMAL),
                 null
         );
-        NoticeEntity noticeEntity = NoticeEntity.from(notice);
-        Notice domain = noticeEntity.toDomain();
+        NoticeJpaEntity noticeJpaEntity = NoticeJpaEntity.from(notice);
+        Notice domain = noticeJpaEntity.toDomain();
 
         assertThat(domain.seq()).isEqualTo(notice.seq());
         assertThat(domain.userSeq()).isEqualTo(notice.userSeq());
@@ -45,7 +45,7 @@ class NoticeEntityTest {
     @DisplayName("NoticeEntity toDomain 메서드 테스트")
     void toDomain_createsNoticeFromNoticeEntity() {
 
-        NoticeEntity noticeEntity = NoticeEntity.from(new Notice(
+        NoticeJpaEntity noticeJpaEntity = NoticeJpaEntity.from(new Notice(
                 1L,
                 2L,
                 List.of(Country.SINGAPORE),
@@ -55,7 +55,7 @@ class NoticeEntityTest {
                 null
         ));
 
-        Notice notice = noticeEntity.toDomain();
+        Notice notice = noticeJpaEntity.toDomain();
 
         assertThat(notice.seq()).isEqualTo(1L);
         assertThat(notice.userSeq()).isEqualTo(2L);
@@ -80,13 +80,13 @@ class NoticeEntityTest {
                 null
         );
 
-        NoticeEntity noticeEntity = NoticeEntity.from(notice);
+        NoticeJpaEntity noticeJpaEntity = NoticeJpaEntity.from(notice);
     }
 
     @Test
     @DisplayName("NoticeEntity toDomain null 값 처리 테스트")
     void toDomain_handlesNullValues() {
-        NoticeEntity noticeEntity = NoticeEntity.from(
+        NoticeJpaEntity noticeJpaEntity = NoticeJpaEntity.from(
                 new Notice(
                         null,
                         null,
@@ -97,7 +97,7 @@ class NoticeEntityTest {
                         null
                 )
         );
-        Notice notice = noticeEntity.toDomain();
+        Notice notice = noticeJpaEntity.toDomain();
         assertThat(notice.seq()).isNull();
         assertThat(notice.userSeq()).isNull();
         assertThat(notice.title()).isNull();

@@ -1,16 +1,16 @@
 package com.backend.immilog.notice.application.services;
 
+import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.global.enums.UserRole;
 import com.backend.immilog.global.security.TokenProvider;
-import com.backend.immilog.notice.application.command.NoticeModifyCommand;
-import com.backend.immilog.notice.application.services.command.NoticeCommandService;
-import com.backend.immilog.notice.application.services.query.NoticeQueryService;
+import com.backend.immilog.notice.application.dto.NoticeModifyCommand;
+import com.backend.immilog.notice.application.usecase.NoticeModifyUseCase;
+import com.backend.immilog.notice.application.usecase.impl.NoticeModifier;
 import com.backend.immilog.notice.domain.model.Notice;
-import com.backend.immilog.notice.domain.model.enums.NoticeStatus;
-import com.backend.immilog.notice.domain.model.enums.NoticeType;
+import com.backend.immilog.notice.domain.model.NoticeStatus;
+import com.backend.immilog.notice.domain.model.NoticeType;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.user.*;
 import org.junit.jupiter.api.DisplayName;
@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("공지사항 수정 서비스 테스트")
-class NoticeModifyServiceTest {
+class NoticeModifyUseCaseTest {
     private final NoticeQueryService noticeQueryService = mock(NoticeQueryService.class);
     private final NoticeCommandService noticeCommandService = mock(NoticeCommandService.class);
     private final TokenProvider tokenProvider = mock(TokenProvider.class);
-    private final NoticeModifyService noticeModifyService = new NoticeModifyService(
+    private final NoticeModifyUseCase noticeModifyUseCase = new NoticeModifier(
             noticeQueryService,
             noticeCommandService,
             tokenProvider
@@ -45,7 +45,7 @@ class NoticeModifyServiceTest {
         when(tokenProvider.getUserRoleFromToken(token)).thenReturn(UserRole.ROLE_USER);
         when(tokenProvider.getIdFromToken(token)).thenReturn(userSeq);
         when(user.userRole()).thenReturn(UserRole.ROLE_USER);
-        assertThrows(NoticeException.class, () -> noticeModifyService.modifyNotice(token, noticeSeq, command));
+        assertThrows(NoticeException.class, () -> noticeModifyUseCase.modifyNotice(token, noticeSeq, command));
     }
 
     @Test
@@ -60,7 +60,7 @@ class NoticeModifyServiceTest {
         when(tokenProvider.getIdFromToken(token)).thenReturn(userSeq);
         when(noticeQueryService.getNoticeBySeq(noticeSeq)).thenThrow(new NoticeException(NoticeErrorCode.NOTICE_NOT_FOUND));
 
-        assertThrows(NoticeException.class, () -> noticeModifyService.modifyNotice(token, noticeSeq, command));
+        assertThrows(NoticeException.class, () -> noticeModifyUseCase.modifyNotice(token, noticeSeq, command));
     }
 
     @Test
@@ -75,7 +75,7 @@ class NoticeModifyServiceTest {
         when(user.userRole()).thenReturn(UserRole.ROLE_ADMIN);
         when(noticeQueryService.getNoticeBySeq(noticeSeq)).thenReturn(notice);
         when(notice.status()).thenReturn(NoticeStatus.DELETED);
-        assertThrows(NoticeException.class, () -> noticeModifyService.modifyNotice(token, noticeSeq, command));
+        assertThrows(NoticeException.class, () -> noticeModifyUseCase.modifyNotice(token, noticeSeq, command));
     }
 
     @Test
@@ -113,7 +113,7 @@ class NoticeModifyServiceTest {
         when(updatedNotice3.updateStatus(any(NoticeStatus.class))).thenReturn(updatedNotice4);
         when(tokenProvider.getIdFromToken(token)).thenReturn(userSeq);
         when(tokenProvider.getUserRoleFromToken(token)).thenReturn(UserRole.ROLE_ADMIN);
-        noticeModifyService.modifyNotice(token, noticeSeq, command);
+        noticeModifyUseCase.modifyNotice(token, noticeSeq, command);
 
         verify(noticeCommandService).save(updatedNotice4);
     }

@@ -2,9 +2,10 @@ package com.backend.immilog.notice.application;
 
 import com.backend.immilog.global.enums.UserRole;
 import com.backend.immilog.global.security.TokenProvider;
-import com.backend.immilog.notice.application.services.NoticeCreateService;
-import com.backend.immilog.notice.application.services.command.NoticeCommandService;
-import com.backend.immilog.notice.domain.model.enums.NoticeType;
+import com.backend.immilog.notice.application.services.NoticeCommandService;
+import com.backend.immilog.notice.application.usecase.NoticeCreateUseCase;
+import com.backend.immilog.notice.application.usecase.impl.NoticeCreator;
+import com.backend.immilog.notice.domain.model.NoticeType;
 import com.backend.immilog.notice.exception.NoticeException;
 import com.backend.immilog.notice.presentation.request.NoticeRegisterRequest;
 import org.assertj.core.api.Assertions;
@@ -16,17 +17,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @DisplayName("NoticeRegisterService 테스트")
-class NoticeCreateServiceTest {
+class NoticeCreatorTest {
     private final NoticeCommandService noticeCommandService = mock(NoticeCommandService.class);
     private final TokenProvider tokenProvider = mock(TokenProvider.class);
-    private final NoticeCreateService noticeRegisterService = new NoticeCreateService(
-            noticeCommandService,
-            tokenProvider
-    );
+    private final NoticeCreateUseCase noticeCreateUseCase = new NoticeCreator(noticeCommandService, tokenProvider);
 
     @Test
     @DisplayName("공지사항 등록 - 성공")
-    void registerNotice() {
+    void createNotice() {
         // given
         Long userSeq = 1L;
         String title = "제목";
@@ -36,14 +34,14 @@ class NoticeCreateServiceTest {
         when(tokenProvider.getUserRoleFromToken("token")).thenReturn(userRole);
         when(tokenProvider.getIdFromToken("token")).thenReturn(userSeq);
         // when
-        noticeRegisterService.registerNotice("token", param.toCommand());
+        noticeCreateUseCase.createNotice("token", param.toCommand());
         // then
         verify(noticeCommandService, times(1)).save(any());
     }
 
     @Test
     @DisplayName("공지사항 등록 - 실패: 관리자가 아닌 경우")
-    void registerNotice_notAnAdminUser() {
+    void createNotice_notAnAdminUser() {
         // given
         Long userSeq = 1L;
         String title = "제목";
@@ -52,9 +50,7 @@ class NoticeCreateServiceTest {
         NoticeRegisterRequest param =  new NoticeRegisterRequest(title, content, NoticeType.NOTICE, null);
         when(tokenProvider.getUserRoleFromToken("token")).thenReturn(userRole);
         // when & then
-        Assertions.assertThatThrownBy(
-                        () -> noticeRegisterService.registerNotice("token", param.toCommand())
-                )
+        Assertions.assertThatThrownBy(() -> noticeCreateUseCase.createNotice("token", param.toCommand()))
                 .isInstanceOf(NoticeException.class)
                 .hasMessage(NOT_AN_ADMIN_USER.getMessage());
     }
