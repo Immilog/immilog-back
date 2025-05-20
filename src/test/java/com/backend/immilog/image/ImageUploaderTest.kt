@@ -1,9 +1,9 @@
 package com.backend.immilog.image
 
-import com.backend.immilog.image.application.service.ImageService
-import com.backend.immilog.image.application.service.command.ImageCommandService
-import com.backend.immilog.image.application.service.query.ImageQueryService
-import com.backend.immilog.image.domain.enums.ImageType
+import com.backend.immilog.image.application.ImageCommandService
+import com.backend.immilog.image.application.ImageQueryService
+import com.backend.immilog.image.application.ImageUploader
+import com.backend.immilog.image.domain.ImageType
 import com.backend.immilog.image.infrastructure.gateway.FileStorageHandler
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -14,11 +14,11 @@ import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
 @DisplayName("이미지 서비스 테스트")
-class ImageServiceTest {
+class ImageUploaderTest {
     private val fileStorageHandler: FileStorageHandler = mock(FileStorageHandler::class.java)
     private val imageCommandService: ImageCommandService = mock(ImageCommandService::class.java)
     private val imageQueryService: ImageQueryService = mock(ImageQueryService::class.java)
-    private val imageService = ImageService(fileStorageHandler, imageCommandService, imageQueryService)
+    private val imageUploader = ImageUploader(fileStorageHandler, imageCommandService, imageQueryService)
 
     @Test
     @DisplayName("이미지 업로드")
@@ -40,7 +40,7 @@ class ImageServiceTest {
             `when`(fileStorageHandler.uploadFile(dummyFile, imagePath)).thenReturn(mockUrl)
 
             // when
-            val images = imageService.saveFiles(files, imagePath, ImageType.POST)
+            val images = imageUploader.saveFiles(files, imagePath, ImageType.POST)
 
             // then
             assertThat(images).isNotEmpty
