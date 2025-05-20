@@ -1,7 +1,5 @@
-package com.backend.immilog.image.domain.model
+package com.backend.immilog.image.domain
 
-import com.backend.immilog.image.domain.enums.ImageStatus
-import com.backend.immilog.image.domain.enums.ImageType
 import com.backend.immilog.image.exception.ImageErrorCode
 import com.backend.immilog.image.exception.ImageException
 
@@ -19,4 +17,15 @@ data class Image(
     }
 
     fun delete(): Image = copy(status = ImageStatus.DELETED)
+}
+
+enum class ImageStatus {
+    NORMAL,
+    DELETED
+}
+
+enum class ImageType {
+    PROFILE,
+    POST,
+    JOB_POST
 }

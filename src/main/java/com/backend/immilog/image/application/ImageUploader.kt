@@ -1,22 +1,25 @@
-package com.backend.immilog.image.application.service
+package com.backend.immilog.image.application
 
-import com.backend.immilog.image.application.service.command.ImageCommandService
-import com.backend.immilog.image.application.service.query.ImageQueryService
-import com.backend.immilog.image.domain.enums.ImageType
-import com.backend.immilog.image.domain.model.Image
+import com.backend.immilog.image.domain.Image
+import com.backend.immilog.image.domain.ImageType
 import com.backend.immilog.image.infrastructure.gateway.FileStorageHandler
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
+interface ImageUploadUseCase{
+    fun saveFiles(files: List<MultipartFile>, imagePath: String, imageType: ImageType): List<String>
+    fun deleteFile(imagePath: String)
+}
+
 @Service
-class ImageService(
+class ImageUploader(
     private val fileStorageHandler: FileStorageHandler,
     private val imageCommandService: ImageCommandService,
     private val imageQueryService: ImageQueryService
-) {
+): ImageUploadUseCase {
 
-    fun saveFiles(
+    override fun saveFiles(
         files: List<MultipartFile>,
         imagePath: String,
         imageType: ImageType
@@ -32,7 +35,7 @@ class ImageService(
         } ?: emptyList()
     }
 
-    fun deleteFile(imagePath: String) {
+    override fun deleteFile(imagePath: String) {
         imagePath.takeIf { it.isNotBlank() }?.let { path ->
             fileStorageHandler.deleteFile(path)
             val image = imageQueryService.getImageByPath(path)

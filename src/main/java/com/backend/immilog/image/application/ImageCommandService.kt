@@ -1,7 +1,7 @@
-package com.backend.immilog.image.application.service.command
+package com.backend.immilog.image.application
 
-import com.backend.immilog.image.domain.model.Image
-import com.backend.immilog.image.domain.repository.ImageRepository
+import com.backend.immilog.image.domain.Image
+import com.backend.immilog.image.domain.ImageRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

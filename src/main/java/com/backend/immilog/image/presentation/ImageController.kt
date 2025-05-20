@@ -1,9 +1,7 @@
-package com.backend.immilog.image.presentation.controller
+package com.backend.immilog.image.presentation
 
-import com.backend.immilog.image.application.service.ImageService
-import com.backend.immilog.image.domain.enums.ImageType
-import com.backend.immilog.image.presentation.payload.ImageRequest
-import com.backend.immilog.image.presentation.payload.ImageResponse
+import com.backend.immilog.image.application.ImageUploadUseCase
+import com.backend.immilog.image.domain.ImageType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -17,9 +15,8 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/v1/images")
 class ImageController(
-    private val imageService: ImageService
+    private val imageUploadUseCase: ImageUploadUseCase
 ) {
-
     @PostMapping(consumes = arrayOf(MediaType.MULTIPART_FORM_DATA_VALUE))
     @Operation(summary = "이미지 업로드", description = "이미지를 업로드합니다.")
     fun uploadImage(
@@ -27,7 +24,7 @@ class ImageController(
         @Schema(description = "이미지 경로") @RequestParam("imagePath") imagePath: String,
         @Schema(description = "이미지 타입") @RequestParam("imageType") imageType: ImageType
     ): ResponseEntity<ImageResponse> {
-        val data: List<String> = imageService.saveFiles(multipartFile, imagePath, imageType)
+        val data: List<String> = imageUploadUseCase.saveFiles(multipartFile, imagePath, imageType)
         return ResponseEntity.ok(ImageResponse.of(data))
     }
 
@@ -35,7 +32,7 @@ class ImageController(
     @Operation(summary = "이미지 삭제", description = "이미지를 삭제합니다.")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteImage(@RequestBody imageRequest: ImageRequest): ResponseEntity<Unit> {
-        imageService.deleteFile(imageRequest.imagePath)
+        imageUploadUseCase.deleteFile(imageRequest.imagePath)
         return ResponseEntity.noContent().build()
     }
 

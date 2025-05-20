@@ -1,6 +1,4 @@
-package com.backend.immilog.image.domain.repository
-
-import com.backend.immilog.image.domain.model.Image
+package com.backend.immilog.image.domain
 
 interface ImageRepository {
     fun save(image: Image): Image

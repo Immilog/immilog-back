@@ -1,15 +1,15 @@
-package com.backend.immilog.image.infrastructure.persistence.jpa.entity
+package com.backend.immilog.image.infrastructure.persistence.jpa
 
-import com.backend.immilog.image.domain.enums.ImageStatus
-import com.backend.immilog.image.domain.enums.ImageType
-import com.backend.immilog.image.domain.model.Image
+import com.backend.immilog.image.domain.Image
+import com.backend.immilog.image.domain.ImageStatus
+import com.backend.immilog.image.domain.ImageType
 import jakarta.persistence.*
 import org.hibernate.annotations.DynamicUpdate
 
 @DynamicUpdate
 @Entity
 @Table(name = "image")
-open class ImageEntity(
+open class ImageJpaEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "seq")
@@ -27,8 +27,8 @@ open class ImageEntity(
     open var status: ImageStatus = ImageStatus.NORMAL
 ) {
     companion object {
-        fun from(image: Image): ImageEntity =
-            ImageEntity(
+        fun from(image: Image): ImageJpaEntity =
+            ImageJpaEntity(
                 seq = image.seq,
                 path = image.path,
                 imageType = image.imageType,
