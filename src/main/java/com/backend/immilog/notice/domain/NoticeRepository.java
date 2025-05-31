@@ -1,15 +1,14 @@
-package com.backend.immilog.notice.domain.repositories;
+package com.backend.immilog.notice.domain;
 
 import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.notice.application.dto.NoticeResult;
-import com.backend.immilog.notice.domain.model.Notice;
+import com.backend.immilog.notice.application.dto.NoticeModelResult;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
 public interface NoticeRepository {
-    Page<NoticeResult> getNotices(
+    Page<NoticeModelResult> getNotices(
             Long userSeq,
             Pageable pageable
     );

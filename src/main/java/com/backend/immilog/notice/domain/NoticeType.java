@@ -1,4 +1,4 @@
-package com.backend.immilog.notice.domain.model;
+package com.backend.immilog.notice.domain;
 
 public enum NoticeType {
     NOTICE,

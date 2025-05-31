@@ -1,8 +1,8 @@
-package com.backend.immilog.notice.presentation.request;
+package com.backend.immilog.notice.presentation;
 
 import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.notice.application.dto.NoticeUploadCommand;
-import com.backend.immilog.notice.domain.model.NoticeType;
+import com.backend.immilog.notice.domain.NoticeType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

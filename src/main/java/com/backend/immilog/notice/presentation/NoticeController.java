@@ -1,14 +1,9 @@
-package com.backend.immilog.notice.presentation.controller;
+package com.backend.immilog.notice.presentation;
 
-import com.backend.immilog.notice.application.dto.NoticeResult;
+import com.backend.immilog.notice.application.dto.NoticeModelResult;
 import com.backend.immilog.notice.application.usecase.NoticeCreateUseCase;
-import com.backend.immilog.notice.application.usecase.NoticeInquireUseCase;
-import com.backend.immilog.notice.application.services.NoticeModifyUseCase;
-import com.backend.immilog.notice.presentation.request.NoticeModifyRequest;
-import com.backend.immilog.notice.presentation.request.NoticeRegisterRequest;
-import com.backend.immilog.notice.presentation.response.NoticeDetailResponse;
-import com.backend.immilog.notice.presentation.response.NoticeListResponse;
-import com.backend.immilog.notice.presentation.response.NoticeRegistrationResponse;
+import com.backend.immilog.notice.application.usecase.NoticeFetchUseCase;
+import com.backend.immilog.notice.application.usecase.NoticeModifyUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,16 +18,16 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class NoticeController {
     private final NoticeCreateUseCase noticeRegisterService;
-    private final NoticeInquireUseCase noticeInquireUseCase;
+    private final NoticeFetchUseCase noticeFetchUseCase;
     private final NoticeModifyUseCase noticeModifyUseCase;
 
     public NoticeController(
             NoticeCreateUseCase noticeRegisterService,
-            NoticeInquireUseCase noticeInquireUseCase,
+            NoticeFetchUseCase noticeFetchUseCase,
             NoticeModifyUseCase noticeModifyUseCase
     ) {
         this.noticeRegisterService = noticeRegisterService;
-        this.noticeInquireUseCase = noticeInquireUseCase;
+        this.noticeFetchUseCase = noticeFetchUseCase;
         this.noticeModifyUseCase = noticeModifyUseCase;
     }
 
@@ -52,7 +47,7 @@ public class NoticeController {
             @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
             @Parameter(description = "페이지 번호") @RequestParam("page") Integer page
     ) {
-        Page<NoticeResult> notices = noticeInquireUseCase.getNotices(userSeq, page);
+        Page<NoticeModelResult> notices = noticeFetchUseCase.getNotices(userSeq, page);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeListResponse.of(notices));
     }
 
@@ -61,7 +56,7 @@ public class NoticeController {
     public ResponseEntity<NoticeDetailResponse> getNoticeDetail(
             @Parameter(description = "공지사항 고유번호") @PathVariable("noticeSeq") Long noticeSeq
     ) {
-        NoticeResult notice = noticeInquireUseCase.getNoticeDetail(noticeSeq);
+        NoticeModelResult notice = noticeFetchUseCase.getNoticeDetail(noticeSeq);
         return ResponseEntity.status(HttpStatus.OK).body(notice.toResponse());
     }
 
@@ -70,7 +65,7 @@ public class NoticeController {
     public ResponseEntity<NoticeRegistrationResponse> isNoticeExist(
             @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq
     ) {
-        Boolean unreadNoticeExist = noticeInquireUseCase.isUnreadNoticeExist(userSeq);
+        Boolean unreadNoticeExist = noticeFetchUseCase.isUnreadNoticeExist(userSeq);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeRegistrationResponse.of(unreadNoticeExist));
     }
 

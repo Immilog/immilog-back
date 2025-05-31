@@ -1,4 +1,4 @@
-package com.backend.immilog.notice.presentation.response;
+package com.backend.immilog.notice.presentation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
