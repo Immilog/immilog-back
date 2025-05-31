@@ -2,8 +2,8 @@ package com.backend.immilog.post.infrastructure.repositories;
 
 import com.backend.immilog.global.infrastructure.persistence.repository.RedisDataRepository;
 import com.backend.immilog.post.application.result.PostResult;
-import com.backend.immilog.post.domain.enums.SortingMethods;
 import com.backend.immilog.post.domain.model.post.Post;
+import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PopularPostRepository;
 import com.backend.immilog.post.infrastructure.jdbc.PostJdbcRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
