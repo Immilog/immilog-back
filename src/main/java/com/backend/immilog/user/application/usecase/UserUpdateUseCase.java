@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.usecase;
 
-import com.backend.immilog.image.application.ImageUploader;
+import com.backend.immilog.image.application.ImageUploadUseCase;
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
 import com.backend.immilog.user.application.result.LocationResult;
@@ -39,14 +39,14 @@ public interface UserUpdateUseCase {
         private final UserQueryService userQueryService;
         private final UserCommandService userCommandService;
         private final PasswordEncoder passwordEncoder;
-        private final ImageUploader imageUploader;
+        private final ImageUploadUseCase imageUploader;
         private final UserPasswordPolicy userPasswordPolicy;
 
         public UserUpdater(
                 UserQueryService userQueryService,
                 UserCommandService userCommandService,
                 PasswordEncoder passwordEncoder,
-                ImageUploader imageUploader,
+                ImageUploadUseCase imageUploader,
                 UserPasswordPolicy userPasswordPolicy
         ) {
             this.userQueryService = userQueryService;

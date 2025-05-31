@@ -17,7 +17,7 @@ public class Company {
         this.companyData = companyData;
     }
 
-    public static Company builder() {
+    public static Company createEmpty() {
         return new Company(null, Manager.createEmpty(), CompanyData.createEmpty());
     }
 
