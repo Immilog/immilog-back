@@ -1,6 +1,6 @@
-package com.backend.immilog.notification.domain.model
+package com.backend.immilog.notification.domain
 
-import com.backend.immilog.notification.application.command.DiscordCommand
+import com.backend.immilog.notification.application.DiscordCommand
 
 data class Discord(
     val content: String,

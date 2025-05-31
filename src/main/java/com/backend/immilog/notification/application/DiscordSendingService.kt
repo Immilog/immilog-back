@@ -1,7 +1,7 @@
-package com.backend.immilog.notification.application.service
+package com.backend.immilog.notification.application
 
-import com.backend.immilog.notification.domain.model.Discord
-import com.backend.immilog.notification.infrastructure.gateway.discord.DiscordGateway
+import com.backend.immilog.notification.domain.Discord
+import com.backend.immilog.notification.infrastructure.DiscordGateway
 import org.springframework.stereotype.Service
 
 @Service

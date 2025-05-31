@@ -1,11 +1,11 @@
-package com.backend.immilog.notification.infrastructure.gateway.discord
+package com.backend.immilog.notification.infrastructure
 
-import com.backend.immilog.notification.application.command.DiscordCommand
+import com.backend.immilog.notification.application.DiscordCommand
 import jakarta.json.Json
 import jakarta.json.JsonArrayBuilder
 import jakarta.json.JsonObject
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClient
 @Component
 class DiscordGateway(
     private val restClient: RestClient,
-    @Value("\${discord.webhookURL}") private val webHookUrl: String
+    private val discordProperties: DiscordProperties
 ) {
     private val log = LoggerFactory.getLogger(DiscordGateway::class.java)
 
@@ -28,7 +28,7 @@ class DiscordGateway(
 
     private fun hook(discordCommand: DiscordCommand) {
         restClient.post()
-            .uri(webHookUrl)
+            .uri(discordProperties.webhookUrl)
             .headers { headers ->
                 headers.contentType = MediaType.APPLICATION_JSON
             }
@@ -76,4 +76,11 @@ class DiscordGateway(
             .add("inline", field.inline)
             .build()
     }
+
+    @Component
+    @ConfigurationProperties(prefix = "discord")
+    class DiscordProperties {
+        lateinit var webhookUrl: String
+    }
+
 }

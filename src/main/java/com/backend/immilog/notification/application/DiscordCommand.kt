@@ -1,4 +1,4 @@
-package com.backend.immilog.notification.application.command
+package com.backend.immilog.notification.application
 
 data class DiscordCommand(
     val content: String,
