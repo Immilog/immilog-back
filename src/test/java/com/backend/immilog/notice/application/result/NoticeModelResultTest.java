@@ -1,10 +1,10 @@
 package com.backend.immilog.notice.application.result;
 
-import com.backend.immilog.notice.application.dto.NoticeResult;
-import com.backend.immilog.notice.domain.model.Notice;
+import com.backend.immilog.notice.application.dto.NoticeModelResult;
+import com.backend.immilog.notice.domain.Notice;
 import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.notice.domain.model.NoticeStatus;
-import com.backend.immilog.notice.domain.model.NoticeType;
+import com.backend.immilog.notice.domain.NoticeStatus;
+import com.backend.immilog.notice.domain.NoticeType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @DisplayName("NoticeResult 클래스 테스트")
-class NoticeResultTest {
+class NoticeModelResultTest {
 
     @Test
     @DisplayName("Notice 객체를 NoticeResult 객체로 변환")
@@ -35,7 +35,7 @@ class NoticeResultTest {
         when(notice.readUsers()).thenReturn(List.of(3L));
         when(notice.createdAt()).thenReturn(LocalDateTime.of(2023, 1, 1, 0, 0));
 
-        NoticeResult result = NoticeResult.from(notice);
+        NoticeModelResult result = NoticeModelResult.from(notice);
 
         assertThat(result.seq()).isEqualTo(1L);
         assertThat(result.authorUserSeq()).isEqualTo(2L);
@@ -66,7 +66,7 @@ class NoticeResultTest {
         when(readUsersArray.getArray()).thenReturn(new Long[]{3L});
         when(rs.getTimestamp("created_at")).thenReturn(Timestamp.valueOf(LocalDateTime.of(2023, 1, 1, 0, 0)));
 
-        NoticeResult result = NoticeResult.from(rs);
+        NoticeModelResult result = NoticeModelResult.from(rs);
 
         assertThat(result.seq()).isEqualTo(1L);
         assertThat(result.authorUserSeq()).isEqualTo(2L);

@@ -1,16 +1,15 @@
 package com.backend.immilog.post.application.services;
 
 import com.backend.immilog.global.enums.UserRole;
-import com.backend.immilog.post.application.command.JobBoardUpdateCommand;
 import com.backend.immilog.post.application.command.JobBoardUploadCommand;
-import com.backend.immilog.post.application.services.command.JobBoardCommandService;
-import com.backend.immilog.post.domain.enums.Experience;
-import com.backend.immilog.post.domain.enums.PostStatus;
+import com.backend.immilog.post.application.usecase.JobBoardUploadUseCase;
+import com.backend.immilog.post.domain.model.post.Experience;
+import com.backend.immilog.post.domain.model.post.PostStatus;
 import com.backend.immilog.user.application.result.CompanyResult;
-import com.backend.immilog.user.application.services.CompanyInquiryService;
-import com.backend.immilog.user.domain.enums.Industry;
+import com.backend.immilog.user.application.usecase.CompanyFetchUseCase;
+import com.backend.immilog.user.domain.model.company.Industry;
 import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.user.domain.enums.UserStatus;
+import com.backend.immilog.user.domain.model.user.UserStatus;
 import com.backend.immilog.user.domain.model.user.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,10 +21,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @DisplayName("JobBoardUploadService 테스트")
-class JobBoardUploadServiceTest {
+class JobBoardUploadUseCaseTest {
     private final JobBoardCommandService jobBoardCommandService = mock(JobBoardCommandService.class);
-    private final CompanyInquiryService companyInquiryService = mock(CompanyInquiryService.class);
-    private final JobBoardUploadService jobBoardUploadService = new JobBoardUploadService(jobBoardCommandService, companyInquiryService);
+    private final CompanyFetchUseCase.CompanyFetcher companyFetcher = mock(CompanyFetchUseCase.CompanyFetcher.class);
+    private final JobBoardUploadUseCase jobBoardUploadUseCase = new JobBoardUploadUseCase.JobBoardUploader(jobBoardCommandService, companyFetcher);
 
     @Test
     @DisplayName("구인구직 업로드 : 성공")
@@ -84,10 +83,10 @@ class JobBoardUploadServiceTest {
                 1L
         );
 
-        when(companyInquiryService.getCompany(userSeq)).thenReturn(company);
+        when(companyFetcher.getCompany(userSeq)).thenReturn(company);
 
         // when
-        jobBoardUploadService.uploadJobBoard(userSeq, command);
+        jobBoardUploadUseCase.uploadJobBoard(userSeq, command);
 
         // then
         verify(jobBoardCommandService).save(any());

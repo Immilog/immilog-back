@@ -1,15 +1,14 @@
-package com.backend.immilog.post.application;
+package com.backend.immilog.post.application.usecase;
 
 import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.post.application.services.PostUploadService;
-import com.backend.immilog.post.application.services.command.BulkCommandService;
-import com.backend.immilog.post.application.services.command.PostCommandService;
-import com.backend.immilog.post.domain.enums.Categories;
+import com.backend.immilog.post.application.services.BulkCommandService;
+import com.backend.immilog.post.application.services.PostCommandService;
+import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.post.presentation.request.PostUploadRequest;
-import com.backend.immilog.user.application.services.query.UserQueryService;
+import com.backend.immilog.user.application.services.UserQueryService;
 import com.backend.immilog.user.domain.model.user.Location;
 import com.backend.immilog.user.domain.model.user.Profile;
 import com.backend.immilog.user.domain.model.user.User;
@@ -25,14 +24,14 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-import static com.backend.immilog.post.domain.enums.PostType.POST;
-import static com.backend.immilog.post.domain.enums.ResourceType.ATTACHMENT;
+import static com.backend.immilog.post.domain.model.post.PostType.POST;
+import static com.backend.immilog.post.domain.model.resource.ResourceType.ATTACHMENT;
 import static com.backend.immilog.post.exception.PostErrorCode.FAILED_TO_SAVE_POST;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @DisplayName("PostUploadService 테스트")
-class PostUploadServiceTest {
+class PostUploadUseCaseTest {
     private final PostCommandService postCommandService = mock(PostCommandService.class);
     private final UserQueryService userQueryService = mock(UserQueryService.class);
     private final BulkCommandService bulkCommandService = mock(BulkCommandService.class);
@@ -40,7 +39,7 @@ class PostUploadServiceTest {
     private final Connection connection = mock(Connection.class);
     private final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
-    private final PostUploadService postUploadService = new PostUploadService(
+    private final PostUploadUseCase postUploadUseCase = new PostUploadUseCase.PostUploader(
             postCommandService,
             userQueryService,
             bulkCommandService
@@ -109,7 +108,7 @@ class PostUploadServiceTest {
         ArgumentCaptor<BiConsumer<PreparedStatement, PostResource>> captor = ArgumentCaptor.forClass(BiConsumer.class);
 
         // when
-        postUploadService.uploadPost(userSeq, postUploadRequest.toCommand());
+        postUploadUseCase.uploadPost(userSeq, postUploadRequest.toCommand());
 
         // then
         verify(postCommandService).save(any(Post.class));
@@ -171,7 +170,7 @@ class PostUploadServiceTest {
         when(postCommandService.save(any(Post.class))).thenReturn(post);
 
         // when
-        postUploadService.uploadPost(userSeq, postUploadRequest.toCommand());
+        postUploadUseCase.uploadPost(userSeq, postUploadRequest.toCommand());
 
         // then
         verify(postCommandService).save(any(Post.class));
@@ -190,8 +189,8 @@ class PostUploadServiceTest {
                 true,
                 Categories.COMMUNICATION
         );
-        Location location = Location.of(Country.SOUTH_KOREA, "region");
-        User user = new User(
+        var location = Location.of(Country.SOUTH_KOREA, "region");
+        var user = new User(
                 1L,
                 null,
                 null,
@@ -201,29 +200,12 @@ class PostUploadServiceTest {
                 null,
                 null
         );
-        Post post = new Post(
-                1L,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
-        PostResource postResource = new PostResource(
-                1L,
-                1L,
-                POST,
-                ATTACHMENT,
-                "attachment"
-        );
+        var post = new Post(1L, null, null, null, null, null,null, null,null);
+        var postResource = new PostResource(1L, 1L, POST, ATTACHMENT, "attachment");
 
         when(userQueryService.getUserById(userSeq)).thenReturn(user);
         when(postCommandService.save(any(Post.class))).thenReturn(post);
-        doThrow(new SQLException("Mock SQL Exception"))
-                .when(preparedStatement).setLong(anyInt(), anyLong());
+        doThrow(new SQLException("Mock SQL Exception")).when(preparedStatement).setLong(anyInt(), anyLong());
 
         doAnswer(invocation -> {
             BiConsumer<PreparedStatement, PostResource> consumer = invocation.getArgument(2);
@@ -232,7 +214,7 @@ class PostUploadServiceTest {
         }).when(bulkCommandService).saveAll(anyList(), anyString(), any(BiConsumer.class));
 
         // when & then
-        assertThatThrownBy(() -> postUploadService.uploadPost(userSeq, postUploadRequest.toCommand()))
+        assertThatThrownBy(() -> postUploadUseCase.uploadPost(userSeq, postUploadRequest.toCommand()))
                 .isInstanceOf(PostException.class)
                 .hasMessage(FAILED_TO_SAVE_POST.getMessage());
 

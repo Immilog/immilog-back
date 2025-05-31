@@ -2,11 +2,9 @@ package com.backend.immilog.user.infrastructure.jpa.entity;
 
 import com.backend.immilog.global.enums.UserRole;
 import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.user.domain.enums.UserStatus;
+import com.backend.immilog.user.domain.model.user.UserStatus;
 import com.backend.immilog.user.domain.model.user.*;
-import com.backend.immilog.user.exception.UserException;
-import com.backend.immilog.user.infrastructure.jpa.entity.user.UserEntity;
-import org.assertj.core.api.Assertions;
+import com.backend.immilog.user.infrastructure.jpa.UserJpaEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("UserEntity 테스트")
-class UserEntityTest {
+class UserJpaEntityTest {
     @Test
     @DisplayName("UserEntity from User - valid User object")
     void userEntityFromUser_validUser() {
@@ -32,8 +30,8 @@ class UserEntityTest {
                 null
         );
 
-        UserEntity userEntity = UserEntity.from(user);
-        User domain = userEntity.toDomain();
+        UserJpaEntity userJpaEntity = UserJpaEntity.from(user);
+        User domain = userJpaEntity.toDomain();
 
         assertThat(domain.nickname()).isEqualTo(user.nickname());
         assertThat(domain.email()).isEqualTo(user.email());
@@ -63,8 +61,8 @@ class UserEntityTest {
                 UserStatus.ACTIVE,
                 null
         );
-        UserEntity userEntity = UserEntity.from(model);
-        User user = userEntity.toDomain();
+        UserJpaEntity userJpaEntity = UserJpaEntity.from(model);
+        User user = userJpaEntity.toDomain();
 
         assertThat(user.nickname()).isEqualTo("TestUser");
         assertThat(user.email()).isEqualTo("test@user.com");
@@ -81,6 +79,6 @@ class UserEntityTest {
     @DisplayName("UserEntity from User - null User")
     void userEntityFromUser_nullUser() {
         User user = null;
-        assertThatThrownBy(() -> UserEntity.from(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> UserJpaEntity.from(null)).isInstanceOf(NullPointerException.class);
     }
 }

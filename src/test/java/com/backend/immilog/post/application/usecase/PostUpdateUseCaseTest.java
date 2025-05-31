@@ -1,12 +1,11 @@
-package com.backend.immilog.post.application;
+package com.backend.immilog.post.application.usecase;
 
-import com.backend.immilog.post.application.services.PostUpdateService;
-import com.backend.immilog.post.application.services.command.BulkCommandService;
-import com.backend.immilog.post.application.services.command.PostCommandService;
-import com.backend.immilog.post.application.services.command.PostResourceCommandService;
-import com.backend.immilog.post.application.services.query.PostQueryService;
-import com.backend.immilog.post.domain.enums.PostType;
-import com.backend.immilog.post.domain.enums.ResourceType;
+import com.backend.immilog.post.application.services.BulkCommandService;
+import com.backend.immilog.post.application.services.PostCommandService;
+import com.backend.immilog.post.application.services.PostResourceCommandService;
+import com.backend.immilog.post.application.services.PostQueryService;
+import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.presentation.request.PostUpdateRequest;
@@ -26,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @DisplayName("PostUpdateService 테스트")
-class PostUpdateServiceTest {
+class PostUpdateUseCaseTest {
     private final PostQueryService postQueryService = mock(PostQueryService.class);
     private final PostCommandService postCommandService = mock(PostCommandService.class);
     private final PostResourceCommandService postResourceCommandService = mock(PostResourceCommandService.class);
@@ -35,7 +34,7 @@ class PostUpdateServiceTest {
     private final Connection connection = mock(Connection.class);
     private final PreparedStatement preparedStatement = mock(PreparedStatement.class);
 
-    private final PostUpdateService postUpdateService = new PostUpdateService(
+    private final PostUpdateUseCase postUpdateUseCase = new PostUpdateUseCase.PostUpdater(
             postQueryService,
             postCommandService,
             postResourceCommandService,
@@ -90,7 +89,7 @@ class PostUpdateServiceTest {
                 ArgumentCaptor.forClass(BiConsumer.class);
 
         // when
-        postUpdateService.updatePost(userSeq, postSeq, postUpdateRequest.toCommand());
+        postUpdateUseCase.updatePost(userSeq, postSeq, postUpdateRequest.toCommand());
 
         // then
         verify(postResourceCommandService, times(2))
@@ -113,7 +112,7 @@ class PostUpdateServiceTest {
         when(postQueryService.getPostById(postSeq)).thenReturn(post);
         when(post.increaseViewCount()).thenReturn(post1);
         // when
-        postUpdateService.increaseViewCount(postSeq);
+        postUpdateUseCase.increaseViewCount(postSeq);
 
         // then
         verify(postCommandService,times(1)).save(post1);

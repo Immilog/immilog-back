@@ -1,8 +1,8 @@
 package com.backend.immilog.user.infrastructure.jpa.entity;
 
-import com.backend.immilog.user.domain.enums.ReportReason;
+import com.backend.immilog.user.domain.model.report.ReportReason;
 import com.backend.immilog.user.domain.model.report.Report;
-import com.backend.immilog.user.infrastructure.jpa.entity.report.ReportEntity;
+import com.backend.immilog.user.infrastructure.jpa.ReportJpaEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("ReportEntity 테스트")
-class ReportValueTest {
+class ReportJpaValueTest {
     @Test
     @DisplayName("ReportEntity -> Report")
     void reportEntityFromReport_validReport() {
@@ -32,8 +32,8 @@ class ReportValueTest {
                 null,
                 null
         );
-        ReportEntity reportEntity = ReportEntity.from(report);
-        Report domain = reportEntity.toDomain();
+        ReportJpaEntity reportJpaEntity = ReportJpaEntity.from(report);
+        Report domain = reportJpaEntity.toDomain();
 
         assertThat(domain.reportedUserSeq()).isEqualTo(report.reportedUserSeq());
         assertThat(domain.reporterUserSeq()).isEqualTo(report.reporterUserSeq());
@@ -53,9 +53,9 @@ class ReportValueTest {
                 null,
                 null
         );
-        ReportEntity reportEntity = ReportEntity.from(model);
+        ReportJpaEntity reportJpaEntity = ReportJpaEntity.from(model);
 
-        Report report = reportEntity.toDomain();
+        Report report = reportJpaEntity.toDomain();
 
         assertThat(report.seq()).isEqualTo(1L);
         assertThat(report.reportedUserSeq()).isEqualTo(1L);
@@ -69,16 +69,16 @@ class ReportValueTest {
     void reportEntityFromReport_nullReport() {
         Report report = null;
 
-        assertThatThrownBy(() -> ReportEntity.from(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> ReportJpaEntity.from(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     @DisplayName("ReportEntity -> toDomain")
     void reportEntityToDomain_nullFields() {
         Report nullModel = new Report(null, null, null, null, null, null, null);
-        ReportEntity reportEntity = ReportEntity.from(nullModel);
+        ReportJpaEntity reportJpaEntity = ReportJpaEntity.from(nullModel);
 
-        Report report = reportEntity.toDomain();
+        Report report = reportJpaEntity.toDomain();
 
         assertThat(report.seq()).isNull();
         assertThat(report.reportedUserSeq()).isNull();

@@ -2,10 +2,11 @@ package com.backend.immilog.user.application;
 
 import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.user.application.command.CompanyRegisterCommand;
-import com.backend.immilog.user.application.services.CompanyRegisterService;
-import com.backend.immilog.user.application.services.command.CompanyCommandService;
-import com.backend.immilog.user.application.services.query.CompanyQueryService;
-import com.backend.immilog.user.domain.enums.Industry;
+import com.backend.immilog.user.application.services.CompanyMapper;
+import com.backend.immilog.user.application.usecase.CompanyCreateUseCase;
+import com.backend.immilog.user.application.services.CompanyCommandService;
+import com.backend.immilog.user.application.services.CompanyQueryService;
+import com.backend.immilog.user.domain.model.company.Industry;
 import com.backend.immilog.user.domain.model.company.Company;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @DisplayName("CompanyRegisterService 테스트")
-class CompanyRegisterServiceTest {
+class CompanyCreatorTest {
     private final CompanyQueryService companyQueryService = mock(CompanyQueryService.class);
     private final CompanyCommandService companyCommandService = mock(CompanyCommandService.class);
-    private final CompanyRegisterService companyRegisterService = new CompanyRegisterService(
+    private final CompanyMapper companyMapper = new CompanyMapper();
+    private final CompanyCreateUseCase.CompanyCreator companyCreator = new CompanyCreateUseCase.CompanyCreator(
+            companyCommandService,
             companyQueryService,
-            companyCommandService
+            companyMapper
     );
 
     @Test
@@ -27,7 +30,7 @@ class CompanyRegisterServiceTest {
     void registerCompany() {
         // given
         Long userSeq = 1L;
-        CompanyRegisterCommand command = new CompanyRegisterCommand(
+        var command = new CompanyRegisterCommand(
                 Industry.IT,
                 "회사명",
                 "email@email.com",
@@ -38,8 +41,9 @@ class CompanyRegisterServiceTest {
                 "지역",
                 "로고"
         );
+        when(companyQueryService.getByCompanyManagerUserSeq(userSeq)).thenReturn(Company.createEmpty());
         // when
-        companyRegisterService.registerOrEditCompany(userSeq, command);
+        companyCreator.registerOrEditCompany(userSeq, command);
         // then
         verify(companyCommandService).save(any());
     }
@@ -60,12 +64,12 @@ class CompanyRegisterServiceTest {
                 "지역",
                 "로고"
         );
-        Company company = Company.empty()
+        var company = Company.createEmpty()
                 .manager(command.country(), command.region(), userSeq)
                 .companyData(command.industry(), command.name(), command.email(), command.phone(), command.address(), command.homepage(), command.logo());
         when(companyQueryService.getByCompanyManagerUserSeq(userSeq)).thenReturn(company);
         // when
-        companyRegisterService.registerOrEditCompany(userSeq, command);
+        companyCreator.registerOrEditCompany(userSeq, command);
         // then
         verify(companyCommandService).save(any());
     }

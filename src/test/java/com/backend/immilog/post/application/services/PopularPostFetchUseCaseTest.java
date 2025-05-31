@@ -1,23 +1,23 @@
 package com.backend.immilog.post.application.services;
 
 import com.backend.immilog.post.application.result.PostResult;
-import com.backend.immilog.post.application.services.command.PostCommandService;
+import com.backend.immilog.post.application.usecase.PopularPostFetchUseCase;
+import com.backend.immilog.post.application.usecase.PostFetchUseCase;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-class PopularPostServiceTest {
+class PopularPostFetchUseCaseTest {
 
     private final PostCommandService postCommandService = mock(PostCommandService.class);
-    private final PostInquiryService postInquiryService = mock(PostInquiryService.class);
-    private final PopularPostService popularPostService = new PopularPostService(postCommandService, postInquiryService);
+    private final PostFetchUseCase postFetchUseCase = mock(PostFetchUseCase.class);
+    private final PopularPostFetchUseCase popularPostFetchUseCase = new PopularPostFetchUseCase.PopularPostFetcher(postCommandService, postFetchUseCase);
 
     @Test
     @DisplayName("aggregatePopularPosts 메서드가 가장 조회 수 높은 게시글과 인기 게시글 저장")
@@ -31,11 +31,11 @@ class PopularPostServiceTest {
                 new PostResult(4L, "Another Hot Post", null, null, null, null, null, null, 700L, null, null, null, null, null, null, null, null, null, null, null, null, null)
         );
 
-        when(postInquiryService.getMostViewedPosts()).thenReturn(mostViewedPosts);
-        when(postInquiryService.getHotPosts()).thenReturn(hotPosts);
+        when(postFetchUseCase.getMostViewedPosts()).thenReturn(mostViewedPosts);
+        when(postFetchUseCase.getHotPosts()).thenReturn(hotPosts);
 
         // When
-        popularPostService.aggregatePopularPosts();
+        popularPostFetchUseCase.aggregatePopularPosts();
 
         // Then
         int expectedExpiration = 60 * 60; // 1 hour
@@ -58,11 +58,11 @@ class PopularPostServiceTest {
     @DisplayName("aggregatePopularPosts 메서드가 예외 발생 시 로그 출력")
     void aggregatePopularPostsShouldLogErrorWhenExceptionOccurs() throws JsonProcessingException {
         // Given
-        when(postInquiryService.getMostViewedPosts()).thenReturn(List.of());
-        when(postInquiryService.getHotPosts()).thenReturn(List.of());
+        when(postFetchUseCase.getMostViewedPosts()).thenReturn(List.of());
+        when(postFetchUseCase.getHotPosts()).thenReturn(List.of());
         doThrow(new RuntimeException("Failed to save most viewed posts")).when(postCommandService).saveMostViewedPosts(anyList(), anyInt());
         // When
-        popularPostService.aggregatePopularPosts();
+        popularPostFetchUseCase.aggregatePopularPosts();
     }
 
     @Test
@@ -76,11 +76,11 @@ class PopularPostServiceTest {
                 new PostResult(3L, 2L, "content", null, null, null, null, null, null, null, null, null, null, null, null, null),
                 new PostResult(4L, "Another Hot Post", null, null, null, null, null, null, 700L, null, null, null, null, null, null, null, null, null, null, null, null, null)
         );
-        when(postInquiryService.getMostViewedPosts()).thenReturn(mostViewedPosts);
-        when(postInquiryService.getHotPosts()).thenReturn(hotPosts);
+        when(postFetchUseCase.getMostViewedPosts()).thenReturn(mostViewedPosts);
+        when(postFetchUseCase.getHotPosts()).thenReturn(hotPosts);
 
         doThrow(new RuntimeException("Failed to save hot posts")).when(postCommandService).saveHotPosts(anyList(), anyInt());
 
-        popularPostService.aggregatePopularPosts();
+        popularPostFetchUseCase.aggregatePopularPosts();
     }
 }

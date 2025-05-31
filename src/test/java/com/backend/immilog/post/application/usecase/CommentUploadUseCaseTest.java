@@ -1,9 +1,8 @@
-package com.backend.immilog.post.application;
+package com.backend.immilog.post.application.usecase;
 
-import com.backend.immilog.post.application.services.CommentUploadService;
-import com.backend.immilog.post.application.services.command.CommentCommandService;
-import com.backend.immilog.post.application.services.command.PostCommandService;
-import com.backend.immilog.post.application.services.query.PostQueryService;
+import com.backend.immilog.post.application.services.CommentCommandService;
+import com.backend.immilog.post.application.services.PostCommandService;
+import com.backend.immilog.post.application.services.PostQueryService;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.post.presentation.request.CommentUploadRequest;
@@ -16,11 +15,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @DisplayName("CommentUploadService 테스트")
-class CommentUploadServiceTest {
+class CommentUploadUseCaseTest {
     private final CommentCommandService commentCommandService = mock(CommentCommandService.class);
     private final PostQueryService postQueryService = mock(PostQueryService.class);
     private final PostCommandService postCommandService = mock(PostCommandService.class);
-    private final CommentUploadService commentUploadService = new CommentUploadService(
+    private final CommentUploadUseCase commentUploadUseCase = new CommentUploadUseCase.CommentUploader(
             commentCommandService,
             postQueryService,
             postCommandService
@@ -37,7 +36,7 @@ class CommentUploadServiceTest {
         Post post = mock(Post.class);
         when(postQueryService.getPostById(postSeq)).thenReturn(post);
         // when
-        commentUploadService.uploadComment(
+        commentUploadUseCase.uploadComment(
                 userId,
                 postSeq,
                 referenceType,
@@ -59,7 +58,7 @@ class CommentUploadServiceTest {
                 new CommentUploadRequest("content");
         when(postQueryService.getPostById(postSeq)).thenThrow(new PostException(POST_NOT_FOUND));
         // when & then
-        assertThatThrownBy(() -> commentUploadService.uploadComment(
+        assertThatThrownBy(() -> commentUploadUseCase.uploadComment(
                 userId,
                 postSeq,
                 referenceType,
@@ -81,7 +80,7 @@ class CommentUploadServiceTest {
         Post post = mock(Post.class);
         when(postQueryService.getPostById(postSeq)).thenReturn(post);
         // when & then
-        assertThatThrownBy(() -> commentUploadService.uploadComment(
+        assertThatThrownBy(() -> commentUploadUseCase.uploadComment(
                 userId,
                 postSeq,
                 referenceType,

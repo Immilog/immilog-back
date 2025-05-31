@@ -2,14 +2,12 @@ package com.backend.immilog.post.application.services;
 
 import com.backend.immilog.post.application.command.JobBoardUpdateCommand;
 import com.backend.immilog.post.application.result.JobBoardResult;
-import com.backend.immilog.post.application.services.command.BulkCommandService;
-import com.backend.immilog.post.application.services.command.JobBoardCommandService;
-import com.backend.immilog.post.application.services.command.PostResourceCommandService;
-import com.backend.immilog.post.application.services.query.JobBoardQueryService;
-import com.backend.immilog.post.domain.enums.Experience;
-import com.backend.immilog.post.domain.enums.PostType;
-import com.backend.immilog.post.domain.enums.ResourceType;
+import com.backend.immilog.post.application.usecase.JobBoardUpdateUseCase;
+import com.backend.immilog.post.domain.model.post.Experience;
+import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.post.domain.model.resource.PostResource;
+import com.backend.immilog.post.domain.service.JobBoardValidator;
 import com.backend.immilog.post.exception.PostException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,6 @@ import org.mockito.ArgumentCaptor;
 import java.sql.PreparedStatement;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static com.backend.immilog.post.exception.PostErrorCode.NO_AUTHORITY;
@@ -27,17 +24,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @DisplayName("JobBoardUpdateService 테스트")
-class JobBoardUpdateServiceTest {
+class JobBoardUpdateUseCaseTest {
 
     private final JobBoardQueryService jobBoardQueryService = mock(JobBoardQueryService.class);
     private final JobBoardCommandService jobBoardCommandService = mock(JobBoardCommandService.class);
     private final PostResourceCommandService postResourceCommandService = mock(PostResourceCommandService.class);
     private final BulkCommandService bulkInsertRepository = mock(BulkCommandService.class);
-    private final JobBoardUpdateService jobBoardUpdateService = new JobBoardUpdateService(
+    private final JobBoardValidator jobBoardValidator =new JobBoardValidator();
+    private final JobBoardUpdateUseCase jobBoardUpdateUseCase = new JobBoardUpdateUseCase.JobBoardUpdater(
             jobBoardQueryService,
             jobBoardCommandService,
             postResourceCommandService,
-            bulkInsertRepository
+            bulkInsertRepository,
+            jobBoardValidator
     );
 
     @Test
@@ -84,7 +83,7 @@ class JobBoardUpdateServiceTest {
                 null
         );
         when(jobBoardQueryService.getJobBoardBySeq(anyLong())).thenReturn(jobBoard);
-        jobBoardUpdateService.updateJobBoard(1L, 1L, command);
+        jobBoardUpdateUseCase.updateJobBoard(1L, 1L, command);
         verify(postResourceCommandService).deleteAllEntities(anyLong(), eq(PostType.JOB_BOARD), eq(ResourceType.TAG), anyList());
         verify(postResourceCommandService).deleteAllEntities(anyLong(), eq(PostType.JOB_BOARD), eq(ResourceType.ATTACHMENT), anyList());
         verify(bulkInsertRepository, times(2)).saveAll(anyList(), anyString(), any());
@@ -150,7 +149,7 @@ class JobBoardUpdateServiceTest {
         );
         when(jobBoardQueryService.getJobBoardBySeq(anyLong())).thenReturn(jobBoard);
 
-        assertThatThrownBy(() -> jobBoardUpdateService.updateJobBoard(1L, 1L, command))
+        assertThatThrownBy(() -> jobBoardUpdateUseCase.updateJobBoard(1L, 1L, command))
                 .isInstanceOf(PostException.class)
                 .hasMessage(NO_AUTHORITY.getMessage());
     }
@@ -186,7 +185,7 @@ class JobBoardUpdateServiceTest {
                 null
         );
         when(jobBoardQueryService.getJobBoardBySeq(anyLong())).thenReturn(jobBoard);
-        jobBoardUpdateService.deactivateJobBoard(1L, 1L);
+        jobBoardUpdateUseCase.deactivateJobBoard(1L, 1L);
         verify(jobBoardCommandService).save(any());
     }
 }

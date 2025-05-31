@@ -1,18 +1,18 @@
 package com.backend.immilog.user.infrastructure.jpa.entity;
 
 import com.backend.immilog.user.domain.model.company.Company;
-import com.backend.immilog.user.domain.enums.Industry;
+import com.backend.immilog.user.domain.model.company.Industry;
 import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.user.domain.model.company.CompanyData;
 import com.backend.immilog.user.domain.model.company.Manager;
-import com.backend.immilog.user.infrastructure.jpa.entity.company.CompanyEntity;
+import com.backend.immilog.user.infrastructure.jpa.CompanyJpaEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
 
 @DisplayName("CompanyEntity 테스트")
-class CompanyEntityTest {
+class CompanyJpaEntityTest {
     @Test
     @DisplayName("CompanyEntity Company 컨버팅")
     void companyEntityFromCompany_validCompany() {
@@ -22,8 +22,8 @@ class CompanyEntityTest {
                 CompanyData.of(Industry.IT, "Test Company", "test@country.com", "1234567890", "123 Test St", "www.test.com", "logo.png")
         );
 
-        CompanyEntity companyEntity = CompanyEntity.from(company);
-        Company domain = companyEntity.toDomain();
+        CompanyJpaEntity companyJpaEntity = CompanyJpaEntity.from(company);
+        Company domain = companyJpaEntity.toDomain();
 
         assertThat(domain.industry()).isEqualTo(company.industry());
         assertThat(domain.name()).isEqualTo(company.name());
@@ -46,10 +46,10 @@ class CompanyEntityTest {
                 CompanyData.of(Industry.IT, "Test Company", mail, "1234567890", "123 Test St", "www.test.com", "logo.png")
         );
 
-        CompanyEntity companyEntity = CompanyEntity.from(model);
+        CompanyJpaEntity companyJpaEntity = CompanyJpaEntity.from(model);
 
 
-        Company company = companyEntity.toDomain();
+        Company company = companyJpaEntity.toDomain();
 
         assertThat(company.seq()).isEqualTo(1L);
         assertThat(company.industry()).isEqualTo(Industry.IT);
@@ -68,16 +68,16 @@ class CompanyEntityTest {
     void companyEntityFromCompany_nullCompany() {
         Company company = null;
 
-        assertThatThrownBy(() -> CompanyEntity.from(company))
+        assertThatThrownBy(() -> CompanyJpaEntity.from(company))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @DisplayName("CompanyEntity toDomain - null fields")
     void companyEntityToDomain_nullFields() {
         Company nullCompany = new Company(null, null, null);
-        CompanyEntity companyEntity = CompanyEntity.from(nullCompany);
+        CompanyJpaEntity companyJpaEntity = CompanyJpaEntity.from(nullCompany);
 
-        Company company = companyEntity.toDomain();
+        Company company = companyJpaEntity.toDomain();
 
         assertThat(company.seq()).isNull();
         assertThat(company.industry()).isNull();
