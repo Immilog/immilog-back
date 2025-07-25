@@ -8,8 +8,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,29 +17,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtProvider implements TokenProvider {
-    private static final long ONE_DAY = 24 * 60 * 60 * 1000L;
-    private static final long SIX_MONTH = 6 * 30 * 24 * 60 * 60 * 1000L;
-    private final UserDetailsServiceImpl userDetailsService;
-    @Value("${token.issuer}")
-    private String issuer;
-    private SecretKey secretKey;
-    @Value("${token.secret-key}")
-    private String secretKeyString;
 
-    public JwtProvider(UserDetailsServiceImpl userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    private final JwtProperties jwtProperties;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    private SecretKey secretKey;
 
     @PostConstruct
     public void init() {
-        secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKeyString));
+        secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtProperties.secretKey()));
     }
 
     @Override
@@ -49,29 +43,44 @@ public class JwtProvider implements TokenProvider {
             UserRole userRole,
             Country country
     ) {
-        Claims claims =
-                Jwts.claims().setSubject(id.toString());
-        claims.put("email", email);
-        claims.put("userRole", userRole);
-        claims.put("country", country.countryCode());
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + jwtProperties.getAccessTokenExpirationMs());
 
-        return buildJwt(claims);
+        return Jwts.builder()
+                .subject(id.toString())
+                .claim("email", email)
+                .claim("userRole", userRole.name())
+                .claim("country", country.countryCode())
+                .issuer(jwtProperties.issuer())
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(secretKey)
+                .compact();
     }
 
     @Override
     public String issueRefreshToken() {
-        return buildJwt(null);
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + jwtProperties.getRefreshTokenExpirationMs());
+
+        return Jwts.builder()
+                .issuer(jwtProperties.issuer())
+                .issuedAt(now)
+                .expiration(expiration)
+                .signWith(secretKey)
+                .compact();
     }
 
     @Override
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+            Jwts.parser()
+                    .verifyWith(secretKey)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException ex) {
+            log.debug("Invalid JWT token: {}", ex.getMessage());
             return false;
         }
     }
@@ -80,23 +89,25 @@ public class JwtProvider implements TokenProvider {
     public Long getIdFromToken(String token) {
         token = removeBearer(token);
 
-        return Long.parseLong(Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+        String subject = Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject());
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+
+        return Long.parseLong(subject);
     }
 
     @Override
     public String getEmailFromToken(String token) {
         token = removeBearer(token);
 
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+        return Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
+                .parseSignedClaims(token)
+                .getPayload()
                 .get("email", String.class);
     }
 
@@ -104,11 +115,11 @@ public class JwtProvider implements TokenProvider {
     public Authentication getAuthentication(String token) {
         token = removeBearer(token);
 
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         String email = claims.get("email", String.class);
         UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
@@ -116,7 +127,7 @@ public class JwtProvider implements TokenProvider {
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         List<GrantedAuthority> authorities = new ArrayList<>(userDetails.getAuthorities());
-        authorities.addAll(userRole.getAuthorities()); // 추가된 역할 권한
+        authorities.addAll(userRole.getAuthorities());
 
         return new UsernamePasswordAuthenticationToken(
                 userDetails, "", authorities
@@ -126,31 +137,21 @@ public class JwtProvider implements TokenProvider {
     @Override
     public UserRole getUserRoleFromToken(String authorizationHeader) {
         String token = removeBearer(authorizationHeader);
-        return UserRole.valueOf(Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+
+        String userRoleString = Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("userRole", String.class));
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("userRole", String.class);
+
+        return UserRole.valueOf(userRoleString);
     }
 
     private String removeBearer(String token) {
-        if (token.startsWith("Bearer ")) {
+        if (token != null && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
         return token;
     }
-
-    private String buildJwt(Claims claims) {
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuer(issuer)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(
-                        new Date(System.currentTimeMillis() +
-                                (claims == null ? SIX_MONTH : ONE_DAY)))
-                .signWith(secretKey)
-                .compact();
-    }
-
 }

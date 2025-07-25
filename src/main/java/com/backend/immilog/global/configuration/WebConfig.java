@@ -1,36 +1,35 @@
 package com.backend.immilog.global.configuration;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("${local.file.storage.directory}")
-    private String path;
+    private final WebProperties webProperties;
 
     @Override
-    public void addCorsMappings(
-            CorsRegistry registry
-    ) {
-        registry.addMapping("/api/v1/users/*/verification")
-                .allowedOrigins("*")
-                .allowedMethods("*")
-                .allowedHeaders("*");
+    public void addCorsMappings(CorsRegistry registry) {
+        webProperties.cors().mappings().forEach(mapping -> {
+            var corsRegistration = registry.addMapping(mapping.pathPattern())
+                    .allowedOrigins(mapping.allowedOrigins().toArray(String[]::new))
+                    .allowedMethods(mapping.allowedMethods().toArray(String[]::new))
+                    .allowedHeaders(mapping.allowedHeaders().toArray(String[]::new));
 
-        registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173", "https://ko-meet-front.vercel.app/")
-                .allowedMethods("*")
-                .allowedHeaders("*")
-                .allowCredentials(true);
+            if (mapping.allowCredentials()) {
+                corsRegistration.allowCredentials(true);
+            }
+        });
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + path + "/");
+        var fileStorage = webProperties.fileStorage();
+        registry.addResourceHandler(fileStorage.resourcePattern())
+                .addResourceLocations("file:" + fileStorage.directory() + "/");
     }
 }
