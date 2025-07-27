@@ -1,9 +1,9 @@
 package com.backend.immilog.user.presentation.payload;
 
-import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
 import com.backend.immilog.user.application.command.UserReportCommand;
+import com.backend.immilog.user.domain.model.enums.Country;
 import com.backend.immilog.user.domain.model.report.ReportReason;
 import com.backend.immilog.user.domain.model.user.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;

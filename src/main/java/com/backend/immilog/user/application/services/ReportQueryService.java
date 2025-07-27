@@ -17,6 +17,6 @@ public class ReportQueryService {
             Long targetUserSeq,
             Long reporterUserSeq
     ) {
-        return reportRepository.existsByUserSeqNumbers(targetUserSeq, reporterUserSeq);
+        return reportRepository.existsByReportedUserIdAndReporterUserId(targetUserSeq, reporterUserSeq);
     }
 }

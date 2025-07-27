@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.services;
 
-import com.backend.immilog.global.infrastructure.persistence.repository.DataRepository;
+import com.backend.immilog.shared.infrastructure.DataRepository;
 import org.springframework.stereotype.Service;
 
 @Service

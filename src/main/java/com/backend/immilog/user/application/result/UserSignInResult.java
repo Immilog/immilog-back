@@ -22,28 +22,22 @@ public record UserSignInResult(
             String refreshToken,
             boolean isLocationMatch
     ) {
-        String interestCountry = user.interestCountry() == null ? null : user.countryName();
-
         return new UserSignInResult(
-                user.seq(),
-                user.email(),
-                user.nickname(),
+                user.getUserId().value(),
+                user.getEmail(),
+                user.getNickname(),
                 accessToken == null ? "" : accessToken,
                 refreshToken == null ? "" : refreshToken,
-                user.countryName(),
-                interestCountry,
-                user.region(),
-                user.imageUrl(),
+                user.getCountry().koreanName(),
+                user.getInterestCountry() == null ? null : user.getCountry().koreanName(),
+                user.getRegion(),
+                user.getImageUrl(),
                 isLocationMatch
         );
     }
 
     public UserSignInPayload.UserSignInResponse toResponse() {
-        return new UserSignInPayload.UserSignInResponse(
-                200,
-                "success",
-                this
-        );
+        return new UserSignInPayload.UserSignInResponse(200, "success", this);
     }
 }
 

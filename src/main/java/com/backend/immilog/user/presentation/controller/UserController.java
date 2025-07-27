@@ -1,7 +1,7 @@
 package com.backend.immilog.user.presentation.controller;
 
 import com.backend.immilog.user.application.usecase.*;
-import com.backend.immilog.user.presentation.payload.UserGeneralResponse;
+import com.backend.immilog.user.presentation.payload.GeneralPayload;
 import com.backend.immilog.user.presentation.payload.UserInformationPayload;
 import com.backend.immilog.user.presentation.payload.UserSignInPayload;
 import com.backend.immilog.user.presentation.payload.UserSignUpPayload;
@@ -19,20 +19,20 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping("/api/v1/users")
 @RestController
 public class UserController {
-    private final UserSignUpUseCase userSignUpProcessor;
-    private final UserSignInUseCase userLoginProcessor;
-    private final UserUpdateUseCase userUpdater;
-    private final UserRepostUseCase userReporter;
-    private final LocationFetchUseCase locationFetcher;
-    private final EmailSendUseCase emailSender;
+    private final SignUpUserUseCase userSignUpProcessor;
+    private final SignInUserUseCase userLoginProcessor;
+    private final UpdateUserUseCase userUpdater;
+    private final RepostUserUseCase userReporter;
+    private final FetchLocationUseCase locationFetcher;
+    private final SendEmailUseCase emailSender;
 
     public UserController(
-            UserSignUpUseCase userSignUpProcessor,
-            UserSignInUseCase userLoginProcessor,
-            UserUpdateUseCase userUpdater,
-            UserRepostUseCase userReporter,
-            LocationFetchUseCase locationFetcher,
-            EmailSendUseCase emailSender
+            SignUpUserUseCase userSignUpProcessor,
+            SignInUserUseCase userLoginProcessor,
+            UpdateUserUseCase userUpdater,
+            RepostUserUseCase userReporter,
+            FetchLocationUseCase locationFetcher,
+            SendEmailUseCase emailSender
     ) {
         this.userSignUpProcessor = userSignUpProcessor;
         this.userLoginProcessor = userLoginProcessor;
@@ -44,7 +44,7 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "사용자 회원가입", description = "사용자 회원가입 진행")
-    public ResponseEntity<UserGeneralResponse> signUp(
+    public ResponseEntity<GeneralPayload> signUp(
             @Valid @RequestBody UserSignUpPayload.UserSignUpRequest request
     ) {
         final var userSeqAndName = userSignUpProcessor.signUp(request.toCommand());
@@ -67,13 +67,13 @@ public class UserController {
 
     @PatchMapping("/{userSeq}/information")
     @Operation(summary = "사용자 정보 수정", description = "사용자 정보 수정 진행")
-    public ResponseEntity<UserGeneralResponse> updateInformation(
+    public ResponseEntity<GeneralPayload> updateInformation(
             @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
             @RequestBody UserInformationPayload.UserInfoUpdateRequest request
     ) {
         var country = locationFetcher.getCountry(request.latitude(), request.longitude());
         userUpdater.updateInformation(userSeq, country, request.toCommand());
-        return ResponseEntity.status(OK).body(UserGeneralResponse.success());
+        return ResponseEntity.status(OK).body(GeneralPayload.success());
     }
 
     @PatchMapping("/{userSeq}/password/change")

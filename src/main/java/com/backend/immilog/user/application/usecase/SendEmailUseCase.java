@@ -9,7 +9,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-public interface EmailSendUseCase {
+public interface SendEmailUseCase {
     void sendHtmlEmail(
             String to,
             String subject,
@@ -18,7 +18,7 @@ public interface EmailSendUseCase {
 
     @Slf4j
     @Service
-    class EmailSender implements EmailSendUseCase {
+    class EmailSender implements SendEmailUseCase {
         private final JavaMailSender javaMailSender;
 
         public EmailSender(JavaMailSender javaMailSender) {

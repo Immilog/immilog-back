@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-public interface LocationFetchUseCase {
+public interface FetchLocationUseCase {
     CompletableFuture<LocationResult> getCountry(
             Double latitude,
             Double longitude
@@ -22,7 +22,7 @@ public interface LocationFetchUseCase {
 
     @Slf4j
     @Service
-    class LocationFetcher implements LocationFetchUseCase {
+    class LocationFetcher implements FetchLocationUseCase {
         private final GeocodeGateway geocodeGateway;
 
         public LocationFetcher(GeocodeGateway geocodeGateway) {

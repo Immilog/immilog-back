@@ -34,8 +34,12 @@ public class AuthJpaValue {
         return new AuthJpaValue(email, password);
     }
 
+    public static AuthJpaValue from(Auth auth) {
+        return new AuthJpaValue(auth.email(), auth.password());
+    }
+
     public Auth toDomain() {
-        if(this.email == null || this.password == null) {
+        if (this.email == null || this.password == null) {
             throw new UserException(UserErrorCode.ENTITY_TO_DOMAIN_ERROR);
         }
         return Auth.of(this.email, this.password);

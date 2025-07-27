@@ -14,16 +14,26 @@ public class UserPasswordPolicy {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void validate(String rawPassword, String encodedPassword) {
+    public void validatePasswordMatch(
+            String rawPassword,
+            String encodedPassword
+    ) {
         if (!passwordEncoder.matches(rawPassword, encodedPassword)) {
             throw new UserException(UserErrorCode.PASSWORD_NOT_MATCH);
         }
     }
 
-    public String encode(String password) {
+    public String encodePassword(String rawPassword) {
+        validateRawPassword(rawPassword);
+        return passwordEncoder.encode(rawPassword);
+    }
+
+    private void validateRawPassword(String password) {
         if (password == null || password.trim().isEmpty()) {
-            throw new UserException(UserErrorCode.PASSWORD_NOT_MATCH);
+            throw new UserException(UserErrorCode.INVALID_PASSWORD_FORMAT);
         }
-        return passwordEncoder.encode(password);
+        if (password.length() < 8 || password.length() > 50) {
+            throw new UserException(UserErrorCode.INVALID_PASSWORD_FORMAT);
+        }
     }
 }

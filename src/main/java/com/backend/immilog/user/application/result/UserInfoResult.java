@@ -1,7 +1,7 @@
 package com.backend.immilog.user.application.result;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.global.enums.UserRole;
+import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.user.domain.model.enums.UserRole;
 import com.backend.immilog.user.domain.model.user.User;
 import com.backend.immilog.user.domain.model.user.UserStatus;
 
@@ -22,17 +22,17 @@ public record UserInfoResult(
 ) {
     public static UserInfoResult from(User user) {
         return new UserInfoResult(
-                user.seq(),
-                user.nickname(),
-                user.email(),
-                user.imageUrl(),
-                user.reportedCount(),
-                user.reportedDate(),
-                user.country(),
-                user.interestCountry(),
-                user.region(),
-                user.userRole(),
-                user.userStatus()
+                user.getUserId().value(),
+                user.getNickname(),
+                user.getEmail(),
+                user.getImageUrl(),
+                0L,
+                null,
+                user.getCountry(),
+                user.getProfile().interestCountry(),
+                user.getRegion(),
+                user.getUserRole(),
+                user.getUserStatus()
         );
     }
 

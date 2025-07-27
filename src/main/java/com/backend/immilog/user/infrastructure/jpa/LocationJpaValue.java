@@ -1,6 +1,6 @@
 package com.backend.immilog.user.infrastructure.jpa;
 
-import com.backend.immilog.global.enums.Country;
+import com.backend.immilog.user.domain.model.enums.Country;
 import com.backend.immilog.user.domain.model.user.Location;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
@@ -37,6 +37,13 @@ public class LocationJpaValue {
             String region
     ) {
         return new LocationJpaValue(country, region);
+    }
+
+    public static LocationJpaValue from(Location location) {
+        return new LocationJpaValue(
+                location.country(),
+                location.region()
+        );
     }
 
     public Location toDomain() {

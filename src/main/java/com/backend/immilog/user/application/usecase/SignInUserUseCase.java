@@ -7,13 +7,12 @@ import com.backend.immilog.user.application.services.RefreshTokenCommandService;
 import com.backend.immilog.user.application.services.UserQueryService;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import com.backend.immilog.user.domain.service.UserTokenGenerator;
-import com.backend.immilog.user.domain.service.UserValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-public interface UserSignInUseCase {
+public interface SignInUserUseCase {
     UserSignInResult signIn(
             UserSignInCommand command,
             CompletableFuture<LocationResult> country
@@ -25,25 +24,22 @@ public interface UserSignInUseCase {
     );
 
     @Service
-    class UserLoginProcessor implements UserSignInUseCase {
+    class UserLoginProcessor implements SignInUserUseCase {
         private final UserQueryService userQueryService;
         private final RefreshTokenCommandService refreshTokenCommandService;
         private final UserTokenGenerator userTokenGenerator;
         private final UserPasswordPolicy userPasswordPolicy;
-        private final UserValidator userValidator;
 
         public UserLoginProcessor(
                 UserQueryService userQueryService,
                 RefreshTokenCommandService refreshTokenCommandService,
                 UserTokenGenerator tokenProvider,
-                UserPasswordPolicy userPasswordPolicy,
-                UserValidator userValidator
+                UserPasswordPolicy userPasswordPolicy
         ) {
             this.userQueryService = userQueryService;
             this.refreshTokenCommandService = refreshTokenCommandService;
             this.userTokenGenerator = tokenProvider;
             this.userPasswordPolicy = userPasswordPolicy;
-            this.userValidator = userValidator;
         }
 
         private final int REFRESH_TOKEN_EXPIRE_TIME = 5 * 29 * 24 * 60;
@@ -55,14 +51,17 @@ public interface UserSignInUseCase {
                 CompletableFuture<LocationResult> country
         ) {
             final var user = userQueryService.getUserByEmail(command.email());
-            userPasswordPolicy.validate(command.password(), user.password());
-            userValidator.validateUserStatus(user.userStatus());
-            final var accessToken = userTokenGenerator.generate(user.seq(), user.email(), user.userRole(), user.country());
+            userPasswordPolicy.validatePasswordMatch(command.password(), user.getPassword());
+
+            var userCountry = user.getCountry();
+            var userEmail = user.getEmail();
+
+            final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountry);
             final var refreshToken = userTokenGenerator.generateRefreshToken();
 
-            refreshTokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, user.email(), REFRESH_TOKEN_EXPIRE_TIME);
+            refreshTokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
             var locationResult = country.orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> new LocationResult("Error", "Timeout")).join();
-            boolean locationMatch = user.countryNameInKorean().equals(locationResult.country()) && user.region().equals(locationResult.city());
+            boolean locationMatch = userCountry.koreanName().equals(locationResult.country()) && user.getRegion().equals(locationResult.city());
 
             return UserSignInResult.of(user, accessToken, refreshToken, locationMatch);
         }
@@ -70,14 +69,16 @@ public interface UserSignInUseCase {
         @Override
         public UserSignInResult getUserSignInDTO(
                 Long userSeq,
-                LocationResult country
+                LocationResult locationResult
         ) {
             final var user = userQueryService.getUserById(userSeq);
-            boolean isLocationMatch = user.countryNameInKorean().equals(country.country()) && user.region().equals(country.city());
-            final var accessToken = userTokenGenerator.generate(user.seq(), user.email(), user.userRole(), user.country());
+            var userCountry = user.getCountry();
+            var userEmail = user.getEmail();
+            boolean isLocationMatch = userCountry.koreanName().equals(locationResult.country()) && user.getRegion().equals(locationResult.city());
+            final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountry);
             final var refreshToken = userTokenGenerator.generateRefreshToken();
 
-            refreshTokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, user.email(), REFRESH_TOKEN_EXPIRE_TIME);
+            refreshTokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
 
             return UserSignInResult.of(user, accessToken, refreshToken, isLocationMatch);
         }

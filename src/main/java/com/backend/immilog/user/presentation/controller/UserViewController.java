@@ -1,6 +1,6 @@
 package com.backend.immilog.user.presentation.controller;
 
-import com.backend.immilog.user.application.usecase.UserSignUpUseCase;
+import com.backend.immilog.user.application.usecase.SignUpUserUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api/v1/users")
 @Controller
 public class UserViewController {
-    private final UserSignUpUseCase.UserSignUpProcessor userSignUpProcessor;
+    private final SignUpUserUseCase.UserSignUpProcessor userSignUpProcessor;
 
-    public UserViewController(UserSignUpUseCase.UserSignUpProcessor userSignUpProcessor) {
+    public UserViewController(SignUpUserUseCase.UserSignUpProcessor userSignUpProcessor) {
         this.userSignUpProcessor = userSignUpProcessor;
     }
 

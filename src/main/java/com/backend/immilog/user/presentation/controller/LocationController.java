@@ -1,7 +1,7 @@
 package com.backend.immilog.user.presentation.controller;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.user.application.usecase.LocationFetchUseCase;
+import com.backend.immilog.user.application.usecase.FetchLocationUseCase;
+import com.backend.immilog.user.domain.model.enums.Country;
 import com.backend.immilog.user.presentation.payload.UserLoacationPayload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,9 +18,9 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/api/v1/locations")
 @RestController
 public class LocationController {
-    private final LocationFetchUseCase locationFetcher;
+    private final FetchLocationUseCase locationFetcher;
 
-    public LocationController(LocationFetchUseCase locationFetcher) {
+    public LocationController(FetchLocationUseCase locationFetcher) {
         this.locationFetcher = locationFetcher;
     }
 

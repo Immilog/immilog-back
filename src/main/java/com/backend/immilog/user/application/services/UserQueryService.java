@@ -1,6 +1,7 @@
 package com.backend.immilog.user.application.services;
 
 import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.model.user.UserId;
 import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
@@ -17,25 +18,28 @@ public class UserQueryService {
 
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
-        return userRepository.getByEmail(email)
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
+
     @Transactional(readOnly = true)
     public Boolean isUserExist(String email) {
-        return userRepository.getByEmail(email).isPresent();
+        return userRepository.findByEmail(email).isPresent();
     }
 
     @Transactional(readOnly = true)
     public Boolean isNicknameAvailable(String nickname) {
-        return userRepository
-                .getByUserNickname(nickname)
-                .isEmpty();
+        return userRepository.findByNickname(nickname).isEmpty();
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserById(UserId id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
-        return userRepository.getById(id).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        return userRepository.findById(id).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
-
 
 }

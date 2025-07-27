@@ -1,6 +1,6 @@
 package com.backend.immilog.user.exception;
 
-import com.backend.immilog.global.exception.ErrorCode;
+import com.backend.immilog.shared.exception.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -15,7 +15,11 @@ public enum UserErrorCode implements ErrorCode {
     CANNOT_REPORT_MYSELF(BAD_REQUEST, "자기 자신은 신고할 수 없습니다."),
     NOT_AN_ADMIN_USER(BAD_REQUEST, "관리자 권한이 없는 사용자입니다."),
     EMAIL_SEND_FAILED(BAD_REQUEST, "이메일 발송에 실패하였습니다."),
-    ENTITY_TO_DOMAIN_ERROR(BAD_REQUEST, "Entity를 Domain으로 변환하는데 실패하였습니다.");
+    ENTITY_TO_DOMAIN_ERROR(BAD_REQUEST, "Entity를 Domain으로 변환하는데 실패하였습니다."),
+    INVALID_EMAIL_FORMAT(BAD_REQUEST, "유효하지 않은 이메일 형식입니다."),
+    INVALID_PASSWORD_FORMAT(BAD_REQUEST, "유효하지 않은 비밀번호 형식입니다."),
+    INVALID_NICKNAME(BAD_REQUEST, "유효하지 않은 닉네임입니다."),
+    INVALID_REGION(BAD_REQUEST, "유효하지 않은 지역입니다.");
 
     private final HttpStatus status;
     private final String message;
