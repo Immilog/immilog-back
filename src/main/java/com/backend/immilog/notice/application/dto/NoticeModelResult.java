@@ -1,12 +1,12 @@
 package com.backend.immilog.notice.application.dto;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.notice.domain.Notice;
-import com.backend.immilog.notice.domain.NoticeStatus;
-import com.backend.immilog.notice.domain.NoticeType;
+import com.backend.immilog.notice.domain.enums.NoticeStatus;
+import com.backend.immilog.notice.domain.enums.NoticeType;
+import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
 import com.backend.immilog.notice.presentation.NoticeDetailResponse;
+import com.backend.immilog.user.domain.model.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -31,15 +31,15 @@ public record NoticeModelResult(
 ) {
     public static NoticeModelResult from(Notice notice) {
         return new NoticeModelResult(
-                notice.seq(),
-                notice.userSeq(),
-                notice.title(),
-                notice.content(),
-                notice.type(),
-                notice.status(),
-                notice.targetCountry(),
-                notice.readUsers(),
-                notice.createdAt()
+                notice.getIdValue(),
+                notice.getAuthorUserSeq(),
+                notice.getTitleValue(),
+                notice.getContentValue(),
+                notice.getType(),
+                notice.getStatus(),
+                notice.getTargetCountries(),
+                notice.getReadUsers(),
+                notice.getCreatedAt()
         );
     }
 
@@ -47,16 +47,16 @@ public record NoticeModelResult(
         try {
             Array targetCountry = rs.getArray("target_Country");
             return new NoticeModelResult(
-                rs.getLong("seq"),
-                rs.getLong("user_seq"),
-                rs.getString("title"),
-                rs.getString("content"),
-                NoticeType.valueOf(rs.getString("type")),
-                NoticeStatus.valueOf(rs.getString("status")),
-                Arrays.asList((Country[]) targetCountry.getArray()),
-                Arrays.asList((Long[]) rs.getArray("read_users").getArray()),
-                rs.getTimestamp("created_at").toLocalDateTime()
-        );
+                    rs.getLong("seq"),
+                    rs.getLong("user_seq"),
+                    rs.getString("title"),
+                    rs.getString("content"),
+                    NoticeType.valueOf(rs.getString("type")),
+                    NoticeStatus.valueOf(rs.getString("status")),
+                    Arrays.asList((Country[]) targetCountry.getArray()),
+                    Arrays.asList((Long[]) rs.getArray("read_users").getArray()),
+                    rs.getTimestamp("created_at").toLocalDateTime()
+            );
         } catch (SQLException e) {
             throw new NoticeException(NoticeErrorCode.SQL_ERROR);
         }

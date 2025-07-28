@@ -1,10 +1,9 @@
 package com.backend.immilog.notice.infrastructure.jpa;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.notice.domain.Notice;
-import com.backend.immilog.notice.domain.NoticeDetail;
-import com.backend.immilog.notice.domain.NoticeStatus;
-import com.backend.immilog.notice.domain.NoticeType;
+import com.backend.immilog.notice.domain.enums.NoticeStatus;
+import com.backend.immilog.notice.domain.enums.NoticeType;
+import com.backend.immilog.notice.domain.model.*;
+import com.backend.immilog.user.domain.model.enums.Country;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.DynamicUpdate;
@@ -83,25 +82,28 @@ public class NoticeJpaEntity {
 
     public static NoticeJpaEntity from(Notice notice) {
         return new NoticeJpaEntity(
-                notice.seq(),
-                notice.userSeq(),
-                notice.title(),
-                notice.content(),
-                notice.type(),
-                notice.status(),
-                notice.targetCountry(),
-                notice.readUsers()
+                notice.getIdValue(),
+                notice.getAuthorUserSeq(),
+                notice.getTitleValue(),
+                notice.getContentValue(),
+                notice.getType(),
+                notice.getStatus(),
+                notice.getTargetCountries(),
+                notice.getReadUsers()
         );
     }
 
     public Notice toDomain() {
-        return new Notice(
-                this.seq,
-                this.userSeq,
-                this.targetCountry,
-                this.readUsers,
+        return Notice.restore(
+                this.seq != null ? NoticeId.of(this.seq) : null,
+                NoticeAuthor.of(this.userSeq),
+                NoticeTitle.of(this.title),
+                NoticeContent.of(this.content),
+                this.type,
+                this.status,
+                NoticeTargeting.of(this.targetCountry),
+                NoticeReadStatus.of(this.readUsers),
                 this.createdAt,
-                NoticeDetail.of(this.title, this.content, this.type, this.status),
                 this.updatedAt
         );
     }

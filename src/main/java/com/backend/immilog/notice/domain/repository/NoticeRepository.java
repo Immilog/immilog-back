@@ -1,0 +1,43 @@
+package com.backend.immilog.notice.domain.repository;
+
+import com.backend.immilog.notice.application.dto.NoticeModelResult;
+import com.backend.immilog.notice.domain.enums.NoticeType;
+import com.backend.immilog.notice.domain.model.Notice;
+import com.backend.immilog.user.domain.model.enums.Country;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface NoticeRepository {
+    Page<NoticeModelResult> getNotices(
+            Long userSeq,
+            Pageable pageable
+    );
+
+    Notice save(Notice notice);
+
+    void delete(Notice notice);
+
+    void deleteById(Long noticeId);
+
+    Optional<Notice> findById(Long noticeId);
+
+    Optional<Notice> findBySeq(Long noticeSeq);
+
+    List<Notice> findActiveNoticesForCountry(Country country);
+
+    List<Notice> findAllActiveNotices();
+
+    List<Notice> findByType(NoticeType type);
+
+    List<Notice> findByAuthorUserSeq(Long authorUserSeq);
+
+    boolean existsById(Long noticeId);
+
+    Boolean areUnreadNoticesExist(
+            Country country,
+            Long seq
+    );
+}

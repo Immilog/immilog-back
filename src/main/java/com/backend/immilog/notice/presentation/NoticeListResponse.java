@@ -14,7 +14,7 @@ public record NoticeListResponse(
         Page<NoticeModelResult> data
 ) {
     public static NoticeListResponse of(Page<NoticeModelResult> notices) {
-        if(notices.isEmpty()) {
+        if (notices.isEmpty()) {
             return new NoticeListResponse(HttpStatus.NO_CONTENT.value(), "공지사항이 존재하지 않습니다.", null);
         }
         return new NoticeListResponse(HttpStatus.OK.value(), "success", notices);

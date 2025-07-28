@@ -1,7 +1,7 @@
-package com.backend.immilog.notice.domain;
+package com.backend.immilog.notice.domain.service;
 
-import com.backend.immilog.global.security.TokenProvider;
 import com.backend.immilog.notice.exception.NoticeException;
+import com.backend.immilog.shared.security.token.TokenProvider;
 import org.springframework.stereotype.Service;
 
 import static com.backend.immilog.notice.exception.NoticeErrorCode.NOT_AN_ADMIN_USER;
