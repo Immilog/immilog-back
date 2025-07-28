@@ -1,7 +1,7 @@
-package com.backend.immilog.user.infrastructure.jpa;
+package com.backend.immilog.company.infrastructure.jpa;
 
-import com.backend.immilog.user.domain.model.company.CompanyData;
-import com.backend.immilog.user.domain.model.company.Industry;
+import com.backend.immilog.company.domain.model.CompanyMetaData;
+import com.backend.immilog.company.domain.model.Industry;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter(AccessLevel.PROTECTED)
 @Embeddable
-public class CompanyJpaDataValue {
+public class CompanyJpaMetaData {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "industry")
@@ -35,9 +35,9 @@ public class CompanyJpaDataValue {
     @Column(name = "company_logo")
     private String companyLogo;
 
-    protected CompanyJpaDataValue() {}
+    protected CompanyJpaMetaData() {}
 
-    protected CompanyJpaDataValue(
+    protected CompanyJpaMetaData(
             Industry industry,
             String companyName,
             String companyEmail,
@@ -55,7 +55,7 @@ public class CompanyJpaDataValue {
         this.companyLogo = companyLogo;
     }
 
-    public static CompanyJpaDataValue of(
+    public static CompanyJpaMetaData of(
             Industry industry,
             String companyName,
             String companyEmail,
@@ -64,7 +64,7 @@ public class CompanyJpaDataValue {
             String companyHomepage,
             String companyLogo
     ) {
-        return new CompanyJpaDataValue(
+        return new CompanyJpaMetaData(
                 industry,
                 companyName,
                 companyEmail,
@@ -75,8 +75,8 @@ public class CompanyJpaDataValue {
         );
     }
 
-    public CompanyData toDomain() {
-        return new CompanyData(
+    public CompanyMetaData toDomain() {
+        return new CompanyMetaData(
                 this.industry,
                 this.companyName,
                 this.companyEmail,

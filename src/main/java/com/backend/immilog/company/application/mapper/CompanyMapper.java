@@ -1,7 +1,7 @@
-package com.backend.immilog.user.application.services;
+package com.backend.immilog.company.application.mapper;
 
-import com.backend.immilog.user.application.command.CompanyRegisterCommand;
-import com.backend.immilog.user.domain.model.company.Company;
+import com.backend.immilog.company.application.dto.CompanyRegisterCommand;
+import com.backend.immilog.company.domain.model.Company;
 import org.springframework.stereotype.Component;
 
 @Component

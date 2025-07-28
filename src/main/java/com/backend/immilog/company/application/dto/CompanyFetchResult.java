@@ -1,15 +1,15 @@
-package com.backend.immilog.user.application.result;
+package com.backend.immilog.company.application.dto;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.user.domain.model.company.Company;
-import com.backend.immilog.user.domain.model.company.CompanyData;
-import com.backend.immilog.user.domain.model.company.Industry;
-import com.backend.immilog.user.domain.model.company.Manager;
-import com.backend.immilog.user.presentation.payload.CompanyPayload;
+import com.backend.immilog.company.domain.model.Company;
+import com.backend.immilog.company.domain.model.CompanyManager;
+import com.backend.immilog.company.domain.model.CompanyMetaData;
+import com.backend.immilog.company.domain.model.Industry;
+import com.backend.immilog.company.presentation.CompanyPayload;
+import com.backend.immilog.user.domain.model.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 
-public record CompanyResult(
+public record CompanyFetchResult(
         @Schema(description = "회사 식별자") Long seq,
         @Schema(description = "산업 분야") Industry industry,
         @Schema(description = "회사명") String companyName,
@@ -22,8 +22,8 @@ public record CompanyResult(
         @Schema(description = "회사 로고") String companyLogo,
         @Schema(description = "회사 관리자 식별자") Long companyManagerUserSeq
 ) {
-    public static CompanyResult from(Company company) {
-        return new CompanyResult(
+    public static CompanyFetchResult from(Company company) {
+        return new CompanyFetchResult(
                 company.seq(),
                 company.industry(),
                 company.name(),
@@ -41,12 +41,12 @@ public record CompanyResult(
     public Company toDomain() {
         return new Company(
                 seq,
-                Manager.of(
+                CompanyManager.of(
                         companyCountry,
                         companyRegion,
                         companyManagerUserSeq
                 ),
-                CompanyData.of(
+                CompanyMetaData.of(
                         industry,
                         companyName,
                         companyEmail,
@@ -58,8 +58,8 @@ public record CompanyResult(
         );
     }
 
-    public static CompanyResult createEmpty() {
-        return new CompanyResult(
+    public static CompanyFetchResult createEmpty() {
+        return new CompanyFetchResult(
                 null,
                 null,
                 null,
@@ -74,19 +74,11 @@ public record CompanyResult(
         );
     }
 
-    public CompanyPayload.UserCompanyResponse toResponse() {
+    public CompanyPayload.CompanyResponse toResponse() {
         if (this.seq() == null) {
-            return new CompanyPayload.UserCompanyResponse(
-                    HttpStatus.NO_CONTENT.value(),
-                    "회사 정보가 비어있습니다.",
-                    null
-            );
+            return new CompanyPayload.CompanyResponse(HttpStatus.NO_CONTENT.value(), "회사 정보가 비어있습니다.", null);
         } else {
-            return new CompanyPayload.UserCompanyResponse(
-                    HttpStatus.OK.value(),
-                    "success",
-                    this
-            );
+            return new CompanyPayload.CompanyResponse(HttpStatus.OK.value(), "success", this);
         }
     }
 }

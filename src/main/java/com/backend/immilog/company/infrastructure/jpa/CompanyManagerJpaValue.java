@@ -1,7 +1,7 @@
-package com.backend.immilog.user.infrastructure.jpa;
+package com.backend.immilog.company.infrastructure.jpa;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.user.domain.model.company.Manager;
+import com.backend.immilog.company.domain.model.CompanyManager;
+import com.backend.immilog.user.domain.model.enums.Country;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter(AccessLevel.PROTECTED)
 @Embeddable
-public class ManagerJpaValue {
+public class CompanyManagerJpaValue {
     @Enumerated(EnumType.STRING)
     @Column(name = "company_country")
     private Country companyCountry;
@@ -22,9 +22,9 @@ public class ManagerJpaValue {
     @Column(name = "company_manager_user_seq")
     private Long companyManagerUserSeq;
 
-    protected ManagerJpaValue() {}
+    protected CompanyManagerJpaValue() {}
 
-    protected ManagerJpaValue(
+    protected CompanyManagerJpaValue(
             Country companyCountry,
             String companyRegion,
             Long companyManagerUserSeq
@@ -34,19 +34,19 @@ public class ManagerJpaValue {
         this.companyManagerUserSeq = companyManagerUserSeq;
     }
 
-    public static ManagerJpaValue of(
+    public static CompanyManagerJpaValue of(
             Country companyCountry,
             String companyRegion,
             Long companyManagerUserSeq
     ) {
-        return new ManagerJpaValue(
+        return new CompanyManagerJpaValue(
                 companyCountry,
                 companyRegion,
                 companyManagerUserSeq
         );
     }
 
-    public Manager toDomain() {
-        return Manager.of(companyCountry, companyRegion, companyManagerUserSeq);
+    public CompanyManager toDomain() {
+        return CompanyManager.of(companyCountry, companyRegion, companyManagerUserSeq);
     }
 }

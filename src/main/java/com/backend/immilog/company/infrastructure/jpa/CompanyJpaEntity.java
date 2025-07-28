@@ -1,8 +1,8 @@
-package com.backend.immilog.user.infrastructure.jpa;
+package com.backend.immilog.company.infrastructure.jpa;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.user.domain.model.company.Company;
-import com.backend.immilog.user.domain.model.company.Industry;
+import com.backend.immilog.company.domain.model.Company;
+import com.backend.immilog.company.domain.model.Industry;
+import com.backend.immilog.user.domain.model.enums.Country;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -15,10 +15,10 @@ public class CompanyJpaEntity {
     private Long seq;
 
     @Embedded
-    private ManagerJpaValue manager;
+    private CompanyManagerJpaValue manager;
 
     @Embedded
-    private CompanyJpaDataValue companyData;
+    private CompanyJpaMetaData companyData;
 
     protected CompanyJpaEntity() {}
 
@@ -35,7 +35,7 @@ public class CompanyJpaEntity {
             String companyLogo,
             Long companyManagerUserSeq
     ) {
-        CompanyJpaDataValue companyData = CompanyJpaDataValue.of(
+        CompanyJpaMetaData companyData = CompanyJpaMetaData.of(
                 industry,
                 companyName,
                 companyEmail,
@@ -44,7 +44,7 @@ public class CompanyJpaEntity {
                 companyHomepage,
                 companyLogo
         );
-        ManagerJpaValue manager = ManagerJpaValue.of(
+        CompanyManagerJpaValue manager = CompanyManagerJpaValue.of(
                 companyCountry,
                 companyRegion,
                 companyManagerUserSeq

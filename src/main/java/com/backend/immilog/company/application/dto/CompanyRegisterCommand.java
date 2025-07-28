@@ -1,7 +1,7 @@
-package com.backend.immilog.user.application.command;
+package com.backend.immilog.company.application.dto;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.user.domain.model.company.Industry;
+import com.backend.immilog.company.domain.model.Industry;
+import com.backend.immilog.user.domain.model.enums.Country;
 
 public record CompanyRegisterCommand(
         Industry industry,

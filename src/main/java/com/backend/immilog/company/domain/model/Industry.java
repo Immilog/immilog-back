@@ -1,4 +1,4 @@
-package com.backend.immilog.user.domain.model.company;
+package com.backend.immilog.company.domain.model;
 
 public enum Industry {
     IT("IT"),

@@ -1,7 +1,7 @@
-package com.backend.immilog.user.application.services;
+package com.backend.immilog.company.application.service;
 
-import com.backend.immilog.user.domain.model.company.Company;
-import com.backend.immilog.user.domain.repositories.CompanyRepository;
+import com.backend.immilog.company.domain.model.Company;
+import com.backend.immilog.company.domain.repository.CompanyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,5 +16,15 @@ public class CompanyQueryService {
     @Transactional(readOnly = true)
     public Company getByCompanyManagerUserSeq(Long userSeq) {
         return companyRepository.getByCompanyManagerUserSeq(userSeq).orElse(Company.createEmpty());
+    }
+
+    @Transactional(readOnly = true)
+    public Company getById(Long companyId) {
+        return companyRepository.findById(companyId).orElse(Company.createEmpty());
+    }
+
+    @Transactional(readOnly = true)
+    public boolean existsByName(String name) {
+        return companyRepository.existsByName(name);
     }
 }
