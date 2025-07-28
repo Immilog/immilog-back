@@ -97,7 +97,7 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     @Override
     public List<Notice> findByAuthorUserSeq(Long authorUserSeq) {
         return noticeJpaRepository
-                .findByAuthorSeqAndStatusNot(authorUserSeq, NoticeStatus.DELETED)
+                .findByUserSeqAndStatusNot(authorUserSeq, NoticeStatus.DELETED)
                 .stream()
                 .map(NoticeJpaEntity::toDomain)
                 .toList();

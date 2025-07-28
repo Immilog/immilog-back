@@ -31,7 +31,7 @@ public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Long
             NoticeStatus status
     );
 
-    List<NoticeJpaEntity> findByAuthorSeqAndStatusNot(
+    List<NoticeJpaEntity> findByUserSeqAndStatusNot(
             Long authorSeq,
             NoticeStatus status
     );
