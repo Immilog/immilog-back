@@ -1,4 +1,4 @@
-package com.backend.immilog.user.application.services;
+package com.backend.immilog.user.application.services.command;
 
 import com.backend.immilog.user.domain.model.report.Report;
 import com.backend.immilog.user.domain.repositories.ReportRepository;

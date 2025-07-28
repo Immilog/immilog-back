@@ -1,4 +1,4 @@
-package com.backend.immilog.user.application.services;
+package com.backend.immilog.user.application.services.query;
 
 import com.backend.immilog.user.domain.repositories.ReportRepository;
 import org.springframework.stereotype.Service;

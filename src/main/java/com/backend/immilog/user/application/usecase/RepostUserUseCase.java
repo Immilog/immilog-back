@@ -2,7 +2,7 @@ package com.backend.immilog.user.application.usecase;
 
 import com.backend.immilog.shared.aop.annotation.DistributedLock;
 import com.backend.immilog.user.application.command.UserReportCommand;
-import com.backend.immilog.user.application.service.ReportApplicationService;
+import com.backend.immilog.user.application.services.ReportService;
 import com.backend.immilog.user.domain.model.report.ReportReason;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -18,10 +18,10 @@ public interface RepostUserUseCase {
     @Slf4j
     @Service
     class Reporter implements RepostUserUseCase {
-        private final ReportApplicationService reportApplicationService;
+        private final ReportService reportService;
 
-        public Reporter(ReportApplicationService reportApplicationService) {
-            this.reportApplicationService = reportApplicationService;
+        public Reporter(ReportService reportService) {
+            this.reportService = reportService;
         }
 
         @Async
@@ -34,7 +34,7 @@ public interface RepostUserUseCase {
         ) {
             boolean isOther = command.reason().equals(ReportReason.OTHER);
             var description = isOther ? command.description() : command.reason().reason();
-            reportApplicationService.reportUser(targetUserSeq, reporterUserSeq, description, command.reason());
+            reportService.reportUser(targetUserSeq, reporterUserSeq, description, command.reason());
             log.info("User {} reported by {}", targetUserSeq, reporterUserSeq);
         }
     }

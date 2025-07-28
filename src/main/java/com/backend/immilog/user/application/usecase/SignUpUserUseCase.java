@@ -3,8 +3,8 @@ package com.backend.immilog.user.application.usecase;
 import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
 import com.backend.immilog.user.application.result.UserNickNameResult;
-import com.backend.immilog.user.application.service.UserApplicationService;
-import com.backend.immilog.user.application.services.UserQueryService;
+import com.backend.immilog.user.application.services.UserService;
+import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.model.enums.Country;
 import com.backend.immilog.user.domain.model.user.User;
 import com.backend.immilog.user.domain.model.user.UserId;
@@ -22,16 +22,16 @@ public interface SignUpUserUseCase {
     @Slf4j
     @Service
     class UserSignUpProcessor implements SignUpUserUseCase {
-        private final UserApplicationService userApplicationService;
+        private final UserService userService;
         private final UserQueryService userQueryService;
         private final EmailVerificationService emailVerificationService;
 
         public UserSignUpProcessor(
-                UserApplicationService userApplicationService,
+                UserService userService,
                 UserQueryService userQueryService,
                 EmailVerificationService emailVerificationService
         ) {
-            this.userApplicationService = userApplicationService;
+            this.userService = userService;
             this.userQueryService = userQueryService;
             this.emailVerificationService = emailVerificationService;
         }
@@ -39,7 +39,7 @@ public interface SignUpUserUseCase {
         @Override
         public UserNickNameResult signUp(UserSignUpCommand command) {
             // 새로운 UserApplicationService를 통한 회원가입
-            UserId userId = userApplicationService.registerUser(
+            UserId userId = userService.registerUser(
                     command.email(),
                     command.password(),
                     command.nickName(),
@@ -50,7 +50,7 @@ public interface SignUpUserUseCase {
             );
 
             // 생성된 사용자 정보 조회
-            User savedUser = userApplicationService.getUserById(userId);
+            User savedUser = userService.getUserById(userId);
             return new UserNickNameResult(userId.value(), savedUser.getNickname());
         }
 
@@ -61,7 +61,7 @@ public interface SignUpUserUseCase {
 
         @Override
         public EmailVerificationResult verifyEmail(Long userSeq) {
-            User user = userApplicationService.getUserById(UserId.of(userSeq));
+            User user = userService.getUserById(UserId.of(userSeq));
 
             var verificationResult = emailVerificationService.generateVerificationResult(
                     user.getUserStatus(),
