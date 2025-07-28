@@ -1,7 +1,7 @@
 package com.backend.immilog.user.infrastructure.jpa;
 
-import com.backend.immilog.user.domain.model.enums.Country;
-import com.backend.immilog.user.domain.model.user.Profile;
+import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.user.domain.model.Profile;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import jakarta.persistence.Column;

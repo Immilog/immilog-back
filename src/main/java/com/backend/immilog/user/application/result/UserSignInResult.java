@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.result;
 
-import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.model.User;
 import com.backend.immilog.user.presentation.payload.UserSignInPayload;
 import io.swagger.v3.oas.annotations.media.Schema;
 

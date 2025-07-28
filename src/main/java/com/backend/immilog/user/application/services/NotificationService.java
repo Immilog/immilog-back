@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.services;
 
-import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

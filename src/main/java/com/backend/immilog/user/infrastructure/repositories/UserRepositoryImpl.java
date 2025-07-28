@@ -1,7 +1,7 @@
 package com.backend.immilog.user.infrastructure.repositories;
 
-import com.backend.immilog.user.domain.model.user.User;
-import com.backend.immilog.user.domain.model.user.UserId;
+import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.UserId;
 import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.infrastructure.jpa.UserJpaEntity;
 import com.backend.immilog.user.infrastructure.jpa.UserJpaRepository;

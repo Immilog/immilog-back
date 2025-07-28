@@ -1,7 +1,7 @@
 package com.backend.immilog.user.application.command;
 
-import com.backend.immilog.user.domain.model.enums.Country;
-import com.backend.immilog.user.domain.model.user.UserStatus;
+import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.user.domain.model.UserStatus;
 
 public record UserInfoUpdateCommand(
         String nickName,

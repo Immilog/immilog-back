@@ -2,7 +2,8 @@ package com.backend.immilog.user.application.services;
 
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
-import com.backend.immilog.user.domain.model.user.*;
+import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.user.domain.model.*;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import com.backend.immilog.user.domain.service.UserRegistrationService;
 import org.springframework.stereotype.Service;
@@ -34,8 +35,8 @@ public class UserService {
             String rawPassword,
             String nickname,
             String imageUrl,
-            com.backend.immilog.user.domain.model.enums.Country interestCountry,
-            com.backend.immilog.user.domain.model.enums.Country country,
+            Country interestCountry,
+            Country country,
             String region
     ) {
         // 1. 비밀번호 암호화
@@ -70,7 +71,7 @@ public class UserService {
             UserId userId,
             String nickname,
             String imageUrl,
-            com.backend.immilog.user.domain.model.enums.Country interestCountry
+            Country interestCountry
     ) {
         var user = getUserById(userId);
 

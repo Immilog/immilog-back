@@ -1,5 +1,6 @@
 package com.backend.immilog.user.presentation.controller;
 
+import com.backend.immilog.report.application.usecase.ReportUseCase;
 import com.backend.immilog.user.application.services.EmailService;
 import com.backend.immilog.user.application.usecase.*;
 import com.backend.immilog.user.presentation.payload.GeneralPayload;
@@ -23,7 +24,7 @@ public class UserController {
     private final SignUpUserUseCase userSignUpProcessor;
     private final LoginUserUseCase userLoginProcessor;
     private final UpdateProfileUseCase userUpdater;
-    private final RepostUserUseCase userReporter;
+    private final ReportUseCase userReporter;
     private final FetchLocationUseCase locationFetcher;
     private final EmailService emailSender;
 
@@ -31,7 +32,7 @@ public class UserController {
             SignUpUserUseCase userSignUpProcessor,
             LoginUserUseCase userLoginProcessor,
             UpdateProfileUseCase userUpdater,
-            RepostUserUseCase userReporter,
+            ReportUseCase userReporter,
             FetchLocationUseCase locationFetcher,
             EmailService emailSender
     ) {
@@ -104,17 +105,6 @@ public class UserController {
             @Parameter(description = "상태") @PathVariable("status") String status
     ) {
         userUpdater.blockOrUnblockUser(targetSeq, userSeq, status);
-        return ResponseEntity.status(NO_CONTENT).build();
-    }
-
-    @PatchMapping("/{userSeq}/targets/{targetSeq}/report")
-    @Operation(summary = "사용자 신고", description = "사용자 신고 진행")
-    public ResponseEntity<Void> reportUser(
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
-            @Parameter(description = "대상 사용자 고유번호") @PathVariable("targetSeq") Long targetSeq,
-            @Valid @RequestBody UserInformationPayload.UserReportRequest request
-    ) {
-        userReporter.reportUser(targetSeq, userSeq, request.toCommand());
         return ResponseEntity.status(NO_CONTENT).build();
     }
 

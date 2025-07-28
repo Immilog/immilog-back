@@ -1,9 +1,9 @@
 package com.backend.immilog.user.infrastructure.jpa;
 
-import com.backend.immilog.user.domain.model.enums.UserRole;
-import com.backend.immilog.user.domain.model.user.User;
-import com.backend.immilog.user.domain.model.user.UserId;
-import com.backend.immilog.user.domain.model.user.UserStatus;
+import com.backend.immilog.user.domain.enums.UserRole;
+import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.user.domain.model.UserId;
+import com.backend.immilog.user.domain.model.UserStatus;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import jakarta.persistence.*;

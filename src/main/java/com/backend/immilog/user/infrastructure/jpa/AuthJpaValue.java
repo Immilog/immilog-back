@@ -1,6 +1,6 @@
 package com.backend.immilog.user.infrastructure.jpa;
 
-import com.backend.immilog.user.domain.model.user.Auth;
+import com.backend.immilog.user.domain.model.Auth;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import jakarta.persistence.Column;

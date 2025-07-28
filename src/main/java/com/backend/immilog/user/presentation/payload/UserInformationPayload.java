@@ -1,11 +1,9 @@
 package com.backend.immilog.user.presentation.payload;
 
-import com.backend.immilog.user.application.command.ReportCommand;
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
-import com.backend.immilog.user.domain.model.enums.Country;
-import com.backend.immilog.user.domain.model.report.ReportReason;
-import com.backend.immilog.user.domain.model.user.UserStatus;
+import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.user.domain.model.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -62,19 +60,6 @@ public record UserInformationPayload() {
     ) {
         public UserPasswordChangeCommand toCommand() {
             return new UserPasswordChangeCommand(existingPassword, newPassword);
-        }
-    }
-
-    @Schema(description = "사용자 신고 요청 DTO")
-    public record UserReportRequest(
-            @Schema(description = "신고 사유", example = "SPAM") ReportReason reason,
-            @Schema(description = "신고 내용", example = "신고 내용") String description
-    ) {
-        public ReportCommand toCommand() {
-            return new ReportCommand(
-                    this.reason,
-                    this.description
-            );
         }
     }
 }
