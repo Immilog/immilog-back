@@ -3,7 +3,7 @@ package com.backend.immilog.user.application.usecase;
 import com.backend.immilog.user.application.command.UserSignInCommand;
 import com.backend.immilog.user.application.result.LocationResult;
 import com.backend.immilog.user.application.result.UserSignInResult;
-import com.backend.immilog.user.application.services.command.RefreshTokenCommandService;
+import com.backend.immilog.user.application.services.command.TokenCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import com.backend.immilog.user.domain.service.UserTokenGenerator;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-public interface SignInUserUseCase {
+public interface LoginUserUseCase {
     UserSignInResult signIn(
             UserSignInCommand command,
             CompletableFuture<LocationResult> country
@@ -24,20 +24,20 @@ public interface SignInUserUseCase {
     );
 
     @Service
-    class UserLoginProcessor implements SignInUserUseCase {
+    class UserLoginProcessor implements LoginUserUseCase {
         private final UserQueryService userQueryService;
-        private final RefreshTokenCommandService refreshTokenCommandService;
+        private final TokenCommandService tokenCommandService;
         private final UserTokenGenerator userTokenGenerator;
         private final UserPasswordPolicy userPasswordPolicy;
 
         public UserLoginProcessor(
                 UserQueryService userQueryService,
-                RefreshTokenCommandService refreshTokenCommandService,
+                TokenCommandService tokenCommandService,
                 UserTokenGenerator tokenProvider,
                 UserPasswordPolicy userPasswordPolicy
         ) {
             this.userQueryService = userQueryService;
-            this.refreshTokenCommandService = refreshTokenCommandService;
+            this.tokenCommandService = tokenCommandService;
             this.userTokenGenerator = tokenProvider;
             this.userPasswordPolicy = userPasswordPolicy;
         }
@@ -59,7 +59,7 @@ public interface SignInUserUseCase {
             final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountry);
             final var refreshToken = userTokenGenerator.generateRefreshToken();
 
-            refreshTokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
+            tokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
             var locationResult = country.orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> new LocationResult("Error", "Timeout")).join();
             boolean locationMatch = userCountry.koreanName().equals(locationResult.country()) && user.getRegion().equals(locationResult.city());
 
@@ -78,7 +78,7 @@ public interface SignInUserUseCase {
             final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountry);
             final var refreshToken = userTokenGenerator.generateRefreshToken();
 
-            refreshTokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
+            tokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
 
             return UserSignInResult.of(user, accessToken, refreshToken, isLocationMatch);
         }

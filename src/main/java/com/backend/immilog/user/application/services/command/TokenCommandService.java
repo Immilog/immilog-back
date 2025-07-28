@@ -4,10 +4,10 @@ import com.backend.immilog.shared.infrastructure.DataRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class RefreshTokenCommandService {
+public class TokenCommandService {
     private final DataRepository dataRepository;
 
-    public RefreshTokenCommandService(DataRepository dataRepository) {
+    public TokenCommandService(DataRepository dataRepository) {
         this.dataRepository = dataRepository;
     }
 

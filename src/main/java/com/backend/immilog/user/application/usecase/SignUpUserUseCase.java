@@ -6,7 +6,6 @@ import com.backend.immilog.user.application.result.UserNickNameResult;
 import com.backend.immilog.user.application.services.UserService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.model.enums.Country;
-import com.backend.immilog.user.domain.model.user.User;
 import com.backend.immilog.user.domain.model.user.UserId;
 import com.backend.immilog.user.domain.service.EmailVerificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +37,7 @@ public interface SignUpUserUseCase {
 
         @Override
         public UserNickNameResult signUp(UserSignUpCommand command) {
-            // 새로운 UserApplicationService를 통한 회원가입
-            UserId userId = userService.registerUser(
+            var userId = userService.registerUser(
                     command.email(),
                     command.password(),
                     command.nickName(),
@@ -49,8 +47,7 @@ public interface SignUpUserUseCase {
                     command.region()
             );
 
-            // 생성된 사용자 정보 조회
-            User savedUser = userService.getUserById(userId);
+            var savedUser = userQueryService.getUserById(userId);
             return new UserNickNameResult(userId.value(), savedUser.getNickname());
         }
 
@@ -61,17 +58,14 @@ public interface SignUpUserUseCase {
 
         @Override
         public EmailVerificationResult verifyEmail(Long userSeq) {
-            User user = userService.getUserById(UserId.of(userSeq));
+            var user = userQueryService.getUserById(UserId.of(userSeq));
 
             var verificationResult = emailVerificationService.generateVerificationResult(
                     user.getUserStatus(),
                     user.getCountry()
             );
 
-            return new EmailVerificationResult(
-                    verificationResult.message(),
-                    verificationResult.isLoginAvailable()
-            );
+            return new EmailVerificationResult(verificationResult.message(), verificationResult.isLoginAvailable());
         }
 
         private Country parseCountry(

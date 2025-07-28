@@ -9,11 +9,11 @@ import com.backend.immilog.user.exception.UserException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReportDomainService {
+public class ReportCreationService {
 
     private final ReportRepository reportRepository;
 
-    public ReportDomainService(ReportRepository reportRepository) {
+    public ReportCreationService(ReportRepository reportRepository) {
         this.reportRepository = reportRepository;
     }
 

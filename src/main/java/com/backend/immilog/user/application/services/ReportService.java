@@ -4,7 +4,7 @@ import com.backend.immilog.user.domain.model.report.Report;
 import com.backend.immilog.user.domain.model.report.ReportReason;
 import com.backend.immilog.user.domain.model.user.UserId;
 import com.backend.immilog.user.domain.repositories.ReportRepository;
-import com.backend.immilog.user.domain.service.ReportDomainService;
+import com.backend.immilog.user.domain.service.ReportCreationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,14 +15,14 @@ import java.util.List;
 public class ReportService {
 
     private final ReportRepository reportRepository;
-    private final ReportDomainService reportDomainService;
+    private final ReportCreationService reportCreationService;
 
     public ReportService(
             ReportRepository reportRepository,
-            ReportDomainService reportDomainService
+            ReportCreationService reportCreationService
     ) {
         this.reportRepository = reportRepository;
-        this.reportDomainService = reportDomainService;
+        this.reportCreationService = reportCreationService;
     }
 
     public void reportUser(
@@ -31,13 +31,13 @@ public class ReportService {
             String description,
             ReportReason reason
     ) {
-        var report = reportDomainService.createReport(reportedUserId, reporterUserId, description, reason);
+        var report = reportCreationService.createReport(reportedUserId, reporterUserId, description, reason);
         reportRepository.save(report);
     }
 
     @Transactional(readOnly = true)
     public long getReportCount(UserId userId) {
-        return reportDomainService.getReportCountByUserId(userId);
+        return reportCreationService.getReportCountByUserId(userId);
     }
 
     @Transactional(readOnly = true)

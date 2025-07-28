@@ -1,5 +1,6 @@
 package com.backend.immilog.user.presentation.controller;
 
+import com.backend.immilog.user.application.services.EmailService;
 import com.backend.immilog.user.application.usecase.*;
 import com.backend.immilog.user.presentation.payload.GeneralPayload;
 import com.backend.immilog.user.presentation.payload.UserInformationPayload;
@@ -20,19 +21,19 @@ import static org.springframework.http.HttpStatus.*;
 @RestController
 public class UserController {
     private final SignUpUserUseCase userSignUpProcessor;
-    private final SignInUserUseCase userLoginProcessor;
-    private final UpdateUserUseCase userUpdater;
+    private final LoginUserUseCase userLoginProcessor;
+    private final UpdateProfileUseCase userUpdater;
     private final RepostUserUseCase userReporter;
     private final FetchLocationUseCase locationFetcher;
-    private final SendEmailUseCase emailSender;
+    private final EmailService emailSender;
 
     public UserController(
             SignUpUserUseCase userSignUpProcessor,
-            SignInUserUseCase userLoginProcessor,
-            UpdateUserUseCase userUpdater,
+            LoginUserUseCase userLoginProcessor,
+            UpdateProfileUseCase userUpdater,
             RepostUserUseCase userReporter,
             FetchLocationUseCase locationFetcher,
-            SendEmailUseCase emailSender
+            EmailService emailSender
     ) {
         this.userSignUpProcessor = userSignUpProcessor;
         this.userLoginProcessor = userLoginProcessor;

@@ -1,7 +1,7 @@
 package com.backend.immilog.user.application.usecase;
 
 import com.backend.immilog.shared.aop.annotation.DistributedLock;
-import com.backend.immilog.user.application.command.UserReportCommand;
+import com.backend.immilog.user.application.command.ReportCommand;
 import com.backend.immilog.user.application.services.ReportService;
 import com.backend.immilog.user.domain.model.report.ReportReason;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ public interface RepostUserUseCase {
     void reportUser(
             Long targetUserSeq,
             Long reporterUserSeq,
-            UserReportCommand command
+            ReportCommand command
     );
 
     @Slf4j
@@ -30,7 +30,7 @@ public interface RepostUserUseCase {
         public void reportUser(
                 Long targetUserSeq,
                 Long reporterUserSeq,
-                UserReportCommand command
+                ReportCommand command
         ) {
             boolean isOther = command.reason().equals(ReportReason.OTHER);
             var description = isOther ? command.description() : command.reason().reason();

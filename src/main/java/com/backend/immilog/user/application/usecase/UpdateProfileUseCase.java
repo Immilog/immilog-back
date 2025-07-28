@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public interface UpdateUserUseCase {
+public interface UpdateProfileUseCase {
     void updateInformation(
             Long userSeq,
             CompletableFuture<LocationResult> futureRegion,
@@ -36,7 +36,7 @@ public interface UpdateUserUseCase {
 
     @Slf4j
     @Service
-    class UserUpdater implements UpdateUserUseCase {
+    class UserUpdater implements UpdateProfileUseCase {
         private final UserQueryService userQueryService;
         private final UserCommandService userCommandService;
         private final ImageUploadUseCase imageUploader;
@@ -68,10 +68,7 @@ public interface UpdateUserUseCase {
                     userInfoUpdateCommand.profileImage(),
                     userInfoUpdateCommand.interestCountry()
             );
-            var newLocation = Location.of(
-                    userInfoUpdateCommand.country(),
-                    region
-            );
+            var newLocation = Location.of(userInfoUpdateCommand.country(), region);
             var updatedUser = user
                     .updateProfile(newProfile)
                     .updateLocation(newLocation)

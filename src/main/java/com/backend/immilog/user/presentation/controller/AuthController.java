@@ -1,7 +1,7 @@
 package com.backend.immilog.user.presentation.controller;
 
 import com.backend.immilog.user.application.usecase.FetchLocationUseCase;
-import com.backend.immilog.user.application.usecase.SignInUserUseCase;
+import com.backend.immilog.user.application.usecase.LoginUserUseCase;
 import com.backend.immilog.user.presentation.payload.UserSignInPayload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,11 +16,11 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 public class AuthController {
     private final FetchLocationUseCase locationFetcher;
-    private final SignInUserUseCase userLoginProcessor;
+    private final LoginUserUseCase userLoginProcessor;
 
     public AuthController(
             FetchLocationUseCase locationFetcher,
-            SignInUserUseCase userLoginProcessor
+            LoginUserUseCase userLoginProcessor
     ) {
         this.locationFetcher = locationFetcher;
         this.userLoginProcessor = userLoginProcessor;
