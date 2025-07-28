@@ -9,6 +9,6 @@ import java.util.Optional;
 public interface CompanyJpaRepository extends JpaRepository<CompanyJpaEntity, Long> {
     Optional<CompanyJpaEntity> findByManager_CompanyManagerUserSeq(Long userSeq);
 
-    boolean existsByCompanyMetaData_CompanyName(String name);
+    boolean existsByCompanyData_CompanyName(String name);
 }
 

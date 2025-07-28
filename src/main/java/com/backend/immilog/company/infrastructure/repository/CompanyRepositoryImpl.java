@@ -39,7 +39,7 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 
     @Override
     public boolean existsByName(String name) {
-        return companyJpaRepository.existsByCompanyMetaData_CompanyName(name);
+        return companyJpaRepository.existsByCompanyData_CompanyName(name);
     }
 
     @Override
