@@ -2,8 +2,8 @@ package com.backend.immilog.shared.security.jtw;
 
 import com.backend.immilog.shared.config.properties.JwtProperties;
 import com.backend.immilog.shared.security.token.TokenProvider;
-import com.backend.immilog.user.domain.model.enums.Country;
-import com.backend.immilog.user.domain.model.enums.UserRole;
+import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.infrastructure.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

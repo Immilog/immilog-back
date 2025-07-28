@@ -1,7 +1,7 @@
 package com.backend.immilog.shared.security.token;
 
-import com.backend.immilog.user.domain.model.enums.Country;
-import com.backend.immilog.user.domain.model.enums.UserRole;
+import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.user.domain.enums.UserRole;
 import org.springframework.security.core.Authentication;
 
 public interface TokenProvider {
