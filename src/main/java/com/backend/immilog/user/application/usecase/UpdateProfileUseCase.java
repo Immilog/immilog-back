@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.usecase;
 
-import com.backend.immilog.image.application.ImageUploadUseCase;
+import com.backend.immilog.image.application.usecase.UploadImageUseCase;
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
 import com.backend.immilog.user.application.result.LocationResult;
@@ -39,18 +39,18 @@ public interface UpdateProfileUseCase {
     class UserUpdater implements UpdateProfileUseCase {
         private final UserQueryService userQueryService;
         private final UserCommandService userCommandService;
-        private final ImageUploadUseCase imageUploader;
+        private final UploadImageUseCase uploadImageUseCase;
         private final UserPasswordPolicy userPasswordPolicy;
 
         public UserUpdater(
                 UserQueryService userQueryService,
                 UserCommandService userCommandService,
-                ImageUploadUseCase imageUploader,
+                UploadImageUseCase uploadImageUseCase,
                 UserPasswordPolicy userPasswordPolicy
         ) {
             this.userQueryService = userQueryService;
             this.userCommandService = userCommandService;
-            this.imageUploader = imageUploader;
+            this.uploadImageUseCase = uploadImageUseCase;
             this.userPasswordPolicy = userPasswordPolicy;
         }
 
@@ -75,7 +75,7 @@ public interface UpdateProfileUseCase {
                     .changeStatus(userInfoUpdateCommand.status());
 
             userCommandService.save(updatedUser);
-            imageUploader.deleteFile(previousProfileImage, userInfoUpdateCommand.profileImage());
+            uploadImageUseCase.deleteImage(previousProfileImage, userInfoUpdateCommand.profileImage());
         }
 
         @Override
