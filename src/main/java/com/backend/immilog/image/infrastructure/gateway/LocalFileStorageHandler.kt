@@ -1,9 +1,9 @@
 package com.backend.immilog.image.infrastructure.gateway
 
-import com.backend.immilog.global.exception.CommonErrorCode
-import com.backend.immilog.global.exception.CustomException
+import com.backend.immilog.shared.config.properties.WebProperties
+import com.backend.immilog.shared.exception.CommonErrorCode
+import com.backend.immilog.shared.exception.CustomException
 import com.backend.immilog.notification.application.DiscordSendingService
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException
@@ -16,10 +16,9 @@ import java.util.*
 @Service
 class LocalFileStorageHandler(
     private val discordSendingService: DiscordSendingService,
-    @Value("\${local.file.storage.directory}")
-    private val baseDirectory: String
+    private val webProperties: WebProperties
 ) : FileStorageHandler {
-    private val storageLocation: Path = Paths.get(baseDirectory).toAbsolutePath().normalize()
+    private val storageLocation: Path = Paths.get(webProperties.fileStorage.directory).toAbsolutePath().normalize()
 
     init {
         try {

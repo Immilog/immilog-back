@@ -1,24 +1,35 @@
-package com.backend.immilog.image.application
+package com.backend.immilog.image.application.usecase
 
-import com.backend.immilog.image.domain.Image
+import com.backend.immilog.image.application.service.ImageCommandService
+import com.backend.immilog.image.application.service.ImageQueryService
 import com.backend.immilog.image.domain.ImageType
+import com.backend.immilog.image.domain.model.Image
+import com.backend.immilog.image.domain.model.ImageMetadata
+import com.backend.immilog.image.domain.model.ImagePath
 import com.backend.immilog.image.infrastructure.gateway.FileStorageHandler
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
-interface ImageUploadUseCase{
-    fun saveFiles(files: List<MultipartFile>, imagePath: String, imageType: ImageType): List<String>
-    fun deleteFile(previousPath: String?, newPath: String?)
+interface UploadImageUseCase {
+    fun uploadImages(
+        files: List<MultipartFile>,
+        imagePath: String,
+        imageType: ImageType
+    ): List<String>
+    
+    fun deleteImage(previousPath: String?, newPath: String?)
 
     @Service
     class ImageUploader(
         private val fileStorageHandler: FileStorageHandler,
         private val imageCommandService: ImageCommandService,
         private val imageQueryService: ImageQueryService
-    ) : ImageUploadUseCase {
+    ) : UploadImageUseCase {
 
-        override fun saveFiles(
+        @Transactional
+        override fun uploadImages(
             files: List<MultipartFile>,
             imagePath: String,
             imageType: ImageType
@@ -29,12 +40,22 @@ interface ImageUploadUseCase{
                     .path(url)
                     .build()
                     .toUriString()
-                imageCommandService.save(Image.of(fullPath, imageType))
+                
+                val imagePath = ImagePath.of(fullPath)
+                val metadata = ImageMetadata.of(
+                    imageType = imageType,
+                    originalFileName = file.originalFilename,
+                    fileSize = file.size,
+                    contentType = file.contentType
+                )
+                val image = Image.create(imagePath, metadata)
+                imageCommandService.save(image)
                 fullPath
             } ?: emptyList()
         }
-
-        override fun deleteFile(previousPath: String?, newPath: String?) {
+        
+        @Transactional
+        override fun deleteImage(previousPath: String?, newPath: String?) {
             if (!previousPath.isNullOrBlank() && previousPath != newPath) {
                 fileStorageHandler.deleteFile(previousPath)
                 val image = imageQueryService.getImageByPath(previousPath)

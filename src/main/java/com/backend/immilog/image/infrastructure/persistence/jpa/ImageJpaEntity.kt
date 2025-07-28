@@ -1,8 +1,11 @@
 package com.backend.immilog.image.infrastructure.persistence.jpa
 
-import com.backend.immilog.image.domain.Image
 import com.backend.immilog.image.domain.ImageStatus
 import com.backend.immilog.image.domain.ImageType
+import com.backend.immilog.image.domain.model.Image
+import com.backend.immilog.image.domain.model.ImageId
+import com.backend.immilog.image.domain.model.ImagePath
+import com.backend.immilog.image.domain.model.ImageMetadata
 import jakarta.persistence.*
 import org.hibernate.annotations.DynamicUpdate
 
@@ -29,17 +32,38 @@ open class ImageJpaEntity(
     companion object {
         fun from(image: Image): ImageJpaEntity =
             ImageJpaEntity(
-                seq = image.seq,
-                path = image.path,
-                imageType = image.imageType,
+                seq = image.id?.value,
+                path = image.path.value,
+                imageType = image.metadata.imageType,
                 status = image.status
             )
     }
 
-    fun toDomain(): Image = Image(
-        seq = this.seq,
-        path = this.path,
-        imageType = this.imageType,
-        status = this.status
-    )
+    fun toDomain(): Image {
+        val imagePath = if (this.path.isNotBlank()) {
+            ImagePath.of(this.path)
+        } else {
+            ImagePath.of("default.jpg")
+        }
+        val metadata = ImageMetadata.of(
+            imageType = this.imageType,
+            originalFileName = null,
+            fileSize = null,
+            contentType = null
+        )
+        
+        return if (this.seq != null) {
+            Image.restore(
+                id = ImageId.of(this.seq!!),
+                path = imagePath,
+                metadata = metadata,
+                status = this.status
+            )
+        } else {
+            Image.create(
+                path = imagePath,
+                metadata = metadata
+            )
+        }
+    }
 }

@@ -1,7 +1,10 @@
 package com.backend.immilog.image.presentation
 
+import com.backend.immilog.image.domain.ImageStatus
+import com.backend.immilog.image.domain.ImageType
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpStatus
+import java.time.LocalDateTime
 
 @Schema(description = "이미지 응답 DTO")
 data class ImageResponse(
@@ -27,4 +30,22 @@ data class ImageResponse(
             data = emptyList()
         )
     }
+
+    @Schema(description = "이미지 정보 DTO")
+    data class ImageInfo(
+        @Schema(description = "이미지 ID")
+        val id: Long?,
+
+        @Schema(description = "이미지 경로")
+        val path: String,
+
+        @Schema(description = "이미지 타입")
+        val imageType: ImageType,
+
+        @Schema(description = "이미지 상태")
+        val status: ImageStatus,
+
+        @Schema(description = "생성일시")
+        val createdAt: LocalDateTime
+    )
 }
