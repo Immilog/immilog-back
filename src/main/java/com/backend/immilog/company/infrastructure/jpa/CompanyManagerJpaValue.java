@@ -1,7 +1,7 @@
 package com.backend.immilog.company.infrastructure.jpa;
 
 import com.backend.immilog.company.domain.model.CompanyManager;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;

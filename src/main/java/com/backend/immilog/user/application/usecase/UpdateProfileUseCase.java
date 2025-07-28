@@ -8,7 +8,7 @@ import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.model.Location;
 import com.backend.immilog.user.domain.model.Profile;
-import com.backend.immilog.user.domain.model.UserStatus;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

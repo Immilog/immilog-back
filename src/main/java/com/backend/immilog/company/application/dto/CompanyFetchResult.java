@@ -5,7 +5,7 @@ import com.backend.immilog.company.domain.model.CompanyManager;
 import com.backend.immilog.company.domain.model.CompanyMetaData;
 import com.backend.immilog.company.domain.model.Industry;
 import com.backend.immilog.company.presentation.CompanyPayload;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 

@@ -8,7 +8,7 @@ import com.backend.immilog.notice.domain.model.NoticeId;
 import com.backend.immilog.notice.domain.service.NoticeAuthorizationService;
 import com.backend.immilog.notice.domain.service.NoticeFactory;
 import com.backend.immilog.notice.domain.service.NoticeValidationService;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

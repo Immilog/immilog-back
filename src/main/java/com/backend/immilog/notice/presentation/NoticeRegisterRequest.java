@@ -2,7 +2,7 @@ package com.backend.immilog.notice.presentation;
 
 import com.backend.immilog.notice.application.dto.NoticeUploadCommand;
 import com.backend.immilog.notice.domain.enums.NoticeType;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

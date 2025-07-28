@@ -2,7 +2,7 @@ package com.backend.immilog.notice.application.usecase;
 
 import com.backend.immilog.notice.application.service.NoticeService;
 import com.backend.immilog.notice.domain.model.NoticeId;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 @Service

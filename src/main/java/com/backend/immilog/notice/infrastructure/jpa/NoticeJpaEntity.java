@@ -3,7 +3,7 @@ package com.backend.immilog.notice.infrastructure.jpa;
 import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.*;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.DynamicUpdate;

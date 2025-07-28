@@ -4,7 +4,7 @@ import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.model.NoticeAuthor;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 @Service

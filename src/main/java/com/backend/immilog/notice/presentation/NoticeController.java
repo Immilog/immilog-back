@@ -3,7 +3,7 @@ package com.backend.immilog.notice.presentation;
 import com.backend.immilog.notice.application.services.NoticeQueryService;
 import com.backend.immilog.notice.application.usecase.*;
 import com.backend.immilog.notice.domain.model.NoticeId;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

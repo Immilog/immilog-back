@@ -8,7 +8,7 @@ import com.backend.immilog.notice.domain.repository.NoticeRepository;
 import com.backend.immilog.notice.infrastructure.jdbc.NoticeJdbcRepository;
 import com.backend.immilog.notice.infrastructure.jpa.NoticeJpaEntity;
 import com.backend.immilog.notice.infrastructure.jpa.NoticeJpaRepository;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

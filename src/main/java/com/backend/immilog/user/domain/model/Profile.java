@@ -1,6 +1,6 @@
 package com.backend.immilog.user.domain.model;
 
-import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 

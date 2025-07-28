@@ -2,7 +2,7 @@ package com.backend.immilog.company.infrastructure.jpa;
 
 import com.backend.immilog.company.domain.model.Company;
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 

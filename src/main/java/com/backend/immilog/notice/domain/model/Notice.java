@@ -4,7 +4,7 @@ import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 
 import java.time.LocalDateTime;
 import java.util.List;

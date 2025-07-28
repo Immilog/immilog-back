@@ -2,7 +2,7 @@ package com.backend.immilog.notice.domain.model;
 
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 
 import java.util.ArrayList;
 import java.util.HashSet;

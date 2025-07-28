@@ -1,4 +1,4 @@
-package com.backend.immilog.user.domain.enums;
+package com.backend.immilog.shared.enums;
 
 import java.util.Arrays;
 

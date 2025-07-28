@@ -2,7 +2,7 @@ package com.backend.immilog.company.domain.model;
 
 import com.backend.immilog.company.exception.CompanyErrorCode;
 import com.backend.immilog.company.exception.CompanyException;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 
 public class Company {
     private final Long seq;

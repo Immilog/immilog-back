@@ -3,7 +3,7 @@ package com.backend.immilog.company.presentation;
 import com.backend.immilog.company.application.dto.CompanyFetchResult;
 import com.backend.immilog.company.application.dto.CompanyRegisterCommand;
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record CompanyPayload() {

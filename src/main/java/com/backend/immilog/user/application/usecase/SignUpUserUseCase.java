@@ -5,7 +5,7 @@ import com.backend.immilog.user.application.result.EmailVerificationResult;
 import com.backend.immilog.user.application.result.UserNickNameResult;
 import com.backend.immilog.user.application.services.UserService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
-import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.model.UserId;
 import com.backend.immilog.user.domain.service.EmailVerificationService;
 import lombok.extern.slf4j.Slf4j;

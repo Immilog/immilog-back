@@ -1,7 +1,7 @@
 package com.backend.immilog.user.domain.service;
 
 import com.backend.immilog.shared.security.token.TokenProvider;
-import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.enums.UserRole;
 import org.springframework.stereotype.Component;
 

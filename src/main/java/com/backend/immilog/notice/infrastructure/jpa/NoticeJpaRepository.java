@@ -2,7 +2,7 @@ package com.backend.immilog.notice.infrastructure.jpa;
 
 import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

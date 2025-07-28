@@ -2,7 +2,7 @@ package com.backend.immilog.user.application.services;
 
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
-import com.backend.immilog.user.domain.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.model.*;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import com.backend.immilog.user.domain.service.UserRegistrationService;

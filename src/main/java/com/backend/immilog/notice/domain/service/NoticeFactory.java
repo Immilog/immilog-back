@@ -2,7 +2,7 @@ package com.backend.immilog.notice.domain.service;
 
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.*;
-import com.backend.immilog.user.domain.model.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

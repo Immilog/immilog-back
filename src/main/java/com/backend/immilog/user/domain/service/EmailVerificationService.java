@@ -1,7 +1,7 @@
 package com.backend.immilog.user.domain.service;
 
-import com.backend.immilog.user.domain.enums.Country;
-import com.backend.immilog.user.domain.model.UserStatus;
+import com.backend.immilog.shared.enums.Country;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import org.springframework.stereotype.Service;
 
 @Service
