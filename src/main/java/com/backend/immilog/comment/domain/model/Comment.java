@@ -1,4 +1,4 @@
-package com.backend.immilog.post.domain.model.comment;
+package com.backend.immilog.comment.domain.model;
 
 import com.backend.immilog.post.domain.model.post.PostStatus;
 
@@ -8,31 +8,31 @@ import java.util.List;
 import java.util.Objects;
 
 public class Comment {
-    private final Long seq;
-    private final Long userSeq;
+    private final String id;
+    private final String userId;
     private final String content;
     private final CommentRelation commentRelation;
     private final int replyCount;
     private final Integer likeCount;
     private final PostStatus status;
-    private final List<Long> likeUsers;
+    private final List<String> likeUsers;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
     public Comment(
-            Long seq,
-            Long userSeq,
+            String id,
+            String userId,
             String content,
             CommentRelation commentRelation,
             int replyCount,
             Integer likeCount,
             PostStatus status,
-            List<Long> likeUsers,
+            List<String> likeUsers,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
-        this.seq = seq;
-        this.userSeq = userSeq;
+        this.id = id;
+        this.userId = userId;
         this.content = content;
         this.commentRelation = commentRelation;
         this.replyCount = replyCount;
@@ -44,16 +44,16 @@ public class Comment {
     }
 
     public static Comment of(
-            Long userSeq,
-            Long postSeq,
+            String userId,
+            String postId,
             String content,
             ReferenceType referenceType
     ) {
         return new Comment(
                 null,
-                userSeq,
+                userId,
                 content,
-                CommentRelation.of(postSeq, null, referenceType),
+                CommentRelation.of(postId, null, referenceType),
                 0,
                 0,
                 PostStatus.NORMAL,
@@ -65,8 +65,8 @@ public class Comment {
 
     public Comment delete() {
         return new Comment(
-                this.seq,
-                this.userSeq,
+                this.id,
+                this.userId,
                 this.content,
                 this.commentRelation,
                 this.replyCount,
@@ -78,14 +78,14 @@ public class Comment {
         );
     }
 
-    public Comment addLikeUser(Long userSeq) {
+    public Comment addLikeUser(String userId) {
         if (!Objects.isNull(this.likeUsers)) {
-            List<Long> newLikeUsers = this.likeUsers;
-            newLikeUsers.add(userSeq);
-            Integer newLikeCount = this.likeCount + 1;
+            var newLikeUsers = this.likeUsers;
+            newLikeUsers.add(userId);
+            var newLikeCount = this.likeCount + 1;
             return new Comment(
-                    this.seq,
-                    this.userSeq,
+                    this.id,
+                    this.userId,
                     this.content,
                     this.commentRelation,
                     this.replyCount,
@@ -101,8 +101,8 @@ public class Comment {
 
     public Comment increaseReplyCount() {
         return new Comment(
-                this.seq,
-                this.userSeq,
+                this.id,
+                this.userId,
                 this.content,
                 this.commentRelation,
                 this.replyCount + 1,
@@ -114,21 +114,21 @@ public class Comment {
         );
     }
 
-    public Long postSeq() {
-        return this.commentRelation.postSeq();
+    public String postId() {
+        return this.commentRelation.postId();
     }
 
-    public Long parentSeq() {
-        return this.commentRelation.parentSeq();
+    public String parentId() {
+        return this.commentRelation.parentId();
     }
 
     public ReferenceType referenceType() {
         return this.commentRelation.referenceType();
     }
 
-    public Long seq() {return seq;}
+    public String id() {return id;}
 
-    public Long userSeq() {return userSeq;}
+    public String userId() {return userId;}
 
     public String content() {return content;}
 
@@ -140,11 +140,24 @@ public class Comment {
 
     public PostStatus status() {return status;}
 
-    public List<Long> likeUsers() {return likeUsers;}
+    public List<String> likeUsers() {return likeUsers;}
 
     public LocalDateTime createdAt() {return createdAt;}
 
     public LocalDateTime updatedAt() {return updatedAt;}
 
+    public Comment updateContent(String newContent) {
+        return new Comment(
+                this.id,
+                this.userId,
+                newContent,
+                this.commentRelation,
+                this.replyCount,
+                this.likeCount,
+                this.status,
+                this.likeUsers,
+                this.createdAt,
+                LocalDateTime.now()
+        );
+    }
 }
-

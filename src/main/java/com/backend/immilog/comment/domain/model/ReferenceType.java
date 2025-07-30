@@ -1,4 +1,4 @@
-package com.backend.immilog.post.domain.model.comment;
+package com.backend.immilog.comment.domain.model;
 
 import com.backend.immilog.post.exception.PostException;
 
@@ -8,7 +8,9 @@ import static com.backend.immilog.post.exception.PostErrorCode.INVALID_REFERENCE
 
 public enum ReferenceType {
     COMMENT,
-    POST;
+    POST,
+    JOB_BOARD;
+
     public static ReferenceType getByString(String referenceType) {
         return Arrays.stream(ReferenceType.values())
                 .filter(type -> type.name().compareToIgnoreCase(referenceType) == 0)

@@ -1,18 +1,18 @@
-package com.backend.immilog.post.domain.model.comment;
+package com.backend.immilog.comment.domain.model;
 
 public record CommentRelation(
-        Long postSeq,
-        Long parentSeq,
+        String postId,
+        String parentId,
         ReferenceType referenceType
 ) {
     public static CommentRelation of(
-            Long postSeq,
-            Long parentSeq,
+            String postId,
+            String parentId,
             ReferenceType referenceType
     ) {
         return new CommentRelation(
-                postSeq,
-                parentSeq,
+                postId,
+                parentId,
                 referenceType
         );
     }
