@@ -72,7 +72,7 @@ public class PostController {
     @Operation(summary = "게시물 삭제", description = "게시물을 삭제합니다.")
     public ResponseEntity<Void> deletePost(
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId,
-            @Parameter(description = "사용자 고유번호", hidden = true) @RequestHeader("X-User-Id") String userId
+            @CurrentUser String userId
     ) {
         postDeleteUseCase.deletePost(userId, postId);
         return ResponseEntity.status(NO_CONTENT).build();
@@ -139,10 +139,10 @@ public class PostController {
         return ResponseEntity.ok(PostListResponse.of(posts));
     }
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/my")
     @Operation(summary = "사용자 게시물 목록 조회", description = "특정 사용자의 게시물 목록을 조회합니다.")
     public ResponseEntity<PostPageResponse> getUserPosts(
-            @Parameter(description = "사용자 고유번호") @PathVariable String userId,
+            @CurrentUser String userId,
             @Parameter(description = "페이지") @RequestParam(defaultValue = "0") Integer page
     ) {
         var posts = postFetchUseCase.getUserPosts(userId, page);

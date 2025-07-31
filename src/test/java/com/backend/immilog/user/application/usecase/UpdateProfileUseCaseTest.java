@@ -280,7 +280,7 @@ class UpdateProfileUseCaseTest {
         // given
         String targetUserId = "target123";
         String adminUserId = "admin123";
-        String userStatus = "BLOCKED";
+        UserStatus userStatus = UserStatus.BLOCKED;
 
         User targetUser = createMockUser();
         User adminUser = createAdminUser();
@@ -290,7 +290,7 @@ class UpdateProfileUseCaseTest {
         given(userCommandService.save(any(User.class))).willReturn(targetUser);
 
         // when
-        userUpdater.blockOrUnblockUser(targetUserId, adminUserId, userStatus);
+        userUpdater.updateUserStatus(targetUserId, adminUserId, userStatus);
 
         // then
         verify(userQueryService).getUserById(adminUserId);
@@ -304,7 +304,7 @@ class UpdateProfileUseCaseTest {
         // given
         String targetUserId = "target123";
         String adminUserId = "admin123";
-        String userStatus = "ACTIVE";
+        UserStatus userStatus = UserStatus.ACTIVE;
 
         User targetUser = User.restore(
                 UserId.of("target123"),
@@ -323,7 +323,7 @@ class UpdateProfileUseCaseTest {
         given(userCommandService.save(any(User.class))).willReturn(targetUser);
 
         // when
-        userUpdater.blockOrUnblockUser(targetUserId, adminUserId, userStatus);
+        userUpdater.updateUserStatus(targetUserId, adminUserId, userStatus);
 
         // then
         verify(userQueryService).getUserById(adminUserId);
@@ -337,7 +337,7 @@ class UpdateProfileUseCaseTest {
         // given
         String targetUserId = "target123";
         String regularUserId = "regular123";
-        String userStatus = "BLOCKED";
+        UserStatus userStatus = UserStatus.BLOCKED;
 
         User mockRegularUser = mock(User.class);
 
@@ -346,7 +346,7 @@ class UpdateProfileUseCaseTest {
                 .when(mockRegularUser).validateAdminRole();
 
         // when & then
-        assertThatThrownBy(() -> userUpdater.blockOrUnblockUser(targetUserId, regularUserId, userStatus))
+        assertThatThrownBy(() -> userUpdater.updateUserStatus(targetUserId, regularUserId, userStatus))
                 .isInstanceOf(UserException.class)
                 .hasMessageContaining(UserErrorCode.NOT_AN_ADMIN_USER.getMessage());
 
@@ -362,7 +362,7 @@ class UpdateProfileUseCaseTest {
         // given
         String targetUserId = "nonexistent123";
         String adminUserId = "admin123";
-        String userStatus = "BLOCKED";
+        UserStatus userStatus = UserStatus.BLOCKED;
 
         User adminUser = createAdminUser();
 
@@ -372,7 +372,7 @@ class UpdateProfileUseCaseTest {
 
         // when & then
         UserException exception = assertThrows(UserException.class,
-                () -> userUpdater.blockOrUnblockUser(targetUserId, adminUserId, userStatus));
+                () -> userUpdater.updateUserStatus(targetUserId, adminUserId, userStatus));
 
         assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.USER_NOT_FOUND);
         verify(userQueryService).getUserById(adminUserId);
@@ -435,26 +435,6 @@ class UpdateProfileUseCaseTest {
         verify(userPasswordPolicy).encodePassword("newPassword1");
         verify(userPasswordPolicy).encodePassword("newPassword2");
         verify(userCommandService, times(2)).save(any(User.class));
-    }
-
-    @Test
-    @DisplayName("잘못된 사용자 상태로 차단 시도 시 예외가 발생한다")
-    void blockUserWithInvalidStatusThrowsException() {
-        // given
-        String targetUserId = "target123";
-        String adminUserId = "admin123";
-        String invalidStatus = "INVALID_STATUS";
-
-        User adminUser = createAdminUser();
-
-        given(userQueryService.getUserById(adminUserId)).willReturn(adminUser);
-        User targetUser = createMockUser();
-        given(userQueryService.getUserById(targetUserId)).willReturn(targetUser);
-
-        // when & then
-        assertThrows(IllegalArgumentException.class, () -> userUpdater.blockOrUnblockUser(targetUserId, adminUserId, invalidStatus));
-
-        verify(userQueryService).getUserById(adminUserId);
     }
 
     @Test

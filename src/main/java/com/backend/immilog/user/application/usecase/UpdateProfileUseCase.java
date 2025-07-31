@@ -28,10 +28,10 @@ public interface UpdateProfileUseCase {
             UserPasswordChangeCommand command
     );
 
-    void blockOrUnblockUser(
+    void updateUserStatus(
             String targetUserId,
             String adminUserId,
-            String userStatus
+            UserStatus requestedStatus
     );
 
     @Slf4j
@@ -94,13 +94,13 @@ public interface UpdateProfileUseCase {
         }
 
         @Override
-        public void blockOrUnblockUser(
+        public void updateUserStatus(
                 String targetUserId,
                 String adminUserId,
-                String userStatus
+                UserStatus requestedStatus
         ) {
             userQueryService.getUserById(adminUserId).validateAdminRole();
-            var targetUser = userQueryService.getUserById(targetUserId).changeStatus(UserStatus.valueOf(userStatus));
+            var targetUser = userQueryService.getUserById(targetUserId).changeStatus(requestedStatus);
             userCommandService.save(targetUser);
         }
 

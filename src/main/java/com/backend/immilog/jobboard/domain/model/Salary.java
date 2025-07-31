@@ -12,7 +12,10 @@ public record Salary(BigDecimal amount, String currency) {
         }
     }
 
-    public static Salary of(BigDecimal amount, String currency) {
+    public static Salary of(
+            BigDecimal amount,
+            String currency
+    ) {
         return new Salary(amount, currency.toUpperCase());
     }
 

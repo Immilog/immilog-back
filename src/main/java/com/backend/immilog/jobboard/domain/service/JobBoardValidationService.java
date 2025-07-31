@@ -31,7 +31,7 @@ public class JobBoardValidationService {
         if (!existingJobBoard.isActive()) {
             throw new IllegalStateException("Cannot update inactive job board");
         }
-        
+
         if (existingJobBoard.isExpired()) {
             throw new IllegalStateException("Cannot update expired job board");
         }
@@ -75,7 +75,7 @@ public class JobBoardValidationService {
         if (deadline == null) {
             throw new IllegalArgumentException("Application deadline is required");
         }
-        
+
         if (deadline.isExpired()) {
             throw new IllegalArgumentException("Application deadline cannot be in the past");
         }

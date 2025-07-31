@@ -1,6 +1,5 @@
 package com.backend.immilog.jobboard.presentation.controller;
 
-import com.backend.immilog.jobboard.application.dto.JobBoardUploadCommand;
 import com.backend.immilog.jobboard.application.usecase.FetchJobBoardUseCase;
 import com.backend.immilog.jobboard.application.usecase.UploadJobBoardUseCase;
 import com.backend.immilog.jobboard.presentation.payload.JobBoardCreateRequest;
