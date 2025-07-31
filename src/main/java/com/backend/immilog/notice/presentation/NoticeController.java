@@ -3,6 +3,7 @@ package com.backend.immilog.notice.presentation;
 import com.backend.immilog.notice.application.service.NoticeQueryService;
 import com.backend.immilog.notice.application.usecase.*;
 import com.backend.immilog.notice.domain.model.NoticeId;
+import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -11,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import com.backend.immilog.shared.annotation.CurrentUser;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Notice API", description = "공지사항 관련 API")
