@@ -3,21 +3,21 @@ package com.backend.immilog.post.domain.model.resource;
 import com.backend.immilog.post.domain.model.post.PostType;
 
 public class PostResource {
-    private final Long seq;
-    private final Long postSeq;
+    private final String resourceId;
+    private final String postId;
     private final PostType postType;
     private final ResourceType resourceType;
     private final String content;
 
     public PostResource(
-            Long seq,
-            Long postSeq,
+            String resourceId,
+            String postId,
             PostType postType,
             ResourceType resourceType,
             String content
     ) {
-        this.seq = seq;
-        this.postSeq = postSeq;
+        this.resourceId = resourceId;
+        this.postId = postId;
         this.postType = postType;
         this.resourceType = resourceType;
         this.content = content;
@@ -27,14 +27,14 @@ public class PostResource {
             PostType postType,
             ResourceType resourceType,
             String content,
-            Long postSeq
+            String postId
     ) {
-        return new PostResource(null, postSeq, postType, resourceType, content);
+        return new PostResource(null, postId, postType, resourceType, content);
     }
 
-    public Long seq() {return seq;}
+    public String id() {return resourceId;}
 
-    public Long postSeq() {return postSeq;}
+    public String postId() {return postId;}
 
     public PostType postType() {return postType;}
 

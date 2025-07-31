@@ -1,11 +1,11 @@
 package com.backend.immilog.post.infrastructure.repositories;
 
-import com.backend.immilog.global.infrastructure.persistence.repository.RedisDataRepository;
 import com.backend.immilog.post.application.result.PostResult;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PopularPostRepository;
 import com.backend.immilog.post.infrastructure.jdbc.PostJdbcRepository;
+import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Repository;
@@ -16,12 +16,12 @@ import java.util.List;
 @Repository
 public class PopularPostRepositoryImpl implements PopularPostRepository {
     private final PostJdbcRepository postJdbcRepository;
-    private final RedisDataRepository redisDataRepository;
+    private final DataRepository redisDataRepository;
     private final ObjectMapper objectMapper;
 
     public PopularPostRepositoryImpl(
             PostJdbcRepository postJdbcRepository,
-            RedisDataRepository redisDataRepository,
+            DataRepository redisDataRepository,
             ObjectMapper objectMapper
     ) {
         this.postJdbcRepository = postJdbcRepository;
@@ -55,7 +55,7 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
             LocalDateTime to
     ) {
         var posts = postJdbcRepository.getPopularPosts(from, to, SortingMethods.VIEW_COUNT);
-        return posts.stream().map(Post::toResult).toList();
+        return posts.stream().map(this::convertToPostResult).toList();
     }
 
     @Override
@@ -64,6 +64,33 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
             LocalDateTime to
     ) {
         var posts = postJdbcRepository.getPopularPosts(from, to, SortingMethods.COMMENT_COUNT);
-        return posts.stream().map(Post::toResult).toList();
+        return posts.stream().map(this::convertToPostResult).toList();
+    }
+
+    private PostResult convertToPostResult(Post post) {
+        return new PostResult(
+                post.id(),
+                post.userId(),
+                post.profileImage(),
+                post.nickname(),
+                null,
+                post.commentCount(),
+                post.viewCount(),
+                post.likeCount(),
+                null,
+                null,
+                null,
+                null,
+                post.isPublic(),
+                post.countryName(),
+                post.region(),
+                post.category(),
+                post.status(),
+                post.createdAt().toString(),
+                post.updatedAt().toString(),
+                post.title(),
+                post.content(),
+                null
+        );
     }
 }

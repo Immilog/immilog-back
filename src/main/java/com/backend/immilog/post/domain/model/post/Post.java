@@ -1,16 +1,13 @@
 package com.backend.immilog.post.domain.model.post;
 
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.post.application.result.PostResult;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
-import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.domain.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 public class Post {
-    private final Long seq;
+    private final String id;
     private final PostUserInfo postUserInfo;
     private PostInfo postInfo;
     private final Categories category;
@@ -21,7 +18,7 @@ public class Post {
     private LocalDateTime updatedAt;
 
     public Post(
-            Long seq,
+            String id,
             PostUserInfo postUserInfo,
             PostInfo postInfo,
             Categories category,
@@ -31,7 +28,7 @@ public class Post {
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
-        this.seq = seq;
+        this.id = id;
         this.postUserInfo = postUserInfo;
         this.postInfo = postInfo;
         this.category = category;
@@ -49,8 +46,8 @@ public class Post {
             Categories category,
             String isPublic
     ) {
-        final var postInfo = PostInfo.of(title, content, user.country(), user.region());
-        final var postUserInfo = new PostUserInfo(user.seq(), user.nickname(), user.imageUrl());
+        final var postInfo = PostInfo.of(title, content, user.getCountry(), user.getRegion());
+        final var postUserInfo = new PostUserInfo(user.getUserId().value(), user.getNickname(), user.getImageUrl());
         return new Post(
                 null,
                 postUserInfo,
@@ -145,7 +142,7 @@ public class Post {
         return this;
     }
 
-    public Long userSeq() {return this.postUserInfo.userSeq();}
+    public String userId() {return this.postUserInfo.userId();}
 
     public Post increaseViewCount() {
         if (this.postInfo.status() == PostStatus.DELETED) {
@@ -188,68 +185,9 @@ public class Post {
     public String profileImage() {return this.postUserInfo.profileImage();}
 
     public String nickname() {return this.postUserInfo.nickname();}
-    public PostResult toResult() {
-        return new PostResult(
-                this.seq,
-                this.postUserInfo.userSeq(),
-                this.postUserInfo.profileImage(),
-                this.postUserInfo.nickname(),
-                new ArrayList<>(),
-                this.commentCount,
-                this.postInfo.viewCount(),
-                this.postInfo.likeCount(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                this.isPublic,
-                this.postInfo.country().name(),
-                this.postInfo.region(),
-                this.category,
-                this.postInfo.status(),
-                this.createdAt.toString(),
-                this.updatedAt.toString(),
-                this.postInfo.title(),
-                this.postInfo.content(),
-                null
-        );
-    }
 
-    public static Post from(PostResult postResult) {
-        final PostUserInfo userInfo = new PostUserInfo(
-                postResult.userSeq(),
-                postResult.userNickName(),
-                postResult.userProfileUrl()
-        );
-        final PostInfo postInfo = new PostInfo(
-                postResult.title(),
-                postResult.content(),
-                postResult.viewCount(),
-                postResult.likeCount(),
-                postResult.region(),
-                postResult.status(),
-                Country.valueOf(postResult.country())
-        );
-        return new Post(
-                postResult.seq(),
-                userInfo,
-                postInfo,
-                postResult.category(),
-                postResult.isPublic(),
-                null,
-                postResult.commentCount(),
-                LocalDateTime.parse(postResult.createdAt()),
-                LocalDateTime.parse(postResult.updatedAt())
-        );
-    }
 
-    public void validateUserId(Long userId) {
-        if (!this.userSeq().equals(userId)) {
-            throw new PostException(PostErrorCode.NO_AUTHORITY);
-        }
-    }
-
-    public Long seq() {return seq;}
+    public String id() {return id;}
 
     public PostUserInfo postUserInfo() {return postUserInfo;}
 

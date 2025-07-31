@@ -1,13 +1,11 @@
 package com.backend.immilog.post.application.mapper;
 
-import com.backend.immilog.post.application.result.CommentResult;
+import com.backend.immilog.comment.application.dto.CommentResult;
+import com.backend.immilog.interaction.domain.model.InteractionType;
+import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.post.application.result.PostResult;
-import com.backend.immilog.post.domain.model.interaction.InteractionType;
-import com.backend.immilog.post.domain.model.interaction.InteractionUser;
-import com.backend.immilog.post.domain.model.resource.PostResource;
-import com.backend.immilog.post.domain.model.resource.ResourceType;
-import com.backend.immilog.post.presentation.response.PostSingleResponse;
-import org.springframework.http.HttpStatus;
+import com.backend.immilog.shared.domain.model.Resource;
+import com.backend.immilog.shared.domain.model.ResourceType;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -38,8 +36,8 @@ public class PostResultAssembler {
         var updatedTags = new ArrayList<>(postResult.tags());
         updatedTags.addAll(extractTags(updatedTags, keyword));
         return new PostResult(
-                postResult.seq(),
-                postResult.userSeq(),
+                postResult.id(),
+                postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
                 postResult.comments(),
@@ -74,15 +72,15 @@ public class PostResultAssembler {
         var newBookmarkUsers = new ArrayList<>(postResult.bookmarkUsers());
         newLikeUsers.addAll(interactionUsers.stream()
                 .filter(u -> u.interactionType() == InteractionType.LIKE)
-                .map(InteractionUser::userSeq)
+                .map(InteractionUser::userId)
                 .toList());
         newBookmarkUsers.addAll(interactionUsers.stream()
                 .filter(u -> u.interactionType() == InteractionType.BOOKMARK)
-                .map(InteractionUser::userSeq)
+                .map(InteractionUser::userId)
                 .toList());
         return new PostResult(
-                postResult.seq(),
-                postResult.userSeq(),
+                postResult.id(),
+                postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
                 postResult.comments(),
@@ -107,7 +105,9 @@ public class PostResultAssembler {
     }
 
     public PostResult assembleResources(
-            PostResult postResult,List<PostResource> resources) {
+            PostResult postResult,
+            List<Resource> resources
+    ) {
         if (resources == null || resources.isEmpty()) {
             return postResult;
         }
@@ -115,17 +115,17 @@ public class PostResultAssembler {
         var updatedTags = new ArrayList<>(postResult.tags());
         updatedTags.addAll(resources.stream()
                 .filter(r -> r.resourceType() == ResourceType.TAG)
-                .map(PostResource::content)
+                .map(Resource::content)
                 .toList());
 
         var updatedAttachments = new ArrayList<>(postResult.attachments());
         updatedAttachments.addAll(resources.stream()
                 .filter(r -> r.resourceType() == ResourceType.ATTACHMENT)
-                .map(PostResource::content)
+                .map(Resource::content)
                 .toList());
         return new PostResult(
-                postResult.seq(),
-                postResult.userSeq(),
+                postResult.id(),
+                postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
                 postResult.comments(),
@@ -149,10 +149,13 @@ public class PostResultAssembler {
         );
     }
 
-    public PostResult assembleLikeCount(PostResult postResult, int size) {
+    public PostResult assembleLikeCount(
+            PostResult postResult,
+            int size
+    ) {
         return new PostResult(
-                postResult.seq(),
-                postResult.userSeq(),
+                postResult.id(),
+                postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
                 postResult.comments(),

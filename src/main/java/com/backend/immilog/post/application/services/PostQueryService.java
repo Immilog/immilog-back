@@ -1,15 +1,19 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.global.aop.monitor.PerformanceMonitor;
-import com.backend.immilog.global.enums.Country;
-import com.backend.immilog.global.infrastructure.persistence.repository.DataRepository;
+import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.result.PostResult;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
-import com.backend.immilog.post.domain.repositories.PostRepository;
+import com.backend.immilog.post.domain.repositories.PostDomainRepository;
+import com.backend.immilog.post.exception.PostErrorCode;
+import com.backend.immilog.post.exception.PostException;
+import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
+import com.backend.immilog.shared.domain.model.Resource;
+import com.backend.immilog.shared.enums.Country;
+import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,7 +33,7 @@ import java.util.stream.IntStream;
 @Service
 public class PostQueryService {
     private final ObjectMapper objectMapper;
-    private final PostRepository postRepository;
+    private final PostDomainRepository postDomainRepository;
     private final DataRepository redisDataRepository;
     private final InteractionUserQueryService interactionUserQueryService;
     private final PostResourceQueryService postResourceQueryService;
@@ -37,14 +41,14 @@ public class PostQueryService {
 
     public PostQueryService(
             ObjectMapper objectMapper,
-            PostRepository postRepository,
+            PostDomainRepository postDomainRepository,
             DataRepository redisDataRepository,
             InteractionUserQueryService interactionUserQueryService,
             PostResourceQueryService postResourceQueryService,
             PostResultAssembler postResultAssembler
     ) {
         this.objectMapper = objectMapper;
-        this.postRepository = postRepository;
+        this.postDomainRepository = postDomainRepository;
         this.redisDataRepository = redisDataRepository;
         this.interactionUserQueryService = interactionUserQueryService;
         this.postResourceQueryService = postResourceQueryService;
@@ -52,8 +56,9 @@ public class PostQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Post getPostById(Long postSeq) {
-        return postRepository.getById(postSeq);
+    public Post getPostById(String postId) {
+        return postDomainRepository.findById(postId)
+                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
     }
 
     @PerformanceMonitor
@@ -65,10 +70,16 @@ public class PostQueryService {
             Categories category,
             Pageable pageable
     ) {
-        var posts = postRepository.getPosts(country, sortingMethod, isPublic, category, pageable);
-        var postSeqList = posts.stream().map(Post::seq).toList();
-        var postResults = posts.map(Post::toResult);
-        return this.assemblePostResult(postSeqList, postResults);
+        var posts = postDomainRepository.findPosts(
+                country,
+                sortingMethod,
+                isPublic,
+                category,
+                pageable
+        );
+        var postIdList = posts.stream().map(Post::id).toList();
+        var postResults = posts.map(this::convertToPostResult);
+        return this.assemblePostResult(postIdList, postResults);
     }
 
     @Transactional(readOnly = true)
@@ -76,32 +87,39 @@ public class PostQueryService {
             String keyword,
             Pageable pageable
     ) {
-        var posts = postRepository.getPostsByKeyword(keyword, pageable);
-        var postSeqList = posts.stream().map(Post::seq).toList();
-        var postResults = posts.map(Post::toResult);
+        var posts = postDomainRepository.findPostsByKeyword(keyword, pageable);
+        var postIdList = posts.stream().map(Post::id).toList();
+        var postResults = posts.map(this::convertToPostResult);
         var updatedPostResultsPage = new PageImpl<>(
-                postResults.getContent().stream().map(post -> postResultAssembler.assembleKeywords(post, keyword)).toList(),
+                postResults.getContent().stream()
+                        .map(post -> postResultAssembler.assembleKeywords(post, keyword))
+                        .toList(),
                 pageable,
                 postResults.getTotalElements()
         );
-        return this.assemblePostResult(postSeqList, updatedPostResultsPage);
+        return this.assemblePostResult(postIdList, updatedPostResultsPage);
     }
 
     @Transactional(readOnly = true)
-    public PostResult getPostDetail(Long postSeq) {
-        var posts = new PageImpl<>(List.of(postRepository.getById(postSeq)));
-        var postResult = posts.map(Post::toResult);
-        return this.assemblePostResult(List.of(postSeq), postResult).getContent().getFirst();
+    public PostResult getPostDetail(String postId) {
+        var post = postDomainRepository.findById(postId)
+                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        var posts = new PageImpl<>(List.of(post));
+        var postResult = posts.map(this::convertToPostResult);
+        return this.assemblePostResult(List.of(postId), postResult).getContent().getFirst();
     }
 
     @Transactional(readOnly = true)
-    public Page<PostResult> getPostsByUserSeq(
-            Long userSeq,
+    public Page<PostResult> getPostsByUserId(
+            String userId,
             Pageable pageable
     ) {
-        var posts = postRepository.getPostsByUserSeq(userSeq, pageable);
-        var postResults = posts.map(Post::toResult);
-        return this.assemblePostResult(posts.stream().map(Post::seq).toList(), postResults);
+        var posts = postDomainRepository.findPostsByUserId(userId, pageable);
+        var postResults = posts.map(this::convertToPostResult);
+        return this.assemblePostResult(
+                posts.stream().map(Post::id).toList(),
+                postResults
+        );
     }
 
     public List<PostResult> getPostsFromRedis(String key) {
@@ -120,36 +138,82 @@ public class PostQueryService {
         return List.of();
     }
 
-    public List<PostResult> getPostsByPostSeqList(List<Long> postSeqList) {
-        var postResults = postRepository.getPostsByPostSeqList(postSeqList).stream().map(Post::toResult).toList();
-        return this.assemblePostResult(postSeqList, new PageImpl<>(postResults)).toList();
+    public List<PostResult> getPostsByPostIdList(List<String> postIdList) {
+        var postResults = postDomainRepository.findPostsByIdList(postIdList)
+                .stream()
+                .map(this::convertToPostResult)
+                .toList();
+        return this.assemblePostResult(postIdList, new PageImpl<>(postResults)).toList();
     }
 
     private Page<PostResult> assemblePostResult(
-            List<Long> resultSeqList,
+            List<String> resultIdList,
             Page<PostResult> postResults
     ) {
-        var orderMap = IntStream.range(0, resultSeqList.size())
+        var orderMap = IntStream.range(0, resultIdList.size())
                 .boxed()
-                .collect(Collectors.toMap(resultSeqList::get, i -> i));
+                .collect(Collectors.toMap(resultIdList::get, i -> i));
 
-        var interactionUsers = interactionUserQueryService.getInteractionUsersByPostSeqList(resultSeqList, PostType.POST);
-        var postResources = postResourceQueryService.getResourcesByPostSeqList(resultSeqList, PostType.POST);
+        var interactionUsers = interactionUserQueryService.getInteractionUsersByPostIdList(resultIdList, PostType.POST);
+        var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, PostType.POST);
 
         return postResults.map(postResult -> {
             var resources = postResources.stream()
-                    .filter(postResource -> postResource.postSeq().equals(postResult.seq()))
-                    .sorted(Comparator.comparingInt(pr -> orderMap.getOrDefault(pr.postSeq(), Integer.MAX_VALUE)))
+                    .filter(postResource -> postResource.postId().equals(postResult.id()))
+                    .map(pr -> new Resource(
+                            pr.id(),
+                            pr.postId(),
+                            pr.postType(),
+                            com.backend.immilog.shared.domain.model.ResourceType.valueOf(pr.resourceType().name()),
+                            pr.content()
+                    ))
+                    .sorted(Comparator.comparingInt(pr -> orderMap.getOrDefault(pr.entityId(), Integer.MAX_VALUE)))
                     .toList();
 
             var interactionUserList = interactionUsers.stream()
-                    .filter(interactionUser -> interactionUser.postSeq().equals(postResult.seq()))
-                    .sorted(Comparator.comparingInt(iu -> orderMap.getOrDefault(iu.postSeq(), Integer.MAX_VALUE)))
+                    .filter(interactionUser -> interactionUser.postId().equals(postResult.id()))
+                    .sorted(Comparator.comparingInt(iu -> orderMap.getOrDefault(iu.postId(), Integer.MAX_VALUE)))
                     .toList();
 
-            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionUsers(postResult, interactionUserList);
-            var postResultWithNewResources = postResultAssembler.assembleResources(postResultWithNewInteractionUsers, resources);
-            return postResultAssembler.assembleLikeCount(postResultWithNewResources,interactionUserList.size());
+            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionUsers(
+                    postResult,
+                    interactionUserList
+            );
+            var postResultWithNewResources = postResultAssembler.assembleResources(
+                    postResultWithNewInteractionUsers,
+                    resources
+            );
+            return postResultAssembler.assembleLikeCount(
+                    postResultWithNewResources,
+                    interactionUserList.size()
+            );
         });
+    }
+
+    private PostResult convertToPostResult(Post post) {
+        return new PostResult(
+                post.id(),
+                post.userId(),
+                post.profileImage(),
+                post.nickname(),
+                null,
+                post.commentCount(),
+                post.viewCount(),
+                post.likeCount(),
+                null,
+                null,
+                null,
+                null,
+                post.isPublic(),
+                post.countryName(),
+                post.region(),
+                post.category(),
+                post.status(),
+                post.createdAt().toString(),
+                post.updatedAt().toString(),
+                post.title(),
+                post.content(),
+                null
+        );
     }
 }

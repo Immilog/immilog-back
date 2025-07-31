@@ -1,6 +1,5 @@
 package com.backend.immilog.post.infrastructure.repositories;
 
-import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
@@ -10,6 +9,7 @@ import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.post.infrastructure.jdbc.PostJdbcRepository;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostEntity;
 import com.backend.immilog.post.infrastructure.jpa.repository.PostJpaRepository;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -50,9 +50,9 @@ public class PostRepositoryImpl implements PostRepository {
 
 
     @Override
-    public Post getPostDetail(Long postSeq) {
+    public Post getPostDetail(String postId) {
         return postJdbcRepository
-                .getSinglePost(postSeq)
+                .getSinglePost(postId)
                 .orElseThrow(() -> new PostException(POST_NOT_FOUND));
     }
 
@@ -65,17 +65,17 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Page<Post> getPostsByUserSeq(
-            Long userSeq,
+    public Page<Post> getPostsByUserId(
+            String userId,
             Pageable pageable
     ) {
-        return postJdbcRepository.getPostsByUserSeq(userSeq, pageable);
+        return postJdbcRepository.getPostsByUserId(userId, pageable);
     }
 
     @Override
-    public Post getById(Long postSeq) {
+    public Post getById(String postId) {
         return postJpaRepository
-                .findById(postSeq)
+                .findById(postId)
                 .map(PostEntity::toDomain)
                 .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
     }
@@ -86,8 +86,8 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public List<Post> getPostsByPostSeqList(List<Long> postSeqList) {
-        return postJpaRepository.findAllBySeqIn(postSeqList).stream()
+    public List<Post> getPostsByPostIdList(List<String> postIdList) {
+        return postJpaRepository.findAllByIdIn(postIdList).stream()
                 .map(PostEntity::toDomain)
                 .toList();
     }

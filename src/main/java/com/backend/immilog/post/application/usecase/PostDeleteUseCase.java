@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface PostDeleteUseCase {
     void deletePost(
-            Long userId,
-            Long postSeq
+            String userId,
+            String postId
     );
 
     @Slf4j
@@ -32,14 +32,11 @@ public interface PostDeleteUseCase {
 
         @Transactional
         public void deletePost(
-                Long userId,
-                Long postSeq
+                String userId,
+                String postId
         ) {
-            var post = postQueryService.getPostById(postSeq);
-            post.validateUserId(userId);
-            var deletedPost = post.delete();
-            postCommandService.save(deletedPost);
-            postResourceCommandService.deleteAllByPostSeq(deletedPost.seq());
+            postCommandService.deletePost(postId, userId);
+            postResourceCommandService.deleteAllByPostId(postId);
         }
     }
 }

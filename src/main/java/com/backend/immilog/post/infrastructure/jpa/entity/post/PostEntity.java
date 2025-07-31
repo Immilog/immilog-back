@@ -1,5 +1,6 @@
 package com.backend.immilog.post.infrastructure.jpa.entity.post;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.post.domain.model.post.*;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicInsert;
@@ -14,9 +15,8 @@ import java.time.LocalDateTime;
 public class PostEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seq")
-    private Long seq;
+    @Column(name = "post_id")
+    private String id;
 
     @Embedded
     private PostUserInfoValue postUserInfo;
@@ -43,10 +43,17 @@ public class PostEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId();
+        }
+    }
+
     protected PostEntity() {}
 
     public PostEntity(
-            Long seq,
+            String id,
             PostUserInfo postUserInfo,
             PostInfo postInfo,
             Categories category,
@@ -57,7 +64,7 @@ public class PostEntity {
             LocalDateTime updatedAt
     ) {
         PostUserInfoValue postUserInfoValue = PostUserInfoValue.of(
-                postUserInfo.userSeq(),
+                postUserInfo.userId(),
                 postUserInfo.nickname(),
                 postUserInfo.profileImage()
         );
@@ -70,7 +77,7 @@ public class PostEntity {
                 postInfo.region(),
                 postInfo.status()
         );
-        this.seq = seq;
+        this.id = id;
         this.postUserInfo = postUserInfoValue;
         this.postInfo = postInfoValue;
         this.category = category;
@@ -83,7 +90,7 @@ public class PostEntity {
 
     public static PostEntity from(Post post) {
         return new PostEntity(
-                post.seq(),
+                post.id(),
                 post.postUserInfo(),
                 post.postInfo(),
                 post.category(),
@@ -91,15 +98,15 @@ public class PostEntity {
                 post.badge(),
                 post.commentCount(),
                 post.createdAt(),
-                post.seq() != null ? post.updatedAt() : null
+                post.id() != null ? post.updatedAt() : null
         );
     }
 
     public Post toDomain() {
         return new Post(
-                this.seq,
+                this.id,
                 this.postUserInfo == null ? null : this.postUserInfo.toDomain(),
-                this.postInfo == null ? null :  this.postInfo.toDomain(),
+                this.postInfo == null ? null : this.postInfo.toDomain(),
                 this.category,
                 this.isPublic,
                 this.badge,

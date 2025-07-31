@@ -1,6 +1,6 @@
 package com.backend.immilog.post.domain.model.post;
 
-import com.backend.immilog.global.enums.Country;
+import com.backend.immilog.shared.enums.Country;
 
 public record PostInfo(
         String title,
@@ -10,7 +10,7 @@ public record PostInfo(
         String region,
         PostStatus status,
         Country country
-){
+) {
     public static <T extends Enum<T>> PostInfo of(
             String title,
             String content,

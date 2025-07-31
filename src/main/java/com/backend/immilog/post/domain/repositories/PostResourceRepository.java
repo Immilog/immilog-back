@@ -8,18 +8,18 @@ import java.util.List;
 
 public interface PostResourceRepository {
     void deleteAllEntities(
-            Long postSeq,
+            String postId,
             PostType postType,
             ResourceType resourceType,
             List<String> deleteAttachments
     );
 
-    void deleteAllByPostSeq(Long seq);
+    void deleteAllByPostId(String id);
 
-    List<PostResource> findAllByPostSeq(Long seq);
+    List<PostResource> findAllByPostId(String id);
 
-    List<PostResource> findAllByPostSeqList(
-            List<Long> postSeqList,
+    List<PostResource> findAllByPostIdList(
+            List<String> postIdList,
             PostType postType
     );
 }

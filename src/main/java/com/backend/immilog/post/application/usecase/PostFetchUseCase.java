@@ -1,15 +1,15 @@
 package com.backend.immilog.post.application.usecase;
 
-import com.backend.immilog.global.enums.Country;
+import com.backend.immilog.comment.application.services.CommentQueryService;
+import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
+import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.result.PostResult;
-import com.backend.immilog.post.application.services.CommentQueryService;
-import com.backend.immilog.post.application.services.InteractionUserQueryService;
 import com.backend.immilog.post.application.services.PostQueryService;
-import com.backend.immilog.post.domain.model.interaction.InteractionUser;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
+import com.backend.immilog.shared.enums.Country;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,10 +28,10 @@ public interface PostFetchUseCase {
             Integer page
     );
 
-    PostResult getPostDetail(Long postSeq);
+    PostResult getPostDetail(String postId);
 
     List<PostResult> getBookmarkedPosts(
-            Long userSeq,
+            String userId,
             PostType postType
     );
 
@@ -41,7 +41,7 @@ public interface PostFetchUseCase {
     );
 
     Page<PostResult> getUserPosts(
-            Long userSeq,
+            String userId,
             Integer page
     );
 
@@ -80,19 +80,19 @@ public interface PostFetchUseCase {
             return postQueryService.getPosts(country, sortingMethod, isPublic, category, pageable);
         }
 
-        public PostResult getPostDetail(Long postSeq) {
-            final var post = postQueryService.getPostDetail(postSeq);
-            final var comments = commentQueryService.getComments(postSeq);
+        public PostResult getPostDetail(String postId) {
+            final var post = postQueryService.getPostDetail(postId);
+            final var comments = commentQueryService.getComments(postId);
             return postResultAssembler.assembleComments(post, comments);
         }
 
         public List<PostResult> getBookmarkedPosts(
-                Long userSeq,
+                String userId,
                 PostType postType
         ) {
-            final var bookmarks = interactionUserQueryService.getBookmarkInteractions(userSeq, postType);
-            final var postSeqList = bookmarks.stream().map(InteractionUser::postSeq).toList();
-            return postQueryService.getPostsByPostSeqList(postSeqList);
+            final var bookmarks = interactionUserQueryService.getBookmarkInteractions(userId, postType);
+            final var postIdList = bookmarks.stream().map(InteractionUser::postId).toList();
+            return postQueryService.getPostsByPostIdList(postIdList);
         }
 
 
@@ -110,11 +110,11 @@ public interface PostFetchUseCase {
         }
 
         public Page<PostResult> getUserPosts(
-                Long userSeq,
+                String userId,
                 Integer page
         ) {
             final var pageable = PageRequest.of(Objects.requireNonNullElse(page, 0), 10);
-            return postQueryService.getPostsByUserSeq(userSeq, pageable);
+            return postQueryService.getPostsByUserId(userId, pageable);
         }
 
         public List<PostResult> getMostViewedPosts() {

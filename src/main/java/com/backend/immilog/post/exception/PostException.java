@@ -1,7 +1,7 @@
 package com.backend.immilog.post.exception;
 
-import com.backend.immilog.global.exception.CustomException;
-import com.backend.immilog.global.exception.ErrorCode;
+import com.backend.immilog.shared.exception.CustomException;
+import com.backend.immilog.shared.exception.ErrorCode;
 
 public class PostException extends CustomException {
     public PostException(ErrorCode e) {

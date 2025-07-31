@@ -6,8 +6,8 @@ import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class PostUserInfoValue {
-    @Column(name = "user_seq")
-    private Long userSeq;
+    @Column(name = "user_id")
+    private String userId;
 
     @Column(name = "nickname")
     private String nickname;
@@ -18,24 +18,24 @@ public class PostUserInfoValue {
     protected PostUserInfoValue() {}
 
     public PostUserInfoValue(
-            Long userSeq,
+            String userId,
             String nickname,
             String profileImage
     ) {
-        this.userSeq = userSeq;
+        this.userId = userId;
         this.nickname = nickname;
         this.profileImage = profileImage;
     }
 
     public static PostUserInfoValue of(
-            Long userSeq,
+            String userId,
             String nickname,
             String profileImage
     ) {
-        return new PostUserInfoValue(userSeq, nickname, profileImage);
+        return new PostUserInfoValue(userId, nickname, profileImage);
     }
 
     public PostUserInfo toDomain() {
-        return new PostUserInfo(this.userSeq, this.nickname, this.profileImage);
+        return new PostUserInfo(this.userId, this.nickname, this.profileImage);
     }
 }

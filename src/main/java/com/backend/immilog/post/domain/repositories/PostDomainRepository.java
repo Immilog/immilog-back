@@ -8,10 +8,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface PostRepository {
+public interface PostDomainRepository {
 
-    Page<Post> getPosts(
+    Optional<Post> findById(String id);
+
+    Post save(Post post);
+
+    Page<Post> findPosts(
             Country country,
             SortingMethods sortingMethod,
             String isPublic,
@@ -19,21 +24,15 @@ public interface PostRepository {
             Pageable pageable
     );
 
-    Post getPostDetail(String postId);
-
-    Page<Post> getPostsByKeyword(
+    Page<Post> findPostsByKeyword(
             String keyword,
             Pageable pageable
     );
 
-    Page<Post> getPostsByUserId(
+    Page<Post> findPostsByUserId(
             String userId,
             Pageable pageable
     );
 
-    Post getById(String postId);
-
-    Post save(Post postEntity);
-
-    List<Post> getPostsByPostIdList(List<String> postIdList);
+    List<Post> findPostsByIdList(List<String> postIdList);
 }

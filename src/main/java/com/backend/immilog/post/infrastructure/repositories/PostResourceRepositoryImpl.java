@@ -26,13 +26,13 @@ public class PostResourceRepositoryImpl implements PostResourceRepository {
 
     @Override
     public void deleteAllEntities(
-            Long postSeq,
+            String postId,
             PostType postType,
             ResourceType resourceType,
             List<String> deleteAttachments
     ) {
         postResourceJdbcRepository.deleteAllEntities(
-                postSeq,
+                postId,
                 postType,
                 resourceType,
                 deleteAttachments
@@ -40,23 +40,23 @@ public class PostResourceRepositoryImpl implements PostResourceRepository {
     }
 
     @Override
-    public void deleteAllByPostSeq(Long seq) {
-        postResourceJdbcRepository.deleteAllByPostSeq(seq);
+    public void deleteAllByPostId(String id) {
+        postResourceJdbcRepository.deleteAllByPostId(id);
     }
 
     @Override
-    public List<PostResource> findAllByPostSeq(Long seq) {
-        return postResourceJpaRepository.findAllByPostSeq(seq)
+    public List<PostResource> findAllByPostId(String id) {
+        return postResourceJpaRepository.findAllByPostId(id)
                 .stream()
                 .map(PostResourceEntity::toDomain)
                 .toList();
     }
 
     @Override
-    public List<PostResource> findAllByPostSeqList(
-            List<Long> postSeqList,
+    public List<PostResource> findAllByPostIdList(
+            List<String> postIdList,
             PostType postType
     ) {
-        return postResourceJdbcRepository.findAllByPostSeqList(postSeqList, postType);
+        return postResourceJdbcRepository.findAllByPostIdList(postIdList, postType);
     }
 }

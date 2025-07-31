@@ -18,12 +18,12 @@ public class PostResourceJdbcRepository {
     }
 
     public void deleteAllEntities(
-            Long postSeq,
+            String postId,
             PostType postType,
             ResourceType resourceType,
             List<String> deleteAttachments
     ) {
-        if(deleteAttachments.isEmpty()) {
+        if (deleteAttachments.isEmpty()) {
             return;
         }
         String inClause = deleteAttachments.stream()
@@ -31,51 +31,51 @@ public class PostResourceJdbcRepository {
                 .collect(Collectors.joining(", "));
 
         String sql = """
-                DELETE FROM post_resource_entity
-                WHERE post_seq = ?
+                DELETE FROM post_resource
+                WHERE post_id = ?
                 AND post_type = ?
                 AND resource_type = ?
-                AND resource_name IN (%s)
+                AND content IN (%s)
                 """.formatted(inClause);
 
         jdbcClient.sql(sql)
-                .param(postSeq)
+                .param(postId)
                 .param(postType.toString())
                 .param(resourceType.toString())
                 .params(deleteAttachments.toArray())
                 .update();
     }
 
-    public void deleteAllByPostSeq(Long seq) {
+    public void deleteAllByPostId(String id) {
         jdbcClient.sql("""
                         DELETE FROM post_resource
-                        WHERE post_seq = ?
+                        WHERE post_id = ?
                         """)
-                .param(seq)
+                .param(id)
                 .update();
     }
 
-    public List<PostResource> findAllByPostSeqList(
-            List<Long> postSeqList,
+    public List<PostResource> findAllByPostIdList(
+            List<String> postIdList,
             PostType postType
     ) {
-        if (postSeqList.isEmpty()) {
+        if (postIdList.isEmpty()) {
             return List.of();
         }
 
-        String inClause = postSeqList.stream()
-                .map(seq -> "?")
+        String inClause = postIdList.stream()
+                .map(id -> "?")
                 .collect(Collectors.joining(", "));
 
         String sql = """
                 SELECT *
                 FROM post_resource
-                WHERE post_seq IN (%s)
+                WHERE post_id IN (%s)
                 AND post_type = ?
                 """.formatted(inClause);
 
         return jdbcClient.sql(sql)
-                .params(postSeqList.toArray())
+                .params(postIdList.toArray())
                 .param(postType.name())
                 .query(PostResource.class)
                 .list();

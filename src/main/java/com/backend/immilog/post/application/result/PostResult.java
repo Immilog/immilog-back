@@ -1,5 +1,6 @@
 package com.backend.immilog.post.application.result;
 
+import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.PostStatus;
 import com.backend.immilog.post.presentation.response.PostSingleResponse;
@@ -8,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 
 public record PostResult(
-        Long seq,
-        Long userSeq,
+        String id,
+        String userId,
         String userProfileUrl,
         String userNickName,
         List<CommentResult> comments,
@@ -18,8 +19,8 @@ public record PostResult(
         Long likeCount,
         List<String> tags,
         List<String> attachments,
-        List<Long> likeUsers,
-        List<Long> bookmarkUsers,
+        List<String> likeUsers,
+        List<String> bookmarkUsers,
         String isPublic,
         String country,
         String region,

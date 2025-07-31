@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface PostJpaRepository extends JpaRepository<PostEntity, Long> {
-    List<PostEntity> findAllBySeqIn(List<Long> postSeqList);
+public interface PostJpaRepository extends JpaRepository<PostEntity, String> {
+    List<PostEntity> findAllByIdIn(List<String> postIdList);
 }

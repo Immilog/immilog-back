@@ -1,10 +1,10 @@
 package com.backend.immilog.post.infrastructure.jdbc;
 
-import com.backend.immilog.global.enums.Country;
 import com.backend.immilog.post.domain.model.post.*;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostEntity;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostInfoValue;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostUserInfoValue;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -56,7 +56,7 @@ public class PostJdbcRepository {
         String sql = String.format("""
                 SELECT p.*, u.nickname, u.image_url
                 FROM post p
-                LEFT JOIN user u ON p.user_seq = u.seq
+                LEFT JOIN user u ON p.user_id = u.user_id
                 %s
                 %s
                 LIMIT ? OFFSET ?
@@ -73,7 +73,7 @@ public class PostJdbcRepository {
         String countSql = String.format("""
                 SELECT COUNT(*)
                 FROM post p
-                LEFT JOIN user u ON p.user_seq = u.seq
+                LEFT JOIN user u ON p.user_id = u.user_id
                 %s
                 """, whereClause);
 
@@ -87,21 +87,21 @@ public class PostJdbcRepository {
         return new PageImpl<>(posts, pageable, count);
     }
 
-    public Page<Post> getPostsByUserSeq(
-            Long userSeq,
+    public Page<Post> getPostsByUserId(
+            String userId,
             Pageable pageable
     ) {
         String sql = """
                 SELECT p.*, u.nickname, u.image_url
                 FROM post p
-                LEFT JOIN user u ON p.user_seq = u.seq
-                WHERE p.user_seq = ?
+                LEFT JOIN user u ON p.user_id = u.user_id
+                WHERE p.user_id = ?
                 ORDER BY p.created_at DESC
                 LIMIT ? OFFSET ?
                 """;
 
         List<PostEntity> postEntities = jdbcClient.sql(sql)
-                .param(userSeq)
+                .param(userId)
                 .param(pageable.getPageSize())
                 .param(pageable.getOffset())
                 .query(POST_ENTITY_ROW_MAPPER)
@@ -110,10 +110,10 @@ public class PostJdbcRepository {
         int count = jdbcClient.sql("""
                         SELECT COUNT(*)
                         FROM post p
-                        LEFT JOIN user u ON p.user_seq = u.seq
-                        WHERE p.user_seq = ?
+                        LEFT JOIN user u ON p.user_id = u.user_id
+                        WHERE p.user_id = ?
                         """)
-                .param(userSeq)
+                .param(userId)
                 .query(Integer.class)
                 .single();
 
@@ -129,7 +129,7 @@ public class PostJdbcRepository {
         String sql = """
                 SELECT p.*, u.nickname, u.image_url
                 FROM post p
-                LEFT JOIN user u ON p.user_seq = u.seq
+                LEFT JOIN user u ON p.user_id = u.user_id
                 WHERE p.content LIKE ? OR p.title LIKE ?
                 LIMIT ? OFFSET ?
                 """;
@@ -145,7 +145,7 @@ public class PostJdbcRepository {
         String countSql = """
                 SELECT COUNT(*)
                 FROM post p
-                LEFT JOIN user u ON p.user_seq = u.seq
+                LEFT JOIN user u ON p.user_id = u.user_id
                 WHERE p.content LIKE ? OR p.title LIKE ?
                 """;
 
@@ -160,16 +160,16 @@ public class PostJdbcRepository {
         return new PageImpl<>(posts, pageable, count);
     }
 
-    public Optional<Post> getSinglePost(Long postSeq) {
+    public Optional<Post> getSinglePost(String postId) {
         String sql = """
                 SELECT p.*, u.nickname, u.image_url
                 FROM post p
-                LEFT JOIN user u ON p.user_seq = u.seq
-                WHERE p.seq = ?
+                LEFT JOIN user u ON p.user_id = u.user_id
+                WHERE p.post_id = ?
                 """;
 
         return jdbcClient.sql(sql)
-                .param(postSeq)
+                .param(postId)
                 .query(POST_ENTITY_ROW_MAPPER)
                 .optional()
                 .map(PostEntity::toDomain);
@@ -183,7 +183,7 @@ public class PostJdbcRepository {
         String sql = String.format("""
                 SELECT p.*, u.nickname, u.image_url
                 FROM post p
-                LEFT JOIN user u ON p.user_seq = u.seq
+                LEFT JOIN user u ON p.user_id = u.user_id
                 WHERE p.created_at BETWEEN ? AND ?
                 %s
                 LIMIT 10
@@ -199,10 +199,10 @@ public class PostJdbcRepository {
     }
 
     private static final RowMapper<PostEntity> POST_ENTITY_ROW_MAPPER = (rs, rowNum) -> {
-        Long seq = rs.getLong("seq");
+        String id = rs.getString("post_id");
 
         PostUserInfoValue postUserInfo = new PostUserInfoValue(
-                rs.getLong("user_seq"),
+                rs.getString("user_id"),
                 rs.getString("nickname"),
                 rs.getString("image_url")
         );
@@ -218,7 +218,7 @@ public class PostJdbcRepository {
         );
 
         return new PostEntity(
-                seq,
+                id,
                 postUserInfo.toDomain(),
                 postInfo.toDomain(),
                 getEnum(rs, "category", Categories.class),

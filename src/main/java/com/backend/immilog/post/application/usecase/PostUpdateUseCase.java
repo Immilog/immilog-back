@@ -1,16 +1,15 @@
 package com.backend.immilog.post.application.usecase;
 
-import com.backend.immilog.global.aop.lock.DistributedLock;
 import com.backend.immilog.post.application.command.PostUpdateCommand;
 import com.backend.immilog.post.application.services.BulkCommandService;
 import com.backend.immilog.post.application.services.PostCommandService;
 import com.backend.immilog.post.application.services.PostQueryService;
 import com.backend.immilog.post.application.services.PostResourceCommandService;
-import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
+import com.backend.immilog.shared.aop.annotation.DistributedLock;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -20,12 +19,12 @@ import java.util.List;
 
 public interface PostUpdateUseCase {
     void updatePost(
-            Long userId,
-            Long postSeq,
+            String userId,
+            String postId,
             PostUpdateCommand command
     );
 
-    void increaseViewCount(Long postSeq);
+    void increaseViewCount(String postId);
 
     @Slf4j
     @Service
@@ -49,46 +48,63 @@ public interface PostUpdateUseCase {
 
         @Transactional
         public void updatePost(
-                Long userId,
-                Long postSeq,
+                String userId,
+                String postId,
                 PostUpdateCommand command
         ) {
-            var post = postQueryService.getPostById(postSeq);
-            post.validateUserId(userId);
-            var updatedPost = post.updateTitle(command.title())
-                    .updateContent(command.content())
-                    .updateIsPublic(command.isPublic());
-            updateResource(postSeq, command.deleteTags(), command.addTags(), ResourceType.TAG);
-            updateResource(postSeq, command.deleteAttachments(), command.addAttachments(), ResourceType.ATTACHMENT);
-            postCommandService.save(updatedPost);
+            postCommandService.updatePost(
+                    postId,
+                    userId,
+                    command.title(),
+                    command.content()
+            );
+            if (command.isPublic() != null) {
+                postCommandService.updatePostVisibility(
+                        postId,
+                        userId,
+                        command.isPublic()
+                );
+            }
+            updateResource(
+                    postId,
+                    command.deleteTags(),
+                    command.addTags(),
+                    ResourceType.TAG
+            );
+            updateResource(
+                    postId,
+                    command.deleteAttachments(),
+                    command.addAttachments(),
+                    ResourceType.ATTACHMENT
+            );
         }
 
         @Async
         @DistributedLock(key = "'viewPost:'", identifier = "#p0.toString()", expireTime = 5)
-        public void increaseViewCount(Long postSeq) {
-            Post post = postQueryService.getPostById(postSeq);
-            Post updatedPost = post.increaseViewCount();
+        public void increaseViewCount(String postId) {
+            var post = postQueryService.getPostById(postId);
+            var updatedPost = post.increaseViewCount();
             postCommandService.save(updatedPost);
         }
 
         private void updateResource(
-                Long postSeq,
+                String postId,
                 List<String> deleteResources,
                 List<String> addResources,
                 ResourceType resourceType
         ) {
-            this.deleteResourceIfExists(postSeq, deleteResources, resourceType);
-            this.addResourceIfExists(postSeq, addResources, resourceType);
+            this.deleteResourceIfExists(postId, deleteResources, resourceType);
+            this.addResourceIfExists(postId, addResources, resourceType);
         }
 
         private void deleteResourceIfExists(
-                Long postSeq,
+                String postId,
                 List<String> deleteResources,
                 ResourceType resourceType
         ) {
             if (deleteResources != null && !deleteResources.isEmpty()) {
                 postResourceCommandService.deleteAllEntities(
-                        postSeq,
+                        postId,
                         PostType.POST,
                         resourceType,
                         deleteResources
@@ -97,7 +113,7 @@ public interface PostUpdateUseCase {
         }
 
         private void addResourceIfExists(
-                Long postSeq,
+                String postId,
                 List<String> addResources,
                 ResourceType resourceType
         ) {
@@ -106,7 +122,7 @@ public interface PostUpdateUseCase {
                         addResources,
                         """
                                 INSERT INTO post_resource (
-                                    post_seq,
+                                    post_id,
                                     post_type,
                                     resource_type,
                                     content
@@ -114,7 +130,7 @@ public interface PostUpdateUseCase {
                                 """,
                         (ps, resource) -> {
                             try {
-                                ps.setLong(1, postSeq);
+                                ps.setString(1, postId);
                                 ps.setString(2, PostType.POST.name());
                                 ps.setString(3, resourceType.name());
                                 ps.setString(4, resource);

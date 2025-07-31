@@ -1,7 +1,7 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.global.aop.monitor.PerformanceMonitor;
 import com.backend.immilog.post.domain.repositories.BulkInsertRepository;
+import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -6,8 +6,8 @@ import com.backend.immilog.post.application.services.PostCommandService;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.exception.PostException;
-import com.backend.immilog.user.application.services.UserQueryService;
-import com.backend.immilog.user.domain.model.user.User;
+import com.backend.immilog.user.application.services.query.UserQueryService;
+import com.backend.immilog.user.domain.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import static com.backend.immilog.post.exception.PostErrorCode.FAILED_TO_SAVE_PO
 
 public interface PostUploadUseCase {
     void uploadPost(
-            Long userSeq,
+            String userId,
             PostUploadCommand postUploadCommand
     );
 
@@ -48,25 +48,25 @@ public interface PostUploadUseCase {
         @Override
         @Transactional
         public void uploadPost(
-                Long userSeq,
+                String userId,
                 PostUploadCommand postUploadCommand
         ) {
-            final var user = userQueryService.getUserById(userSeq);
+            final var user = userQueryService.getUserById(userId);
             final var newPost = createPost(postUploadCommand, user);
             final var savedPost = postCommandService.save(newPost);
-            this.insertAllPostResources(postUploadCommand, savedPost.seq());
+            this.insertAllPostResources(postUploadCommand, savedPost.id());
         }
 
         private void insertAllPostResources(
                 PostUploadCommand command,
-                Long postSeq
+                String postId
         ) {
-            final var resourceList = this.getPostResourceList(command, postSeq);
+            final var resourceList = this.getPostResourceList(command, postId);
             bulkInsertRepository.saveAll(
                     resourceList,
                     """
                             INSERT INTO post_resource (
-                                post_seq,
+                                post_id,
                                 post_type,
                                 resource_type,
                                 content
@@ -74,7 +74,7 @@ public interface PostUploadUseCase {
                             """,
                     (ps, postResource) -> {
                         try {
-                            ps.setLong(1, postResource.postSeq());
+                            ps.setString(1, postResource.postId());
                             ps.setString(2, postResource.postType().name());
                             ps.setString(3, postResource.resourceType().name());
                             ps.setString(4, postResource.content());
@@ -88,17 +88,17 @@ public interface PostUploadUseCase {
 
         private List<PostResource> getPostResourceList(
                 PostUploadCommand postUploadCommand,
-                Long postSeq
+                String postId
         ) {
             var postResources = new ArrayList<PostResource>();
-            postResources.addAll(this.getTagEntities(postUploadCommand, postSeq));
-            postResources.addAll(this.getAttachmentEntities(postUploadCommand, postSeq));
+            postResources.addAll(this.getTagEntities(postUploadCommand, postId));
+            postResources.addAll(this.getAttachmentEntities(postUploadCommand, postId));
             return Collections.unmodifiableList(postResources);
         }
 
         private List<PostResource> getTagEntities(
                 PostUploadCommand postUploadCommand,
-                Long postSeq
+                String postId
         ) {
             if (postUploadCommand.tags() == null) {
                 return List.of();
@@ -106,13 +106,13 @@ public interface PostUploadUseCase {
             return postUploadCommand
                     .tags()
                     .stream()
-                    .map(tag -> PostResource.of(POST, TAG, tag, postSeq))
+                    .map(tag -> PostResource.of(POST, TAG, tag, postId))
                     .toList();
         }
 
         private List<PostResource> getAttachmentEntities(
                 PostUploadCommand postUploadCommand,
-                Long postSeq
+                String postId
         ) {
             if (postUploadCommand.attachments() == null) {
                 return List.of();
@@ -120,7 +120,7 @@ public interface PostUploadUseCase {
             return postUploadCommand
                     .attachments()
                     .stream()
-                    .map(url -> PostResource.of(POST, ATTACHMENT, url, postSeq))
+                    .map(url -> PostResource.of(POST, ATTACHMENT, url, postId))
                     .toList();
         }
 

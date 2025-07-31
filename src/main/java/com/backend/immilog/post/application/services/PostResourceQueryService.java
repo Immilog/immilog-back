@@ -17,10 +17,10 @@ public class PostResourceQueryService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResource> getResourcesByPostSeqList(
-            List<Long> postSeqList,
+    public List<PostResource> getResourcesByPostIdList(
+            List<String> postIdList,
             PostType postType
     ) {
-        return postResourceRepository.findAllByPostSeqList(postSeqList, postType);
+        return postResourceRepository.findAllByPostIdList(postIdList, postType);
     }
 }
