@@ -5,7 +5,11 @@ public record AuthenticatedUser(
         String email,
         String nickname
 ) {
-    public static AuthenticatedUser of(String userId, String email, String nickname) {
+    public static AuthenticatedUser of(
+            String userId,
+            String email,
+            String nickname
+    ) {
         return new AuthenticatedUser(userId, email, nickname);
     }
 }
