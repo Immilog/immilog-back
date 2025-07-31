@@ -8,7 +8,7 @@ public interface TokenProvider {
     void init();
 
     String issueAccessToken(
-            Long id,
+            String id,
             String email,
             UserRole userRole,
             Country country
@@ -18,7 +18,7 @@ public interface TokenProvider {
 
     boolean validateToken(String token);
 
-    Long getIdFromToken(String token);
+    String getIdFromToken(String token);
 
     String getEmailFromToken(String token);
 

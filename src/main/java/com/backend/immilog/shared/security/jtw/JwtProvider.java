@@ -1,8 +1,8 @@
 package com.backend.immilog.shared.security.jtw;
 
 import com.backend.immilog.shared.config.properties.JwtProperties;
-import com.backend.immilog.shared.security.token.TokenProvider;
 import com.backend.immilog.shared.enums.Country;
+import com.backend.immilog.shared.security.token.TokenProvider;
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.infrastructure.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
@@ -41,7 +41,7 @@ public class JwtProvider implements TokenProvider {
 
     @Override
     public String issueAccessToken(
-            Long id,
+            String id,
             String email,
             UserRole userRole,
             Country country
@@ -50,7 +50,7 @@ public class JwtProvider implements TokenProvider {
         Date expiration = new Date(now.getTime() + jwtProperties.getAccessTokenExpirationMs());
 
         return Jwts.builder()
-                .subject(id.toString())
+                .subject(id)
                 .claim("email", email)
                 .claim("userRole", userRole.name())
                 .claim("country", country.countryCode())
@@ -89,17 +89,15 @@ public class JwtProvider implements TokenProvider {
     }
 
     @Override
-    public Long getIdFromToken(String token) {
+    public String getIdFromToken(String token) {
         token = removeBearer(token);
 
-        String subject = Jwts.parser()
+        return Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
-
-        return Long.parseLong(subject);
     }
 
     @Override

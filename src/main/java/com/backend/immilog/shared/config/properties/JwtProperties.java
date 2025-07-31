@@ -13,18 +13,16 @@ public record JwtProperties(
         Duration refreshTokenExpiration
 ) {
 
-    // 기본값을 제공하는 생성자
     @ConstructorBinding
     public JwtProperties {
         if (accessTokenExpiration == null) {
             accessTokenExpiration = Duration.ofDays(1);
         }
         if (refreshTokenExpiration == null) {
-            refreshTokenExpiration = Duration.ofDays(180); // 6개월
+            refreshTokenExpiration = Duration.ofDays(180);
         }
     }
 
-    // 밀리초로 변환하는 편의 메서드들
     public long getAccessTokenExpirationMs() {
         return accessTokenExpiration.toMillis();
     }
