@@ -1,11 +1,12 @@
 package com.backend.immilog.image.infrastructure.persistence.jpa
 
-import com.backend.immilog.image.domain.ImageStatus
-import com.backend.immilog.image.domain.ImageType
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils
+import com.backend.immilog.image.domain.enums.ImageStatus
+import com.backend.immilog.image.domain.enums.ImageType
 import com.backend.immilog.image.domain.model.Image
 import com.backend.immilog.image.domain.model.ImageId
-import com.backend.immilog.image.domain.model.ImagePath
 import com.backend.immilog.image.domain.model.ImageMetadata
+import com.backend.immilog.image.domain.model.ImagePath
 import jakarta.persistence.*
 import org.hibernate.annotations.DynamicUpdate
 
@@ -14,9 +15,8 @@ import org.hibernate.annotations.DynamicUpdate
 @Table(name = "image")
 open class ImageJpaEntity(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seq")
-    open var seq: Long? = null,
+    @Column(name = "image_id")
+    open var id: String? = null,
 
     @Column(name = "path")
     open var path: String = "",
@@ -29,10 +29,17 @@ open class ImageJpaEntity(
     @Enumerated(EnumType.STRING)
     open var status: ImageStatus = ImageStatus.NORMAL
 ) {
+    @PrePersist
+    fun generateId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId()
+        }
+    }
+
     companion object {
         fun from(image: Image): ImageJpaEntity =
             ImageJpaEntity(
-                seq = image.id?.value,
+                id = image.id?.value,
                 path = image.path.value,
                 imageType = image.metadata.imageType,
                 status = image.status
@@ -51,10 +58,10 @@ open class ImageJpaEntity(
             fileSize = null,
             contentType = null
         )
-        
-        return if (this.seq != null) {
+
+        return if (this.id != null) {
             Image.restore(
-                id = ImageId.of(this.seq!!),
+                id = ImageId.of(this.id!!),
                 path = imagePath,
                 metadata = metadata,
                 status = this.status

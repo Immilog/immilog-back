@@ -1,7 +1,7 @@
 package com.backend.immilog.image.presentation
 
-import com.backend.immilog.image.domain.ImageStatus
-import com.backend.immilog.image.domain.ImageType
+import com.backend.immilog.image.domain.enums.ImageStatus
+import com.backend.immilog.image.domain.enums.ImageType
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
@@ -34,7 +34,7 @@ data class ImageResponse(
     @Schema(description = "이미지 정보 DTO")
     data class ImageInfo(
         @Schema(description = "이미지 ID")
-        val id: Long?,
+        val id: String?,
 
         @Schema(description = "이미지 경로")
         val path: String,

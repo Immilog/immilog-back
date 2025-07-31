@@ -1,6 +1,6 @@
 package com.backend.immilog.image.domain.model
 
-import com.backend.immilog.image.domain.ImageStatus
+import com.backend.immilog.image.domain.enums.ImageStatus
 
 data class Image(
     val id: ImageId?,
@@ -20,7 +20,7 @@ data class Image(
                 status = ImageStatus.NORMAL
             )
         }
-        
+
         fun restore(
             id: ImageId,
             path: ImagePath,
@@ -35,21 +35,21 @@ data class Image(
             )
         }
     }
-    
+
     fun delete(): Image = copy(
         status = ImageStatus.DELETED,
         metadata = metadata.updateTimestamp()
     )
-    
+
     fun activate(): Image = copy(
         status = ImageStatus.NORMAL,
         metadata = metadata.updateTimestamp()
     )
-    
+
     fun isDeleted(): Boolean = status == ImageStatus.DELETED
-    
+
     fun isActive(): Boolean = status == ImageStatus.NORMAL
-    
+
     fun updatePath(newPath: ImagePath): Image = copy(
         path = newPath,
         metadata = metadata.updateTimestamp()

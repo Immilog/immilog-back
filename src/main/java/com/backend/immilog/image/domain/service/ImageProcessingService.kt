@@ -1,16 +1,14 @@
 package com.backend.immilog.image.domain.service
 
-import com.backend.immilog.image.domain.ImageType
+import com.backend.immilog.image.domain.enums.ImageType
 import com.backend.immilog.image.domain.model.Image
 import com.backend.immilog.image.domain.model.ImageMetadata
 import com.backend.immilog.image.domain.model.ImagePath
-import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
-@Service
 class ImageProcessingService {
-    
+
     fun createImageFromFile(
         file: MultipartFile,
         storedPath: String,
@@ -23,17 +21,17 @@ class ImageProcessingService {
             fileSize = file.size,
             contentType = file.contentType
         )
-        
+
         return Image.create(imagePath, metadata)
     }
-    
+
     fun buildFullImageUrl(relativePath: String): String {
         return ServletUriComponentsBuilder.fromCurrentContextPath()
             .path(relativePath)
             .build()
             .toUriString()
     }
-    
+
     fun generateImagePathPrefix(imageType: ImageType): String {
         return when (imageType) {
             ImageType.PROFILE -> "/images/profiles"

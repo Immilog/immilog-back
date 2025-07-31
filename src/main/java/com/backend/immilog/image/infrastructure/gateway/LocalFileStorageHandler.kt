@@ -1,9 +1,9 @@
 package com.backend.immilog.image.infrastructure.gateway
 
+import com.backend.immilog.notification.application.DiscordSendingService
 import com.backend.immilog.shared.config.properties.WebProperties
 import com.backend.immilog.shared.exception.CommonErrorCode
 import com.backend.immilog.shared.exception.CustomException
-import com.backend.immilog.notification.application.DiscordSendingService
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.io.IOException

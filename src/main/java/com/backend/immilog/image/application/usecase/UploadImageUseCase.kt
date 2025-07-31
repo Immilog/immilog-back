@@ -2,7 +2,7 @@ package com.backend.immilog.image.application.usecase
 
 import com.backend.immilog.image.application.service.ImageCommandService
 import com.backend.immilog.image.application.service.ImageQueryService
-import com.backend.immilog.image.domain.ImageType
+import com.backend.immilog.image.domain.enums.ImageType
 import com.backend.immilog.image.domain.model.Image
 import com.backend.immilog.image.domain.model.ImageMetadata
 import com.backend.immilog.image.domain.model.ImagePath
@@ -18,7 +18,7 @@ interface UploadImageUseCase {
         imagePath: String,
         imageType: ImageType
     ): List<String>
-    
+
     fun deleteImage(previousPath: String?, newPath: String?)
 
     @Service
@@ -40,7 +40,7 @@ interface UploadImageUseCase {
                     .path(url)
                     .build()
                     .toUriString()
-                
+
                 val imagePath = ImagePath.of(fullPath)
                 val metadata = ImageMetadata.of(
                     imageType = imageType,
@@ -53,7 +53,7 @@ interface UploadImageUseCase {
                 fullPath
             } ?: emptyList()
         }
-        
+
         @Transactional
         override fun deleteImage(previousPath: String?, newPath: String?) {
             if (!previousPath.isNullOrBlank() && previousPath != newPath) {

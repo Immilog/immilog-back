@@ -1,6 +1,6 @@
 package com.backend.immilog.image.domain.model
 
-import com.backend.immilog.image.domain.ImageType
+import com.backend.immilog.image.domain.enums.ImageType
 import java.time.LocalDateTime
 
 data class ImageMetadata(
@@ -26,6 +26,6 @@ data class ImageMetadata(
             )
         }
     }
-    
+
     fun updateTimestamp(): ImageMetadata = copy(updatedAt = LocalDateTime.now())
 }

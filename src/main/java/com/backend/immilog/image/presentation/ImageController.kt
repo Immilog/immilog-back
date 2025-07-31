@@ -1,7 +1,7 @@
 package com.backend.immilog.image.presentation
 
 import com.backend.immilog.image.application.usecase.UploadImageUseCase
-import com.backend.immilog.image.domain.ImageType
+import com.backend.immilog.image.domain.enums.ImageType
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.tags.Tag

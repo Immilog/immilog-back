@@ -1,4 +1,4 @@
-package com.backend.immilog.image.domain
+package com.backend.immilog.image.domain.enums
 
 enum class ImageStatus {
     NORMAL,
