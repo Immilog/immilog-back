@@ -17,16 +17,16 @@ public class ReportCommandService {
     public Report save(Report report) {
         return reportRepository.save(report);
     }
-    
+
     @Transactional
     public void delete(Report report) {
         reportRepository.delete(report);
     }
-    
+
     @Transactional
-    public void deleteById(Long reportId) {
+    public void deleteById(String reportId) {
         reportRepository.deleteById(reportRepository.findById(reportId)
-            .orElseThrow(() -> new RuntimeException("Report not found"))
-            .getId());
+                .orElseThrow(() -> new RuntimeException("Report not found"))
+                .getId());
     }
 }

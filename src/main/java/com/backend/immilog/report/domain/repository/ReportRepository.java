@@ -14,7 +14,7 @@ public interface ReportRepository {
 
     Optional<Report> findById(ReportId reportId);
 
-    Optional<Report> findById(Long reportId);
+    Optional<Report> findById(String reportId);
 
     void delete(Report report);
 
@@ -22,18 +22,18 @@ public interface ReportRepository {
 
     List<Report> findByTarget(ReportTarget target);
 
-    List<Report> findByReporterId(Long reporterId);
+    List<Report> findByReporterId(String reporterId);
 
     List<Report> findByStatus(ReportStatus status);
 
     boolean existsByTargetAndReporterId(
             ReportTarget target,
-            Long reporterId
+            String reporterId
     );
 
     long countByTarget(ReportTarget target);
 
-    long countByReporterId(Long reporterId);
+    long countByReporterId(String reporterId);
 
     List<Report> findPendingReports();
 

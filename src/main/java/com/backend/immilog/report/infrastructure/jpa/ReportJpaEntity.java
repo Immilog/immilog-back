@@ -1,9 +1,13 @@
 package com.backend.immilog.report.infrastructure.jpa;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.report.domain.enums.ReportReason;
 import com.backend.immilog.report.domain.enums.ReportStatus;
 import com.backend.immilog.report.domain.enums.ReportTargetType;
-import com.backend.immilog.report.domain.model.*;
+import com.backend.immilog.report.domain.model.Report;
+import com.backend.immilog.report.domain.model.ReportDescription;
+import com.backend.immilog.report.domain.model.ReportId;
+import com.backend.immilog.report.domain.model.ReportTarget;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
@@ -17,19 +21,18 @@ import java.time.LocalDateTime;
 public class ReportJpaEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seq")
-    private Long id;
+    @Column(name = "report_id")
+    private String id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "target_type")
     private ReportTargetType targetType;
 
     @Column(name = "target_id")
-    private Long targetId;
+    private String targetId;
 
     @Column(name = "reporter_id")
-    private Long reporterId;
+    private String reporterId;
 
     @Column(name = "description")
     private String description;
@@ -53,13 +56,20 @@ public class ReportJpaEntity {
     @Column(name = "resolved_at")
     private LocalDateTime resolvedAt;
 
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId();
+        }
+    }
+
     protected ReportJpaEntity() {}
 
     private ReportJpaEntity(
-            Long id,
+            String id,
             ReportTargetType targetType,
-            Long targetId,
-            Long reporterId,
+            String targetId,
+            String reporterId,
             String description,
             ReportReason reason,
             ReportStatus status,
@@ -112,14 +122,23 @@ public class ReportJpaEntity {
         );
     }
 
-    public Long getId() { return id; }
-    public ReportTargetType getTargetType() { return targetType; }
-    public Long getTargetId() { return targetId; }
-    public Long getReporterId() { return reporterId; }
-    public String getDescription() { return description; }
-    public ReportReason getReason() { return reason; }
-    public ReportStatus getStatus() { return status; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public LocalDateTime getResolvedAt() { return resolvedAt; }
+    public String getId() {return id;}
+
+    public ReportTargetType getTargetType() {return targetType;}
+
+    public String getTargetId() {return targetId;}
+
+    public String getReporterId() {return reporterId;}
+
+    public String getDescription() {return description;}
+
+    public ReportReason getReason() {return reason;}
+
+    public ReportStatus getStatus() {return status;}
+
+    public LocalDateTime getCreatedAt() {return createdAt;}
+
+    public LocalDateTime getUpdatedAt() {return updatedAt;}
+
+    public LocalDateTime getResolvedAt() {return resolvedAt;}
 }

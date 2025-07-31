@@ -23,54 +23,64 @@ public class ReportQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Report> findById(Long reportId) {
+    public Optional<Report> findById(String reportId) {
         return reportRepository.findById(reportId);
     }
-    
+
     @Transactional(readOnly = true)
     public Report getById(ReportId reportId) {
         return reportRepository.findById(reportId)
-            .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
+                .orElseThrow(() -> new ReportException(ReportErrorCode.REPORT_NOT_FOUND));
     }
-    
+
     @Transactional(readOnly = true)
-    public boolean existsByTargetAndReporter(ReportTargetType targetType, Long targetId, Long reporterId) {
+    public boolean existsByTargetAndReporter(
+            ReportTargetType targetType,
+            String targetId,
+            String reporterId
+    ) {
         ReportTarget target = ReportTarget.of(targetType, targetId);
         return reportRepository.existsByTargetAndReporterId(target, reporterId);
     }
-    
+
     @Transactional(readOnly = true)
-    public List<Report> findByTarget(ReportTargetType targetType, Long targetId) {
+    public List<Report> findByTarget(
+            ReportTargetType targetType,
+            String targetId
+    ) {
         ReportTarget target = ReportTarget.of(targetType, targetId);
         return reportRepository.findByTarget(target);
     }
-    
+
     @Transactional(readOnly = true)
-    public List<Report> findByReporter(Long reporterId) {
+    public List<Report> findByReporter(String reporterId) {
         return reportRepository.findByReporterId(reporterId);
     }
-    
+
     @Transactional(readOnly = true)
     public List<Report> findByStatus(ReportStatus status) {
         return reportRepository.findByStatus(status);
     }
-    
+
     @Transactional(readOnly = true)
-    public long countByTarget(ReportTargetType targetType, Long targetId) {
+    public long countByTarget(
+            ReportTargetType targetType,
+            String targetId
+    ) {
         ReportTarget target = ReportTarget.of(targetType, targetId);
         return reportRepository.countByTarget(target);
     }
-    
+
     @Transactional(readOnly = true)
-    public long countByReporter(Long reporterId) {
+    public long countByReporter(String reporterId) {
         return reportRepository.countByReporterId(reporterId);
     }
-    
+
     @Transactional(readOnly = true)
     public List<Report> findPendingReports() {
         return reportRepository.findPendingReports();
     }
-    
+
     @Transactional(readOnly = true)
     public List<Report> findReportsUnderReview() {
         return reportRepository.findReportsUnderReview();

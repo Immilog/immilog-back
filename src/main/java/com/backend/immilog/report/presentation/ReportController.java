@@ -23,10 +23,10 @@ public class ReportController {
     @PostMapping("/target/{targetId}")
     @Operation(summary = "사용자/게시물 신고", description = "사용자 신고 진행")
     public ResponseEntity<Void> reportUser(
-            @Parameter(description = "대상 사용자/게시물 고유번호") @PathVariable("targetId") Long targetSeq,
+            @Parameter(description = "대상 사용자/게시물 고유번호") @PathVariable("targetId") String targetId,
             @Valid @RequestBody ReportPayload.ReportRequest request
     ) {
-        userReporter.execute(targetSeq, request.toCommand());
+        userReporter.execute(targetId, request.toCommand());
         return ResponseEntity.status(NO_CONTENT).build();
     }
 

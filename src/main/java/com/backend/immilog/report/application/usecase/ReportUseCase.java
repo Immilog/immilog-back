@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 public interface ReportUseCase {
     void execute(
-            Long targetUserSeq,
+            String targetUserId,
             ReportCommand command
     );
 
@@ -24,18 +24,18 @@ public interface ReportUseCase {
         }
 
         @Async
-        @DistributedLock(key = "'targetSeq : '", identifier = "#p0.toString()", expireTime = 5)
+        @DistributedLock(key = "'targetId : '", identifier = "#p0.toString()", expireTime = 5)
         @Override
         public void execute(
-                Long targetSeq,
+                String targetId,
                 ReportCommand command
         ) {
-            var reporterUserId = command.reporterUserSeq();
+            var reporterUserId = command.reporterUserId();
             var reason = command.reason();
             var isOther = reason.equals(ReportReason.OTHER);
             var description = isOther ? command.description() : reason.getDescription();
-            reportService.report(targetSeq, reporterUserId, reason, description);
-            log.info("User {} reported by {}", targetSeq, reporterUserId);
+            reportService.report(targetId, reporterUserId, reason, description);
+            log.info("User {} reported by {}", targetId, reporterUserId);
         }
     }
 }

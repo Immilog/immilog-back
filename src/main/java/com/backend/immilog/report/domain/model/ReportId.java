@@ -1,9 +1,9 @@
 package com.backend.immilog.report.domain.model;
 
-public record ReportId(Long value) {
-    public static ReportId of(Long value) {
-        if (value == null || value <= 0) {
-            throw new IllegalArgumentException("ReportId value must be positive");
+public record ReportId(String value) {
+    public static ReportId of(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("ReportId value must be not null or empty");
         }
         return new ReportId(value);
     }

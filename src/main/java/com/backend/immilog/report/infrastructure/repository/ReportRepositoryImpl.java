@@ -27,7 +27,7 @@ public class ReportRepositoryImpl implements ReportRepository {
     }
 
     @Override
-    public Optional<Report> findById(Long reportId) {
+    public Optional<Report> findById(String reportId) {
         return jpaRepository.findById(reportId).map(ReportJpaEntity::toDomain);
     }
 
@@ -51,7 +51,7 @@ public class ReportRepositoryImpl implements ReportRepository {
     }
 
     @Override
-    public List<Report> findByReporterId(Long reporterId) {
+    public List<Report> findByReporterId(String reporterId) {
         return jpaRepository.findByTargetIdOrderByCreatedAtDesc(reporterId)
                 .stream()
                 .map(ReportJpaEntity::toDomain)
@@ -69,7 +69,7 @@ public class ReportRepositoryImpl implements ReportRepository {
     @Override
     public boolean existsByTargetAndReporterId(
             ReportTarget target,
-            Long reporterId
+            String reporterId
     ) {
         return jpaRepository.existsByTargetIdAndReporterId(
                 target.targetId(),
@@ -83,7 +83,7 @@ public class ReportRepositoryImpl implements ReportRepository {
     }
 
     @Override
-    public long countByReporterId(Long reporterId) {
+    public long countByReporterId(String reporterId) {
         return jpaRepository.countByReporterId(reporterId);
     }
 

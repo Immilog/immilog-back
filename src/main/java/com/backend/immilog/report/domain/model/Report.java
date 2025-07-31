@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public class Report {
     private final ReportId id;
     private final ReportTarget target;
-    private final Long reporterId;
+    private final String reporterId;
     private ReportDescription description;
     private final ReportReason reason;
     private ReportStatus status;
@@ -22,7 +22,7 @@ public class Report {
     private Report(
             ReportId id,
             ReportTarget target,
-            Long reporterId,
+            String reporterId,
             ReportDescription description,
             ReportReason reason,
             ReportStatus status,
@@ -43,7 +43,7 @@ public class Report {
 
     public static Report create(
             ReportTarget target,
-            Long reporterId,
+            String reporterId,
             ReportReason reason,
             String customDescription
     ) {
@@ -70,7 +70,7 @@ public class Report {
     public static Report restore(
             ReportId id,
             ReportTarget target,
-            Long reporterId,
+            String reporterId,
             ReportDescription description,
             ReportReason reason,
             ReportStatus status,
@@ -146,30 +146,29 @@ public class Report {
         return status == ReportStatus.REJECTED;
     }
 
-    public boolean isReporter(Long userId) {
+    public boolean isReporter(String userId) {
         return reporterId.equals(userId);
     }
 
-    public boolean isTargetUser(Long userId) {
+    public boolean isTargetUser(String userId) {
         return target.type() == ReportTargetType.USER && target.targetId().equals(userId);
     }
 
     private static void validateCreationInputs(
             ReportTarget target,
-            Long reporterId,
+            String reporterId,
             ReportReason reason
     ) {
         if (target == null) {
             throw new ReportException(ReportErrorCode.INVALID_REPORT_TARGET);
         }
-        if (reporterId == null || reporterId <= 0) {
+        if (reporterId == null || reporterId.isBlank()) {
             throw new ReportException(ReportErrorCode.INVALID_REPORTER);
         }
         if (reason == null) {
             throw new ReportException(ReportErrorCode.INVALID_REPORT_REASON);
         }
 
-        // 자기 자신을 신고할 수 없음
         if (target.type() == ReportTargetType.USER && target.targetId().equals(reporterId)) {
             throw new ReportException(ReportErrorCode.CANNOT_REPORT_YOURSELF);
         }
@@ -179,7 +178,7 @@ public class Report {
 
     public ReportTarget getTarget() {return target;}
 
-    public Long getReporterId() {return reporterId;}
+    public String getReporterId() {return reporterId;}
 
     public ReportDescription getDescription() {return description;}
 
@@ -193,11 +192,11 @@ public class Report {
 
     public LocalDateTime getResolvedAt() {return resolvedAt;}
 
-    public Long getIdValue() {return id != null ? id.value() : null;}
+    public String getIdValue() {return id != null ? id.value() : null;}
 
     public String getDescriptionValue() {return description.value();}
 
     public ReportTargetType getTargetType() {return target.type();}
 
-    public Long getTargetId() {return target.targetId();}
+    public String getTargetId() {return target.targetId();}
 }

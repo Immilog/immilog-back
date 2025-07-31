@@ -8,12 +8,18 @@ public class ReportException extends RuntimeException {
         this.errorCode = errorCode;
     }
 
-    public ReportException(ReportErrorCode errorCode, String message) {
+    public ReportException(
+            ReportErrorCode errorCode,
+            String message
+    ) {
         super(message);
         this.errorCode = errorCode;
     }
 
-    public ReportException(ReportErrorCode errorCode, Throwable cause) {
+    public ReportException(
+            ReportErrorCode errorCode,
+            Throwable cause
+    ) {
         super(errorCode.getMessage(), cause);
         this.errorCode = errorCode;
     }

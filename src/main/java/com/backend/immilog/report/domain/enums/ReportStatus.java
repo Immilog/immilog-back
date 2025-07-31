@@ -1,8 +1,5 @@
 package com.backend.immilog.report.domain.enums;
 
-/**
- * 신고 처리 상태를 나타내는 enum
- */
 public enum ReportStatus {
     PENDING("처리 대기"),
     UNDER_REVIEW("검토 중"),
