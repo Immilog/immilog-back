@@ -40,3 +40,4 @@ out/
 
 ### Generated ###
 /src/main/generated/
+/src/main/resources/application.yml
