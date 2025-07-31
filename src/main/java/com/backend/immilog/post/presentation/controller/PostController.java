@@ -72,7 +72,7 @@ public class PostController {
     @Operation(summary = "게시물 삭제", description = "게시물을 삭제합니다.")
     public ResponseEntity<Void> deletePost(
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId,
-            @Parameter(description = "사용자 고유번호", hidden = true) @RequestHeader("X-User-Id") String userId
+            @CurrentUser String userId
     ) {
         postDeleteUseCase.deletePost(userId, postId);
         return ResponseEntity.status(NO_CONTENT).build();
