@@ -2,7 +2,7 @@ package com.backend.immilog.post.domain.model.post;
 
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
-import com.backend.immilog.user.domain.model.User;
+import com.backend.immilog.shared.enums.Country;
 
 import java.time.LocalDateTime;
 
@@ -40,14 +40,18 @@ public class Post {
     }
 
     public static Post of(
-            User user,
+            String userId,
+            String userNickname,
+            Country userCountry,
+            String userRegion,
+            String userImageUrl,
             String title,
             String content,
             Categories category,
             String isPublic
     ) {
-        final var postInfo = PostInfo.of(title, content, user.getCountry(), user.getRegion());
-        final var postUserInfo = new PostUserInfo(user.getUserId().value(), user.getNickname(), user.getImageUrl());
+        final var postInfo = PostInfo.of(title, content, userCountry, userRegion);
+        final var postUserInfo = new PostUserInfo(userId, userNickname, userImageUrl);
         return new Post(
                 null,
                 postUserInfo,
