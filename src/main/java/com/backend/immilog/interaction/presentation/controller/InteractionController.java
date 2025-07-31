@@ -1,6 +1,5 @@
 package com.backend.immilog.interaction.presentation.controller;
 
-import com.backend.immilog.interaction.application.command.InteractionCreateCommand;
 import com.backend.immilog.interaction.application.services.InteractionUserCommandService;
 import com.backend.immilog.interaction.application.usecase.InteractionCreateUseCase;
 import com.backend.immilog.interaction.presentation.payload.InteractionCreateRequest;
