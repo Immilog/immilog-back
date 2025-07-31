@@ -16,15 +16,15 @@ class CompanyManagerTest {
         // given
         Country country = Country.SOUTH_KOREA;
         String region = "서울";
-        Long userSeq = 1L;
+        String userId = "1";
 
         // when
-        CompanyManager companyManager = CompanyManager.of(country, region, userSeq);
+        CompanyManager companyManager = CompanyManager.of(country, region, userId);
 
         // then
         assertThat(companyManager.country()).isEqualTo(country);
         assertThat(companyManager.region()).isEqualTo(region);
-        assertThat(companyManager.userSeq()).isEqualTo(userSeq);
+        assertThat(companyManager.userId()).isEqualTo(userId);
     }
 
     @Test
@@ -33,10 +33,10 @@ class CompanyManagerTest {
         // given
         Country country = null;
         String region = "서울";
-        Long userSeq = 1L;
+        String userId = "1";
 
         // when & then
-        assertThatThrownBy(() -> CompanyManager.of(country, region, userSeq))
+        assertThatThrownBy(() -> CompanyManager.of(country, region, userId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Country cannot be null");
     }
@@ -47,10 +47,10 @@ class CompanyManagerTest {
         // given
         Country country = Country.SOUTH_KOREA;
         String region = null;
-        Long userSeq = 1L;
+        String userId = "1";
 
         // when & then
-        assertThatThrownBy(() -> CompanyManager.of(country, region, userSeq))
+        assertThatThrownBy(() -> CompanyManager.of(country, region, userId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Region cannot be null or empty");
     }
@@ -61,54 +61,40 @@ class CompanyManagerTest {
         // given
         Country country = Country.SOUTH_KOREA;
         String region = "   ";
-        Long userSeq = 1L;
+        String userId = "1";
 
         // when & then
-        assertThatThrownBy(() -> CompanyManager.of(country, region, userSeq))
+        assertThatThrownBy(() -> CompanyManager.of(country, region, userId))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Region cannot be null or empty");
     }
 
     @Test
-    @DisplayName("userSeq가 null이면 예외가 발생한다")
-    void shouldThrowExceptionWhenUserSeqIsNull() {
+    @DisplayName("userId가 null이면 예외가 발생한다")
+    void shouldThrowExceptionWhenUserIdIsNull() {
         // given
         Country country = Country.SOUTH_KOREA;
         String region = "서울";
-        Long userSeq = null;
+        String userId = null;
 
         // when & then
-        assertThatThrownBy(() -> CompanyManager.of(country, region, userSeq))
+        assertThatThrownBy(() -> CompanyManager.of(country, region, userId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("UserSeq must be positive");
+                .hasMessage("UserId must be not null or blank");
     }
 
     @Test
-    @DisplayName("userSeq가 0이면 예외가 발생한다")
-    void shouldThrowExceptionWhenUserSeqIsZero() {
+    @DisplayName("userId가 빈값이면 예외가 발생한다")
+    void shouldThrowExceptionWhenUserIdIsNegative() {
         // given
         Country country = Country.SOUTH_KOREA;
         String region = "서울";
-        Long userSeq = 0L;
+        String userId = "";
 
         // when & then
-        assertThatThrownBy(() -> CompanyManager.of(country, region, userSeq))
+        assertThatThrownBy(() -> CompanyManager.of(country, region, userId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("UserSeq must be positive");
-    }
-
-    @Test
-    @DisplayName("userSeq가 음수이면 예외가 발생한다")
-    void shouldThrowExceptionWhenUserSeqIsNegative() {
-        // given
-        Country country = Country.SOUTH_KOREA;
-        String region = "서울";
-        Long userSeq = -1L;
-
-        // when & then
-        assertThatThrownBy(() -> CompanyManager.of(country, region, userSeq))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("UserSeq must be positive");
+                .hasMessage("UserId must be not null or blank");
     }
 
     @Test
@@ -120,14 +106,14 @@ class CompanyManagerTest {
         // then
         assertThat(companyManager.country()).isNull();
         assertThat(companyManager.region()).isNull();
-        assertThat(companyManager.userSeq()).isNull();
+        assertThat(companyManager.userId()).isNull();
     }
 
     @Test
     @DisplayName("withCountry로 새로운 country를 가진 CompanyManager를 생성할 수 있다")
     void shouldCreateCompanyManagerWithNewCountry() {
         // given
-        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         Country newCountry = Country.JAPAN;
 
         // when
@@ -136,7 +122,7 @@ class CompanyManagerTest {
         // then
         assertThat(updated.country()).isEqualTo(newCountry);
         assertThat(updated.region()).isEqualTo(original.region());
-        assertThat(updated.userSeq()).isEqualTo(original.userSeq());
+        assertThat(updated.userId()).isEqualTo(original.userId());
         assertThat(updated).isNotSameAs(original);
     }
 
@@ -144,7 +130,7 @@ class CompanyManagerTest {
     @DisplayName("withRegion으로 새로운 region을 가진 CompanyManager를 생성할 수 있다")
     void shouldCreateCompanyManagerWithNewRegion() {
         // given
-        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         String newRegion = "부산";
 
         // when
@@ -153,24 +139,24 @@ class CompanyManagerTest {
         // then
         assertThat(updated.country()).isEqualTo(original.country());
         assertThat(updated.region()).isEqualTo(newRegion);
-        assertThat(updated.userSeq()).isEqualTo(original.userSeq());
+        assertThat(updated.userId()).isEqualTo(original.userId());
         assertThat(updated).isNotSameAs(original);
     }
 
     @Test
-    @DisplayName("withUserSeq로 새로운 userSeq를 가진 CompanyManager를 생성할 수 있다")
-    void shouldCreateCompanyManagerWithNewUserSeq() {
+    @DisplayName("withUserId로 새로운 userId를 가진 CompanyManager를 생성할 수 있다")
+    void shouldCreateCompanyManagerWithNewUserId() {
         // given
-        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
-        Long newUserSeq = 2L;
+        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
+        String newUserId = "2";
 
         // when
-        CompanyManager updated = original.withUserSeq(newUserSeq);
+        CompanyManager updated = original.withUserId(newUserId);
 
         // then
         assertThat(updated.country()).isEqualTo(original.country());
         assertThat(updated.region()).isEqualTo(original.region());
-        assertThat(updated.userSeq()).isEqualTo(newUserSeq);
+        assertThat(updated.userId()).isEqualTo(newUserId);
         assertThat(updated).isNotSameAs(original);
     }
 
@@ -180,10 +166,10 @@ class CompanyManagerTest {
         // given
         Country country = Country.SOUTH_KOREA;
         String region = "서울";
-        Long userSeq = 1L;
-        
-        CompanyManager manager1 = CompanyManager.of(country, region, userSeq);
-        CompanyManager manager2 = CompanyManager.of(country, region, userSeq);
+        String userId = "1";
+
+        CompanyManager manager1 = CompanyManager.of(country, region, userId);
+        CompanyManager manager2 = CompanyManager.of(country, region, userId);
 
         // when & then
         assertThat(manager1).isEqualTo(manager2);

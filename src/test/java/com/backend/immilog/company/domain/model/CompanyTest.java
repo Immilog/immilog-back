@@ -1,6 +1,5 @@
 package com.backend.immilog.company.domain.model;
 
-import com.backend.immilog.company.exception.CompanyErrorCode;
 import com.backend.immilog.company.exception.CompanyException;
 import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
@@ -16,15 +15,15 @@ class CompanyTest {
     @DisplayName("유효한 파라미터로 Company를 생성할 수 있다")
     void shouldCreateCompanyWithValidParameters() {
         // given
-        Long seq = 1L;
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        String id = "1";
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
 
         // when
-        Company company = new Company(seq, manager, metaData);
+        Company company = new Company(id, manager, metaData);
 
         // then
-        assertThat(company.seq()).isEqualTo(seq);
+        assertThat(company.id()).isEqualTo(id);
         assertThat(company.name()).isEqualTo("테스트 회사");
         assertThat(company.email()).isEqualTo("test@company.com");
         assertThat(company.phone()).isEqualTo("010-1234-5678");
@@ -34,19 +33,19 @@ class CompanyTest {
         assertThat(company.industry()).isEqualTo(Industry.IT);
         assertThat(company.country()).isEqualTo(Country.SOUTH_KOREA);
         assertThat(company.region()).isEqualTo("서울");
-        assertThat(company.managerUserSeq()).isEqualTo(1L);
+        assertThat(company.managerUserId()).isEqualTo("1");
     }
 
     @Test
     @DisplayName("manager가 null이면 예외가 발생한다")
     void shouldThrowExceptionWhenManagerIsNull() {
         // given
-        Long seq = 1L;
+        String id = "1";
         CompanyManager manager = null;
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
 
         // when & then
-        assertThatThrownBy(() -> new Company(seq, manager, metaData))
+        assertThatThrownBy(() -> new Company(id, manager, metaData))
                 .isInstanceOf(CompanyException.class)
                 .hasMessage("Manager information is required.");
     }
@@ -55,12 +54,12 @@ class CompanyTest {
     @DisplayName("companyMetaData가 null이면 예외가 발생한다")
     void shouldThrowExceptionWhenCompanyMetaDataIsNull() {
         // given
-        Long seq = 1L;
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        String id = "1";
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = null;
 
         // when & then
-        assertThatThrownBy(() -> new Company(seq, manager, metaData))
+        assertThatThrownBy(() -> new Company(id, manager, metaData))
                 .isInstanceOf(CompanyException.class)
                 .hasMessage("Company metadata is required.");
     }
@@ -72,13 +71,13 @@ class CompanyTest {
         Company company = Company.createEmpty();
 
         // then
-        assertThat(company.seq()).isNull();
+        assertThat(company.id()).isNull();
         assertThat(company.isEmpty()).isTrue();
     }
 
     @Test
-    @DisplayName("isEmpty는 seq가 null일 때 true를 반환한다")
-    void shouldReturnTrueWhenSeqIsNull() {
+    @DisplayName("isEmpty는 id가 null일 때 true를 반환한다")
+    void shouldReturnTrueWhenIdIsNull() {
         // given
         Company company = Company.createEmpty();
 
@@ -90,12 +89,12 @@ class CompanyTest {
     }
 
     @Test
-    @DisplayName("isEmpty는 seq가 있을 때 false를 반환한다")
-    void shouldReturnFalseWhenSeqIsNotNull() {
+    @DisplayName("isEmpty는 id가 있을 때 false를 반환한다")
+    void shouldReturnFalseWhenIdIsNotNull() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company company = new Company(1L, manager, metaData);
+        Company company = new Company("1", manager, metaData);
 
         // when
         boolean isEmpty = company.isEmpty();
@@ -105,19 +104,19 @@ class CompanyTest {
     }
 
     @Test
-    @DisplayName("seq 메서드로 새로운 seq를 가진 Company를 생성할 수 있다")
-    void shouldCreateCompanyWithNewSeq() {
+    @DisplayName("id 메서드로 새로운 id를 가진 Company를 생성할 수 있다")
+    void shouldCreateCompanyWithNewId() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
-        Long newSeq = 2L;
+        Company original = new Company("1", manager, metaData);
+        String newId = "2";
 
         // when
-        Company updated = original.seq(newSeq);
+        Company updated = original.id(newId);
 
         // then
-        assertThat(updated.seq()).isEqualTo(newSeq);
+        assertThat(updated.id()).isEqualTo(newId);
         assertThat(updated.name()).isEqualTo(original.name());
         assertThat(updated).isNotSameAs(original);
     }
@@ -126,18 +125,18 @@ class CompanyTest {
     @DisplayName("manager 메서드로 새로운 manager 정보를 가진 Company를 생성할 수 있다")
     void shouldCreateCompanyWithNewManager() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
 
         // when
-        Company updated = original.manager(Country.JAPAN, "도쿄", 2L);
+        Company updated = original.manager(Country.JAPAN, "도쿄", "2");
 
         // then
         assertThat(updated.country()).isEqualTo(Country.JAPAN);
         assertThat(updated.region()).isEqualTo("도쿄");
-        assertThat(updated.managerUserSeq()).isEqualTo(2L);
-        assertThat(updated.seq()).isEqualTo(original.seq());
+        assertThat(updated.managerUserId()).isEqualTo("2");
+        assertThat(updated.id()).isEqualTo(original.id());
         assertThat(updated).isNotSameAs(original);
     }
 
@@ -145,9 +144,9 @@ class CompanyTest {
     @DisplayName("companyData 메서드로 새로운 회사 정보를 가진 Company를 생성할 수 있다")
     void shouldCreateCompanyWithNewCompanyData() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
 
         // when
         Company updated = original.companyData(Industry.ETC, "새로운 회사", "new@company.com", "010-9876-5432", "부산시", "https://new.com", "new-logo.png");
@@ -160,7 +159,7 @@ class CompanyTest {
         assertThat(updated.address()).isEqualTo("부산시");
         assertThat(updated.homepage()).isEqualTo("https://new.com");
         assertThat(updated.logo()).isEqualTo("new-logo.png");
-        assertThat(updated.seq()).isEqualTo(original.seq());
+        assertThat(updated.id()).isEqualTo(original.id());
         assertThat(updated).isNotSameAs(original);
     }
 
@@ -168,9 +167,9 @@ class CompanyTest {
     @DisplayName("updateName으로 회사명을 변경할 수 있다")
     void shouldUpdateCompanyName() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String newName = "새로운 회사명";
 
         // when
@@ -178,7 +177,7 @@ class CompanyTest {
 
         // then
         assertThat(updated.name()).isEqualTo(newName);
-        assertThat(updated.seq()).isEqualTo(original.seq());
+        assertThat(updated.id()).isEqualTo(original.id());
         assertThat(updated).isNotSameAs(original);
     }
 
@@ -186,9 +185,9 @@ class CompanyTest {
     @DisplayName("updateName에서 빈 문자열로 변경하면 예외가 발생한다")
     void shouldThrowExceptionWhenUpdateNameWithEmptyString() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company company = new Company(1L, manager, metaData);
+        Company company = new Company("1", manager, metaData);
         String emptyName = "   ";
 
         // when & then
@@ -201,9 +200,9 @@ class CompanyTest {
     @DisplayName("updateName에서 같은 이름으로 변경하면 원본 객체를 반환한다")
     void shouldReturnOriginalWhenUpdateNameWithSameName() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String sameName = "테스트 회사";
 
         // when
@@ -217,9 +216,9 @@ class CompanyTest {
     @DisplayName("updateName에서 null로 변경하면 원본 객체를 반환한다")
     void shouldReturnOriginalWhenUpdateNameWithNull() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
 
         // when
         Company updated = original.updateName(null);
@@ -232,9 +231,9 @@ class CompanyTest {
     @DisplayName("updatePhone으로 전화번호를 변경할 수 있다")
     void shouldUpdateCompanyPhone() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String newPhone = "010-9876-5432";
 
         // when
@@ -250,9 +249,9 @@ class CompanyTest {
     @DisplayName("updatePhone에서 같은 전화번호로 변경하면 원본 객체를 반환한다")
     void shouldReturnOriginalWhenUpdatePhoneWithSamePhone() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String samePhone = "010-1234-5678";
 
         // when
@@ -266,9 +265,9 @@ class CompanyTest {
     @DisplayName("updateLogo로 로고를 변경할 수 있다")
     void shouldUpdateCompanyLogo() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, "old-logo.png");
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String newLogo = "new-logo.png";
 
         // when
@@ -284,9 +283,9 @@ class CompanyTest {
     @DisplayName("updateHomepage로 홈페이지를 변경할 수 있다")
     void shouldUpdateCompanyHomepage() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, "https://old.com", null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String newHomepage = "https://new.com";
 
         // when
@@ -302,9 +301,9 @@ class CompanyTest {
     @DisplayName("updateEmail로 이메일을 변경할 수 있다")
     void shouldUpdateCompanyEmail() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String newEmail = "new@company.com";
 
         // when
@@ -320,9 +319,9 @@ class CompanyTest {
     @DisplayName("updateCountry로 국가를 변경할 수 있다")
     void shouldUpdateCompanyCountry() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         Country newCountry = Country.JAPAN;
 
         // when
@@ -339,9 +338,9 @@ class CompanyTest {
     @DisplayName("updateAddress로 주소를 변경할 수 있다")
     void shouldUpdateCompanyAddress() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "기존 주소", null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String newAddress = "새로운 주소";
 
         // when
@@ -357,9 +356,9 @@ class CompanyTest {
     @DisplayName("updateRegion으로 지역을 변경할 수 있다")
     void shouldUpdateCompanyRegion() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         String newRegion = "부산";
 
         // when
@@ -376,9 +375,9 @@ class CompanyTest {
     @DisplayName("updateIndustry로 업종을 변경할 수 있다")
     void shouldUpdateCompanyIndustry() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         Industry newIndustry = Industry.ETC;
 
         // when
@@ -394,9 +393,9 @@ class CompanyTest {
     @DisplayName("updateIndustry에서 같은 업종으로 변경하면 원본 객체를 반환한다")
     void shouldReturnOriginalWhenUpdateIndustryWithSameIndustry() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company original = new Company(1L, manager, metaData);
+        Company original = new Company("1", manager, metaData);
         Industry sameIndustry = Industry.IT;
 
         // when
@@ -410,13 +409,13 @@ class CompanyTest {
     @DisplayName("모든 getter 메서드가 올바른 값을 반환한다")
     void shouldReturnCorrectValuesFromGetters() {
         // given
-        Long seq = 1L;
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        String id = "1";
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
-        Company company = new Company(seq, manager, metaData);
+        Company company = new Company(id, manager, metaData);
 
         // when & then
-        assertThat(company.seq()).isEqualTo(seq);
+        assertThat(company.id()).isEqualTo(id);
         assertThat(company.industry()).isEqualTo(Industry.IT);
         assertThat(company.name()).isEqualTo("테스트 회사");
         assertThat(company.email()).isEqualTo("test@company.com");
@@ -426,6 +425,6 @@ class CompanyTest {
         assertThat(company.country()).isEqualTo(Country.SOUTH_KOREA);
         assertThat(company.region()).isEqualTo("서울");
         assertThat(company.logo()).isEqualTo("logo.png");
-        assertThat(company.managerUserSeq()).isEqualTo(1L);
+        assertThat(company.managerUserId()).isEqualTo("1");
     }
 }

@@ -13,7 +13,7 @@ class CompanyIdTest {
     @DisplayName("양수 값으로 CompanyId를 생성할 수 있다")
     void shouldCreateCompanyIdWithPositiveValue() {
         // given
-        Long validValue = 1L;
+        String validValue = "1";
 
         // when
         CompanyId companyId = CompanyId.of(validValue);
@@ -26,36 +26,24 @@ class CompanyIdTest {
     @DisplayName("null 값으로 CompanyId 생성 시 예외가 발생한다")
     void shouldThrowExceptionWhenCreateWithNullValue() {
         // given
-        Long nullValue = null;
+        String nullValue = null;
 
         // when & then
         assertThatThrownBy(() -> CompanyId.of(nullValue))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("CompanyId value must be positive");
+                .hasMessage("CompanyId value must be not null or empty");
     }
 
     @Test
-    @DisplayName("0 값으로 CompanyId 생성 시 예외가 발생한다")
-    void shouldThrowExceptionWhenCreateWithZeroValue() {
-        // given
-        Long zeroValue = 0L;
-
-        // when & then
-        assertThatThrownBy(() -> CompanyId.of(zeroValue))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("CompanyId value must be positive");
-    }
-
-    @Test
-    @DisplayName("음수 값으로 CompanyId 생성 시 예외가 발생한다")
+    @DisplayName("빈값 으로 CompanyId 생성 시 예외가 발생한다")
     void shouldThrowExceptionWhenCreateWithNegativeValue() {
         // given
-        Long negativeValue = -1L;
+        String negativeValue = "";
 
         // when & then
         assertThatThrownBy(() -> CompanyId.of(negativeValue))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("CompanyId value must be positive");
+                .hasMessage("CompanyId value must be not null or empty");
     }
 
     @Test
@@ -72,7 +60,7 @@ class CompanyIdTest {
     @DisplayName("같은 값을 가진 CompanyId는 동등하다")
     void shouldBeEqualWhenSameValue() {
         // given
-        Long value = 1L;
+        String value = "1";
         CompanyId companyId1 = CompanyId.of(value);
         CompanyId companyId2 = CompanyId.of(value);
 
@@ -85,8 +73,8 @@ class CompanyIdTest {
     @DisplayName("다른 값을 가진 CompanyId는 동등하지 않다")
     void shouldNotBeEqualWhenDifferentValue() {
         // given
-        CompanyId companyId1 = CompanyId.of(1L);
-        CompanyId companyId2 = CompanyId.of(2L);
+        CompanyId companyId1 = CompanyId.of("1");
+        CompanyId companyId2 = CompanyId.of("2");
 
         // when & then
         assertThat(companyId1).isNotEqualTo(companyId2);

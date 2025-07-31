@@ -9,11 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("RegisterCompanyUseCase 유즈케이스 테스트")
 class RegisterCompanyUseCaseTest {
@@ -25,7 +21,7 @@ class RegisterCompanyUseCaseTest {
     @DisplayName("새로운 회사를 정상적으로 등록할 수 있다")
     void shouldRegisterNewCompany() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "테스트 회사",
@@ -38,24 +34,24 @@ class RegisterCompanyUseCaseTest {
                 "logo.png"
         );
 
-        CompanyId expectedCompanyId = CompanyId.of(1L);
+        CompanyId expectedCompanyId = CompanyId.of("1");
 
-        when(companyService.registerCompany(userSeq, command)).thenReturn(expectedCompanyId);
+        when(companyService.registerCompany(userId, command)).thenReturn(expectedCompanyId);
 
         // when
-        CompanyId result = companyRegistrar.registerCompany(userSeq, command);
+        CompanyId result = companyRegistrar.registerCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompanyId);
-        assertThat(result.value()).isEqualTo(1L);
-        verify(companyService).registerCompany(userSeq, command);
+        assertThat(result.value()).isEqualTo("1");
+        verify(companyService).registerCompany(userId, command);
     }
 
     @Test
     @DisplayName("IT 업종의 회사를 등록할 수 있다")
     void shouldRegisterCompanyWithITIndustry() {
         // given
-        Long userSeq = 2L;
+        String userId = "2";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "IT 회사",
@@ -68,24 +64,24 @@ class RegisterCompanyUseCaseTest {
                 "it-logo.png"
         );
 
-        CompanyId expectedCompanyId = CompanyId.of(2L);
+        CompanyId expectedCompanyId = CompanyId.of("2");
 
-        when(companyService.registerCompany(userSeq, command)).thenReturn(expectedCompanyId);
+        when(companyService.registerCompany(userId, command)).thenReturn(expectedCompanyId);
 
         // when
-        CompanyId result = companyRegistrar.registerCompany(userSeq, command);
+        CompanyId result = companyRegistrar.registerCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompanyId);
-        assertThat(result.value()).isEqualTo(2L);
-        verify(companyService).registerCompany(userSeq, command);
+        assertThat(result.value()).isEqualTo("2");
+        verify(companyService).registerCompany(userId, command);
     }
 
     @Test
     @DisplayName("ETC 업종의 회사를 등록할 수 있다")
     void shouldRegisterCompanyWithETCIndustry() {
         // given
-        Long userSeq = 3L;
+        String userId = "3";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.ETC,
                 "기타 업종 회사",
@@ -98,24 +94,24 @@ class RegisterCompanyUseCaseTest {
                 "etc-logo.png"
         );
 
-        CompanyId expectedCompanyId = CompanyId.of(3L);
+        CompanyId expectedCompanyId = CompanyId.of("3");
 
-        when(companyService.registerCompany(userSeq, command)).thenReturn(expectedCompanyId);
+        when(companyService.registerCompany(userId, command)).thenReturn(expectedCompanyId);
 
         // when
-        CompanyId result = companyRegistrar.registerCompany(userSeq, command);
+        CompanyId result = companyRegistrar.registerCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompanyId);
-        assertThat(result.value()).isEqualTo(3L);
-        verify(companyService).registerCompany(userSeq, command);
+        assertThat(result.value()).isEqualTo("3");
+        verify(companyService).registerCompany(userId, command);
     }
 
     @Test
     @DisplayName("일본 지역의 회사를 등록할 수 있다")
     void shouldRegisterCompanyInJapan() {
         // given
-        Long userSeq = 4L;
+        String userId = "4";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "일본 회사",
@@ -128,24 +124,24 @@ class RegisterCompanyUseCaseTest {
                 "japan-logo.png"
         );
 
-        CompanyId expectedCompanyId = CompanyId.of(4L);
+        CompanyId expectedCompanyId = CompanyId.of("4");
 
-        when(companyService.registerCompany(userSeq, command)).thenReturn(expectedCompanyId);
+        when(companyService.registerCompany(userId, command)).thenReturn(expectedCompanyId);
 
         // when
-        CompanyId result = companyRegistrar.registerCompany(userSeq, command);
+        CompanyId result = companyRegistrar.registerCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompanyId);
-        assertThat(result.value()).isEqualTo(4L);
-        verify(companyService).registerCompany(userSeq, command);
+        assertThat(result.value()).isEqualTo("4");
+        verify(companyService).registerCompany(userId, command);
     }
 
     @Test
     @DisplayName("홈페이지가 없는 회사를 등록할 수 있다")
     void shouldRegisterCompanyWithoutHomepage() {
         // given
-        Long userSeq = 5L;
+        String userId = "5";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "홈페이지 없는 회사",
@@ -158,24 +154,24 @@ class RegisterCompanyUseCaseTest {
                 "no-homepage-logo.png"
         );
 
-        CompanyId expectedCompanyId = CompanyId.of(5L);
+        CompanyId expectedCompanyId = CompanyId.of("5");
 
-        when(companyService.registerCompany(userSeq, command)).thenReturn(expectedCompanyId);
+        when(companyService.registerCompany(userId, command)).thenReturn(expectedCompanyId);
 
         // when
-        CompanyId result = companyRegistrar.registerCompany(userSeq, command);
+        CompanyId result = companyRegistrar.registerCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompanyId);
-        assertThat(result.value()).isEqualTo(5L);
-        verify(companyService).registerCompany(userSeq, command);
+        assertThat(result.value()).isEqualTo("5");
+        verify(companyService).registerCompany(userId, command);
     }
 
     @Test
     @DisplayName("로고가 없는 회사를 등록할 수 있다")
     void shouldRegisterCompanyWithoutLogo() {
         // given
-        Long userSeq = 6L;
+        String userId = "6";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.ETC,
                 "로고 없는 회사",
@@ -188,25 +184,25 @@ class RegisterCompanyUseCaseTest {
                 null
         );
 
-        CompanyId expectedCompanyId = CompanyId.of(6L);
+        CompanyId expectedCompanyId = CompanyId.of("6");
 
-        when(companyService.registerCompany(userSeq, command)).thenReturn(expectedCompanyId);
+        when(companyService.registerCompany(userId, command)).thenReturn(expectedCompanyId);
 
         // when
-        CompanyId result = companyRegistrar.registerCompany(userSeq, command);
+        CompanyId result = companyRegistrar.registerCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompanyId);
-        assertThat(result.value()).isEqualTo(6L);
-        verify(companyService).registerCompany(userSeq, command);
+        assertThat(result.value()).isEqualTo("6");
+        verify(companyService).registerCompany(userId, command);
     }
 
     @Test
     @DisplayName("서로 다른 사용자가 각각 회사를 등록할 수 있다")
     void shouldAllowDifferentUsersToRegisterCompanies() {
         // given
-        Long userSeq1 = 7L;
-        Long userSeq2 = 8L;
+        String userId1 = "7";
+        String userId2 = "8";
 
         CompanyRegisterCommand command1 = new CompanyRegisterCommand(
                 Industry.IT,
@@ -232,30 +228,30 @@ class RegisterCompanyUseCaseTest {
                 "second-logo.png"
         );
 
-        CompanyId expectedCompanyId1 = CompanyId.of(7L);
-        CompanyId expectedCompanyId2 = CompanyId.of(8L);
+        CompanyId expectedCompanyId1 = CompanyId.of("7");
+        CompanyId expectedCompanyId2 = CompanyId.of("8");
 
-        when(companyService.registerCompany(userSeq1, command1)).thenReturn(expectedCompanyId1);
-        when(companyService.registerCompany(userSeq2, command2)).thenReturn(expectedCompanyId2);
+        when(companyService.registerCompany(userId1, command1)).thenReturn(expectedCompanyId1);
+        when(companyService.registerCompany(userId2, command2)).thenReturn(expectedCompanyId2);
 
         // when
-        CompanyId result1 = companyRegistrar.registerCompany(userSeq1, command1);
-        CompanyId result2 = companyRegistrar.registerCompany(userSeq2, command2);
+        CompanyId result1 = companyRegistrar.registerCompany(userId1, command1);
+        CompanyId result2 = companyRegistrar.registerCompany(userId2, command2);
 
         // then
         assertThat(result1).isEqualTo(expectedCompanyId1);
         assertThat(result2).isEqualTo(expectedCompanyId2);
-        assertThat(result1.value()).isEqualTo(7L);
-        assertThat(result2.value()).isEqualTo(8L);
-        verify(companyService).registerCompany(userSeq1, command1);
-        verify(companyService).registerCompany(userSeq2, command2);
+        assertThat(result1.value()).isEqualTo("7");
+        assertThat(result2.value()).isEqualTo("8");
+        verify(companyService).registerCompany(userId1, command1);
+        verify(companyService).registerCompany(userId2, command2);
     }
 
     @Test
     @DisplayName("회사 등록 시 CompanyService가 올바르게 호출된다")
     void shouldCallCompanyServiceCorrectly() {
         // given
-        Long userSeq = 9L;
+        String userId = "9";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "서비스 호출 테스트",
@@ -268,15 +264,15 @@ class RegisterCompanyUseCaseTest {
                 "service-test-logo.png"
         );
 
-        CompanyId expectedCompanyId = CompanyId.of(9L);
+        CompanyId expectedCompanyId = CompanyId.of("9");
 
-        when(companyService.registerCompany(userSeq, command)).thenReturn(expectedCompanyId);
+        when(companyService.registerCompany(userId, command)).thenReturn(expectedCompanyId);
 
         // when
-        CompanyId result = companyRegistrar.registerCompany(userSeq, command);
+        CompanyId result = companyRegistrar.registerCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompanyId);
-        verify(companyService).registerCompany(userSeq, command);
+        verify(companyService).registerCompany(userId, command);
     }
 }

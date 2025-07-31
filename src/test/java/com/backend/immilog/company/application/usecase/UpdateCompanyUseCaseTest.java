@@ -7,8 +7,6 @@ import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -22,7 +20,7 @@ class UpdateCompanyUseCaseTest {
     @DisplayName("회사 정보를 정상적으로 수정할 수 있다")
     void shouldUpdateCompany() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "수정된 회사명",
@@ -36,17 +34,17 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("회사 업종을 IT에서 ETC로 변경할 수 있다")
     void shouldUpdateCompanyIndustryFromITToETC() {
         // given
-        Long userSeq = 2L;
+        String userId = "2";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.ETC,
                 "업종 변경 회사",
@@ -60,17 +58,17 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("회사 지역을 한국에서 일본으로 변경할 수 있다")
     void shouldUpdateCompanyCountryFromKoreaToJapan() {
         // given
-        Long userSeq = 3L;
+        String userId = "3";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "지역 변경 회사",
@@ -84,17 +82,17 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("회사명만 변경할 수 있다")
     void shouldUpdateOnlyCompanyName() {
         // given
-        Long userSeq = 4L;
+        String userId = "4";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "새로운 회사명",
@@ -108,17 +106,17 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("회사 연락처 정보를 변경할 수 있다")
     void shouldUpdateCompanyContactInfo() {
         // given
-        Long userSeq = 5L;
+        String userId = "5";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.ETC,
                 "연락처 변경 회사",
@@ -132,17 +130,17 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("회사 홈페이지를 null로 변경할 수 있다")
     void shouldUpdateCompanyHomepageToNull() {
         // given
-        Long userSeq = 6L;
+        String userId = "6";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "홈페이지 제거 회사",
@@ -156,17 +154,17 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("회사 로고를 null로 변경할 수 있다")
     void shouldUpdateCompanyLogoToNull() {
         // given
-        Long userSeq = 7L;
+        String userId = "7";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.ETC,
                 "로고 제거 회사",
@@ -180,17 +178,17 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("회사의 모든 정보를 한번에 변경할 수 있다")
     void shouldUpdateAllCompanyInformation() {
         // given
-        Long userSeq = 8L;
+        String userId = "8";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.ETC,
                 "완전 변경 회사",
@@ -204,18 +202,18 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 
     @Test
     @DisplayName("여러 번 회사 정보를 수정할 수 있다")
     void shouldAllowMultipleUpdates() {
         // given
-        Long userSeq = 9L;
-        
+        String userId = "9";
+
         CompanyRegisterCommand firstCommand = new CompanyRegisterCommand(
                 Industry.IT,
                 "첫 번째 수정",
@@ -241,19 +239,19 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, firstCommand);
-        companyUpdater.updateCompany(userSeq, secondCommand);
+        companyUpdater.updateCompany(userId, firstCommand);
+        companyUpdater.updateCompany(userId, secondCommand);
 
         // then
-        verify(companyService).updateCompany(userSeq, firstCommand);
-        verify(companyService).updateCompany(userSeq, secondCommand);
+        verify(companyService).updateCompany(userId, firstCommand);
+        verify(companyService).updateCompany(userId, secondCommand);
     }
 
     @Test
     @DisplayName("회사 수정 시 CompanyService가 올바르게 호출된다")
     void shouldCallCompanyServiceCorrectly() {
         // given
-        Long userSeq = 10L;
+        String userId = "10";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "서비스 호출 테스트",
@@ -267,9 +265,9 @@ class UpdateCompanyUseCaseTest {
         );
 
         // when
-        companyUpdater.updateCompany(userSeq, command);
+        companyUpdater.updateCompany(userId, command);
 
         // then
-        verify(companyService).updateCompany(userSeq, command);
+        verify(companyService).updateCompany(userId, command);
     }
 }

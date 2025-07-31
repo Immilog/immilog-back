@@ -4,14 +4,13 @@ import com.backend.immilog.company.domain.model.Company;
 import com.backend.immilog.company.domain.model.CompanyManager;
 import com.backend.immilog.company.domain.model.CompanyMetaData;
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.company.exception.CompanyErrorCode;
 import com.backend.immilog.company.exception.CompanyException;
 import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("CompanyValidationService 도메인 서비스 테스트")
 class CompanyValidationServiceTest {
@@ -22,9 +21,9 @@ class CompanyValidationServiceTest {
     @DisplayName("유효한 Company가 존재할 때 예외가 발생하지 않는다")
     void shouldNotThrowExceptionWhenCompanyExists() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
-        Company company = new Company(1L, manager, metaData);
+        Company company = new Company("1", manager, metaData);
 
         // when & then
         assertThatCode(() -> companyValidationService.validateCompanyExists(company))
@@ -92,7 +91,7 @@ class CompanyValidationServiceTest {
 
     @Test
     @DisplayName("회사명이 100자를 초과하면 예외가 발생한다")
-    void shouldThrowExceptionWhenCompanyNameIsTooLong() {
+    void shouldThrowExceptionWhenCompanyNameIsTooString() {
         // given
         String longName = "a".repeat(101);
 
@@ -267,7 +266,7 @@ class CompanyValidationServiceTest {
 
     @Test
     @DisplayName("주소가 500자를 초과하면 예외가 발생한다")
-    void shouldThrowExceptionWhenAddressIsTooLong() {
+    void shouldThrowExceptionWhenAddressIsTooString() {
         // given
         String longAddress = "a".repeat(501);
 

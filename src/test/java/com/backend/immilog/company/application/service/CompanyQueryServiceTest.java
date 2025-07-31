@@ -12,11 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @DisplayName("CompanyQueryService 애플리케이션 서비스 테스트")
 class CompanyQueryServiceTest {
@@ -26,48 +22,48 @@ class CompanyQueryServiceTest {
 
     @Test
     @DisplayName("매니저 사용자 ID로 회사를 조회할 수 있다")
-    void shouldGetCompanyByManagerUserSeq() {
+    void shouldGetCompanyByManagerUserId() {
         // given
-        Long userSeq = 1L;
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userSeq);
+        String userId = "1";
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
-        Company company = new Company(1L, manager, metaData);
+        Company company = new Company("1", manager, metaData);
 
-        when(companyRepository.getByCompanyManagerUserSeq(userSeq)).thenReturn(Optional.of(company));
+        when(companyRepository.getByCompanyManagerUserId(userId)).thenReturn(Optional.of(company));
 
         // when
-        Company result = companyQueryService.getByCompanyManagerUserSeq(userSeq);
+        Company result = companyQueryService.getByCompanyManagerUserId(userId);
 
         // then
         assertThat(result).isEqualTo(company);
         assertThat(result.name()).isEqualTo("테스트 회사");
-        assertThat(result.managerUserSeq()).isEqualTo(userSeq);
-        verify(companyRepository).getByCompanyManagerUserSeq(userSeq);
+        assertThat(result.managerUserId()).isEqualTo(userId);
+        verify(companyRepository).getByCompanyManagerUserId(userId);
     }
 
     @Test
     @DisplayName("매니저 사용자 ID로 회사를 찾을 수 없으면 빈 회사를 반환한다")
-    void shouldReturnEmptyCompanyWhenNotFoundByManagerUserSeq() {
+    void shouldReturnEmptyCompanyWhenNotFoundByManagerUserId() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
 
-        when(companyRepository.getByCompanyManagerUserSeq(userSeq)).thenReturn(Optional.empty());
+        when(companyRepository.getByCompanyManagerUserId(userId)).thenReturn(Optional.empty());
 
         // when
-        Company result = companyQueryService.getByCompanyManagerUserSeq(userSeq);
+        Company result = companyQueryService.getByCompanyManagerUserId(userId);
 
         // then
         assertThat(result.isEmpty()).isTrue();
-        assertThat(result.seq()).isNull();
-        verify(companyRepository).getByCompanyManagerUserSeq(userSeq);
+        assertThat(result.id()).isNull();
+        verify(companyRepository).getByCompanyManagerUserId(userId);
     }
 
     @Test
     @DisplayName("회사 ID로 회사를 조회할 수 있다")
     void shouldGetCompanyById() {
         // given
-        Long companyId = 1L;
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", 1L);
+        String companyId = "1";
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company company = new Company(companyId, manager, metaData);
 
@@ -78,7 +74,7 @@ class CompanyQueryServiceTest {
 
         // then
         assertThat(result).isEqualTo(company);
-        assertThat(result.seq()).isEqualTo(companyId);
+        assertThat(result.id()).isEqualTo(companyId);
         assertThat(result.name()).isEqualTo("테스트 회사");
         verify(companyRepository).findById(companyId);
     }
@@ -87,7 +83,7 @@ class CompanyQueryServiceTest {
     @DisplayName("회사 ID로 회사를 찾을 수 없으면 빈 회사를 반환한다")
     void shouldReturnEmptyCompanyWhenNotFoundById() {
         // given
-        Long companyId = 999L;
+        String companyId = "999";
 
         when(companyRepository.findById(companyId)).thenReturn(Optional.empty());
 
@@ -96,7 +92,7 @@ class CompanyQueryServiceTest {
 
         // then
         assertThat(result.isEmpty()).isTrue();
-        assertThat(result.seq()).isNull();
+        assertThat(result.id()).isNull();
         verify(companyRepository).findById(companyId);
     }
 
@@ -134,33 +130,33 @@ class CompanyQueryServiceTest {
 
     @Test
     @DisplayName("다른 매니저의 회사를 조회할 수 있다")
-    void shouldGetCompanyByDifferentManagerUserSeq() {
+    void shouldGetCompanyByDifferentManagerUserId() {
         // given
-        Long userSeq = 2L;
-        CompanyManager manager = CompanyManager.of(Country.JAPAN, "도쿄", userSeq);
+        String userId = "2";
+        CompanyManager manager = CompanyManager.of(Country.JAPAN, "도쿄", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.ETC, "일본 회사", "japan@company.com", "090-1234-5678", "도쿄시", "https://japan.com", "japan-logo.png");
-        Company company = new Company(2L, manager, metaData);
+        Company company = new Company("2", manager, metaData);
 
-        when(companyRepository.getByCompanyManagerUserSeq(userSeq)).thenReturn(Optional.of(company));
+        when(companyRepository.getByCompanyManagerUserId(userId)).thenReturn(Optional.of(company));
 
         // when
-        Company result = companyQueryService.getByCompanyManagerUserSeq(userSeq);
+        Company result = companyQueryService.getByCompanyManagerUserId(userId);
 
         // then
         assertThat(result).isEqualTo(company);
-        assertThat(result.seq()).isEqualTo(2L);
+        assertThat(result.id()).isEqualTo("2");
         assertThat(result.name()).isEqualTo("일본 회사");
         assertThat(result.country()).isEqualTo(Country.JAPAN);
         assertThat(result.region()).isEqualTo("도쿄");
-        assertThat(result.managerUserSeq()).isEqualTo(userSeq);
+        assertThat(result.managerUserId()).isEqualTo(userId);
     }
 
     @Test
     @DisplayName("다른 회사 ID로 회사를 조회할 수 있다")
     void shouldGetCompanyByDifferentId() {
         // given
-        Long companyId = 3L;
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "부산", 3L);
+        String companyId = "3";
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "부산", "3");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "부산 회사", "busan@company.com", "051-1234-5678", "부산시 해운대구", "https://busan.com", "busan-logo.png");
         Company company = new Company(companyId, manager, metaData);
 
@@ -171,7 +167,7 @@ class CompanyQueryServiceTest {
 
         // then
         assertThat(result).isEqualTo(company);
-        assertThat(result.seq()).isEqualTo(companyId);
+        assertThat(result.id()).isEqualTo(companyId);
         assertThat(result.name()).isEqualTo("부산 회사");
         assertThat(result.address()).isEqualTo("부산시 해운대구");
         assertThat(result.phone()).isEqualTo("051-1234-5678");

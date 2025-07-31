@@ -17,9 +17,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +31,7 @@ class CompanyRegistrationServiceTest {
     @DisplayName("새로운 회사를 등록할 수 있다")
     void shouldRegisterNewCompany() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "서울",
@@ -47,16 +44,16 @@ class CompanyRegistrationServiceTest {
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userSeq);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 
-        when(companyRepository.findByManagerUserSeq(userSeq)).thenReturn(Optional.empty());
+        when(companyRepository.findByManagerUserId(userId)).thenReturn(Optional.empty());
         when(companyRepository.existsByName(command.name())).thenReturn(false);
-        when(companyMapper.toNewCompany(userSeq, command)).thenReturn(expectedCompany);
+        when(companyMapper.toNewCompany(userId, command)).thenReturn(expectedCompany);
 
         // when
-        Company result = companyRegistrationService.registerNewCompany(userSeq, command);
+        Company result = companyRegistrationService.registerNewCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompany);
@@ -69,7 +66,7 @@ class CompanyRegistrationServiceTest {
     @DisplayName("이미 회사 매니저인 사용자가 새 회사를 등록하려 하면 예외가 발생한다")
     void shouldThrowExceptionWhenUserIsAlreadyManager() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "테스트 회사",
@@ -82,14 +79,14 @@ class CompanyRegistrationServiceTest {
                 "logo.png"
         );
 
-        CompanyManager existingManager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userSeq);
+        CompanyManager existingManager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
         CompanyMetaData existingMetaData = CompanyMetaData.of(Industry.IT, "기존 회사", "existing@company.com", "010-9876-5432", null, null, null);
-        Company existingCompany = new Company(1L, existingManager, existingMetaData);
+        Company existingCompany = new Company("1", existingManager, existingMetaData);
 
-        when(companyRepository.findByManagerUserSeq(userSeq)).thenReturn(Optional.of(existingCompany));
+        when(companyRepository.findByManagerUserId(userId)).thenReturn(Optional.of(existingCompany));
 
         // when & then
-        assertThatThrownBy(() -> companyRegistrationService.registerNewCompany(userSeq, command))
+        assertThatThrownBy(() -> companyRegistrationService.registerNewCompany(userId, command))
                 .isInstanceOf(CompanyException.class)
                 .hasMessage("User is already a company manager.");
     }
@@ -98,7 +95,7 @@ class CompanyRegistrationServiceTest {
     @DisplayName("빈 회사를 관리하는 사용자는 새 회사를 등록할 수 있다")
     void shouldAllowRegistrationWhenUserManagesEmptyCompany() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "테스트 회사",
@@ -112,16 +109,16 @@ class CompanyRegistrationServiceTest {
         );
 
         Company emptyCompany = Company.createEmpty();
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userSeq);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 
-        when(companyRepository.findByManagerUserSeq(userSeq)).thenReturn(Optional.of(emptyCompany));
+        when(companyRepository.findByManagerUserId(userId)).thenReturn(Optional.of(emptyCompany));
         when(companyRepository.existsByName(command.name())).thenReturn(false);
-        when(companyMapper.toNewCompany(userSeq, command)).thenReturn(expectedCompany);
+        when(companyMapper.toNewCompany(userId, command)).thenReturn(expectedCompany);
 
         // when
-        Company result = companyRegistrationService.registerNewCompany(userSeq, command);
+        Company result = companyRegistrationService.registerNewCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompany);
@@ -131,7 +128,7 @@ class CompanyRegistrationServiceTest {
     @DisplayName("이미 존재하는 회사명으로 등록하려 하면 예외가 발생한다")
     void shouldThrowExceptionWhenCompanyNameAlreadyExists() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "기존 회사",
@@ -144,11 +141,11 @@ class CompanyRegistrationServiceTest {
                 "logo.png"
         );
 
-        when(companyRepository.findByManagerUserSeq(userSeq)).thenReturn(Optional.empty());
+        when(companyRepository.findByManagerUserId(userId)).thenReturn(Optional.empty());
         when(companyRepository.existsByName("기존 회사")).thenReturn(true);
 
         // when & then
-        assertThatThrownBy(() -> companyRegistrationService.registerNewCompany(userSeq, command))
+        assertThatThrownBy(() -> companyRegistrationService.registerNewCompany(userId, command))
                 .isInstanceOf(CompanyException.class)
                 .hasMessage(CompanyErrorCode.COMPANY_NAME_ALREADY_EXISTS.getMessage());
     }
@@ -157,7 +154,7 @@ class CompanyRegistrationServiceTest {
     @DisplayName("사용자가 매니저로 등록되지 않은 경우 새 회사를 등록할 수 있다")
     void shouldAllowRegistrationWhenUserIsNotManager() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "테스트 회사",
@@ -170,16 +167,16 @@ class CompanyRegistrationServiceTest {
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userSeq);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 
-        when(companyRepository.findByManagerUserSeq(userSeq)).thenReturn(Optional.empty());
+        when(companyRepository.findByManagerUserId(userId)).thenReturn(Optional.empty());
         when(companyRepository.existsByName(command.name())).thenReturn(false);
-        when(companyMapper.toNewCompany(userSeq, command)).thenReturn(expectedCompany);
+        when(companyMapper.toNewCompany(userId, command)).thenReturn(expectedCompany);
 
         // when
-        Company result = companyRegistrationService.registerNewCompany(userSeq, command);
+        Company result = companyRegistrationService.registerNewCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompany);
@@ -196,7 +193,7 @@ class CompanyRegistrationServiceTest {
     @DisplayName("동일한 회사명이 아닐 때 등록할 수 있다")
     void shouldAllowRegistrationWhenCompanyNameIsUnique() {
         // given
-        Long userSeq = 1L;
+        String userId = "1";
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "유니크한 회사명",
@@ -209,16 +206,16 @@ class CompanyRegistrationServiceTest {
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userSeq);
+        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "유니크한 회사명", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 
-        when(companyRepository.findByManagerUserSeq(userSeq)).thenReturn(Optional.empty());
+        when(companyRepository.findByManagerUserId(userId)).thenReturn(Optional.empty());
         when(companyRepository.existsByName("유니크한 회사명")).thenReturn(false);
-        when(companyMapper.toNewCompany(userSeq, command)).thenReturn(expectedCompany);
+        when(companyMapper.toNewCompany(userId, command)).thenReturn(expectedCompany);
 
         // when
-        Company result = companyRegistrationService.registerNewCompany(userSeq, command);
+        Company result = companyRegistrationService.registerNewCompany(userId, command);
 
         // then
         assertThat(result).isEqualTo(expectedCompany);
