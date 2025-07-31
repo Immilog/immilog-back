@@ -5,17 +5,17 @@ import com.backend.immilog.company.exception.CompanyException;
 import com.backend.immilog.shared.enums.Country;
 
 public class Company {
-    private final Long seq;
+    private final String id;
     private final CompanyManager manager;
     private final CompanyMetaData companyMetaData;
 
     public Company(
-            Long seq,
+            String id,
             CompanyManager manager,
             CompanyMetaData companyMetaData
     ) {
         this.validate(manager, companyMetaData);
-        this.seq = seq;
+        this.id = id;
         this.manager = manager;
         this.companyMetaData = companyMetaData;
     }
@@ -25,7 +25,7 @@ public class Company {
     }
 
     public boolean isEmpty() {
-        return this.seq == null;
+        return this.id == null;
     }
 
     private void validate(
@@ -40,17 +40,17 @@ public class Company {
         }
     }
 
-    public Company seq(Long seq) {
-        return new Company(seq, this.manager, this.companyMetaData);
+    public Company id(String id) {
+        return new Company(id, this.manager, this.companyMetaData);
     }
 
     public Company manager(
             Country country,
             String region,
-            Long userSeq
+            String userId
     ) {
-        var manager = CompanyManager.of(country, region, userSeq);
-        return new Company(this.seq, manager, this.companyMetaData);
+        var manager = CompanyManager.of(country, region, userId);
+        return new Company(this.id, manager, this.companyMetaData);
     }
 
     public Company companyData(
@@ -63,7 +63,7 @@ public class Company {
             String logo
     ) {
         var newCompanyMetaData = CompanyMetaData.of(industry, name, email, phone, address, homepage, logo);
-        return new Company(this.seq, this.manager, newCompanyMetaData);
+        return new Company(this.id, this.manager, newCompanyMetaData);
     }
 
     public Company updateName(String newName) {
@@ -74,7 +74,7 @@ public class Company {
             throw new CompanyException(CompanyErrorCode.INVALID_COMPANY_NAME);
         }
         var updatedMetaData = this.companyMetaData.withName(newName);
-        return new Company(this.seq, this.manager, updatedMetaData);
+        return new Company(this.id, this.manager, updatedMetaData);
     }
 
     public Company updatePhone(String newPhone) {
@@ -82,7 +82,7 @@ public class Company {
             return this;
         }
         var updatedMetaData = this.companyMetaData.withPhone(newPhone);
-        return new Company(this.seq, this.manager, updatedMetaData);
+        return new Company(this.id, this.manager, updatedMetaData);
     }
 
     public Company updateLogo(String newLogo) {
@@ -90,7 +90,7 @@ public class Company {
             return this;
         }
         var updatedMetaData = this.companyMetaData.withLogo(newLogo);
-        return new Company(this.seq, this.manager, updatedMetaData);
+        return new Company(this.id, this.manager, updatedMetaData);
     }
 
     public Company updateHomepage(String newHomepage) {
@@ -98,7 +98,7 @@ public class Company {
             return this;
         }
         var updatedMetaData = this.companyMetaData.withHomepage(newHomepage);
-        return new Company(this.seq, this.manager, updatedMetaData);
+        return new Company(this.id, this.manager, updatedMetaData);
     }
 
     public Company updateEmail(String newEmail) {
@@ -106,7 +106,7 @@ public class Company {
             return this;
         }
         var updatedMetaData = this.companyMetaData.withEmail(newEmail);
-        return new Company(this.seq, this.manager, updatedMetaData);
+        return new Company(this.id, this.manager, updatedMetaData);
     }
 
     public Company updateCountry(Country newCountry) {
@@ -114,7 +114,7 @@ public class Company {
             return this;
         }
         var updatedManager = this.manager.withCountry(newCountry);
-        return new Company(this.seq, updatedManager, this.companyMetaData);
+        return new Company(this.id, updatedManager, this.companyMetaData);
     }
 
     public Company updateAddress(String newAddress) {
@@ -122,7 +122,7 @@ public class Company {
             return this;
         }
         var updatedMetaData = this.companyMetaData.withAddress(newAddress);
-        return new Company(this.seq, this.manager, updatedMetaData);
+        return new Company(this.id, this.manager, updatedMetaData);
     }
 
     public Company updateRegion(String newRegion) {
@@ -130,7 +130,7 @@ public class Company {
             return this;
         }
         var updatedManager = this.manager.withRegion(newRegion);
-        return new Company(this.seq, updatedManager, this.companyMetaData);
+        return new Company(this.id, updatedManager, this.companyMetaData);
     }
 
     public Company updateIndustry(Industry industry) {
@@ -138,7 +138,7 @@ public class Company {
             return this;
         }
         var updatedMetaData = this.companyMetaData.withIndustry(industry);
-        return new Company(this.seq, this.manager, updatedMetaData);
+        return new Company(this.id, this.manager, updatedMetaData);
     }
 
     public Industry industry() {return this.companyMetaData.industry();}
@@ -159,7 +159,7 @@ public class Company {
 
     public String logo() {return this.companyMetaData.logo();}
 
-    public Long managerUserSeq() {return this.manager.userSeq();}
+    public String managerUserId() {return this.manager.userId();}
 
-    public Long seq() {return seq;}
+    public String id() {return id;}
 }

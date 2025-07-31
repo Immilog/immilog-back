@@ -1,5 +1,6 @@
 package com.backend.immilog.company.infrastructure.jpa;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.company.domain.model.Company;
 import com.backend.immilog.company.domain.model.Industry;
 import com.backend.immilog.shared.enums.Country;
@@ -8,11 +9,11 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @DynamicUpdate
 @Entity
+@Table(name = "company")
 public class CompanyJpaEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seq")
-    private Long seq;
+    @Column(name = "company_id")
+    private String id;
 
     @Embedded
     private CompanyManagerJpaValue manager;
@@ -20,10 +21,17 @@ public class CompanyJpaEntity {
     @Embedded
     private CompanyJpaMetaData companyData;
 
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId();
+        }
+    }
+
     protected CompanyJpaEntity() {}
 
     protected CompanyJpaEntity(
-            Long seq,
+            String id,
             Industry industry,
             String companyName,
             String companyEmail,
@@ -33,7 +41,7 @@ public class CompanyJpaEntity {
             Country companyCountry,
             String companyRegion,
             String companyLogo,
-            Long companyManagerUserSeq
+            String companyManagerUserId
     ) {
         CompanyJpaMetaData companyData = CompanyJpaMetaData.of(
                 industry,
@@ -47,16 +55,16 @@ public class CompanyJpaEntity {
         CompanyManagerJpaValue manager = CompanyManagerJpaValue.of(
                 companyCountry,
                 companyRegion,
-                companyManagerUserSeq
+                companyManagerUserId
         );
-        this.seq = seq;
+        this.id = id;
         this.manager = manager;
         this.companyData = companyData;
     }
 
     public static CompanyJpaEntity from(Company company) {
         return new CompanyJpaEntity(
-                company.seq(),
+                company.id(),
                 company.industry(),
                 company.name(),
                 company.email(),
@@ -66,11 +74,11 @@ public class CompanyJpaEntity {
                 company.country(),
                 company.region(),
                 company.logo(),
-                company.managerUserSeq()
+                company.managerUserId()
         );
     }
 
     public Company toDomain() {
-        return new Company(this.seq, this.manager.toDomain(), this.companyData.toDomain());
+        return new Company(this.id, this.manager.toDomain(), this.companyData.toDomain());
     }
 }

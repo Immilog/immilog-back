@@ -23,17 +23,17 @@ public class CompanyRegistrationService {
     }
 
     public Company registerNewCompany(
-            Long userSeq,
+            String userId,
             CompanyRegisterCommand command
     ) {
-        validateUserNotAlreadyManager(userSeq);
+        validateUserNotAlreadyManager(userId);
         validateCompanyNameUniqueness(command.name());
 
-        return companyMapper.toNewCompany(userSeq, command);
+        return companyMapper.toNewCompany(userId, command);
     }
 
-    private void validateUserNotAlreadyManager(Long userSeq) {
-        Company existingCompany = companyRepository.findByManagerUserSeq(userSeq).orElse(null);
+    private void validateUserNotAlreadyManager(String userId) {
+        Company existingCompany = companyRepository.findByManagerUserId(userId).orElse(null);
         if (existingCompany != null && !existingCompany.isEmpty()) {
             throw new CompanyException(CompanyErrorCode.USER_ALREADY_MANAGER);
         }

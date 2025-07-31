@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface RegisterCompanyUseCase {
     CompanyId registerCompany(
-            Long userSeq,
+            String userId,
             CompanyRegisterCommand command
     );
 
@@ -23,10 +23,10 @@ public interface RegisterCompanyUseCase {
         @Override
         @Transactional
         public CompanyId registerCompany(
-                Long userSeq,
+                String userId,
                 CompanyRegisterCommand command
         ) {
-            return companyService.registerCompany(userSeq, command);
+            return companyService.registerCompany(userId, command);
         }
     }
 }

@@ -5,21 +5,21 @@ import com.backend.immilog.shared.enums.Country;
 public record CompanyManager(
         Country country,
         String region,
-        Long userSeq
+        String userId
 ) {
     public static CompanyManager of(
             Country country,
             String region,
-            Long userSeq
+            String userId
     ) {
-        validateParameters(country, region, userSeq);
-        return new CompanyManager(country, region, userSeq);
+        validateParameters(country, region, userId);
+        return new CompanyManager(country, region, userId);
     }
 
     private static void validateParameters(
             Country country,
             String region,
-            Long userSeq
+            String userId
     ) {
         if (country == null) {
             throw new IllegalArgumentException("Country cannot be null");
@@ -27,8 +27,8 @@ public record CompanyManager(
         if (region == null || region.trim().isEmpty()) {
             throw new IllegalArgumentException("Region cannot be null or empty");
         }
-        if (userSeq == null || userSeq <= 0) {
-            throw new IllegalArgumentException("UserSeq must be positive");
+        if (userId == null || userId.trim().isEmpty()) {
+            throw new IllegalArgumentException("UserId must be not null or blank");
         }
     }
 
@@ -37,14 +37,14 @@ public record CompanyManager(
     }
 
     public CompanyManager withCountry(Country newCountry) {
-        return new CompanyManager(newCountry, region, userSeq);
+        return new CompanyManager(newCountry, region, userId);
     }
 
     public CompanyManager withRegion(String newRegion) {
-        return new CompanyManager(country, newRegion, userSeq);
+        return new CompanyManager(country, newRegion, userId);
     }
 
-    public CompanyManager withUserSeq(Long newUserSeq) {
-        return new CompanyManager(country, region, newUserSeq);
+    public CompanyManager withUserId(String newUserId) {
+        return new CompanyManager(country, region, newUserId);
     }
 }

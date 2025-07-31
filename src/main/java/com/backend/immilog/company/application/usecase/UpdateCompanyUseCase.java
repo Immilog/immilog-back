@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface UpdateCompanyUseCase {
     void updateCompany(
-            Long userSeq,
+            String userId,
             CompanyRegisterCommand command
     );
 
@@ -22,10 +22,10 @@ public interface UpdateCompanyUseCase {
         @Override
         @Transactional
         public void updateCompany(
-                Long userSeq,
+                String userId,
                 CompanyRegisterCommand command
         ) {
-            companyService.updateCompany(userSeq, command);
+            companyService.updateCompany(userId, command);
         }
     }
 }

@@ -6,8 +6,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface CompanyJpaRepository extends JpaRepository<CompanyJpaEntity, Long> {
-    Optional<CompanyJpaEntity> findByManager_CompanyManagerUserSeq(Long userSeq);
+public interface CompanyJpaRepository extends JpaRepository<CompanyJpaEntity, String> {
+    Optional<CompanyJpaEntity> findByManager_CompanyManagerUserId(String userId);
 
     boolean existsByCompanyData_CompanyName(String name);
 }

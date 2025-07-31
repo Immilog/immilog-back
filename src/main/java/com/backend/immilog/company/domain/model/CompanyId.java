@@ -1,10 +1,10 @@
 package com.backend.immilog.company.domain.model;
 
-public record CompanyId(Long value) {
+public record CompanyId(String value) {
 
-    public static CompanyId of(Long value) {
-        if (value == null || value <= 0) {
-            throw new IllegalArgumentException("CompanyId value must be positive");
+    public static CompanyId of(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("CompanyId value must be not null or empty");
         }
         return new CompanyId(value);
     }

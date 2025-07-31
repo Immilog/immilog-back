@@ -17,21 +17,21 @@ public class CompanyRepositoryImpl implements CompanyRepository {
     }
 
     @Override
-    public Optional<Company> getByCompanyManagerUserSeq(Long userSeq) {
+    public Optional<Company> getByCompanyManagerUserId(String userId) {
         return companyJpaRepository
-                .findByManager_CompanyManagerUserSeq(userSeq)
+                .findByManager_CompanyManagerUserId(userId)
                 .map(CompanyJpaEntity::toDomain);
     }
 
     @Override
-    public Optional<Company> findByManagerUserSeq(Long userSeq) {
+    public Optional<Company> findByManagerUserId(String userId) {
         return companyJpaRepository
-                .findByManager_CompanyManagerUserSeq(userSeq)
+                .findByManager_CompanyManagerUserId(userId)
                 .map(CompanyJpaEntity::toDomain);
     }
 
     @Override
-    public Optional<Company> findById(Long companyId) {
+    public Optional<Company> findById(String companyId) {
         return companyJpaRepository
                 .findById(companyId)
                 .map(CompanyJpaEntity::toDomain);
@@ -50,6 +50,6 @@ public class CompanyRepositoryImpl implements CompanyRepository {
 
     @Override
     public void delete(Company company) {
-        companyJpaRepository.deleteById(company.seq());
+        companyJpaRepository.deleteById(company.id());
     }
 }

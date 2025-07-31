@@ -19,34 +19,34 @@ public class CompanyManagerJpaValue {
     @Column(name = "company_region")
     private String companyRegion;
 
-    @Column(name = "company_manager_user_seq")
-    private Long companyManagerUserSeq;
+    @Column(name = "company_manager_user_id")
+    private String companyManagerUserId;
 
     protected CompanyManagerJpaValue() {}
 
     protected CompanyManagerJpaValue(
             Country companyCountry,
             String companyRegion,
-            Long companyManagerUserSeq
+            String companyManagerUserId
     ) {
         this.companyCountry = companyCountry;
         this.companyRegion = companyRegion;
-        this.companyManagerUserSeq = companyManagerUserSeq;
+        this.companyManagerUserId = companyManagerUserId;
     }
 
     public static CompanyManagerJpaValue of(
             Country companyCountry,
             String companyRegion,
-            Long companyManagerUserSeq
+            String companyManagerUserId
     ) {
         return new CompanyManagerJpaValue(
                 companyCountry,
                 companyRegion,
-                companyManagerUserSeq
+                companyManagerUserId
         );
     }
 
     public CompanyManager toDomain() {
-        return CompanyManager.of(companyCountry, companyRegion, companyManagerUserSeq);
+        return CompanyManager.of(companyCountry, companyRegion, companyManagerUserId);
     }
 }

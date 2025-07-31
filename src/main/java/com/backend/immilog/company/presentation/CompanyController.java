@@ -31,32 +31,32 @@ public class CompanyController {
         this.getCompanyUseCase = getCompanyUseCase;
     }
 
-    @PostMapping("/users/{userSeq}")
+    @PostMapping("/users/{userId}")
     @Operation(summary = "회사정보 등록", description = "회사정보를 등록합니다.")
     public ResponseEntity<GeneralPayload> registerCompany(
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @RequestBody CompanyPayload.CompanyRegisterRequest param
     ) {
-        registerCompanyUseCase.registerCompany(userSeq, param.toCommand());
+        registerCompanyUseCase.registerCompany(userId, param.toCommand());
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PutMapping("/users/{userSeq}")
+    @PutMapping("/users/{userId}")
     @Operation(summary = "회사정보 수정", description = "회사정보를 수정합니다.")
     public ResponseEntity<GeneralPayload> updateCompany(
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @RequestBody CompanyPayload.CompanyRegisterRequest param
     ) {
-        updateCompanyUseCase.updateCompany(userSeq, param.toCommand());
+        updateCompanyUseCase.updateCompany(userId, param.toCommand());
         return ResponseEntity.status(OK).build();
     }
 
-    @GetMapping("/users/{userSeq}")
+    @GetMapping("/users/{userId}")
     @Operation(summary = "본인 회사정보 조회", description = "본인 회사정보를 조회합니다.")
     public ResponseEntity<CompanyPayload.CompanyResponse> getCompany(
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId
     ) {
-        final var result = getCompanyUseCase.getCompany(userSeq);
+        final var result = getCompanyUseCase.getCompany(userId);
         return ResponseEntity.status(OK).body(result.toResponse());
     }
 }

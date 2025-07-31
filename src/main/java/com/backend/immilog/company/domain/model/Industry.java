@@ -17,7 +17,7 @@ public enum Industry {
         this.industry = industry;
     }
 
-    public com.backend.immilog.post.domain.model.post.Industry toPostIndustry() {
-        return com.backend.immilog.post.domain.model.post.Industry.valueOf(this.name());
+    public com.backend.immilog.jobboard.domain.model.Industry toPostIndustry() {
+        return com.backend.immilog.jobboard.domain.model.Industry.valueOf(this.name());
     }
 }

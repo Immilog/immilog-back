@@ -5,11 +5,11 @@ import com.backend.immilog.company.domain.model.Company;
 import java.util.Optional;
 
 public interface CompanyRepository {
-    Optional<Company> getByCompanyManagerUserSeq(Long userSeq);
+    Optional<Company> getByCompanyManagerUserId(String userId);
 
-    Optional<Company> findByManagerUserSeq(Long userSeq);
+    Optional<Company> findByManagerUserId(String userId);
 
-    Optional<Company> findById(Long companyId);
+    Optional<Company> findById(String companyId);
 
     boolean existsByName(String name);
 

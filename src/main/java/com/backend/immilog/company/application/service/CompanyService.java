@@ -37,19 +37,19 @@ public class CompanyService {
     }
 
     public CompanyId registerCompany(
-            Long userSeq,
+            String userId,
             CompanyRegisterCommand command
     ) {
-        Company newCompany = companyRegistrationService.registerNewCompany(userSeq, command);
+        Company newCompany = companyRegistrationService.registerNewCompany(userId, command);
         Company savedCompany = companyCommandService.save(newCompany);
-        return CompanyId.of(savedCompany.seq());
+        return CompanyId.of(savedCompany.id());
     }
 
     public void updateCompany(
-            Long userSeq,
+            String userId,
             CompanyRegisterCommand command
     ) {
-        Company existingCompany = companyQueryService.getByCompanyManagerUserSeq(userSeq);
+        Company existingCompany = companyQueryService.getByCompanyManagerUserId(userId);
         companyValidationService.validateCompanyExists(existingCompany);
 
         Company updatedCompany = companyMapper.updateCompany(existingCompany, command);
@@ -57,8 +57,8 @@ public class CompanyService {
     }
 
     @Transactional(readOnly = true)
-    public CompanyFetchResult getCompanyByManagerUserSeq(Long userSeq) {
-        Company company = companyQueryService.getByCompanyManagerUserSeq(userSeq);
+    public CompanyFetchResult getCompanyByManagerUserId(String userId) {
+        Company company = companyQueryService.getByCompanyManagerUserId(userId);
         return Optional.of(CompanyFetchResult.from(company)).orElse(CompanyFetchResult.createEmpty());
     }
 
@@ -67,8 +67,8 @@ public class CompanyService {
         return companyQueryService.getById(companyId.value());
     }
 
-    public void deleteCompany(Long userSeq) {
-        Company company = companyQueryService.getByCompanyManagerUserSeq(userSeq);
+    public void deleteCompany(String userId) {
+        Company company = companyQueryService.getByCompanyManagerUserId(userId);
         companyValidationService.validateCompanyExists(company);
         companyCommandService.delete(company);
     }

@@ -14,12 +14,12 @@ public class CompanyQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Company getByCompanyManagerUserSeq(Long userSeq) {
-        return companyRepository.getByCompanyManagerUserSeq(userSeq).orElse(Company.createEmpty());
+    public Company getByCompanyManagerUserId(String userId) {
+        return companyRepository.getByCompanyManagerUserId(userId).orElse(Company.createEmpty());
     }
 
     @Transactional(readOnly = true)
-    public Company getById(Long companyId) {
+    public Company getById(String companyId) {
         return companyRepository.findById(companyId).orElse(Company.createEmpty());
     }
 

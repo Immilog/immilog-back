@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CompanyMapper {
     public Company toNewCompany(
-            Long userSeq,
+            String userId,
             CompanyRegisterCommand cmd
     ) {
         return Company.createEmpty()
-                .manager(cmd.country(), cmd.region(), userSeq)
+                .manager(cmd.country(), cmd.region(), userId)
                 .companyData(
                         cmd.industry(),
                         cmd.name(),

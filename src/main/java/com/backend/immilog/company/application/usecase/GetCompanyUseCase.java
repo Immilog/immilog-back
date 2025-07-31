@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface GetCompanyUseCase {
-    CompanyFetchResult getCompany(Long userSeq);
+    CompanyFetchResult getCompany(String userId);
 
     @Service
     class CompanyFetcher implements GetCompanyUseCase {
@@ -18,8 +18,8 @@ public interface GetCompanyUseCase {
 
         @Override
         @Transactional(readOnly = true)
-        public CompanyFetchResult getCompany(Long userSeq) {
-            return companyService.getCompanyByManagerUserSeq(userSeq);
+        public CompanyFetchResult getCompany(String userId) {
+            return companyService.getCompanyByManagerUserId(userId);
         }
     }
 }
