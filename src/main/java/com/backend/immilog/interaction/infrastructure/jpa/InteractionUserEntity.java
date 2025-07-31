@@ -1,4 +1,4 @@
-package com.backend.immilog.interaction.infrastructure.jpa.entity;
+package com.backend.immilog.interaction.infrastructure.jpa;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.interaction.domain.model.InteractionType;

@@ -2,8 +2,8 @@ package com.backend.immilog.interaction.infrastructure.repositories;
 
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
-import com.backend.immilog.interaction.infrastructure.jpa.entity.InteractionUserEntity;
-import com.backend.immilog.interaction.infrastructure.jpa.repository.InteractionUserJpaRepository;
+import com.backend.immilog.interaction.infrastructure.jpa.InteractionUserEntity;
+import com.backend.immilog.interaction.infrastructure.jpa.InteractionUserJpaRepository;
 import com.backend.immilog.post.domain.model.post.PostType;
 import org.springframework.stereotype.Repository;
 

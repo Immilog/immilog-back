@@ -1,4 +1,4 @@
-package com.backend.immilog.interaction.presentation.response;
+package com.backend.immilog.interaction.presentation.payload;
 
 import com.backend.immilog.interaction.application.result.InteractionResult;
 

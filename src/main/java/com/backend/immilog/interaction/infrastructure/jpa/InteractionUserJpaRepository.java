@@ -1,6 +1,5 @@
-package com.backend.immilog.interaction.infrastructure.jpa.repository;
+package com.backend.immilog.interaction.infrastructure.jpa;
 
-import com.backend.immilog.interaction.infrastructure.jpa.entity.InteractionUserEntity;
 import com.backend.immilog.post.domain.model.post.PostType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
