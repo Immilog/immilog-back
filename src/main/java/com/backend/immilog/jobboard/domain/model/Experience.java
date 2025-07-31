@@ -1,4 +1,4 @@
-package com.backend.immilog.post.domain.model.post;
+package com.backend.immilog.jobboard.domain.model;
 
 public enum Experience {
     JUNIOR("신입"),

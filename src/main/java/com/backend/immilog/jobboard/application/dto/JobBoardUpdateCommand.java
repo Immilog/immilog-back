@@ -1,12 +1,12 @@
-package com.backend.immilog.post.application.command;
+package com.backend.immilog.jobboard.application.dto;
 
-import com.backend.immilog.post.domain.model.post.Experience;
+import com.backend.immilog.jobboard.domain.model.Experience;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Schema(description = "게시물 수정 요청 Service DTO")
+@Schema(description = "구인게시판 수정 요청 Service DTO")
 public record JobBoardUpdateCommand(
         String title,
         String content,
