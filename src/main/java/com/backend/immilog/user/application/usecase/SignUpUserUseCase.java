@@ -1,11 +1,11 @@
 package com.backend.immilog.user.application.usecase;
 
+import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
 import com.backend.immilog.user.application.result.UserNickNameResult;
 import com.backend.immilog.user.application.services.UserService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.model.UserId;
 import com.backend.immilog.user.domain.service.EmailVerificationService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,7 @@ public interface SignUpUserUseCase {
 
     Boolean isNicknameAvailable(String nickname);
 
-    EmailVerificationResult verifyEmail(Long userSeq);
+    EmailVerificationResult verifyEmail(String userId);
 
     @Slf4j
     @Service
@@ -57,8 +57,8 @@ public interface SignUpUserUseCase {
         }
 
         @Override
-        public EmailVerificationResult verifyEmail(Long userSeq) {
-            var user = userQueryService.getUserById(UserId.of(userSeq));
+        public EmailVerificationResult verifyEmail(String userId) {
+            var user = userQueryService.getUserById(UserId.of(userId));
 
             var verificationResult = emailVerificationService.generateVerificationResult(
                     user.getUserStatus(),

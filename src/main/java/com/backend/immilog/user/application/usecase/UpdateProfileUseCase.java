@@ -6,9 +6,9 @@ import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
 import com.backend.immilog.user.application.result.LocationResult;
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.Location;
 import com.backend.immilog.user.domain.model.Profile;
-import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,19 +18,19 @@ import java.util.concurrent.ExecutionException;
 
 public interface UpdateProfileUseCase {
     void updateInformation(
-            Long userSeq,
+            String userId,
             CompletableFuture<LocationResult> futureRegion,
             UserInfoUpdateCommand userInfoUpdateCommand
     );
 
     void changePassword(
-            Long userSeq,
+            String userId,
             UserPasswordChangeCommand command
     );
 
     void blockOrUnblockUser(
-            Long targetUserSeq,
-            Long adminSeq,
+            String targetUserId,
+            String adminUserId,
             String userStatus
     );
 
@@ -56,11 +56,11 @@ public interface UpdateProfileUseCase {
 
         @Override
         public void updateInformation(
-                Long userSeq,
+                String userId,
                 CompletableFuture<LocationResult> futureRegion,
                 UserInfoUpdateCommand userInfoUpdateCommand
         ) {
-            var user = userQueryService.getUserById(userSeq);
+            var user = userQueryService.getUserById(userId);
             var previousProfileImage = user.getImageUrl();
             var region = getRegion(futureRegion);
             var newProfile = Profile.of(
@@ -80,10 +80,10 @@ public interface UpdateProfileUseCase {
 
         @Override
         public void changePassword(
-                Long userSeq,
+                String userId,
                 UserPasswordChangeCommand command
         ) {
-            var user = userQueryService.getUserById(userSeq);
+            var user = userQueryService.getUserById(userId);
             final var existingPassword = command.existingPassword();
             final var newPassword = command.newPassword();
             final var currentPassword = user.getPassword();
@@ -95,12 +95,12 @@ public interface UpdateProfileUseCase {
 
         @Override
         public void blockOrUnblockUser(
-                Long targetUserSeq,
-                Long adminSeq,
+                String targetUserId,
+                String adminUserId,
                 String userStatus
         ) {
-            userQueryService.getUserById(adminSeq).validateAdminRole();
-            var targetUser = userQueryService.getUserById(targetUserSeq).changeStatus(UserStatus.valueOf(userStatus));
+            userQueryService.getUserById(adminUserId).validateAdminRole();
+            var targetUser = userQueryService.getUserById(targetUserId).changeStatus(UserStatus.valueOf(userStatus));
             userCommandService.save(targetUser);
         }
 

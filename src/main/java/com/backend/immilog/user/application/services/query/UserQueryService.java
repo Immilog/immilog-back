@@ -37,7 +37,7 @@ public class UserQueryService {
     }
 
     @Transactional(readOnly = true)
-    public User getUserById(Long id) {
+    public User getUserById(String id) {
         return userRepository.findById(id).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 

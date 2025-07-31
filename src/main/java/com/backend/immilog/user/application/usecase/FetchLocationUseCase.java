@@ -41,7 +41,7 @@ public interface FetchLocationUseCase {
             try {
                 var response = CompletableFuture.supplyAsync(() -> geocodeGateway.fetchGeocode(latitude, longitude));
                 var compoundCode = extractCompoundCode(response.join());
-                var parts = Objects.requireNonNull(compoundCode).split(" ");
+                var parts = Objects.requireNonNull(compoundCode).split("\\s+");
                 if (parts.length >= 3) {
                     var country = parts[1];
                     var city = parts[2];

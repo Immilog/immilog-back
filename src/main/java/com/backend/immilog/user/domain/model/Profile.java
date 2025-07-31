@@ -33,7 +33,6 @@ public record Profile(
     }
 
     private void validateImageUrl(String imageUrl) {
-        // null은 허용 (기본 이미지 사용)
         if (imageUrl != null && imageUrl.trim().isEmpty()) {
             imageUrl = null;
         }

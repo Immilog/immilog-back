@@ -1,8 +1,8 @@
 package com.backend.immilog.user.application.services;
 
+import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.model.*;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import com.backend.immilog.user.domain.service.UserRegistrationService;
@@ -88,10 +88,8 @@ public class UserService {
     ) {
         var user = getUserById(userId);
 
-        // 현재 비밀번호 검증
         userPasswordPolicy.validatePasswordMatch(currentPassword, user.getPassword());
 
-        // 새 비밀번호 암호화 및 변경
         String encodedNewPassword = userPasswordPolicy.encodePassword(newPassword);
         user.changePassword(encodedNewPassword);
 

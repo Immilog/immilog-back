@@ -1,9 +1,10 @@
 package com.backend.immilog.user.infrastructure.jpa;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.user.domain.enums.UserRole;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.User;
 import com.backend.immilog.user.domain.model.UserId;
-import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import jakarta.persistence.*;
@@ -17,9 +18,8 @@ import java.time.LocalDateTime;
 public class UserJpaEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "seq")
-    private Long id;
+    @Column(name = "user_id")
+    private String id;
 
     @Embedded
     private AuthJpaValue auth;
@@ -44,10 +44,17 @@ public class UserJpaEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId();
+        }
+    }
+
     protected UserJpaEntity() {}
 
     private UserJpaEntity(
-            Long id,
+            String id,
             AuthJpaValue auth,
             UserRole userRole,
             ProfileJpaValue profile,
@@ -118,7 +125,7 @@ public class UserJpaEntity {
         }
     }
 
-    public Long getId() {return id;}
+    public String getId() {return id;}
 
     public AuthJpaValue getAuth() {return auth;}
 

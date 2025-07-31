@@ -19,7 +19,7 @@ public interface LoginUserUseCase {
     );
 
     UserSignInResult getUserSignInDTO(
-            Long userSeq,
+            String userId,
             LocationResult country
     );
 
@@ -68,10 +68,10 @@ public interface LoginUserUseCase {
 
         @Override
         public UserSignInResult getUserSignInDTO(
-                Long userSeq,
+                String userId,
                 LocationResult locationResult
         ) {
-            final var user = userQueryService.getUserById(userSeq);
+            final var user = userQueryService.getUserById(userId);
             var userCountry = user.getCountry();
             var userEmail = user.getEmail();
             boolean isLocationMatch = userCountry.koreanName().equals(locationResult.country()) && user.getRegion().equals(locationResult.city());

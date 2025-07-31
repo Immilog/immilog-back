@@ -13,7 +13,7 @@ public interface UserRepository {
 
     Optional<User> findById(UserId userId);
 
-    Optional<User> findById(Long userId);
+    Optional<User> findById(String userId);
 
     User save(User user);
 

@@ -5,7 +5,7 @@ import com.backend.immilog.user.presentation.payload.UserSignInPayload;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record UserSignInResult(
-        @Schema(description = "사용자 식별자", example = "1") Long userSeq,
+        @Schema(description = "사용자 식별자", example = "1") String userId,
         @Schema(description = "이메일", example = "email@email.com") String email,
         @Schema(description = "닉네임", example = "nickname") String nickname,
         @Schema(description = "액세스 토큰", example = "access token") String accessToken,

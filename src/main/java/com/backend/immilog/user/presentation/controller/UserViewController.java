@@ -20,13 +20,13 @@ public class UserViewController {
         this.userSignUpProcessor = userSignUpProcessor;
     }
 
-    @GetMapping("/{userSeq}/verification")
+    @GetMapping("/{userId}/verification")
     @Operation(summary = "사용자 이메일 인증", description = "사용자 이메일 인증 진행")
     public String verifyEmail(
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             Model model
     ) {
-        final var result = userSignUpProcessor.verifyEmail(userSeq);
+        final var result = userSignUpProcessor.verifyEmail(userId);
         model.addAttribute("message", result.message());
         model.addAttribute("isLoginAvailable", result.isLoginAvailable());
         return "verification-result";

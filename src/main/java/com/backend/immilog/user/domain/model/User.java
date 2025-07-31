@@ -44,7 +44,7 @@ public class User {
             Location location
     ) {
         return new User(
-                null, // 신규 생성 시 ID는 null
+                null,
                 auth,
                 UserRole.ROLE_USER,
                 profile,

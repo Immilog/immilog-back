@@ -23,7 +23,14 @@ public record Auth(
         if (email == null || email.trim().isEmpty()) {
             throw new UserException(UserErrorCode.INVALID_EMAIL_FORMAT);
         }
-        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+
+        var emailRegex = "^[A-Za-z0-9]([A-Za-z0-9+_.-]*[A-Za-z0-9])?@[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?\\.[A-Za-z]{2,}$";
+
+        if (!email.matches(emailRegex)) {
+            throw new UserException(UserErrorCode.INVALID_EMAIL_FORMAT);
+        }
+
+        if (email.contains("..") || email.startsWith(".") || email.endsWith(".") || email.contains("@@")) {
             throw new UserException(UserErrorCode.INVALID_EMAIL_FORMAT);
         }
     }

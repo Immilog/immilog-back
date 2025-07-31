@@ -3,14 +3,14 @@ package com.backend.immilog.user.domain.model;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 
-public record UserId(Long value) {
+public record UserId(String value) {
     public UserId {
-        if (value == null || value <= 0) {
+        if (value == null || value.isBlank()) {
             throw new UserException(UserErrorCode.ENTITY_TO_DOMAIN_ERROR);
         }
     }
 
-    public static UserId of(Long value) {
+    public static UserId of(String value) {
         return new UserId(value);
     }
 
