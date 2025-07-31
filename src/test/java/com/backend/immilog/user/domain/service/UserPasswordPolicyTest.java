@@ -22,7 +22,7 @@ import static org.mockito.BDDMockito.*;
 class UserPasswordPolicyTest {
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncryptionService passwordEncoder;
 
     private UserPasswordPolicy userPasswordPolicy;
 
