@@ -1,11 +1,11 @@
 package com.backend.immilog.user.presentation.controller;
 
-import com.backend.immilog.report.application.usecase.ReportUseCase;
+import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.user.application.services.EmailService;
 import com.backend.immilog.user.application.usecase.FetchLocationUseCase;
-import com.backend.immilog.user.application.usecase.LoginUserUseCase;
 import com.backend.immilog.user.application.usecase.SignUpUserUseCase;
 import com.backend.immilog.user.application.usecase.UpdateProfileUseCase;
+import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.presentation.payload.UserInformationPayload;
 import com.backend.immilog.user.presentation.payload.UserSignUpPayload;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,24 +23,18 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 public class UserController {
     private final SignUpUserUseCase userSignUpProcessor;
-    private final LoginUserUseCase userLoginProcessor;
     private final UpdateProfileUseCase userUpdater;
-    private final ReportUseCase userReporter;
     private final FetchLocationUseCase locationFetcher;
     private final EmailService emailSender;
 
     public UserController(
             SignUpUserUseCase userSignUpProcessor,
-            LoginUserUseCase userLoginProcessor,
             UpdateProfileUseCase userUpdater,
-            ReportUseCase userReporter,
             FetchLocationUseCase locationFetcher,
             EmailService emailSender
     ) {
         this.userSignUpProcessor = userSignUpProcessor;
-        this.userLoginProcessor = userLoginProcessor;
         this.userUpdater = userUpdater;
-        this.userReporter = userReporter;
         this.locationFetcher = locationFetcher;
         this.emailSender = emailSender;
     }
@@ -58,10 +52,10 @@ public class UserController {
         return ResponseEntity.status(CREATED).build();
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping
     @Operation(summary = "사용자 정보 수정", description = "사용자 정보를 수정합니다.")
     public ResponseEntity<Void> updateUser(
-            @Parameter(description = "사용자 고유번호") @PathVariable String userId,
+            @CurrentUser String userId,
             @RequestBody UserInformationPayload.UserInfoUpdateRequest request
     ) {
         var country = locationFetcher.getCountry(request.latitude(), request.longitude());
@@ -69,10 +63,10 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{userId}/password")
+    @PutMapping("/password")
     @Operation(summary = "비밀번호 변경", description = "사용자 비밀번호를 변경합니다.")
     public ResponseEntity<Void> changePassword(
-            @Parameter(description = "사용자 고유번호") @PathVariable String userId,
+            @CurrentUser String userId,
             @RequestBody UserInformationPayload.UserPasswordChangeRequest request
     ) {
         userUpdater.changePassword(userId, request.toCommand());
@@ -88,24 +82,14 @@ public class UserController {
         return ResponseEntity.ok(new UserInformationPayload.UserNicknameResponse(isNicknameAvailable));
     }
 
-    @PostMapping("/{userId}/blocks/{targetId}")
-    @Operation(summary = "사용자 차단", description = "특정 사용자를 차단합니다.")
+    @PostMapping("/blocks/{targetId}")
+    @Operation(summary = "사용자 차단/해제", description = "특정 사용자를 차단/해제합니다.")
     public ResponseEntity<Void> blockUser(
-            @Parameter(description = "사용자 고유번호") @PathVariable String userId,
-            @Parameter(description = "차단할 사용자 고유번호") @PathVariable String targetId
+            @CurrentUser String userId,
+            @Parameter(description = "요청상태") @RequestParam UserStatus requestedStatus,
+            @Parameter(description = "대상 사용자 고유번호") @PathVariable String targetId
     ) {
-        userUpdater.blockOrUnblockUser(targetId, userId, "BLOCK");
+        userUpdater.updateUserStatus(targetId, userId, requestedStatus);
         return ResponseEntity.noContent().build();
     }
-
-    @DeleteMapping("/{userId}/blocks/{targetId}")
-    @Operation(summary = "사용자 차단 해제", description = "차단된 사용자를 해제합니다.")
-    public ResponseEntity<Void> unblockUser(
-            @Parameter(description = "사용자 고유번호") @PathVariable String userId,
-            @Parameter(description = "차단 해제할 사용자 고유번호") @PathVariable String targetId
-    ) {
-        userUpdater.blockOrUnblockUser(targetId, userId, "UNBLOCK");
-        return ResponseEntity.noContent().build();
-    }
-
 }

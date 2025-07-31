@@ -1,9 +1,9 @@
 package com.backend.immilog.user.presentation.controller;
 
+import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.user.application.usecase.FetchLocationUseCase;
 import com.backend.immilog.user.application.usecase.LoginUserUseCase;
 import com.backend.immilog.user.presentation.payload.UserSignInPayload;
-import com.backend.immilog.shared.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
