@@ -98,6 +98,9 @@ dependencies {
     // 모니터링 (운영 환경용)
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+
+    // JNAI 자바 Nano ID (고유 ID 생성)
+    implementation("com.aventrix.jnanoid:jnanoid:2.0.0")
 }
 
 dependencyManagement {
@@ -128,9 +131,4 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 
-tasks.named('compileKotlin') {
-    kotlinOptions {
-        useIR = true
-    }
-}
 
