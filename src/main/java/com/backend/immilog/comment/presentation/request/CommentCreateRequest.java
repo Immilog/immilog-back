@@ -1,5 +1,6 @@
 package com.backend.immilog.comment.presentation.request;
 
+import com.backend.immilog.comment.application.dto.CommentCreateCommand;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 
 public record CommentCreateRequest(
@@ -7,4 +8,12 @@ public record CommentCreateRequest(
         String content,
         ReferenceType referenceType
 ) {
+    public CommentCreateCommand toCommand(String userId) {
+        return new CommentCreateCommand(
+                userId,
+                postId,
+                content,
+                referenceType
+        );
+    }
 }

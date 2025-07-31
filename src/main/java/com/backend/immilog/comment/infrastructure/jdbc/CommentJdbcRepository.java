@@ -18,11 +18,11 @@ public class CommentJdbcRepository {
 
     public List<CommentResult> findCommentsByPostId(String postId) {
         var sql = """
-                SELECT c.id, c.user_id, c.content, c.post_id, c.parent_id, c.reference_type, 
+                SELECT c.comment_id, c.user_id, c.content, c.post_id, c.parent_id, c.reference_type, 
                        c.reply_count, c.like_count, c.status, c.created_at, c.updated_at,
-                       u.nickname, u.profile_image_url
+                       u.nickname, u.image_url
                 FROM comment c
-                LEFT JOIN user u ON c.user_id = u.id
+                LEFT JOIN user u ON c.user_id = u.user_id
                 WHERE c.post_id = ? AND c.status = 'ACTIVE'
                 ORDER BY c.created_at ASC
                 """;
@@ -34,7 +34,7 @@ public class CommentJdbcRepository {
             int rowNum
     ) throws SQLException {
         return new CommentResult(
-                rs.getString("id"),
+                rs.getString("comment_id"),
                 rs.getString("user_id"),
                 rs.getString("content"),
                 rs.getString("post_id"),

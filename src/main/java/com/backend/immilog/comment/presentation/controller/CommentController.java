@@ -7,6 +7,7 @@ import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.backend.immilog.comment.application.usecase.CommentCreateUseCase;
 import com.backend.immilog.comment.presentation.request.CommentCreateRequest;
 import com.backend.immilog.comment.presentation.response.CommentResponse;
+import com.backend.immilog.shared.annotation.CurrentUser;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,15 +30,10 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
-            @RequestHeader("User-Id") String userId,
+            @CurrentUser String userId,
             @RequestBody CommentCreateRequest request
     ) {
-        var command = new CommentCreateCommand(
-                userId,
-                request.postId(),
-                request.content(),
-                request.referenceType()
-        );
+        var command = request.toCommand(userId);
         var result = commentCreateUseCase.createComment(command);
         return ResponseEntity.ok(CommentResponse.success(result));
     }
@@ -50,7 +46,7 @@ public class CommentController {
 
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
-            @RequestHeader("User-Id") String userId,
+            @CurrentUser String userId,
             @PathVariable String commentId,
             @RequestBody CommentCreateRequest request
     ) {
@@ -60,7 +56,7 @@ public class CommentController {
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<CommentResponse> deleteComment(
-            @RequestHeader("User-Id") String userId,
+            @CurrentUser String userId,
             @PathVariable String commentId
     ) {
         commentCommandService.deleteComment(commentId);
