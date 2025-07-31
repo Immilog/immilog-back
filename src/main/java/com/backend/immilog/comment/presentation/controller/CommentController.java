@@ -1,6 +1,5 @@
 package com.backend.immilog.comment.presentation.controller;
 
-import com.backend.immilog.comment.application.dto.CommentCreateCommand;
 import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.application.services.CommentCommandService;
 import com.backend.immilog.comment.application.services.CommentQueryService;
