@@ -1,4 +1,4 @@
-package com.backend.immilog.notice.application.services;
+package com.backend.immilog.notice.application.service;
 
 import com.backend.immilog.notice.application.dto.NoticeModelResult;
 import com.backend.immilog.notice.domain.enums.NoticeType;
@@ -27,10 +27,10 @@ public class NoticeQueryService {
     }
 
     public Page<NoticeModelResult> getNotices(
-            Long userSeq,
+            String userId,
             Pageable pageable
     ) {
-        return noticeRepository.getNotices(userSeq, pageable);
+        return noticeRepository.getNotices(userId, pageable);
     }
 
     public Notice getById(NoticeId noticeId) {
@@ -50,8 +50,8 @@ public class NoticeQueryService {
         return noticeRepository.findByType(type);
     }
 
-    public List<Notice> getNoticesByAuthor(Long authorUserSeq) {
-        return noticeRepository.findByAuthorUserSeq(authorUserSeq);
+    public List<Notice> getNoticesByAuthor(String authorUserId) {
+        return noticeRepository.findByAuthorUserId(authorUserId);
     }
 
     public boolean existsById(NoticeId noticeId) {
@@ -59,17 +59,17 @@ public class NoticeQueryService {
     }
 
     @Transactional(readOnly = true)
-    public Notice getNoticeBySeq(Long noticeSeq) {
+    public Notice getNoticeById(String noticeId) {
         return noticeRepository
-                .findBySeq(noticeSeq)
+                .findById(noticeId)
                 .orElseThrow(() -> new NoticeException(NOTICE_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
     public Boolean areUnreadNoticesExist(
             Country Country,
-            Long seq
+            String id
     ) {
-        return noticeRepository.areUnreadNoticesExist(Country, seq);
+        return noticeRepository.areUnreadNoticesExist(Country, id);
     }
 }

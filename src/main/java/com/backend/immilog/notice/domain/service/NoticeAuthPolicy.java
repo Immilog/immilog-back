@@ -20,7 +20,7 @@ public class NoticeAuthPolicy {
         }
     }
 
-    public Long getUserSeqFromToken(String token) {
+    public String getUserIdFromToken(String token) {
         return tokenProvider.getIdFromToken(token);
     }
 }

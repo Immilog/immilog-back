@@ -22,8 +22,8 @@ public class GetNoticeUseCase {
         return noticeService.getNoticeById(noticeId);
     }
 
-    public Notice execute(Long noticeSeq) {
-        NoticeId noticeId = NoticeId.of(noticeSeq);
+    public Notice execute(String id) {
+        NoticeId noticeId = NoticeId.of(id);
         return noticeService.getNoticeById(noticeId);
     }
 
@@ -41,8 +41,8 @@ public class GetNoticeUseCase {
 
     public boolean isReadBy(
             NoticeId noticeId,
-            Long userSeq
+            String userId
     ) {
-        return noticeService.isNoticeReadBy(noticeId, userSeq);
+        return noticeService.isNoticeReadBy(noticeId, userId);
     }
 }

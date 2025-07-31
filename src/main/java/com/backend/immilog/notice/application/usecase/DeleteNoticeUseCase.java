@@ -22,9 +22,9 @@ public class DeleteNoticeUseCase {
 
     public void execute(
             String token,
-            Long noticeSeq
+            String id
     ) {
-        NoticeId noticeId = NoticeId.of(noticeSeq);
+        NoticeId noticeId = NoticeId.of(id);
         noticeService.deleteNotice(token, noticeId);
     }
 }

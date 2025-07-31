@@ -1,10 +1,10 @@
 package com.backend.immilog.notice.domain.model;
 
-public record NoticeId(Long value) {
+public record NoticeId(String value) {
 
-    public static NoticeId of(Long value) {
-        if (value == null || value <= 0) {
-            throw new IllegalArgumentException("NoticeId value must be positive");
+    public static NoticeId of(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("NoticeId value must be not null or empty");
         }
         return new NoticeId(value);
     }

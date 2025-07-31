@@ -50,24 +50,24 @@ public class NoticeValidationService {
 
     public void validateNoticeAccess(
             Notice notice,
-            Long userSeq
+            String userId
     ) {
         if (notice == null) {
             throw new NoticeException(NoticeErrorCode.NOTICE_NOT_FOUND);
         }
 
-        if (userSeq == null || userSeq <= 0) {
+        if (userId == null || userId.isBlank()) {
             throw new NoticeException(NoticeErrorCode.INVALID_USER_SEQ);
         }
     }
 
     public void validateAuthorPermission(
             Notice notice,
-            Long userSeq
+            String userId
     ) {
-        validateNoticeAccess(notice, userSeq);
+        validateNoticeAccess(notice, userId);
 
-        if (!notice.isAuthor(userSeq)) {
+        if (!notice.isAuthor(userId)) {
             throw new NoticeException(NoticeErrorCode.NOT_AN_ADMIN_USER);
         }
     }

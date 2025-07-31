@@ -32,21 +32,21 @@ public class NoticeRepositoryImpl implements NoticeRepository {
 
     @Override
     public Page<NoticeModelResult> getNotices(
-            Long userSeq,
+            String userId,
             Pageable pageable
     ) {
-        List<NoticeModelResult> result = noticeJdbcRepository.getNotices(
-                userSeq,
+        var result = noticeJdbcRepository.getNotices(
+                userId,
                 pageable.getPageSize(),
                 pageable.getOffset()
         );
-        Long total = noticeJdbcRepository.getTotal(userSeq);
+        var total = noticeJdbcRepository.getTotal(userId);
         return new PageImpl<>(result, pageable, total);
     }
 
     @Override
     public Notice save(Notice notice) {
-        NoticeJpaEntity saved = noticeJpaRepository.save(NoticeJpaEntity.from(notice));
+        var saved = noticeJpaRepository.save(NoticeJpaEntity.from(notice));
         return saved.toDomain();
     }
 
@@ -56,15 +56,8 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     }
 
     @Override
-    public void deleteById(Long noticeId) {
+    public void deleteById(String noticeId) {
         noticeJpaRepository.deleteById(noticeId);
-    }
-
-    @Override
-    public Optional<Notice> findById(Long noticeId) {
-        return noticeJpaRepository
-                .findById(noticeId)
-                .map(NoticeJpaEntity::toDomain);
     }
 
     @Override
@@ -95,31 +88,31 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     }
 
     @Override
-    public List<Notice> findByAuthorUserSeq(Long authorUserSeq) {
+    public List<Notice> findByAuthorUserId(String authorUserId) {
         return noticeJpaRepository
-                .findByUserSeqAndStatusNot(authorUserSeq, NoticeStatus.DELETED)
+                .findByUserIdAndStatusNot(authorUserId, NoticeStatus.DELETED)
                 .stream()
                 .map(NoticeJpaEntity::toDomain)
                 .toList();
     }
 
     @Override
-    public boolean existsById(Long noticeId) {
+    public boolean existsById(String noticeId) {
         return noticeJpaRepository.existsById(noticeId);
     }
 
     @Override
-    public Optional<Notice> findBySeq(Long noticeSeq) {
+    public Optional<Notice> findById(String noticeId) {
         return noticeJpaRepository
-                .findBySeqAndStatusIsNot(noticeSeq, NoticeStatus.DELETED)
+                .findByIdAndStatusIsNot(noticeId, NoticeStatus.DELETED)
                 .map(NoticeJpaEntity::toDomain);
     }
 
     @Override
     public Boolean areUnreadNoticesExist(
             Country country,
-            Long seq
+            String id
     ) {
-        return noticeJpaRepository.existsByTargetCountryContainingAndReadUsersNotContaining(country, seq);
+        return noticeJpaRepository.existsByTargetCountryContainingAndReadUsersNotContaining(country, id);
     }
 }

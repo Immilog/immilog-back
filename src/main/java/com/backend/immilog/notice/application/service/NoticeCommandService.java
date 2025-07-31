@@ -1,4 +1,4 @@
-package com.backend.immilog.notice.application.services;
+package com.backend.immilog.notice.application.service;
 
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.repository.NoticeRepository;
@@ -24,7 +24,7 @@ public class NoticeCommandService {
     }
 
     @Transactional
-    public void deleteById(Long noticeId) {
+    public void deleteById(String noticeId) {
         noticeRepository.deleteById(noticeId);
     }
 }

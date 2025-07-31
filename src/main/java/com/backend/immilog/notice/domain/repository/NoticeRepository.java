@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface NoticeRepository {
     Page<NoticeModelResult> getNotices(
-            Long userSeq,
+            String userId,
             Pageable pageable
     );
 
@@ -20,11 +20,9 @@ public interface NoticeRepository {
 
     void delete(Notice notice);
 
-    void deleteById(Long noticeId);
+    void deleteById(String noticeId);
 
-    Optional<Notice> findById(Long noticeId);
-
-    Optional<Notice> findBySeq(Long noticeSeq);
+    Optional<Notice> findById(String noticeId);
 
     List<Notice> findActiveNoticesForCountry(Country country);
 
@@ -32,12 +30,12 @@ public interface NoticeRepository {
 
     List<Notice> findByType(NoticeType type);
 
-    List<Notice> findByAuthorUserSeq(Long authorUserSeq);
+    List<Notice> findByAuthorUserId(String authorUserId);
 
-    boolean existsById(Long noticeId);
+    boolean existsById(String noticeId);
 
     Boolean areUnreadNoticesExist(
             Country country,
-            Long seq
+            String id
     );
 }

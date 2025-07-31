@@ -8,14 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Long> {
+public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, String> {
     Boolean existsByTargetCountryContainingAndReadUsersNotContaining(
             Country country,
-            Long seq
+            String id
     );
 
-    Optional<NoticeJpaEntity> findBySeqAndStatusIsNot(
-            Long noticeSeq,
+    Optional<NoticeJpaEntity> findByIdAndStatusIsNot(
+            String noticeId,
             NoticeStatus status
     );
 
@@ -31,8 +31,8 @@ public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Long
             NoticeStatus status
     );
 
-    List<NoticeJpaEntity> findByUserSeqAndStatusNot(
-            Long authorSeq,
+    List<NoticeJpaEntity> findByUserIdAndStatusNot(
+            String authorId,
             NoticeStatus status
     );
 }

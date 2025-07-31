@@ -16,47 +16,47 @@ public class NoticeJdbcRepository {
     }
 
     public List<NoticeModelResult> getNotices(
-            long userSeq,
+            String userId,
             int pageSize,
             long offset
     ) {
         String sql = """
                 SELECT n.*
                 FROM notice n
-                LEFT JOIN notice_entity_target_country ntc ON n.seq = ntc.notice_entity_seq
-                LEFT JOIN user u ON u.country = ntc.target_country 
-                LEFT JOIN notice_entity_read_users nru ON n.seq = nru.notice_entity_seq
-                WHERE (u.country = ntc.target_country
-                   OR ntc.target_country = 'ALL')
+                LEFT JOIN notice_target_country ntc ON n.notice_id = ntc.notice_id
+                LEFT JOIN user u ON u.country = ntc.country 
+                LEFT JOIN notice_read_user nru ON n.notice_id = nru.notice_id
+                WHERE (u.country = ntc.country
+                   OR ntc.country = 'ALL')
                    AND n.status = 'NORMAL'
-                   AND (nru.read_users IS NULL OR nru.read_users != ?)
+                   AND (nru.user_id IS NULL OR nru.user_id != ?)
                 ORDER BY n.created_at DESC
                 LIMIT ? OFFSET ?
                 """;
 
         return jdbcClient.sql(sql)
-                .param(userSeq)
+                .param(userId)
                 .param(pageSize)
                 .param(offset)
                 .query((rs, rowNum) -> NoticeModelResult.from(rs))
                 .list();
     }
 
-    public Long getTotal(Long userSeq) {
+    public Long getTotal(String userId) {
         String sql = """
                 SELECT COUNT(*) 
                 FROM notice n
-                LEFT JOIN immilog.notice_entity_target_country ntc ON n.seq = ntc.notice_entity_seq
-                LEFT JOIN user u ON u.country = ntc.target_country 
-                LEFT JOIN notice_entity_read_users nru ON n.seq = nru.notice_entity_seq
-                WHERE (u.country = ntc.target_country
-                   OR ntc.target_country = 'ALL')
+                LEFT JOIN immilog.notice_target_country ntc ON n.notice_id = ntc.notice_id
+                LEFT JOIN user u ON u.country = ntc.country 
+                LEFT JOIN notice_read_user nru ON n.notice_id = nru.notice_id
+                WHERE (u.country = ntc.country
+                   OR ntc.country = 'ALL')
                    AND n.status = 'NORMAL'
-                   AND (nru.read_users IS NULL OR nru.read_users != ?)
+                   AND (nru.user_id IS NULL OR nru.user_id != ?)
                 """;
         try {
             return jdbcClient.sql(sql)
-                    .param(userSeq)
+                    .param(userId)
                     .query((rs, rowNum) -> rs.getLong(1))
                     .single();
         } catch (EmptyResultDataAccessException e) {

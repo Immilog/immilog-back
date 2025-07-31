@@ -1,5 +1,6 @@
 package com.backend.immilog.notice.infrastructure.jpa;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.*;
@@ -13,19 +14,16 @@ import org.springframework.data.annotation.LastModifiedDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
 @DynamicUpdate
 @Entity
 @Table(name = "notice")
 public class NoticeJpaEntity {
     @Id
-    @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "seq")
-    private Long seq;
+    @Column(name = "notice_id")
+    private String id;
 
-    @Column(name = "user_seq")
-    private Long userSeq;
+    @Column(name = "user_id")
+    private String userId;
 
     @Column(name = "title")
     private String title;
@@ -42,12 +40,16 @@ public class NoticeJpaEntity {
     private NoticeStatus status;
 
     @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "notice_target_country", joinColumns = @JoinColumn(name = "notice_id"))
+    @Column(name = "country")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private List<Country> targetCountry;
 
     @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "notice_read_user", joinColumns = @JoinColumn(name = "notice_id"))
+    @Column(name = "user_id")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<Long> readUsers;
+    private List<String> readUsers;
 
     @CreatedDate
     @Column(name = "created_at")
@@ -57,33 +59,40 @@ public class NoticeJpaEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = NanoIdUtils.randomNanoId();
+        }
+    }
+
     protected NoticeJpaEntity() {}
 
     protected NoticeJpaEntity(
-            Long seq,
-            Long userSeq,
+            String id,
+            String userId,
             String title,
             String content,
             NoticeType type,
             NoticeStatus status,
             List<Country> targetCountry,
-            List<Long> readUsers
+            List<String> readUsers
     ) {
-        this.seq = seq;
-        this.userSeq = userSeq;
+        this.id = id;
+        this.userId = userId;
         this.title = title;
         this.content = content;
         this.type = type;
         this.status = status;
         this.targetCountry = targetCountry;
         this.readUsers = readUsers;
-        this.updatedAt = seq == null ? null : LocalDateTime.now();
+        this.updatedAt = id == null ? null : LocalDateTime.now();
     }
 
     public static NoticeJpaEntity from(Notice notice) {
         return new NoticeJpaEntity(
                 notice.getIdValue(),
-                notice.getAuthorUserSeq(),
+                notice.getAuthorUserId(),
                 notice.getTitleValue(),
                 notice.getContentValue(),
                 notice.getType(),
@@ -95,8 +104,8 @@ public class NoticeJpaEntity {
 
     public Notice toDomain() {
         return Notice.restore(
-                this.seq != null ? NoticeId.of(this.seq) : null,
-                NoticeAuthor.of(this.userSeq),
+                this.id != null ? NoticeId.of(this.id) : null,
+                NoticeAuthor.of(this.userId),
                 NoticeTitle.of(this.title),
                 NoticeContent.of(this.content),
                 this.type,

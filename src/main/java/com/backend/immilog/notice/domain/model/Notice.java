@@ -105,11 +105,11 @@ public class Notice {
         return this;
     }
 
-    public Notice markAsRead(Long userSeq) {
-        if (userSeq == null || userSeq <= 0) {
+    public Notice markAsRead(String userId) {
+        if (userId == null || userId.isBlank()) {
             throw new NoticeException(NoticeErrorCode.INVALID_USER_SEQ);
         }
-        this.readStatus = readStatus.markAsRead(userSeq);
+        this.readStatus = readStatus.markAsRead(userId);
         return this;
     }
 
@@ -133,8 +133,8 @@ public class Notice {
         return targeting.isTargetedTo(country);
     }
 
-    public boolean isReadBy(Long userSeq) {
-        return readStatus.isReadBy(userSeq);
+    public boolean isReadBy(String userId) {
+        return readStatus.isReadBy(userId);
     }
 
     public boolean isActive() {
@@ -145,8 +145,8 @@ public class Notice {
         return metadata.isDeleted();
     }
 
-    public boolean isAuthor(Long userSeq) {
-        return author.userSeq().equals(userSeq);
+    public boolean isAuthor(String userId) {
+        return author.userId().equals(userId);
     }
 
     private static void validateCreationInputs(
@@ -193,9 +193,9 @@ public class Notice {
 
     public NoticeMetadata getMetadata() {return metadata;}
 
-    public Long getIdValue() {return id != null ? id.value() : null;}
+    public String getIdValue() {return id != null ? id.value() : null;}
 
-    public Long getAuthorUserSeq() {return author.userSeq();}
+    public String getAuthorUserId() {return author.userId();}
 
     public String getTitleValue() {return title.value();}
 
@@ -207,7 +207,7 @@ public class Notice {
 
     public List<Country> getTargetCountries() {return targeting.targetCountries();}
 
-    public List<Long> getReadUsers() {return readStatus.getReadUsersList();}
+    public List<String> getReadUsers() {return readStatus.getReadUsersList();}
 
     public LocalDateTime getCreatedAt() {return metadata.createdAt();}
 

@@ -18,8 +18,8 @@ public class NoticeAuthorizationService {
 
     public NoticeAuthor validateAndGetAuthor(String token) {
         noticeAuthPolicy.validateAdmin(token);
-        Long userSeq = noticeAuthPolicy.getUserSeqFromToken(token);
-        return NoticeAuthor.of(userSeq);
+        String userId = noticeAuthPolicy.getUserIdFromToken(token);
+        return NoticeAuthor.of(userId);
     }
 
     public void validateAdminAccess(String token) {
@@ -28,7 +28,7 @@ public class NoticeAuthorizationService {
 
     public void validateNoticeReadAccess(
             Notice notice,
-            Long userSeq,
+            String userId,
             Country userCountry
     ) {
         if (notice == null) {
@@ -39,11 +39,10 @@ public class NoticeAuthorizationService {
             throw new NoticeException(NoticeErrorCode.NOTICE_ALREADY_DELETED);
         }
 
-        if (userSeq == null || userSeq <= 0) {
+        if (userId == null || userId.isBlank()) {
             throw new NoticeException(NoticeErrorCode.INVALID_USER_SEQ);
         }
 
-        // 공지사항이 해당 국가를 대상으로 하는지 확인
         if (userCountry != null && !notice.isTargetedTo(userCountry)) {
             throw new NoticeException(NoticeErrorCode.NOTICE_NOT_FOUND);
         }
@@ -55,7 +54,7 @@ public class NoticeAuthorizationService {
     ) {
         NoticeAuthor requester = validateAndGetAuthor(token);
 
-        if (!notice.isAuthor(requester.userSeq())) {
+        if (!notice.isAuthor(requester.userId())) {
             throw new NoticeException(NoticeErrorCode.NOT_AN_ADMIN_USER);
         }
 
@@ -64,7 +63,7 @@ public class NoticeAuthorizationService {
         }
     }
 
-    public Long getUserSeqFromToken(String token) {
-        return noticeAuthPolicy.getUserSeqFromToken(token);
+    public String getUserIdFromToken(String token) {
+        return noticeAuthPolicy.getUserIdFromToken(token);
     }
 }

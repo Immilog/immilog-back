@@ -1,6 +1,6 @@
 package com.backend.immilog.notice.presentation;
 
-import com.backend.immilog.notice.application.services.NoticeQueryService;
+import com.backend.immilog.notice.application.service.NoticeQueryService;
 import com.backend.immilog.notice.application.usecase.*;
 import com.backend.immilog.notice.domain.model.NoticeId;
 import com.backend.immilog.shared.enums.Country;
@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import com.backend.immilog.shared.annotation.CurrentUser;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Notice API", description = "공지사항 관련 API")
@@ -43,59 +44,60 @@ public class NoticeController {
     @PostMapping
     @Operation(summary = "공지사항 등록", description = "공지사항을 등록합니다.")
     public ResponseEntity<NoticeRegistrationResponse> registerNotice(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
+            @CurrentUser String userId,
             @RequestBody NoticeRegisterRequest noticeRegisterRequest
     ) {
+        var command = noticeRegisterRequest.toCommand();
         createNoticeUseCase.execute(
-                token,
-                noticeRegisterRequest.title(),
-                noticeRegisterRequest.content(),
-                noticeRegisterRequest.type(),
-                noticeRegisterRequest.targetCountry()
+                userId, // 이제 userId 사용
+                command.title(),
+                command.content(),
+                command.type(),
+                command.targetCountry()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(NoticeRegistrationResponse.success());
     }
 
-    @GetMapping("users/{userSeq}")
+    @GetMapping("users/{userId}")
     @Operation(summary = "공지사항 조회", description = "공지사항을 조회합니다.")
     public ResponseEntity<NoticeListResponse> getNotices(
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "페이지 번호") @RequestParam("page") Integer page
     ) {
         var pageable = PageRequest.of(page, 20);
-        var notices = noticeQueryService.getNotices(userSeq, pageable);
+        var notices = noticeQueryService.getNotices(userId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeListResponse.of(notices));
     }
 
-    @GetMapping("/{noticeSeq}")
+    @GetMapping("/{noticeId}")
     @Operation(summary = "공지사항 상세 조회", description = "공지사항 상제정보를 조회합니다.")
     public ResponseEntity<NoticeDetailResponse> getNoticeDetail(
-            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeSeq") Long noticeSeq
+            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId
     ) {
-        var notice = getNoticeUseCase.execute(noticeSeq);
+        var notice = getNoticeUseCase.execute(noticeId);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeDetailResponse.of(notice));
     }
 
-    @GetMapping("/users/{userSeq}/unread")
+    @GetMapping("/users/{userId}/unread")
     @Operation(summary = "공지사항 존재 여부 조회", description = "공지사항이 존재하는지 여부를 조회합니다.")
     public ResponseEntity<NoticeRegistrationResponse> isNoticeExist(
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "사용자 국가") @RequestParam("country") Country country
     ) {
-        var unreadNoticeExist = noticeQueryService.areUnreadNoticesExist(country, userSeq);
+        var unreadNoticeExist = noticeQueryService.areUnreadNoticesExist(country, userId);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeRegistrationResponse.of(unreadNoticeExist));
     }
 
-    @PatchMapping("/{noticeSeq}")
+    @PatchMapping("/{noticeId}")
     @Operation(summary = "공지사항 수정", description = "공지사항을 수정합니다.")
     public ResponseEntity<Void> modifyNotice(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeSeq") Long noticeSeq,
+            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId,
             @Parameter(description = "공지사항 수정바디") @RequestBody NoticeModifyRequest param
     ) {
         updateNoticeUseCase.execute(
                 token,
-                NoticeId.of(noticeSeq),
+                NoticeId.of(noticeId),
                 param.title(),
                 param.content(),
                 param.type()
@@ -103,24 +105,24 @@ public class NoticeController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PatchMapping("/{noticeSeq}/users/{userSeq}")
+    @PatchMapping("/{noticeId}/users/{userId}")
     @Operation(summary = "공지사항 읽음처리", description = "공지사항을 읽음 처리합니다.")
     public ResponseEntity<Void> readNotice(
-            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeSeq") Long noticeSeq,
-            @Parameter(description = "사용자 고유번호") @PathVariable("userSeq") Long userSeq,
+            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId,
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "사용자 국가") @RequestParam("country") Country userCountry
     ) {
-        markNoticeAsReadUseCase.execute(noticeSeq, userSeq, userCountry);
+        markNoticeAsReadUseCase.execute(noticeId, userId, userCountry);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @DeleteMapping("/{noticeSeq}")
+    @DeleteMapping("/{noticeId}")
     @Operation(summary = "공지사항 삭제", description = "공지사항을 삭제합니다.")
     public ResponseEntity<Void> deleteNotice(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
-            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeSeq") Long noticeSeq
+            @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId
     ) {
-        deleteNoticeUseCase.execute(token, noticeSeq);
+        deleteNoticeUseCase.execute(token, noticeId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

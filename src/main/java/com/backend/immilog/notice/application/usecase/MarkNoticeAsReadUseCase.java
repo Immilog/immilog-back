@@ -16,18 +16,17 @@ public class MarkNoticeAsReadUseCase {
 
     public void execute(
             NoticeId noticeId,
-            Long userSeq,
+            String userId,
             Country userCountry
     ) {
-        noticeService.markAsRead(noticeId, userSeq, userCountry);
+        noticeService.markAsRead(noticeId, userId, userCountry);
     }
 
     public void execute(
-            Long noticeSeq,
-            Long userSeq,
+            String noticeId,
+            String userId,
             Country userCountry
     ) {
-        NoticeId noticeId = NoticeId.of(noticeSeq);
-        noticeService.markAsRead(noticeId, userSeq, userCountry);
+        noticeService.markAsRead(NoticeId.of(noticeId), userId, userCountry);
     }
 }

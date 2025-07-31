@@ -11,13 +11,13 @@ import java.util.List;
 public class NoticeFactory {
 
     public Notice createNotice(
-            Long authorUserSeq,
+            String authorUserId,
             String title,
             String content,
             NoticeType type,
             List<Country> targetCountries
     ) {
-        NoticeAuthor author = NoticeAuthor.of(authorUserSeq);
+        NoticeAuthor author = NoticeAuthor.of(authorUserId);
         NoticeTitle noticeTitle = NoticeTitle.of(title);
         NoticeContent noticeContent = NoticeContent.of(content);
         NoticeTargeting targeting = NoticeTargeting.of(targetCountries);
@@ -26,12 +26,12 @@ public class NoticeFactory {
     }
 
     public Notice createGlobalNotice(
-            Long authorUserSeq,
+            String authorUserId,
             String title,
             String content,
             NoticeType type
     ) {
-        NoticeAuthor author = NoticeAuthor.of(authorUserSeq);
+        NoticeAuthor author = NoticeAuthor.of(authorUserId);
         NoticeTitle noticeTitle = NoticeTitle.of(title);
         NoticeContent noticeContent = NoticeContent.of(content);
         NoticeTargeting targeting = NoticeTargeting.all();

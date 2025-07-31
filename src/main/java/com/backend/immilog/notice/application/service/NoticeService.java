@@ -1,7 +1,5 @@
 package com.backend.immilog.notice.application.service;
 
-import com.backend.immilog.notice.application.services.NoticeCommandService;
-import com.backend.immilog.notice.application.services.NoticeQueryService;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.model.NoticeId;
@@ -49,7 +47,7 @@ public class NoticeService {
         validationService.validateNoticeCreation(title, content, type, targetCountries);
 
         var notice = noticeFactory.createNotice(
-                author.userSeq(),
+                author.userId(),
                 title,
                 content,
                 type,
@@ -88,13 +86,13 @@ public class NoticeService {
 
     public void markAsRead(
             NoticeId noticeId,
-            Long userSeq,
+            String userId,
             Country userCountry
     ) {
         var notice = noticeQueryService.getById(noticeId);
-        authorizationService.validateNoticeReadAccess(notice, userSeq, userCountry);
+        authorizationService.validateNoticeReadAccess(notice, userId, userCountry);
 
-        var readNotice = notice.markAsRead(userSeq);
+        var readNotice = notice.markAsRead(userId);
         noticeCommandService.save(readNotice);
     }
 
@@ -121,9 +119,9 @@ public class NoticeService {
     @Transactional(readOnly = true)
     public boolean isNoticeReadBy(
             NoticeId noticeId,
-            Long userSeq
+            String userId
     ) {
         var notice = noticeQueryService.getById(noticeId);
-        return notice.isReadBy(userSeq);
+        return notice.isReadBy(userId);
     }
 }
