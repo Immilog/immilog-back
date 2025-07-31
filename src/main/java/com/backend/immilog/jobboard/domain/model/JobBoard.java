@@ -84,7 +84,7 @@ public class JobBoard {
             Country country
     ) {
         validateJobBoardCreation(userId, company, title, description, requirements);
-        
+
         return new JobBoard(
                 JobBoardId.generate(),
                 userId,

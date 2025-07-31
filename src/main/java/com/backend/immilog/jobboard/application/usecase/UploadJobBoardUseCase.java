@@ -3,8 +3,6 @@ package com.backend.immilog.jobboard.application.usecase;
 import com.backend.immilog.jobboard.application.dto.JobBoardResult;
 import com.backend.immilog.jobboard.application.dto.JobBoardUploadCommand;
 import com.backend.immilog.jobboard.application.services.JobBoardCommandService;
-import com.backend.immilog.jobboard.domain.model.JobBoard;
-import com.backend.immilog.jobboard.domain.model.JobBoardCompany;
 import org.springframework.stereotype.Service;
 
 public interface UploadJobBoardUseCase {

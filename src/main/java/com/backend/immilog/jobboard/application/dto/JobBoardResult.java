@@ -1,6 +1,8 @@
 package com.backend.immilog.jobboard.application.dto;
 
-import com.backend.immilog.jobboard.domain.model.*;
+import com.backend.immilog.jobboard.domain.model.Experience;
+import com.backend.immilog.jobboard.domain.model.Industry;
+import com.backend.immilog.jobboard.domain.model.JobBoard;
 import com.backend.immilog.shared.enums.Country;
 
 import java.math.BigDecimal;

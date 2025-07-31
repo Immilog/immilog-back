@@ -72,7 +72,10 @@ public class JobBoardCommandService {
     }
 
     @Transactional
-    public void recordJobBoardView(String jobBoardId, String viewerUserId) {
+    public void recordJobBoardView(
+            String jobBoardId,
+            String viewerUserId
+    ) {
         jobBoardDomainService.recordJobBoardView(
                 JobBoardId.of(jobBoardId),
                 viewerUserId
