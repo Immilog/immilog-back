@@ -1,6 +1,6 @@
 package com.backend.immilog.post.presentation.response;
 
-import com.backend.immilog.post.application.result.PostResult;
+import com.backend.immilog.post.application.dto.PostResult;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;

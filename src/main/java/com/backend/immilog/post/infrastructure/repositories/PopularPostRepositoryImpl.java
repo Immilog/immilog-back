@@ -1,6 +1,6 @@
 package com.backend.immilog.post.infrastructure.repositories;
 
-import com.backend.immilog.post.application.result.PostResult;
+import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PopularPostRepository;
@@ -73,7 +73,6 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
                 post.userId(),
                 post.profileImage(),
                 post.nickname(),
-                null,
                 post.commentCount(),
                 post.viewCount(),
                 post.likeCount(),

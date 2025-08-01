@@ -1,10 +1,7 @@
-package com.backend.immilog.post.application.result;
+package com.backend.immilog.post.application.dto;
 
-import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.PostStatus;
-import com.backend.immilog.post.presentation.response.PostSingleResponse;
-import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -13,7 +10,6 @@ public record PostResult(
         String userId,
         String userProfileUrl,
         String userNickName,
-        List<CommentResult> comments,
         Long commentCount,
         Long viewCount,
         Long likeCount,
@@ -32,7 +28,4 @@ public record PostResult(
         String content,
         String keyword
 ) {
-    public PostSingleResponse toResponse() {
-        return new PostSingleResponse(HttpStatus.OK.value(), "success", this);
-    }
 }

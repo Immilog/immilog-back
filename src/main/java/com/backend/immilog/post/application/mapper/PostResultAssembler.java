@@ -1,9 +1,8 @@
 package com.backend.immilog.post.application.mapper;
 
-import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
-import com.backend.immilog.post.application.result.PostResult;
+import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.domain.model.ResourceType;
 import org.springframework.stereotype.Component;
@@ -15,16 +14,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class PostResultAssembler {
-
-    public PostResult assembleComments(
-            PostResult postResult,
-            List<CommentResult> comments
-    ) {
-        if (comments != null) {
-            postResult.comments().addAll(comments);
-        }
-        return postResult;
-    }
 
     public PostResult assembleKeywords(
             PostResult postResult,
@@ -40,7 +29,6 @@ public class PostResultAssembler {
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
-                postResult.comments(),
                 postResult.commentCount(),
                 postResult.viewCount(),
                 postResult.likeCount(),
@@ -83,7 +71,6 @@ public class PostResultAssembler {
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
-                postResult.comments(),
                 postResult.commentCount(),
                 postResult.viewCount(),
                 postResult.likeCount(),
@@ -128,7 +115,6 @@ public class PostResultAssembler {
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
-                postResult.comments(),
                 postResult.commentCount(),
                 postResult.viewCount(),
                 postResult.likeCount(),
@@ -158,7 +144,6 @@ public class PostResultAssembler {
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
-                postResult.comments(),
                 postResult.commentCount(),
                 postResult.viewCount(),
                 (long) size,

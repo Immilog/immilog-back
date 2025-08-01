@@ -1,6 +1,6 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.post.application.result.PostResult;
+import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.repositories.PopularPostRepository;
 import com.backend.immilog.post.domain.repositories.PostDomainRepository;
