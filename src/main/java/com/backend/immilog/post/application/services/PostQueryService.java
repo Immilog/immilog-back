@@ -2,7 +2,7 @@ package com.backend.immilog.post.application.services;
 
 import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
-import com.backend.immilog.post.application.result.PostResult;
+import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.PostType;
@@ -196,7 +196,6 @@ public class PostQueryService {
                 post.userId(),
                 post.profileImage(),
                 post.nickname(),
-                null,
                 post.commentCount(),
                 post.viewCount(),
                 post.likeCount(),

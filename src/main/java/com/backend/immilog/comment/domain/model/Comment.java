@@ -1,6 +1,8 @@
 package com.backend.immilog.comment.domain.model;
 
+import com.backend.immilog.comment.domain.event.CommentCreatedEvent;
 import com.backend.immilog.post.domain.model.post.PostStatus;
+import com.backend.immilog.shared.domain.event.DomainEvents;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -158,6 +160,27 @@ public class Comment {
                 this.likeUsers,
                 this.createdAt,
                 LocalDateTime.now()
+        );
+    }
+
+    public void publishCreatedEvent() {
+        if (this.id != null) {
+            DomainEvents.raise(new CommentCreatedEvent(this.id, this.postId(), this.userId));
+        }
+    }
+
+    public Comment withId(String id) {
+        return new Comment(
+                id,
+                this.userId,
+                this.content,
+                this.commentRelation,
+                this.replyCount,
+                this.likeCount,
+                this.status,
+                this.likeUsers,
+                this.createdAt,
+                this.updatedAt
         );
     }
 }

@@ -1,4 +1,4 @@
-package com.backend.immilog.post.application.command;
+package com.backend.immilog.post.application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

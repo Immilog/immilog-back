@@ -1,6 +1,6 @@
 package com.backend.immilog.post.application.usecase;
 
-import com.backend.immilog.post.application.command.PostUpdateCommand;
+import com.backend.immilog.post.application.dto.PostUpdateCommand;
 import com.backend.immilog.post.application.services.BulkCommandService;
 import com.backend.immilog.post.application.services.PostCommandService;
 import com.backend.immilog.post.application.services.PostQueryService;

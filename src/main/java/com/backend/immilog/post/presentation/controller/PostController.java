@@ -1,6 +1,7 @@
 package com.backend.immilog.post.presentation.controller;
 
-import com.backend.immilog.post.application.result.PostResult;
+import com.backend.immilog.comment.application.services.CommentQueryService;
+import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.application.usecase.PostDeleteUseCase;
 import com.backend.immilog.post.application.usecase.PostFetchUseCase;
 import com.backend.immilog.post.application.usecase.PostUpdateUseCase;
@@ -10,9 +11,9 @@ import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.presentation.request.PostUpdateRequest;
 import com.backend.immilog.post.presentation.request.PostUploadRequest;
+import com.backend.immilog.post.presentation.response.PostDetailResponse;
 import com.backend.immilog.post.presentation.response.PostListResponse;
 import com.backend.immilog.post.presentation.response.PostPageResponse;
-import com.backend.immilog.post.presentation.response.PostSingleResponse;
 import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,17 +35,20 @@ public class PostController {
     private final PostUpdateUseCase postUpdateUseCase;
     private final PostDeleteUseCase postDeleteUseCase;
     private final PostFetchUseCase postFetchUseCase;
+    private final CommentQueryService commentQueryService;
 
     public PostController(
             PostUploadUseCase postUploadUseCase,
             PostUpdateUseCase postUpdateUseCase,
             PostDeleteUseCase postDeleteUseCase,
-            PostFetchUseCase postFetchUseCase
+            PostFetchUseCase postFetchUseCase,
+            CommentQueryService commentQueryService
     ) {
         this.postUploadUseCase = postUploadUseCase;
         this.postUpdateUseCase = postUpdateUseCase;
         this.postDeleteUseCase = postDeleteUseCase;
         this.postFetchUseCase = postFetchUseCase;
+        this.commentQueryService = commentQueryService;
     }
 
     @PostMapping
@@ -108,11 +112,14 @@ public class PostController {
 
     @GetMapping("/{postId}")
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 정보를 조회합니다.")
-    public ResponseEntity<PostSingleResponse> getPost(
+    public ResponseEntity<PostDetailResponse> getPost(
             @Parameter(description = "게시물 고유번호") @PathVariable String postId
     ) {
+        // Post와 Comment를 개별적으로 조회 후 조합
         var post = postFetchUseCase.getPostDetail(postId);
-        return ResponseEntity.ok(post.toResponse());
+        var comments = commentQueryService.getComments(postId);
+
+        return ResponseEntity.ok(PostDetailResponse.success(post, comments));
     }
 
     @GetMapping("/bookmarked")
