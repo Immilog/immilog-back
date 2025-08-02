@@ -1,4 +1,4 @@
-package com.backend.immilog.user.presentation.payload;
+package com.backend.immilog.shared.presentation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;

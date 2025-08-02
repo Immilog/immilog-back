@@ -9,7 +9,8 @@ public enum CommonErrorCode implements ErrorCode {
 
     UNDEFINED_EXCEPTION(BAD_REQUEST, "알 수 없는 오류가 발생하였습니다."),
     IMAGE_UPLOAD_FAILED(BAD_REQUEST, "이미지 업로드에 실패하였습니다."),
-    USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다.");
+    USER_NOT_FOUND(NOT_FOUND, "존재하지 않는 사용자입니다."),
+    INVALID_CONTENT_TYPE(BAD_REQUEST, "유효하지 않은 컨텐츠 타입입니다.");
 
     private final HttpStatus status;
     private final String message;
