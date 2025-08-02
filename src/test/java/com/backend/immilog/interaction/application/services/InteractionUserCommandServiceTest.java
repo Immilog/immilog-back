@@ -7,11 +7,11 @@ import com.backend.immilog.shared.enums.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +24,7 @@ class InteractionUserCommandServiceTest {
 
     @BeforeEach
     void setUp() {
+        Mockito.reset(mockInteractionUserRepository);
         interactionUserCommandService = new InteractionUserCommandService(mockInteractionUserRepository);
     }
 
@@ -33,7 +34,7 @@ class InteractionUserCommandServiceTest {
         //given
         InteractionUser interaction = createTestInteraction();
         InteractionUser savedInteraction = createTestInteractionWithId();
-        
+
         when(mockInteractionUserRepository.save(interaction)).thenReturn(savedInteraction);
 
         //when
@@ -51,7 +52,7 @@ class InteractionUserCommandServiceTest {
         //given
         InteractionUser likeInteraction = createTestLikeInteraction();
         InteractionUser savedInteraction = createSavedLikeInteraction();
-        
+
         when(mockInteractionUserRepository.save(likeInteraction)).thenReturn(savedInteraction);
 
         //when
@@ -69,7 +70,7 @@ class InteractionUserCommandServiceTest {
         //given
         InteractionUser bookmarkInteraction = createTestBookmarkInteraction();
         InteractionUser savedInteraction = createSavedBookmarkInteraction();
-        
+
         when(mockInteractionUserRepository.save(bookmarkInteraction)).thenReturn(savedInteraction);
 
         //when
@@ -87,7 +88,7 @@ class InteractionUserCommandServiceTest {
         //given
         InteractionUser jobBoardInteraction = createTestJobBoardInteraction();
         InteractionUser savedInteraction = createSavedJobBoardInteraction();
-        
+
         when(mockInteractionUserRepository.save(jobBoardInteraction)).thenReturn(savedInteraction);
 
         //when
@@ -104,7 +105,7 @@ class InteractionUserCommandServiceTest {
     void createNullInteraction() {
         //given
         InteractionUser interaction = null;
-        
+
         when(mockInteractionUserRepository.save(interaction)).thenReturn(null);
 
         //when
@@ -162,7 +163,7 @@ class InteractionUserCommandServiceTest {
         InteractionUser interaction2 = createTestLikeInteraction();
         InteractionUser savedInteraction1 = createTestInteractionWithId();
         InteractionUser savedInteraction2 = createSavedLikeInteraction();
-        
+
         when(mockInteractionUserRepository.save(interaction1)).thenReturn(savedInteraction1);
         when(mockInteractionUserRepository.save(interaction2)).thenReturn(savedInteraction2);
 
@@ -203,7 +204,7 @@ class InteractionUserCommandServiceTest {
         InteractionUser interactionToCreate = createTestInteraction();
         InteractionUser savedInteraction = createTestInteractionWithId();
         String interactionIdToDelete = "deleteInteractionId";
-        
+
         when(mockInteractionUserRepository.save(interactionToCreate)).thenReturn(savedInteraction);
 
         //when
@@ -224,7 +225,7 @@ class InteractionUserCommandServiceTest {
         InteractionUser jobBoardInteraction = createTestJobBoardInteraction();
         InteractionUser savedPostInteraction = createTestInteractionWithId();
         InteractionUser savedJobBoardInteraction = createSavedJobBoardInteraction();
-        
+
         when(mockInteractionUserRepository.save(postInteraction)).thenReturn(savedPostInteraction);
         when(mockInteractionUserRepository.save(jobBoardInteraction)).thenReturn(savedJobBoardInteraction);
 
@@ -247,10 +248,9 @@ class InteractionUserCommandServiceTest {
         InteractionUser bookmarkInteraction = createTestBookmarkInteraction();
         InteractionUser savedLikeInteraction = createSavedLikeInteraction();
         InteractionUser savedBookmarkInteraction = createSavedBookmarkInteraction();
-        
-        when(mockInteractionUserRepository.save(any(InteractionUser.class)))
-                .thenReturn(savedLikeInteraction)
-                .thenReturn(savedBookmarkInteraction);
+
+        when(mockInteractionUserRepository.save(likeInteraction)).thenReturn(savedLikeInteraction);
+        when(mockInteractionUserRepository.save(bookmarkInteraction)).thenReturn(savedBookmarkInteraction);
 
         //when
         InteractionUser likeResult = interactionUserCommandService.createInteraction(likeInteraction);
@@ -259,7 +259,8 @@ class InteractionUserCommandServiceTest {
         //then
         assertThat(likeResult.interactionType()).isEqualTo(InteractionType.LIKE);
         assertThat(bookmarkResult.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        verify(mockInteractionUserRepository, org.mockito.Mockito.times(2)).save(any(InteractionUser.class));
+        verify(mockInteractionUserRepository).save(likeInteraction);
+        verify(mockInteractionUserRepository).save(bookmarkInteraction);
     }
 
     private InteractionUser createTestInteraction() {
