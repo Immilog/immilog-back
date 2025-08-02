@@ -2,15 +2,15 @@ package com.backend.immilog.comment.application.dto;
 
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
+import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.comment.domain.model.ReferenceType;
-import com.backend.immilog.post.domain.model.post.PostStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CommentResultTest {
 
@@ -79,7 +79,7 @@ class CommentResultTest {
         ReferenceType referenceType = ReferenceType.COMMENT;
         int replyCount = 5;
         Integer likeCount = 10;
-        PostStatus status = PostStatus.NORMAL;
+        ContentStatus status = ContentStatus.NORMAL;
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -110,15 +110,15 @@ class CommentResultTest {
         LocalDateTime now = LocalDateTime.now();
         CommentResult result1 = new CommentResult(
                 "id", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, PostStatus.NORMAL, now, null
+                ReferenceType.POST, 0, 0, ContentStatus.NORMAL, now, null
         );
         CommentResult result2 = new CommentResult(
                 "id", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, PostStatus.NORMAL, now, null
+                ReferenceType.POST, 0, 0, ContentStatus.NORMAL, now, null
         );
         CommentResult result3 = new CommentResult(
                 "differentId", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, PostStatus.NORMAL, now, null
+                ReferenceType.POST, 0, 0, ContentStatus.NORMAL, now, null
         );
 
         //when & then
@@ -133,7 +133,7 @@ class CommentResultTest {
         //given
         CommentResult result = new CommentResult(
                 "id", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, PostStatus.NORMAL,
+                ReferenceType.POST, 0, 0, ContentStatus.NORMAL,
                 LocalDateTime.now(), null
         );
 
@@ -154,7 +154,7 @@ class CommentResultTest {
         for (ReferenceType type : ReferenceType.values()) {
             CommentResult result = new CommentResult(
                     "id", "userId", "content", "postId", null,
-                    type, 0, 0, PostStatus.NORMAL,
+                    type, 0, 0, ContentStatus.NORMAL,
                     LocalDateTime.now(), null
             );
             assertThat(result.referenceType()).isEqualTo(type);
@@ -162,10 +162,10 @@ class CommentResultTest {
     }
 
     @Test
-    @DisplayName("다양한 PostStatus로 CommentResult 생성")
-    void createCommentResultWithDifferentPostStatus() {
+    @DisplayName("다양한 ContentStatus로 CommentResult 생성")
+    void createCommentResultWithDifferentContentStatus() {
         //given & when & then
-        for (PostStatus status : PostStatus.values()) {
+        for (ContentStatus status : ContentStatus.values()) {
             CommentResult result = new CommentResult(
                     "id", "userId", "content", "postId", null,
                     ReferenceType.POST, 0, 0, status,
@@ -204,7 +204,7 @@ class CommentResultTest {
         //given
         CommentResult result = new CommentResult(
                 "", "", "", "", "",
-                ReferenceType.POST, 0, 0, PostStatus.NORMAL,
+                ReferenceType.POST, 0, 0, ContentStatus.NORMAL,
                 LocalDateTime.now(), null
         );
 
@@ -222,7 +222,7 @@ class CommentResultTest {
         //given
         CommentResult result = new CommentResult(
                 "id", "userId", "content", "postId", null,
-                ReferenceType.POST, -1, -5, PostStatus.NORMAL,
+                ReferenceType.POST, -1, -5, ContentStatus.NORMAL,
                 LocalDateTime.now(), null
         );
 
@@ -239,7 +239,7 @@ class CommentResultTest {
                 CommentRelation.of("postId", "parentId", ReferenceType.COMMENT),
                 3,
                 5,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -254,7 +254,7 @@ class CommentResultTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -269,7 +269,7 @@ class CommentResultTest {
                 CommentRelation.of(null, null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null

@@ -2,10 +2,10 @@ package com.backend.immilog.comment.application.services;
 
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
+import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.domain.repositories.CommentRepository;
 import com.backend.immilog.comment.exception.CommentException;
-import com.backend.immilog.post.domain.model.post.PostStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,11 +14,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CommentCommandServiceTest {
 
@@ -279,7 +278,7 @@ class CommentCommandServiceTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null

@@ -1,6 +1,6 @@
 package com.backend.immilog.comment.domain.model;
 
-import com.backend.immilog.post.domain.model.post.PostStatus;
+import com.backend.immilog.shared.enums.ContentStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CommentTest {
 
@@ -31,7 +31,7 @@ class CommentTest {
         assertThat(comment.referenceType()).isEqualTo(referenceType);
         assertThat(comment.replyCount()).isEqualTo(0);
         assertThat(comment.likeCount()).isEqualTo(0);
-        assertThat(comment.status()).isEqualTo(PostStatus.NORMAL);
+        assertThat(comment.status()).isEqualTo(ContentStatus.NORMAL);
         assertThat(comment.likeUsers()).isEmpty();
         assertThat(comment.createdAt()).isNotNull();
         assertThat(comment.updatedAt()).isNull();
@@ -47,7 +47,7 @@ class CommentTest {
         Comment deletedComment = comment.delete();
 
         //then
-        assertThat(deletedComment.status()).isEqualTo(PostStatus.DELETED);
+        assertThat(deletedComment.status()).isEqualTo(ContentStatus.DELETED);
         assertThat(deletedComment.updatedAt()).isNotNull();
         assertThat(deletedComment.id()).isEqualTo(comment.id());
         assertThat(deletedComment.userId()).isEqualTo(comment.userId());
@@ -285,7 +285,7 @@ class CommentTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -300,7 +300,7 @@ class CommentTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 null,
                 LocalDateTime.now(),
                 null
@@ -315,7 +315,7 @@ class CommentTest {
                 CommentRelation.of("postId", parentId, ReferenceType.COMMENT),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null

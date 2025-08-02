@@ -5,7 +5,7 @@ import com.backend.immilog.interaction.application.result.InteractionResult;
 import com.backend.immilog.interaction.application.services.InteractionUserCommandService;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createTestInteractionWithId();
@@ -51,7 +51,7 @@ class InteractionCreateUseCaseTest {
         assertThat(result.id()).isEqualTo(savedInteraction.id());
         assertThat(result.userId()).isEqualTo(command.userId());
         assertThat(result.postId()).isEqualTo(command.postId());
-        assertThat(result.postType()).isEqualTo(command.postType());
+        assertThat(result.contentType()).isEqualTo(command.contentType());
         assertThat(result.interactionType()).isEqualTo(command.interactionType());
         verify(mockInteractionUserCommandService).createInteraction(any(InteractionUser.class));
     }
@@ -63,7 +63,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createLikeInteractionWithId();
@@ -88,7 +88,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK
         );
         InteractionUser savedInteraction = createBookmarkInteractionWithId();
@@ -113,7 +113,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "jobBoardId",
-                PostType.JOB_BOARD,
+                ContentType.JOB_BOARD,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createJobBoardInteractionWithId();
@@ -125,7 +125,7 @@ class InteractionCreateUseCaseTest {
         InteractionResult result = interactionCreator.createInteraction(command);
 
         //then
-        assertThat(result.postType()).isEqualTo(PostType.JOB_BOARD);
+        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
         assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
         assertThat(result.postId()).isEqualTo("jobBoardId");
         verify(mockInteractionUserCommandService).createInteraction(any(InteractionUser.class));
@@ -138,14 +138,14 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK
         );
         InteractionUser savedInteraction = new InteractionUser(
                 "interactionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK,
                 LocalDateTime.now()
         );
@@ -157,7 +157,7 @@ class InteractionCreateUseCaseTest {
         InteractionResult result = interactionCreator.createInteraction(command);
 
         //then
-        assertThat(result.postType()).isEqualTo(PostType.POST);
+        assertThat(result.contentType()).isEqualTo(ContentType.POST);
         assertThat(result.interactionType()).isEqualTo(InteractionType.BOOKMARK);
         verify(mockInteractionUserCommandService).createInteraction(any(InteractionUser.class));
     }
@@ -169,7 +169,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 null,
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createTestInteractionWithNullUserId();
@@ -194,7 +194,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 null,
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createTestInteractionWithNullPostId();
@@ -219,7 +219,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK
         );
         InteractionUser savedInteraction = createTestInteractionWithEmptyUserId();
@@ -244,7 +244,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "",
-                PostType.JOB_BOARD,
+                ContentType.JOB_BOARD,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createTestInteractionWithEmptyPostId();
@@ -258,7 +258,7 @@ class InteractionCreateUseCaseTest {
         //then
         assertThat(result.userId()).isEqualTo(command.userId());
         assertThat(result.postId()).isEmpty();
-        assertThat(result.postType()).isEqualTo(PostType.JOB_BOARD);
+        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
         verify(mockInteractionUserCommandService).createInteraction(any(InteractionUser.class));
     }
 
@@ -278,7 +278,7 @@ class InteractionCreateUseCaseTest {
             InteractionCreateCommand command = new InteractionCreateCommand(
                     userIds[i],
                     postIds[i],
-                    PostType.POST,
+                    ContentType.POST,
                     InteractionType.LIKE
             );
             
@@ -308,7 +308,7 @@ class InteractionCreateUseCaseTest {
             InteractionCreateCommand command = new InteractionCreateCommand(
                     "userId",
                     "postId",
-                    PostType.POST,
+                    ContentType.POST,
                     type
             );
             
@@ -334,7 +334,7 @@ class InteractionCreateUseCaseTest {
                 .thenReturn(postInteraction);
 
         //when & then
-        for (PostType type : PostType.values()) {
+        for (ContentType type : ContentType.values()) {
             InteractionCreateCommand command = new InteractionCreateCommand(
                     "userId",
                     "postId",
@@ -344,10 +344,10 @@ class InteractionCreateUseCaseTest {
             
             InteractionResult result = interactionCreator.createInteraction(command);
             
-            assertThat(result.postType()).isIn(PostType.POST, PostType.JOB_BOARD);
+            assertThat(result.contentType()).isIn(ContentType.POST, ContentType.JOB_BOARD);
         }
         
-        verify(mockInteractionUserCommandService, org.mockito.Mockito.times(PostType.values().length))
+        verify(mockInteractionUserCommandService, org.mockito.Mockito.times(ContentType.values().length))
                 .createInteraction(any(InteractionUser.class));
     }
 
@@ -358,7 +358,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createTestInteractionWithId();
@@ -378,7 +378,7 @@ class InteractionCreateUseCaseTest {
                 "interactionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -389,7 +389,7 @@ class InteractionCreateUseCaseTest {
                 "likeInteractionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -400,7 +400,7 @@ class InteractionCreateUseCaseTest {
                 "bookmarkInteractionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK,
                 LocalDateTime.now()
         );
@@ -411,7 +411,7 @@ class InteractionCreateUseCaseTest {
                 "jobBoardInteractionId",
                 "userId",
                 "jobBoardId",
-                PostType.JOB_BOARD,
+                ContentType.JOB_BOARD,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -422,7 +422,7 @@ class InteractionCreateUseCaseTest {
                 "interactionId",
                 null,
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -433,7 +433,7 @@ class InteractionCreateUseCaseTest {
                 "interactionId",
                 "userId",
                 null,
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -444,7 +444,7 @@ class InteractionCreateUseCaseTest {
                 "interactionId",
                 "",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK,
                 LocalDateTime.now()
         );
@@ -455,7 +455,7 @@ class InteractionCreateUseCaseTest {
                 "interactionId",
                 "userId",
                 "",
-                PostType.JOB_BOARD,
+                ContentType.JOB_BOARD,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );

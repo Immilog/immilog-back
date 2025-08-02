@@ -3,7 +3,7 @@ package com.backend.immilog.interaction.application.services;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -94,7 +94,7 @@ class InteractionUserCommandServiceTest {
         InteractionUser result = interactionUserCommandService.createInteraction(jobBoardInteraction);
 
         //then
-        assertThat(result.postType()).isEqualTo(PostType.JOB_BOARD);
+        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
         assertThat(result.id()).isNotNull();
         verify(mockInteractionUserRepository).save(jobBoardInteraction);
     }
@@ -233,8 +233,8 @@ class InteractionUserCommandServiceTest {
         InteractionUser jobBoardResult = interactionUserCommandService.createInteraction(jobBoardInteraction);
 
         //then
-        assertThat(postResult.postType()).isEqualTo(PostType.POST);
-        assertThat(jobBoardResult.postType()).isEqualTo(PostType.JOB_BOARD);
+        assertThat(postResult.contentType()).isEqualTo(ContentType.POST);
+        assertThat(jobBoardResult.contentType()).isEqualTo(ContentType.JOB_BOARD);
         verify(mockInteractionUserRepository).save(postInteraction);
         verify(mockInteractionUserRepository).save(jobBoardInteraction);
     }
@@ -266,7 +266,7 @@ class InteractionUserCommandServiceTest {
         return InteractionUser.of(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE
         );
     }
@@ -276,7 +276,7 @@ class InteractionUserCommandServiceTest {
                 "interactionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -286,7 +286,7 @@ class InteractionUserCommandServiceTest {
         return InteractionUser.of(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE
         );
     }
@@ -296,7 +296,7 @@ class InteractionUserCommandServiceTest {
                 "likeInteractionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -306,7 +306,7 @@ class InteractionUserCommandServiceTest {
         return InteractionUser.of(
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK
         );
     }
@@ -316,7 +316,7 @@ class InteractionUserCommandServiceTest {
                 "bookmarkInteractionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK,
                 LocalDateTime.now()
         );
@@ -326,7 +326,7 @@ class InteractionUserCommandServiceTest {
         return InteractionUser.of(
                 "userId",
                 "jobBoardId",
-                PostType.JOB_BOARD,
+                ContentType.JOB_BOARD,
                 InteractionType.LIKE
         );
     }
@@ -336,7 +336,7 @@ class InteractionUserCommandServiceTest {
                 "jobBoardInteractionId",
                 "userId",
                 "jobBoardId",
-                PostType.JOB_BOARD,
+                ContentType.JOB_BOARD,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );

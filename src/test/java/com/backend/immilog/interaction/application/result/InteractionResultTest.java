@@ -2,7 +2,7 @@ package com.backend.immilog.interaction.application.result;
 
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -19,18 +19,18 @@ class InteractionResultTest {
         String id = "interactionId";
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
         LocalDateTime createdAt = LocalDateTime.now();
 
         //when
-        InteractionResult result = new InteractionResult(id, userId, postId, postType, interactionType, createdAt);
+        InteractionResult result = new InteractionResult(id, userId, postId, contentType, interactionType, createdAt);
 
         //then
         assertThat(result.id()).isEqualTo(id);
         assertThat(result.userId()).isEqualTo(userId);
         assertThat(result.postId()).isEqualTo(postId);
-        assertThat(result.postType()).isEqualTo(postType);
+        assertThat(result.contentType()).isEqualTo(contentType);
         assertThat(result.interactionType()).isEqualTo(interactionType);
         assertThat(result.createdAt()).isEqualTo(createdAt);
     }
@@ -43,7 +43,7 @@ class InteractionResultTest {
                 "interactionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -55,7 +55,7 @@ class InteractionResultTest {
         assertThat(result.id()).isEqualTo(interactionUser.id());
         assertThat(result.userId()).isEqualTo(interactionUser.userId());
         assertThat(result.postId()).isEqualTo(interactionUser.postId());
-        assertThat(result.postType()).isEqualTo(interactionUser.postType());
+        assertThat(result.contentType()).isEqualTo(interactionUser.contentType());
         assertThat(result.interactionType()).isEqualTo(interactionUser.interactionType());
         assertThat(result.createdAt()).isEqualTo(interactionUser.createdAt());
     }
@@ -68,7 +68,7 @@ class InteractionResultTest {
                 "likeId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -78,7 +78,7 @@ class InteractionResultTest {
 
         //then
         assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(result.postType()).isEqualTo(PostType.POST);
+        assertThat(result.contentType()).isEqualTo(ContentType.POST);
         assertThat(result.id()).isEqualTo("likeId");
     }
 
@@ -90,7 +90,7 @@ class InteractionResultTest {
                 "bookmarkId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK,
                 LocalDateTime.now()
         );
@@ -100,7 +100,7 @@ class InteractionResultTest {
 
         //then
         assertThat(result.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        assertThat(result.postType()).isEqualTo(PostType.POST);
+        assertThat(result.contentType()).isEqualTo(ContentType.POST);
         assertThat(result.id()).isEqualTo("bookmarkId");
     }
 
@@ -112,7 +112,7 @@ class InteractionResultTest {
                 "jobBoardId",
                 "userId",
                 "jobBoardPostId",
-                PostType.JOB_BOARD,
+                ContentType.JOB_BOARD,
                 InteractionType.LIKE,
                 LocalDateTime.now()
         );
@@ -121,7 +121,7 @@ class InteractionResultTest {
         InteractionResult result = InteractionResult.from(jobBoardInteraction);
 
         //then
-        assertThat(result.postType()).isEqualTo(PostType.JOB_BOARD);
+        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
         assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
         assertThat(result.postId()).isEqualTo("jobBoardPostId");
     }
@@ -134,7 +134,7 @@ class InteractionResultTest {
                 "postInteractionId",
                 "userId",
                 "postId",
-                PostType.POST,
+                ContentType.POST,
                 InteractionType.BOOKMARK,
                 LocalDateTime.now()
         );
@@ -143,7 +143,7 @@ class InteractionResultTest {
         InteractionResult result = InteractionResult.from(postInteraction);
 
         //then
-        assertThat(result.postType()).isEqualTo(PostType.POST);
+        assertThat(result.contentType()).isEqualTo(ContentType.POST);
         assertThat(result.interactionType()).isEqualTo(InteractionType.BOOKMARK);
         assertThat(result.postId()).isEqualTo("postId");
     }
@@ -155,18 +155,18 @@ class InteractionResultTest {
         String id = null;
         String userId = null;
         String postId = null;
-        PostType postType = null;
+        ContentType contentType = null;
         InteractionType interactionType = null;
         LocalDateTime createdAt = null;
 
         //when
-        InteractionResult result = new InteractionResult(id, userId, postId, postType, interactionType, createdAt);
+        InteractionResult result = new InteractionResult(id, userId, postId, contentType, interactionType, createdAt);
 
         //then
         assertThat(result.id()).isNull();
         assertThat(result.userId()).isNull();
         assertThat(result.postId()).isNull();
-        assertThat(result.postType()).isNull();
+        assertThat(result.contentType()).isNull();
         assertThat(result.interactionType()).isNull();
         assertThat(result.createdAt()).isNull();
     }
@@ -178,18 +178,18 @@ class InteractionResultTest {
         String id = "";
         String userId = "";
         String postId = "";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
         LocalDateTime createdAt = LocalDateTime.now();
 
         //when
-        InteractionResult result = new InteractionResult(id, userId, postId, postType, interactionType, createdAt);
+        InteractionResult result = new InteractionResult(id, userId, postId, contentType, interactionType, createdAt);
 
         //then
         assertThat(result.id()).isEmpty();
         assertThat(result.userId()).isEmpty();
         assertThat(result.postId()).isEmpty();
-        assertThat(result.postType()).isEqualTo(PostType.POST);
+        assertThat(result.contentType()).isEqualTo(ContentType.POST);
         assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
         assertThat(result.createdAt()).isEqualTo(createdAt);
     }
@@ -214,11 +214,11 @@ class InteractionResultTest {
         //when & then
         for (InteractionType type : InteractionType.values()) {
             InteractionUser interaction = new InteractionUser(
-                    "id", "userId", "postId", PostType.POST, type, createdAt);
+                    "id", "userId", "postId", ContentType.POST, type, createdAt);
             InteractionResult result = InteractionResult.from(interaction);
             
             assertThat(result.interactionType()).isEqualTo(type);
-            assertThat(result.postType()).isEqualTo(PostType.POST);
+            assertThat(result.contentType()).isEqualTo(ContentType.POST);
         }
     }
 
@@ -229,12 +229,12 @@ class InteractionResultTest {
         LocalDateTime createdAt = LocalDateTime.now();
 
         //when & then
-        for (PostType type : PostType.values()) {
+        for (ContentType type : ContentType.values()) {
             InteractionUser interaction = new InteractionUser(
                     "id", "userId", "postId", type, InteractionType.LIKE, createdAt);
             InteractionResult result = InteractionResult.from(interaction);
             
-            assertThat(result.postType()).isEqualTo(type);
+            assertThat(result.contentType()).isEqualTo(type);
             assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
         }
     }
@@ -245,7 +245,7 @@ class InteractionResultTest {
         //given
         LocalDateTime createdAt = LocalDateTime.now();
         InteractionUser interaction = new InteractionUser(
-                "id", "userId", "postId", PostType.POST, InteractionType.LIKE, createdAt);
+                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
 
         //when
         InteractionResult result1 = InteractionResult.from(interaction);
@@ -255,7 +255,7 @@ class InteractionResultTest {
         assertThat(result1.id()).isEqualTo(result2.id());
         assertThat(result1.userId()).isEqualTo(result2.userId());
         assertThat(result1.postId()).isEqualTo(result2.postId());
-        assertThat(result1.postType()).isEqualTo(result2.postType());
+        assertThat(result1.contentType()).isEqualTo(result2.contentType());
         assertThat(result1.interactionType()).isEqualTo(result2.interactionType());
         assertThat(result1.createdAt()).isEqualTo(result2.createdAt());
         assertThat(result1).isNotSameAs(result2);
@@ -267,11 +267,11 @@ class InteractionResultTest {
         //given
         LocalDateTime createdAt = LocalDateTime.now();
         InteractionUser interaction1 = new InteractionUser(
-                "id", "userId", "postId", PostType.POST, InteractionType.LIKE, createdAt);
+                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
         InteractionUser interaction2 = new InteractionUser(
-                "id", "userId", "postId", PostType.POST, InteractionType.LIKE, createdAt);
+                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
         InteractionUser interaction3 = new InteractionUser(
-                "differentId", "userId", "postId", PostType.POST, InteractionType.LIKE, createdAt);
+                "differentId", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
 
         //when
         InteractionResult result1 = InteractionResult.from(interaction1);
@@ -290,7 +290,7 @@ class InteractionResultTest {
     void verifyToString() {
         //given
         InteractionUser interaction = new InteractionUser(
-                "interactionId", "userId", "postId", PostType.POST, InteractionType.LIKE, LocalDateTime.now());
+                "interactionId", "userId", "postId", ContentType.POST, InteractionType.LIKE, LocalDateTime.now());
 
         //when
         InteractionResult result = InteractionResult.from(interaction);
@@ -310,7 +310,7 @@ class InteractionResultTest {
         //given
         LocalDateTime specificTime = LocalDateTime.of(2023, 10, 15, 14, 30, 45);
         InteractionUser interaction = new InteractionUser(
-                "id", "userId", "postId", PostType.POST, InteractionType.BOOKMARK, specificTime);
+                "id", "userId", "postId", ContentType.POST, InteractionType.BOOKMARK, specificTime);
 
         //when
         InteractionResult result = InteractionResult.from(interaction);

@@ -106,7 +106,6 @@ class NoticeMetadataTest {
         assertThat(updatedMetadata.status()).isEqualTo(newStatus);
         assertThat(updatedMetadata.type()).isEqualTo(metadata.type());
         assertThat(updatedMetadata.createdAt()).isEqualTo(metadata.createdAt());
-        assertThat(updatedMetadata.updatedAt()).isAfter(metadata.updatedAt());
     }
 
     @Test

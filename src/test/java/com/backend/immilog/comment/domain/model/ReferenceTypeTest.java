@@ -1,10 +1,11 @@
 package com.backend.immilog.comment.domain.model;
 
-import com.backend.immilog.post.exception.PostException;
+import com.backend.immilog.comment.exception.CommentException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ReferenceTypeTest {
 
@@ -81,7 +82,7 @@ class ReferenceTypeTest {
 
         //when & then
         assertThatThrownBy(() -> ReferenceType.getByString(referenceType))
-                .isInstanceOf(PostException.class);
+                .isInstanceOf(CommentException.class);
     }
 
     @Test
@@ -103,7 +104,7 @@ class ReferenceTypeTest {
 
         //when & then
         assertThatThrownBy(() -> ReferenceType.getByString(referenceType))
-                .isInstanceOf(PostException.class);
+                .isInstanceOf(CommentException.class);
     }
 
     @Test
@@ -150,7 +151,7 @@ class ReferenceTypeTest {
 
         //when & then
         assertThatThrownBy(() -> ReferenceType.getByString(referenceType))
-                .isInstanceOf(PostException.class);
+                .isInstanceOf(CommentException.class);
     }
 
     @Test
@@ -160,8 +161,7 @@ class ReferenceTypeTest {
         String referenceType = "COMMENT@#$";
 
         //when & then
-        assertThatThrownBy(() -> ReferenceType.getByString(referenceType))
-                .isInstanceOf(PostException.class);
+        assertThatThrownBy(() -> ReferenceType.getByString(referenceType)).isInstanceOf(CommentException.class);
     }
 
     @Test

@@ -1,6 +1,6 @@
 package com.backend.immilog.interaction.domain.model;
 
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -16,16 +16,16 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.userId()).isEqualTo(userId);
         assertThat(interaction.postId()).isEqualTo(postId);
-        assertThat(interaction.postType()).isEqualTo(postType);
+        assertThat(interaction.contentType()).isEqualTo(contentType);
         assertThat(interaction.interactionType()).isEqualTo(interactionType);
         assertThat(interaction.id()).isNull();
         assertThat(interaction.createdAt()).isNotNull();
@@ -37,11 +37,11 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
@@ -55,11 +55,11 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.BOOKMARK;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.interactionType()).isEqualTo(InteractionType.BOOKMARK);
@@ -73,14 +73,14 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "jobBoardId";
-        PostType postType = PostType.JOB_BOARD;
+        ContentType contentType = ContentType.JOB_BOARD;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
-        assertThat(interaction.postType()).isEqualTo(PostType.JOB_BOARD);
+        assertThat(interaction.contentType()).isEqualTo(ContentType.JOB_BOARD);
         assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
         assertThat(interaction.postId()).isEqualTo(postId);
     }
@@ -91,14 +91,14 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.BOOKMARK;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
-        assertThat(interaction.postType()).isEqualTo(PostType.POST);
+        assertThat(interaction.contentType()).isEqualTo(ContentType.POST);
         assertThat(interaction.interactionType()).isEqualTo(InteractionType.BOOKMARK);
         assertThat(interaction.userId()).isEqualTo(userId);
     }
@@ -109,12 +109,12 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
         LocalDateTime beforeCreation = LocalDateTime.now();
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.createdAt()).isAfter(beforeCreation.minusSeconds(1));
@@ -127,16 +127,16 @@ class InteractionUserTest {
         //given
         String userId = null;
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.userId()).isNull();
         assertThat(interaction.postId()).isEqualTo(postId);
-        assertThat(interaction.postType()).isEqualTo(postType);
+        assertThat(interaction.contentType()).isEqualTo(contentType);
         assertThat(interaction.interactionType()).isEqualTo(interactionType);
     }
 
@@ -146,16 +146,16 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = null;
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.userId()).isEqualTo(userId);
         assertThat(interaction.postId()).isNull();
-        assertThat(interaction.postType()).isEqualTo(postType);
+        assertThat(interaction.contentType()).isEqualTo(contentType);
         assertThat(interaction.interactionType()).isEqualTo(interactionType);
     }
 
@@ -165,11 +165,11 @@ class InteractionUserTest {
         //given
         String userId = "";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.BOOKMARK;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.userId()).isEmpty();
@@ -183,16 +183,16 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "";
-        PostType postType = PostType.JOB_BOARD;
+        ContentType contentType = ContentType.JOB_BOARD;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction.userId()).isEqualTo(userId);
         assertThat(interaction.postId()).isEmpty();
-        assertThat(interaction.postType()).isEqualTo(PostType.JOB_BOARD);
+        assertThat(interaction.contentType()).isEqualTo(ContentType.JOB_BOARD);
         assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
     }
 
@@ -208,7 +208,7 @@ class InteractionUserTest {
             InteractionUser interaction = InteractionUser.of(
                     userIds[i], 
                     postIds[i], 
-                    PostType.POST, 
+                    ContentType.POST,
                     InteractionType.LIKE
             );
             
@@ -224,17 +224,17 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
-        InteractionUser interaction1 = InteractionUser.of(userId, postId, postType, interactionType);
-        InteractionUser interaction2 = InteractionUser.of(userId, postId, postType, interactionType);
+        InteractionUser interaction1 = InteractionUser.of(userId, postId, contentType, interactionType);
+        InteractionUser interaction2 = InteractionUser.of(userId, postId, contentType, interactionType);
 
         //then
         assertThat(interaction1.userId()).isEqualTo(interaction2.userId());
         assertThat(interaction1.postId()).isEqualTo(interaction2.postId());
-        assertThat(interaction1.postType()).isEqualTo(interaction2.postType());
+        assertThat(interaction1.contentType()).isEqualTo(interaction2.contentType());
         assertThat(interaction1.interactionType()).isEqualTo(interaction2.interactionType());
         assertThat(interaction1).isNotSameAs(interaction2);
     }
@@ -245,11 +245,11 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "postId";
-        PostType postType = PostType.POST;
+        ContentType contentType = ContentType.POST;
 
         //when & then
         for (InteractionType type : InteractionType.values()) {
-            InteractionUser interaction = InteractionUser.of(userId, postId, postType, type);
+            InteractionUser interaction = InteractionUser.of(userId, postId, contentType, type);
             
             assertThat(interaction.interactionType()).isEqualTo(type);
             assertThat(interaction.userId()).isEqualTo(userId);

@@ -5,8 +5,8 @@ import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.application.services.CommentCommandService;
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
+import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.comment.domain.model.ReferenceType;
-import com.backend.immilog.post.domain.model.post.PostStatus;
 import com.backend.immilog.shared.application.event.DomainEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,11 +15,9 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CommentCreateUseCaseTest {
 
@@ -80,7 +78,7 @@ class CommentCreateUseCaseTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -328,7 +326,7 @@ class CommentCreateUseCaseTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -343,7 +341,7 @@ class CommentCreateUseCaseTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -358,7 +356,7 @@ class CommentCreateUseCaseTest {
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -373,7 +371,7 @@ class CommentCreateUseCaseTest {
                 CommentRelation.of("postId", null, ReferenceType.COMMENT),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -388,7 +386,7 @@ class CommentCreateUseCaseTest {
                 CommentRelation.of("jobBoardId", null, ReferenceType.JOB_BOARD),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
