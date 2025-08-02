@@ -2,7 +2,7 @@ package com.backend.immilog.interaction.application.services;
 
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +17,15 @@ public class InteractionUserQueryService {
 
     public List<InteractionUser> getInteractionUsersByPostIdList(
             List<String> postIdList,
-            PostType postType
+            ContentType contentType
     ) {
-        return interactionUserRepository.findByPostIdListAndPostType(postIdList, postType);
+        return interactionUserRepository.findByPostIdListAndContentType(postIdList, contentType);
     }
 
     public List<InteractionUser> getBookmarkInteractions(
             String userId,
-            PostType postType
+            ContentType contentType
     ) {
-        return interactionUserRepository.findBookmarksByUserIdAndPostType(userId, postType);
+        return interactionUserRepository.findBookmarksByUserIdAndContentType(userId, contentType);
     }
 }

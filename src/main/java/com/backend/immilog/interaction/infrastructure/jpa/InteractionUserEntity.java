@@ -3,7 +3,7 @@ package com.backend.immilog.interaction.infrastructure.jpa;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -25,7 +25,7 @@ public class InteractionUserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "post_type", nullable = false)
-    private PostType postType;
+    private ContentType contentType;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "interaction_type", nullable = false)
@@ -47,14 +47,14 @@ public class InteractionUserEntity {
             String id,
             String userId,
             String postId,
-            PostType postType,
+            ContentType contentType,
             InteractionType interactionType,
             LocalDateTime createdAt
     ) {
         this.id = id;
         this.userId = userId;
         this.postId = postId;
-        this.postType = postType;
+        this.contentType = contentType;
         this.interactionType = interactionType;
         this.createdAt = createdAt;
     }
@@ -64,7 +64,7 @@ public class InteractionUserEntity {
                 interactionUser.id(),
                 interactionUser.userId(),
                 interactionUser.postId(),
-                interactionUser.postType(),
+                interactionUser.contentType(),
                 interactionUser.interactionType(),
                 interactionUser.createdAt()
         );
@@ -75,7 +75,7 @@ public class InteractionUserEntity {
                 id,
                 userId,
                 postId,
-                postType,
+                contentType,
                 interactionType,
                 createdAt
         );

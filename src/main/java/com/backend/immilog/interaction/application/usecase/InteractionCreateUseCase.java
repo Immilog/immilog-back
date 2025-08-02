@@ -22,7 +22,7 @@ public interface InteractionCreateUseCase {
             var interaction = InteractionUser.of(
                     command.userId(),
                     command.postId(),
-                    command.postType(),
+                    command.contentType(),
                     command.interactionType()
             );
             var savedInteraction = interactionUserCommandService.createInteraction(interaction);
