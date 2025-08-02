@@ -7,7 +7,6 @@ import com.backend.immilog.post.application.usecase.PostFetchUseCase;
 import com.backend.immilog.post.application.usecase.PostUpdateUseCase;
 import com.backend.immilog.post.application.usecase.PostUploadUseCase;
 import com.backend.immilog.post.domain.model.post.Categories;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.presentation.request.PostUpdateRequest;
 import com.backend.immilog.post.presentation.request.PostUploadRequest;
@@ -15,6 +14,7 @@ import com.backend.immilog.post.presentation.response.PostDetailResponse;
 import com.backend.immilog.post.presentation.response.PostListResponse;
 import com.backend.immilog.post.presentation.response.PostPageResponse;
 import com.backend.immilog.shared.annotation.CurrentUser;
+import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -126,9 +126,9 @@ public class PostController {
     @Operation(summary = "북마크한 게시물 조회", description = "인증된 사용자의 북마크한 게시물을 조회합니다.")
     public ResponseEntity<PostListResponse> getBookmarkedPosts(
             @CurrentUser String userId,
-            @Parameter(description = "포스팅 타입") @RequestParam(defaultValue = "POST") PostType postType
+            @Parameter(description = "포스팅 타입") @RequestParam(defaultValue = "POST") ContentType contentType
     ) {
-        var posts = postFetchUseCase.getBookmarkedPosts(userId, postType);
+        var posts = postFetchUseCase.getBookmarkedPosts(userId, contentType);
         return ResponseEntity.ok(PostListResponse.of(posts));
     }
 

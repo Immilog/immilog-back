@@ -1,9 +1,9 @@
 package com.backend.immilog.post.infrastructure.jpa.entity.resource;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
+import com.backend.immilog.shared.enums.ContentType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicUpdate;
@@ -21,7 +21,7 @@ public class PostResourceEntity {
 
     @Column(name = "post_type")
     @Enumerated(EnumType.STRING)
-    private PostType postType;
+    private ContentType contentType;
 
     @Getter
     @Column(name = "resource_type")
@@ -44,13 +44,13 @@ public class PostResourceEntity {
     protected PostResourceEntity(
             String id,
             String postId,
-            PostType postType,
+            ContentType contentType,
             ResourceType resourceType,
             String content
     ) {
         this.id = id;
         this.postId = postId;
-        this.postType = postType;
+        this.contentType = contentType;
         this.resourceType = resourceType;
         this.content = content;
     }
@@ -59,7 +59,7 @@ public class PostResourceEntity {
         return new PostResourceEntity(
                 postResource.id(),
                 postResource.postId(),
-                postResource.postType(),
+                postResource.contentType(),
                 postResource.resourceType(),
                 postResource.content()
         );
@@ -69,7 +69,7 @@ public class PostResourceEntity {
         return new PostResource(
                 this.id,
                 this.postId,
-                this.postType,
+                this.contentType,
                 this.resourceType,
                 this.content
         );

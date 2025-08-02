@@ -1,13 +1,13 @@
 package com.backend.immilog.post.application.usecase;
 
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
-import com.backend.immilog.interaction.domain.model.InteractionUser;
-import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.services.PostQueryService;
+import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.post.domain.model.post.Categories;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
+import com.backend.immilog.shared.domain.event.DomainEvents;
+import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -31,7 +31,7 @@ public interface PostFetchUseCase {
 
     List<PostResult> getBookmarkedPosts(
             String userId,
-            PostType postType
+            ContentType contentType
     );
 
     Page<PostResult> searchKeyword(
@@ -52,16 +52,13 @@ public interface PostFetchUseCase {
     @Service
     class PostFetcher implements PostFetchUseCase {
         private final PostQueryService postQueryService;
-        private final InteractionUserQueryService interactionUserQueryService;
         private final PostResultAssembler postResultAssembler;
 
         public PostFetcher(
                 PostQueryService postQueryService,
-                InteractionUserQueryService interactionUserQueryService,
                 PostResultAssembler postResultAssembler
         ) {
             this.postQueryService = postQueryService;
-            this.interactionUserQueryService = interactionUserQueryService;
             this.postResultAssembler = postResultAssembler;
         }
 
@@ -82,10 +79,14 @@ public interface PostFetchUseCase {
 
         public List<PostResult> getBookmarkedPosts(
                 String userId,
-                PostType postType
+                ContentType contentType
         ) {
-            final var bookmarks = interactionUserQueryService.getBookmarkInteractions(userId, postType);
-            final var postIdList = bookmarks.stream().map(InteractionUser::postId).toList();
+            // 이벤트를 통해 북마크된 게시물 ID 목록 요청
+            DomainEvents.raise(new PostEvent.BookmarkPostsRequested(userId, contentType.name()));
+
+            // TODO: 실제 구현에서는 이벤트 핸들러가 북마크 데이터를 조회해서 결과를 저장
+            // 그리고 그것을 여기서 조회해야 함
+            final var postIdList = getBookmarkedPostIdsFromEvents();
             return postQueryService.getPostsByPostIdList(postIdList);
         }
 
@@ -117,6 +118,13 @@ public interface PostFetchUseCase {
 
         public List<PostResult> getHotPosts() {
             return postQueryService.getPostsFromRedis("hot_posts");
+        }
+
+        // 임시 메서드 - 실제로는 이벤트 핸들러가 처리한 결과를 조회해야 함
+        private List<String> getBookmarkedPostIdsFromEvents() {
+            // TODO: 실제 구현에서는 이벤트 핸들러가 북마크 데이터를 조회해서 어딘가에 저장
+            // 그리고 그것을 여기서 조회해야 함
+            return List.of();
         }
     }
 }

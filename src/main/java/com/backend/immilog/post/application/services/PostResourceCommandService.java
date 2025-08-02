@@ -1,9 +1,9 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.post.domain.repositories.PostResourceRepository;
 import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
+import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +21,13 @@ public class PostResourceCommandService {
     @Transactional
     public void deleteAllEntities(
             String postId,
-            PostType postType,
+            ContentType contentType,
             ResourceType resourceType,
             List<String> deleteResources
     ) {
         postResourceRepository.deleteAllEntities(
                 postId,
-                postType,
+                contentType,
                 resourceType,
                 deleteResources
         );

@@ -1,8 +1,8 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.domain.repositories.PostResourceRepository;
+import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,8 +19,8 @@ public class PostResourceQueryService {
     @Transactional(readOnly = true)
     public List<PostResource> getResourcesByPostIdList(
             List<String> postIdList,
-            PostType postType
+            ContentType contentType
     ) {
-        return postResourceRepository.findAllByPostIdList(postIdList, postType);
+        return postResourceRepository.findAllByPostIdList(postIdList, contentType);
     }
 }

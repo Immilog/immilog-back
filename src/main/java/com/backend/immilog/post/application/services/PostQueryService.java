@@ -1,17 +1,19 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
-import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.mapper.PostResultAssembler;
+import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PostDomainRepository;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
+import com.backend.immilog.shared.domain.event.DomainEvents;
+import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
+import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +37,6 @@ public class PostQueryService {
     private final ObjectMapper objectMapper;
     private final PostDomainRepository postDomainRepository;
     private final DataRepository redisDataRepository;
-    private final InteractionUserQueryService interactionUserQueryService;
     private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
 
@@ -43,14 +44,12 @@ public class PostQueryService {
             ObjectMapper objectMapper,
             PostDomainRepository postDomainRepository,
             DataRepository redisDataRepository,
-            InteractionUserQueryService interactionUserQueryService,
             PostResourceQueryService postResourceQueryService,
             PostResultAssembler postResultAssembler
     ) {
         this.objectMapper = objectMapper;
         this.postDomainRepository = postDomainRepository;
         this.redisDataRepository = redisDataRepository;
-        this.interactionUserQueryService = interactionUserQueryService;
         this.postResourceQueryService = postResourceQueryService;
         this.postResultAssembler = postResultAssembler;
     }
@@ -154,8 +153,13 @@ public class PostQueryService {
                 .boxed()
                 .collect(Collectors.toMap(resultIdList::get, i -> i));
 
-        var interactionUsers = interactionUserQueryService.getInteractionUsersByPostIdList(resultIdList, PostType.POST);
-        var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, PostType.POST);
+        // 이벤트를 통해 인터랙션 데이터 요청
+        DomainEvents.raise(new PostEvent.InteractionDataRequested(resultIdList, ContentType.POST.name()));
+
+        // 이벤트 처리된 인터랙션 데이터를 DomainEvents에서 조회 (임시)
+        // TODO: 실제 구현에서는 이벤트 핸들러가 결과를 어딘가에 저장하고 그것을 조회해야 함
+        var interactionUsers = getInteractionDataFromEvents();
+        var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
         return postResults.map(postResult -> {
             var resources = postResources.stream()
@@ -163,21 +167,21 @@ public class PostQueryService {
                     .map(pr -> new Resource(
                             pr.id(),
                             pr.postId(),
-                            pr.postType(),
+                            pr.contentType(),
                             com.backend.immilog.shared.domain.model.ResourceType.valueOf(pr.resourceType().name()),
                             pr.content()
                     ))
                     .sorted(Comparator.comparingInt(pr -> orderMap.getOrDefault(pr.entityId(), Integer.MAX_VALUE)))
                     .toList();
 
-            var interactionUserList = interactionUsers.stream()
-                    .filter(interactionUser -> interactionUser.postId().equals(postResult.id()))
-                    .sorted(Comparator.comparingInt(iu -> orderMap.getOrDefault(iu.postId(), Integer.MAX_VALUE)))
+            var interactionDataList = interactionUsers.stream()
+                    .filter(interactionData -> interactionData.postId().equals(postResult.id()))
+                    .sorted(Comparator.comparingInt(id -> orderMap.getOrDefault(id.postId(), Integer.MAX_VALUE)))
                     .toList();
 
-            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionUsers(
+            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionData(
                     postResult,
-                    interactionUserList
+                    interactionDataList
             );
             var postResultWithNewResources = postResultAssembler.assembleResources(
                     postResultWithNewInteractionUsers,
@@ -185,7 +189,7 @@ public class PostQueryService {
             );
             return postResultAssembler.assembleLikeCount(
                     postResultWithNewResources,
-                    interactionUserList.size()
+                    interactionDataList.size()
             );
         });
     }
@@ -214,5 +218,12 @@ public class PostQueryService {
                 post.content(),
                 null
         );
+    }
+
+    // 임시 메서드 - 실제로는 이벤트 핸들러가 처리한 결과를 조회해야 함
+    private List<InteractionData> getInteractionDataFromEvents() {
+        // TODO: 실제 구현에서는 이벤트 핸들러가 인터랙션 데이터를 조회해서 어딘가에 저장
+        // 그리고 그것을 여기서 조회해야 함
+        return List.of();
     }
 }

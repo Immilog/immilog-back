@@ -1,7 +1,7 @@
 package com.backend.immilog.post.application.dto;
 
 import com.backend.immilog.post.domain.model.post.Categories;
-import com.backend.immilog.post.domain.model.post.PostStatus;
+import com.backend.immilog.shared.enums.ContentStatus;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public record PostResult(
         String country,
         String region,
         Categories category,
-        PostStatus status,
+        ContentStatus status,
         String createdAt,
         String updatedAt,
         String title,

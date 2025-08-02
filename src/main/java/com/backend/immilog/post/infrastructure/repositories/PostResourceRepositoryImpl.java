@@ -1,12 +1,12 @@
 package com.backend.immilog.post.infrastructure.repositories;
 
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.post.domain.repositories.PostResourceRepository;
 import com.backend.immilog.post.infrastructure.jdbc.PostResourceJdbcRepository;
 import com.backend.immilog.post.infrastructure.jpa.entity.resource.PostResourceEntity;
 import com.backend.immilog.post.infrastructure.jpa.repository.PostResourceJpaRepository;
+import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,13 +27,13 @@ public class PostResourceRepositoryImpl implements PostResourceRepository {
     @Override
     public void deleteAllEntities(
             String postId,
-            PostType postType,
+            ContentType contentType,
             ResourceType resourceType,
             List<String> deleteAttachments
     ) {
         postResourceJdbcRepository.deleteAllEntities(
                 postId,
-                postType,
+                contentType,
                 resourceType,
                 deleteAttachments
         );
@@ -55,8 +55,8 @@ public class PostResourceRepositoryImpl implements PostResourceRepository {
     @Override
     public List<PostResource> findAllByPostIdList(
             List<String> postIdList,
-            PostType postType
+            ContentType contentType
     ) {
-        return postResourceJdbcRepository.findAllByPostIdList(postIdList, postType);
+        return postResourceJdbcRepository.findAllByPostIdList(postIdList, contentType);
     }
 }

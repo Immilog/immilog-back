@@ -1,7 +1,7 @@
 package com.backend.immilog.post.infrastructure.jpa.entity.post;
 
 import com.backend.immilog.post.domain.model.post.PostInfo;
-import com.backend.immilog.post.domain.model.post.PostStatus;
+import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -27,7 +27,7 @@ public class PostInfoValue {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private PostStatus status;
+    private ContentStatus status;
 
     @Column(name = "country")
     @Enumerated(EnumType.STRING)
@@ -41,7 +41,7 @@ public class PostInfoValue {
             Long viewCount,
             Long likeCount,
             String region,
-            PostStatus status,
+            ContentStatus status,
             Country country
     ) {
         this.title = title;
@@ -60,7 +60,7 @@ public class PostInfoValue {
             Long likeCount,
             Country country,
             String region,
-            PostStatus status
+            ContentStatus status
     ) {
         return new PostInfoValue(
                 title,

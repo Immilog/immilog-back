@@ -1,8 +1,8 @@
 package com.backend.immilog.post.infrastructure.jdbc;
 
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.resource.PostResource;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
+import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +19,7 @@ public class PostResourceJdbcRepository {
 
     public void deleteAllEntities(
             String postId,
-            PostType postType,
+            ContentType contentType,
             ResourceType resourceType,
             List<String> deleteAttachments
     ) {
@@ -40,7 +40,7 @@ public class PostResourceJdbcRepository {
 
         jdbcClient.sql(sql)
                 .param(postId)
-                .param(postType.toString())
+                .param(contentType.toString())
                 .param(resourceType.toString())
                 .params(deleteAttachments.toArray())
                 .update();
@@ -57,7 +57,7 @@ public class PostResourceJdbcRepository {
 
     public List<PostResource> findAllByPostIdList(
             List<String> postIdList,
-            PostType postType
+            ContentType contentType
     ) {
         if (postIdList.isEmpty()) {
             return List.of();
@@ -76,7 +76,7 @@ public class PostResourceJdbcRepository {
 
         return jdbcClient.sql(sql)
                 .params(postIdList.toArray())
-                .param(postType.name())
+                .param(contentType.name())
                 .query(PostResource.class)
                 .list();
     }

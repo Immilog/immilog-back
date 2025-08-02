@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.backend.immilog.post.domain.model.post.PostType.POST;
 import static com.backend.immilog.post.domain.model.resource.ResourceType.ATTACHMENT;
 import static com.backend.immilog.post.domain.model.resource.ResourceType.TAG;
 import static com.backend.immilog.post.exception.PostErrorCode.FAILED_TO_SAVE_POST;
+import static com.backend.immilog.shared.enums.ContentType.POST;
 
 public interface PostUploadUseCase {
     void uploadPost(
@@ -75,7 +75,7 @@ public interface PostUploadUseCase {
                     (ps, postResource) -> {
                         try {
                             ps.setString(1, postResource.postId());
-                            ps.setString(2, postResource.postType().name());
+                            ps.setString(2, postResource.contentType().name());
                             ps.setString(3, postResource.resourceType().name());
                             ps.setString(4, postResource.content());
                         } catch (SQLException e) {
