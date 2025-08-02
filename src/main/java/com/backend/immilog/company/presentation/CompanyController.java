@@ -3,7 +3,7 @@ package com.backend.immilog.company.presentation;
 import com.backend.immilog.company.application.usecase.GetCompanyUseCase;
 import com.backend.immilog.company.application.usecase.RegisterCompanyUseCase;
 import com.backend.immilog.company.application.usecase.UpdateCompanyUseCase;
-import com.backend.immilog.user.presentation.payload.GeneralPayload;
+import com.backend.immilog.shared.presentation.GeneralPayload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
