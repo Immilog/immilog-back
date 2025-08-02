@@ -2,7 +2,7 @@ package com.backend.immilog.comment.application.dto;
 
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.ReferenceType;
-import com.backend.immilog.post.domain.model.post.PostStatus;
+import com.backend.immilog.shared.enums.ContentStatus;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +15,7 @@ public record CommentResult(
         ReferenceType referenceType,
         int replyCount,
         Integer likeCount,
-        PostStatus status,
+        ContentStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
