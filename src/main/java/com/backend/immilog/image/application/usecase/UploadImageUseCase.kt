@@ -7,6 +7,7 @@ import com.backend.immilog.image.domain.model.Image
 import com.backend.immilog.image.domain.model.ImageMetadata
 import com.backend.immilog.image.domain.model.ImagePath
 import com.backend.immilog.image.infrastructure.gateway.FileStorageHandler
+import com.backend.immilog.shared.application.event.DomainEventPublisher
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -25,7 +26,8 @@ interface UploadImageUseCase {
     class ImageUploader(
         private val fileStorageHandler: FileStorageHandler,
         private val imageCommandService: ImageCommandService,
-        private val imageQueryService: ImageQueryService
+        private val imageQueryService: ImageQueryService,
+        private val domainEventPublisher: DomainEventPublisher
     ) : UploadImageUseCase {
 
         @Transactional
@@ -34,33 +36,42 @@ interface UploadImageUseCase {
             imagePath: String,
             imageType: ImageType
         ): List<String> {
-            return files.takeIf { it.isNotEmpty() }?.map { file ->
-                val url = fileStorageHandler.uploadFile(file, imagePath)
-                val fullPath = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path(url)
-                    .build()
-                    .toUriString()
+            try {
+                val result = files.takeIf { it.isNotEmpty() }?.map { file ->
+                    val url = fileStorageHandler.uploadFile(file, imagePath)
+                    val fullPath = ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path(url)
+                        .build()
+                        .toUriString()
 
-                val imagePath = ImagePath.of(fullPath)
-                val metadata = ImageMetadata.of(
-                    imageType = imageType,
-                    originalFileName = file.originalFilename,
-                    fileSize = file.size,
-                    contentType = file.contentType
-                )
-                val image = Image.create(imagePath, metadata)
-                imageCommandService.save(image)
-                fullPath
-            } ?: emptyList()
+                    val path = ImagePath.of(fullPath)
+                    val metadata = ImageMetadata.of(
+                        imageType = imageType,
+                        originalFileName = file.originalFilename,
+                        fileSize = file.size,
+                        contentType = file.contentType
+                    )
+                    val image = Image.create(path, metadata)
+                    imageCommandService.save(image)
+                    fullPath
+                }
+                return result ?: emptyList()
+            } finally {
+                domainEventPublisher.publishEvents()
+            }
         }
 
         @Transactional
         override fun deleteImage(previousPath: String?, newPath: String?) {
-            if (!previousPath.isNullOrBlank() && previousPath != newPath) {
-                fileStorageHandler.deleteFile(previousPath)
-                val image = imageQueryService.getImageByPath(previousPath)
-                val deletedImage = image.delete()
-                imageCommandService.save(deletedImage)
+            try {
+                if (!previousPath.isNullOrBlank() && previousPath != newPath) {
+                    fileStorageHandler.deleteFile(previousPath)
+                    val image = imageQueryService.getImageByPath(previousPath)
+                    val deletedImage = image.delete()
+                    imageCommandService.save(deletedImage)
+                }
+            } finally {
+                domainEventPublisher.publishEvents()
             }
         }
     }
