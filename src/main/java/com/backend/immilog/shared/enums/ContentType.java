@@ -10,15 +10,15 @@ public enum ContentType {
     JOB_BOARD("jobboards"),
     COMMENT("comments");
 
-    private final String postType;
+    private final String contentType;
 
-    ContentType(String postType) {
-        this.postType = postType;
+    ContentType(String contentType) {
+        this.contentType = contentType;
     }
 
-    public static ContentType convertToEnum(String postType) {
+    public static ContentType convertToEnum(String contentTypeString) {
         return Arrays.stream(ContentType.values())
-                .filter(type -> postType.compareToIgnoreCase(type.name()) == 0)
+                .filter(type -> contentTypeString.compareToIgnoreCase(type.name()) == 0)
                 .findFirst()
                 .orElseThrow(() -> new CustomException(CommonErrorCode.INVALID_CONTENT_TYPE));
     }
