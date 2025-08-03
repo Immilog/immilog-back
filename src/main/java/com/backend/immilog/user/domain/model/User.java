@@ -112,9 +112,6 @@ public class User {
     }
 
     public User activate() {
-        if (this.userStatus != UserStatus.PENDING) {
-            throw new UserException(UserErrorCode.USER_STATUS_NOT_ACTIVE);
-        }
         return changeStatus(UserStatus.ACTIVE);
     }
 
