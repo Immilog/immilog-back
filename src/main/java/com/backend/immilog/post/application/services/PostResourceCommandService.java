@@ -1,7 +1,7 @@
 package com.backend.immilog.post.application.services;
 
 import com.backend.immilog.post.domain.model.resource.ResourceType;
-import com.backend.immilog.post.domain.repositories.PostResourceRepository;
+import com.backend.immilog.post.domain.repositories.ContentResourceRepository;
 import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
 import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.stereotype.Service;
@@ -11,10 +11,10 @@ import java.util.List;
 
 @Service
 public class PostResourceCommandService {
-    private final PostResourceRepository postResourceRepository;
+    private final ContentResourceRepository contentResourceRepository;
 
-    public PostResourceCommandService(PostResourceRepository postResourceRepository) {
-        this.postResourceRepository = postResourceRepository;
+    public PostResourceCommandService(ContentResourceRepository contentResourceRepository) {
+        this.contentResourceRepository = contentResourceRepository;
     }
 
     @PerformanceMonitor
@@ -25,7 +25,7 @@ public class PostResourceCommandService {
             ResourceType resourceType,
             List<String> deleteResources
     ) {
-        postResourceRepository.deleteAllEntities(
+        contentResourceRepository.deleteAllEntities(
                 postId,
                 contentType,
                 resourceType,
@@ -35,6 +35,6 @@ public class PostResourceCommandService {
 
     @Transactional
     public void deleteAllByPostId(String id) {
-        postResourceRepository.deleteAllByPostId(id);
+        contentResourceRepository.deleteAllByContentId(id);
     }
 }

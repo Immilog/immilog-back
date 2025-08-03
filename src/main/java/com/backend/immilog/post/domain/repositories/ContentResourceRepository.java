@@ -1,12 +1,12 @@
 package com.backend.immilog.post.domain.repositories;
 
-import com.backend.immilog.post.domain.model.resource.PostResource;
+import com.backend.immilog.post.domain.model.resource.ContentResource;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.shared.enums.ContentType;
 
 import java.util.List;
 
-public interface PostResourceRepository {
+public interface ContentResourceRepository {
     void deleteAllEntities(
             String postId,
             ContentType contentType,
@@ -14,11 +14,11 @@ public interface PostResourceRepository {
             List<String> deleteAttachments
     );
 
-    void deleteAllByPostId(String id);
+    void deleteAllByContentId(String id);
 
-    List<PostResource> findAllByPostId(String id);
+    List<ContentResource> findAllByContentId(String id);
 
-    List<PostResource> findAllByPostIdList(
+    List<ContentResource> findAllByContentIdList(
             List<String> postIdList,
             ContentType contentType
     );

@@ -2,37 +2,40 @@ package com.backend.immilog.post.domain.model.resource;
 
 import com.backend.immilog.shared.enums.ContentType;
 
-public class PostResource {
-    private final String resourceId;
+import java.beans.ConstructorProperties;
+
+public class ContentResource {
+    private final String postResourceId;
     private final String postId;
     private final ContentType contentType;
     private final ResourceType resourceType;
     private final String content;
 
-    public PostResource(
-            String resourceId,
+    @ConstructorProperties({"postResourceId", "postId", "contentType", "resourceType", "content"})
+    public ContentResource(
+            String postResourceId,
             String postId,
             ContentType contentType,
             ResourceType resourceType,
             String content
     ) {
-        this.resourceId = resourceId;
+        this.postResourceId = postResourceId;
         this.postId = postId;
         this.contentType = contentType;
         this.resourceType = resourceType;
         this.content = content;
     }
 
-    public static PostResource of(
+    public static ContentResource of(
             ContentType contentType,
             ResourceType resourceType,
             String content,
             String postId
     ) {
-        return new PostResource(null, postId, contentType, resourceType, content);
+        return new ContentResource(null, postId, contentType, resourceType, content);
     }
 
-    public String id() {return resourceId;}
+    public String id() {return postResourceId;}
 
     public String postId() {return postId;}
 

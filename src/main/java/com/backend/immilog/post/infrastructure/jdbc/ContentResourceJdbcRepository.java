@@ -1,6 +1,6 @@
 package com.backend.immilog.post.infrastructure.jdbc;
 
-import com.backend.immilog.post.domain.model.resource.PostResource;
+import com.backend.immilog.post.domain.model.resource.ContentResource;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class PostResourceJdbcRepository {
+public class ContentResourceJdbcRepository {
     private final JdbcClient jdbcClient;
 
-    public PostResourceJdbcRepository(JdbcClient jdbcClient) {
+    public ContentResourceJdbcRepository(JdbcClient jdbcClient) {
         this.jdbcClient = jdbcClient;
     }
 
@@ -31,9 +31,9 @@ public class PostResourceJdbcRepository {
                 .collect(Collectors.joining(", "));
 
         String sql = """
-                DELETE FROM post_resource
-                WHERE post_id = ?
-                AND post_type = ?
+                DELETE FROM content_resource
+                WHERE content_id = ?
+                AND content_type = ?
                 AND resource_type = ?
                 AND content IN (%s)
                 """.formatted(inClause);
@@ -48,14 +48,14 @@ public class PostResourceJdbcRepository {
 
     public void deleteAllByPostId(String id) {
         jdbcClient.sql("""
-                        DELETE FROM post_resource
-                        WHERE post_id = ?
+                        DELETE FROM content_resource
+                        WHERE content_id = ?
                         """)
                 .param(id)
                 .update();
     }
 
-    public List<PostResource> findAllByPostIdList(
+    public List<ContentResource> findAllByPostIdList(
             List<String> postIdList,
             ContentType contentType
     ) {
@@ -69,15 +69,15 @@ public class PostResourceJdbcRepository {
 
         String sql = """
                 SELECT *
-                FROM post_resource
-                WHERE post_id IN (%s)
-                AND post_type = ?
+                FROM content_resource
+                WHERE content_id IN (%s)
+                AND content_type = ?
                 """.formatted(inClause);
 
         return jdbcClient.sql(sql)
                 .params(postIdList.toArray())
                 .param(contentType.name())
-                .query(PostResource.class)
+                .query(ContentResource.class)
                 .list();
     }
 }
