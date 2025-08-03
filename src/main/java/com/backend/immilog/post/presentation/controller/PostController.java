@@ -94,12 +94,12 @@ public class PostController {
     @GetMapping
     @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
     public ResponseEntity<PostPageResponse> getPosts(
-            @Parameter(description = "국가") @RequestParam(required = false) Country country,
-            @Parameter(description = "정렬 방식") @RequestParam(required = false) SortingMethods sort,
-            @Parameter(description = "공개 여부") @RequestParam(required = false) String isPublic,
-            @Parameter(description = "카테고리") @RequestParam(required = false) Categories category,
-            @Parameter(description = "검색어") @RequestParam(required = false) String q,
-            @Parameter(description = "페이지") @RequestParam(defaultValue = "0") Integer page
+            @Parameter(description = "국가") @RequestParam(value = "country", required = false) Country country,
+            @Parameter(description = "정렬 방식") @RequestParam(value = "sort", required = false) SortingMethods sort,
+            @Parameter(description = "공개 여부") @RequestParam(value = "isPublic", required = false) String isPublic,
+            @Parameter(description = "카테고리") @RequestParam(value = "category", required = false) Categories category,
+            @Parameter(description = "검색어") @RequestParam(value = "q", required = false) String q,
+            @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
         Page<PostResult> posts;
         if (q != null) {
@@ -113,7 +113,7 @@ public class PostController {
     @GetMapping("/{postId}")
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 정보를 조회합니다.")
     public ResponseEntity<PostDetailResponse> getPost(
-            @Parameter(description = "게시물 고유번호") @PathVariable String postId
+            @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId
     ) {
         // Post와 Comment를 개별적으로 조회 후 조합
         var post = postFetchUseCase.getPostDetail(postId);
@@ -126,7 +126,7 @@ public class PostController {
     @Operation(summary = "북마크한 게시물 조회", description = "인증된 사용자의 북마크한 게시물을 조회합니다.")
     public ResponseEntity<PostListResponse> getBookmarkedPosts(
             @CurrentUser String userId,
-            @Parameter(description = "포스팅 타입") @RequestParam(defaultValue = "POST") ContentType contentType
+            @Parameter(description = "포스팅 타입") @RequestParam(value = "contentType", defaultValue = "POST") ContentType contentType
     ) {
         var posts = postFetchUseCase.getBookmarkedPosts(userId, contentType);
         return ResponseEntity.ok(PostListResponse.of(posts));
@@ -150,7 +150,7 @@ public class PostController {
     @Operation(summary = "사용자 게시물 목록 조회", description = "특정 사용자의 게시물 목록을 조회합니다.")
     public ResponseEntity<PostPageResponse> getUserPosts(
             @CurrentUser String userId,
-            @Parameter(description = "페이지") @RequestParam(defaultValue = "0") Integer page
+            @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
         var posts = postFetchUseCase.getUserPosts(userId, page);
         return ResponseEntity.ok(PostPageResponse.of(posts));
