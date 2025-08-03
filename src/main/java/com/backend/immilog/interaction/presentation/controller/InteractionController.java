@@ -33,7 +33,7 @@ public class InteractionController {
     }
 
     @DeleteMapping("/{interactionId}")
-    public ResponseEntity<InteractionResponse> deleteInteraction(@PathVariable String interactionId) {
+    public ResponseEntity<InteractionResponse> deleteInteraction(@PathVariable("interactionId") String interactionId) {
         interactionUserCommandService.deleteInteraction(interactionId);
         return ResponseEntity.ok(InteractionResponse.success("Interaction deleted successfully"));
     }
