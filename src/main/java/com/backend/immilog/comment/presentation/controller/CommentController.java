@@ -38,7 +38,7 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<CommentResponse> getComments(@RequestParam String postId) {
+    public ResponseEntity<CommentResponse> getComments(@RequestParam("postId") String postId) {
         var comments = commentQueryService.getComments(postId);
         return ResponseEntity.ok(CommentResponse.success(comments));
     }
@@ -46,7 +46,7 @@ public class CommentController {
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
             @CurrentUser String userId,
-            @PathVariable String commentId,
+            @PathVariable("commentId") String commentId,
             @RequestBody CommentCreateRequest request
     ) {
         var updatedComment = commentCommandService.updateComment(commentId, request.content());
@@ -56,7 +56,7 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     public ResponseEntity<CommentResponse> deleteComment(
             @CurrentUser String userId,
-            @PathVariable String commentId
+            @PathVariable("commentId") String commentId
     ) {
         commentCommandService.deleteComment(commentId);
         return ResponseEntity.ok(CommentResponse.success("Comment deleted successfully"));
