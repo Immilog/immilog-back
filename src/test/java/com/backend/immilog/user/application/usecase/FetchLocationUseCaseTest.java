@@ -240,7 +240,7 @@ class FetchLocationUseCaseTest {
     @DisplayName("CompletableFuture를 정상적으로 조인할 수 있다")
     void joinCompletableFutureLocationSuccessfully() {
         // given
-        LocationResult expectedResult = new LocationResult("Korea", "Seoul");
+        LocationResult expectedResult = new LocationResult("South_Korea", "Seoul");
         CompletableFuture<LocationResult> future = CompletableFuture.completedFuture(expectedResult);
 
         // when
@@ -409,7 +409,7 @@ class FetchLocationUseCaseTest {
         }
 
         // when
-        CompletableFuture<LocationResult>[] futures = new CompletableFuture[3];
+        var futures = new CompletableFuture[3];
         for (int i = 0; i < latitudes.length; i++) {
             futures[i] = locationFetcher.getCountry(latitudes[i], longitudes[i]);
         }

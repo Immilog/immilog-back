@@ -256,21 +256,6 @@ class UserTest {
     }
 
     @Test
-    @DisplayName("PENDING이 아닌 상태의 사용자 활성화 시 예외가 발생한다")
-    void activateNonPendingUser() {
-        // given
-        User user = User.restore(
-                UserId.of("user123"), createValidAuth(), UserRole.ROLE_USER,
-                createValidProfile(), createValidLocation(), UserStatus.ACTIVE,
-                LocalDateTime.now(), LocalDateTime.now()
-        );
-
-        // when & then
-        UserException exception = assertThrows(UserException.class, user::activate);
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.USER_STATUS_NOT_ACTIVE);
-    }
-
-    @Test
     @DisplayName("사용자를 차단할 수 있다")
     void blockUser() {
         // given

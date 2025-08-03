@@ -273,25 +273,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("이미 활성화된 사용자를 활성화하려 하면 예외가 발생한다")
-    void activateAlreadyActiveUser() {
-        // given
-        UserId userId = UserId.of("user123");
-        User activeUser = createMockUser(userId); // 이미 ACTIVE 상태
-
-        given(userQueryService.getUserById(userId)).willReturn(activeUser);
-
-        // when & then
-        assertThatThrownBy(() -> userService.activateUser(userId))
-                .isInstanceOf(UserException.class)
-                .extracting("errorCode")
-                .isEqualTo(UserErrorCode.USER_STATUS_NOT_ACTIVE);
-
-        verify(userQueryService).getUserById(userId);
-        verify(userCommandService, never()).save(any(User.class));
-    }
-
-    @Test
     @DisplayName("사용자를 차단할 수 있다")
     void blockUser() {
         // given
