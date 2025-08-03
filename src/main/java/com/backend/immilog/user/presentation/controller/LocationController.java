@@ -31,9 +31,11 @@ public class LocationController {
             @Parameter(description = "경도") @RequestParam("longitude") Double longitude
     ) {
         var locationResult = locationFetcher.getCountry(latitude, longitude).join();
+        var country = Country.getCountryByKoreanName(locationResult.country());
+        var countryName = country != null ? country.name() : "ETC";
         return ResponseEntity.status(OK).body(
                 new UserLoacationPayload.UserLocationResponse(
-                        Country.getCountryByKoreanName(locationResult.country()).name(),
+                        countryName,
                         locationResult.city()
                 )
         );
