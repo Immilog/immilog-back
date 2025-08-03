@@ -25,8 +25,8 @@ public class JobBoardController {
 
     @GetMapping
     public ResponseEntity<JobBoardResponse> getJobBoards(
-            @RequestParam Country country,
-            @RequestParam(defaultValue = "0") Integer page
+            @RequestParam("country") Country country,
+            @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
         var jobBoards = fetchJobBoardUseCase.getJobBoards(country, page);
         return ResponseEntity.ok(JobBoardResponse.success(jobBoards));
@@ -34,7 +34,7 @@ public class JobBoardController {
 
     @GetMapping("/{jobBoardId}")
     public ResponseEntity<JobBoardResponse> getJobBoardDetail(
-            @PathVariable String jobBoardId
+            @PathVariable("jobBoardId") String jobBoardId
     ) {
         var jobBoard = fetchJobBoardUseCase.getJobBoardDetail(jobBoardId);
         return ResponseEntity.ok(JobBoardResponse.success(jobBoard));
