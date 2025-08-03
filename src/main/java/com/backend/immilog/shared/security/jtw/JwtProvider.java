@@ -5,7 +5,6 @@ import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.security.token.TokenProvider;
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.infrastructure.security.UserDetailsServiceImpl;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -116,23 +114,22 @@ public class JwtProvider implements TokenProvider {
     public Authentication getAuthentication(String token) {
         token = removeBearer(token);
 
-        Claims claims = Jwts.parser()
+        var claims = Jwts.parser()
                 .verifyWith(secretKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
 
-        String email = claims.get("email", String.class);
-        UserRole userRole = UserRole.valueOf(claims.get("userRole", String.class));
+        var userId = claims.getSubject();
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        var userRole = UserRole.valueOf(claims.get("userRole", String.class));
+
+        var userDetails = userDetailsService.loadUserByUsername(claims.get("email", String.class)); // 이메일로 UserDetails를 로드
 
         List<GrantedAuthority> authorities = new ArrayList<>(userDetails.getAuthorities());
         authorities.addAll(userRole.getAuthorities());
 
-        return new UsernamePasswordAuthenticationToken(
-                userDetails, "", authorities
-        );
+        return new UsernamePasswordAuthenticationToken(userId, null, authorities);
     }
 
     @Override
