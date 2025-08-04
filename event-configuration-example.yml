@@ -1,0 +1,25 @@
+# Redis pub/sub 이벤트 시스템 설정 예제
+# application.yml 또는 application-{profile}.yml에 추가
+
+event:
+  # 실패 시뮬레이션 활성화 (테스트용)
+  simulate-failure: false
+  
+  # 실패율 (0.0 ~ 1.0, 0.1 = 10% 확률로 실패)
+  failure-rate: 0.1
+  
+  # 보상 트랜잭션 활성화
+  enable-compensation: true
+
+# Redis 설정 (이미 있다면 수정 불필요)
+redis:
+  host: localhost
+  port: 6379
+
+# 로깅 설정 (이벤트 처리 과정 확인용)
+logging:
+  level:
+    com.backend.immilog.shared.infrastructure.event: DEBUG
+    com.backend.immilog.shared.domain.event: DEBUG
+    com.backend.immilog.post.application.event: DEBUG
+    com.backend.immilog.interaction.application.handlers: DEBUG
