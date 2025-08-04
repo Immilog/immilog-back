@@ -33,20 +33,22 @@ public class AuthController {
     ) {
         var country = locationFetcher.getCountry(request.latitude(), request.longitude());
         var userSignInResult = userLoginProcessor.signIn(request.toCommand(), country);
-        return ResponseEntity.ok(userSignInResult.toResponse());
+        var userSignInInformation = userSignInResult.toInfraDTO();
+        return ResponseEntity.ok(UserSignInPayload.UserSignInResponse.success(userSignInInformation));
     }
 
     @GetMapping("/me")
     @Operation(summary = "인증된 사용자 정보 조회", description = "현재 인증된 사용자의 정보를 조회합니다.")
     public ResponseEntity<UserSignInPayload.UserSignInResponse> getCurrentUser(
             @CurrentUser String userId,
-            @Parameter(description = "위도") @RequestParam Double latitude,
-            @Parameter(description = "경도") @RequestParam Double longitude
+            @Parameter(description = "위도") @RequestParam("latitude") Double latitude,
+            @Parameter(description = "경도") @RequestParam("longitude") Double longitude
     ) {
         var countryFuture = locationFetcher.getCountry(latitude, longitude);
         var country = locationFetcher.joinCompletableFutureLocation(countryFuture);
         var userSignInResult = userLoginProcessor.getUserSignInDTO(userId, country);
-        return ResponseEntity.ok(userSignInResult.toResponse());
+        var userSignInInformation = userSignInResult.toInfraDTO();
+        return ResponseEntity.ok(UserSignInPayload.UserSignInResponse.success(userSignInInformation));
     }
 
 }

@@ -74,11 +74,19 @@ public record CompanyFetchResult(
         );
     }
 
-    public CompanyPayload.CompanyResponse toResponse() {
-        if (this.id() == null) {
-            return new CompanyPayload.CompanyResponse(HttpStatus.NO_CONTENT.value(), "회사 정보가 비어있습니다.", null);
-        } else {
-            return new CompanyPayload.CompanyResponse(HttpStatus.OK.value(), "success", this);
-        }
+    public CompanyPayload.CompanyInformation toInfraDTO(){
+        return new CompanyPayload.CompanyInformation(
+                this.id,
+                this.industry,
+                this.companyName,
+                this.companyEmail,
+                this.companyPhone,
+                this.companyAddress,
+                this.companyHomepage,
+                this.companyCountry,
+                this.companyRegion,
+                this.companyLogo,
+                this.companyManagerUserId
+        );
     }
 }

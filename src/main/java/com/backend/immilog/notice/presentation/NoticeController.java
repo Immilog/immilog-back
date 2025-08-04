@@ -49,7 +49,7 @@ public class NoticeController {
     ) {
         var command = noticeRegisterRequest.toCommand();
         createNoticeUseCase.execute(
-                userId, // 이제 userId 사용
+                userId,
                 command.title(),
                 command.content(),
                 command.type(),

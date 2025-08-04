@@ -76,7 +76,7 @@ public class UserController {
     @GetMapping("/nicknames/{nickname}/availability")
     @Operation(summary = "닉네임 중복 체크", description = "닉네임 사용 가능 여부를 체크합니다.")
     public ResponseEntity<UserInformationPayload.UserNicknameResponse> checkNicknameAvailability(
-            @Parameter(description = "닉네임") @PathVariable String nickname
+            @Parameter(description = "닉네임") @PathVariable("nickname") String nickname
     ) {
         var isNicknameAvailable = userSignUpProcessor.isNicknameAvailable(nickname);
         return ResponseEntity.ok(new UserInformationPayload.UserNicknameResponse(isNicknameAvailable));
@@ -86,8 +86,8 @@ public class UserController {
     @Operation(summary = "사용자 차단/해제", description = "특정 사용자를 차단/해제합니다.")
     public ResponseEntity<Void> blockUser(
             @CurrentUser String userId,
-            @Parameter(description = "요청상태") @RequestParam UserStatus requestedStatus,
-            @Parameter(description = "대상 사용자 고유번호") @PathVariable String targetId
+            @Parameter(description = "요청상태") @RequestParam("requestedStatus") UserStatus requestedStatus,
+            @Parameter(description = "대상 사용자 고유번호") @PathVariable("targetId") String targetId
     ) {
         userUpdater.updateUserStatus(targetId, userId, requestedStatus);
         return ResponseEntity.noContent().build();

@@ -1,7 +1,8 @@
 package com.backend.immilog.image.infrastructure.gateway
 
-import com.backend.immilog.notification.application.DiscordSendingService
+import com.backend.immilog.image.domain.events.ImageEvent
 import com.backend.immilog.shared.config.properties.WebProperties
+import com.backend.immilog.shared.domain.event.DomainEvents
 import com.backend.immilog.shared.exception.CommonErrorCode
 import com.backend.immilog.shared.exception.CustomException
 import org.springframework.stereotype.Service
@@ -15,7 +16,6 @@ import java.util.*
 
 @Service
 class LocalFileStorageHandler(
-    private val discordSendingService: DiscordSendingService,
     private val webProperties: WebProperties
 ) : FileStorageHandler {
     private val storageLocation: Path = Paths.get(webProperties.fileStorage.directory).toAbsolutePath().normalize()
@@ -35,7 +35,13 @@ class LocalFileStorageHandler(
             Files.createDirectories(targetLocation.parent)
             Files.copy(file.inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING)
         } catch (ex: IOException) {
-            discordSendingService.send("Local 파일 업로드 실패", ex)
+            DomainEvents.raise(
+                ImageEvent.ImageUploadFailed(
+                    errorMessage = "Local 파일 업로드 실패",
+                    imagePath = relativeFilePath,
+                    exception = ex
+                )
+            )
             throw CustomException(CommonErrorCode.IMAGE_UPLOAD_FAILED)
         }
         return generateFileUrl(relativeFilePath)
@@ -47,7 +53,13 @@ class LocalFileStorageHandler(
             val targetLocation = storageLocation.resolve(imagePath)
             Files.deleteIfExists(targetLocation)
         } catch (ex: IOException) {
-            discordSendingService.send("Local 파일 삭제 실패", ex)
+            DomainEvents.raise(
+                ImageEvent.ImageDeleteFailed(
+                    imagePath = imagePath,
+                    errorMessage = "Local 파일 삭제 실패",
+                    exception = ex
+                )
+            )
             throw CustomException(CommonErrorCode.IMAGE_UPLOAD_FAILED)
         }
     }

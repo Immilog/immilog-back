@@ -1,8 +1,7 @@
 package com.backend.immilog.post.application.mapper;
 
-import com.backend.immilog.interaction.domain.model.InteractionType;
-import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.domain.model.ResourceType;
 import org.springframework.stereotype.Component;
@@ -25,7 +24,7 @@ public class PostResultAssembler {
         var updatedTags = new ArrayList<>(postResult.tags());
         updatedTags.addAll(extractTags(updatedTags, keyword));
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
@@ -49,25 +48,25 @@ public class PostResultAssembler {
         );
     }
 
-    public PostResult assembleInteractionUsers(
+    public PostResult assembleInteractionData(
             PostResult postResult,
-            List<InteractionUser> interactionUsers
+            List<InteractionData> interactionData
     ) {
-        if (interactionUsers == null || interactionUsers.isEmpty()) {
+        if (interactionData == null || interactionData.isEmpty()) {
             return postResult;
         }
         var newLikeUsers = new ArrayList<>(postResult.likeUsers());
         var newBookmarkUsers = new ArrayList<>(postResult.bookmarkUsers());
-        newLikeUsers.addAll(interactionUsers.stream()
-                .filter(u -> u.interactionType() == InteractionType.LIKE)
-                .map(InteractionUser::userId)
+        newLikeUsers.addAll(interactionData.stream()
+                .filter(u -> "LIKE".equals(u.interactionType()))
+                .map(InteractionData::userId)
                 .toList());
-        newBookmarkUsers.addAll(interactionUsers.stream()
-                .filter(u -> u.interactionType() == InteractionType.BOOKMARK)
-                .map(InteractionUser::userId)
+        newBookmarkUsers.addAll(interactionData.stream()
+                .filter(u -> "BOOKMARK".equals(u.interactionType()))
+                .map(InteractionData::userId)
                 .toList());
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
@@ -111,7 +110,7 @@ public class PostResultAssembler {
                 .map(Resource::content)
                 .toList());
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
@@ -140,7 +139,7 @@ public class PostResultAssembler {
             int size
     ) {
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),

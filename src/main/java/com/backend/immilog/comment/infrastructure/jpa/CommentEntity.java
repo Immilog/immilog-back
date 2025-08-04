@@ -4,7 +4,7 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
 import com.backend.immilog.comment.domain.model.ReferenceType;
-import com.backend.immilog.post.domain.model.post.PostStatus;
+import com.backend.immilog.shared.enums.ContentStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -43,7 +43,7 @@ public class CommentEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private PostStatus status;
+    private ContentStatus status;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -69,7 +69,7 @@ public class CommentEntity {
             ReferenceType referenceType,
             int replyCount,
             Integer likeCount,
-            PostStatus status,
+            ContentStatus status,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {

@@ -3,7 +3,7 @@ package com.backend.immilog.company.presentation;
 import com.backend.immilog.company.application.usecase.GetCompanyUseCase;
 import com.backend.immilog.company.application.usecase.RegisterCompanyUseCase;
 import com.backend.immilog.company.application.usecase.UpdateCompanyUseCase;
-import com.backend.immilog.user.presentation.payload.GeneralPayload;
+import com.backend.immilog.shared.presentation.GeneralPayload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,6 +57,7 @@ public class CompanyController {
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId
     ) {
         final var result = getCompanyUseCase.getCompany(userId);
-        return ResponseEntity.status(OK).body(result.toResponse());
+        var companyInformation = result.toInfraDTO();
+        return ResponseEntity.status(OK).body(CompanyPayload.CompanyResponse.from(companyInformation));
     }
 }

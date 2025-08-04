@@ -104,7 +104,7 @@ class CompanyTest {
     }
 
     @Test
-    @DisplayName("id 메서드로 새로운 id를 가진 Company를 생성할 수 있다")
+    @DisplayName("postId 메서드로 새로운 id를 가진 Company를 생성할 수 있다")
     void shouldCreateCompanyWithNewId() {
         // given
         CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");

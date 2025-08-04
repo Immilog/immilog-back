@@ -5,6 +5,7 @@ import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
 import com.backend.immilog.user.application.result.UserNickNameResult;
 import com.backend.immilog.user.application.services.UserService;
+import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.*;
@@ -31,6 +32,9 @@ class SignUpUserUseCaseTest {
     private UserQueryService userQueryService;
 
     @Mock
+    private UserCommandService userCommandService;
+
+    @Mock
     private EmailVerificationService emailVerificationService;
 
     private SignUpUserUseCase signUpUserUseCase;
@@ -40,6 +44,7 @@ class SignUpUserUseCaseTest {
         signUpUserUseCase = new SignUpUserUseCase.UserSignUpProcessor(
                 userService,
                 userQueryService,
+                userCommandService,
                 emailVerificationService
         );
     }
@@ -258,10 +263,8 @@ class SignUpUserUseCaseTest {
         assertThat(result.isLoginAvailable()).isTrue();
 
         verify(userQueryService).getUserById(userIdObj);
-        verify(emailVerificationService).generateVerificationResult(
-                UserStatus.PENDING,
-                Country.SOUTH_KOREA
-        );
+        verify(userCommandService).save(mockUser.activate());
+        verify(emailVerificationService).generateVerificationResult(UserStatus.PENDING, Country.SOUTH_KOREA);
     }
 
     @Test

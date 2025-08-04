@@ -5,6 +5,7 @@ import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
 import com.backend.immilog.user.application.result.UserNickNameResult;
 import com.backend.immilog.user.application.services.UserService;
+import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.model.UserId;
 import com.backend.immilog.user.domain.service.EmailVerificationService;
@@ -23,15 +24,18 @@ public interface SignUpUserUseCase {
     class UserSignUpProcessor implements SignUpUserUseCase {
         private final UserService userService;
         private final UserQueryService userQueryService;
+        private final UserCommandService userCommandService;
         private final EmailVerificationService emailVerificationService;
 
         public UserSignUpProcessor(
                 UserService userService,
                 UserQueryService userQueryService,
+                UserCommandService userCommandService,
                 EmailVerificationService emailVerificationService
         ) {
             this.userService = userService;
             this.userQueryService = userQueryService;
+            this.userCommandService = userCommandService;
             this.emailVerificationService = emailVerificationService;
         }
 
@@ -64,6 +68,8 @@ public interface SignUpUserUseCase {
                     user.getUserStatus(),
                     user.getCountry()
             );
+
+            userCommandService.save(user.activate());
 
             return new EmailVerificationResult(verificationResult.message(), verificationResult.isLoginAvailable());
         }

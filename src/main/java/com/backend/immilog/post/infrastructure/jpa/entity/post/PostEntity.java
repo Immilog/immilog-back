@@ -98,7 +98,7 @@ public class PostEntity {
                 post.badge(),
                 post.commentCount(),
                 post.createdAt(),
-                post.id() != null ? post.updatedAt() : null
+                post.updatedAt()
         );
     }
 

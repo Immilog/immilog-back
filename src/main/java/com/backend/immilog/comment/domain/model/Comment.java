@@ -1,8 +1,8 @@
 package com.backend.immilog.comment.domain.model;
 
 import com.backend.immilog.comment.domain.event.CommentCreatedEvent;
-import com.backend.immilog.post.domain.model.post.PostStatus;
 import com.backend.immilog.shared.domain.event.DomainEvents;
+import com.backend.immilog.shared.enums.ContentStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class Comment {
     private final CommentRelation commentRelation;
     private final int replyCount;
     private final Integer likeCount;
-    private final PostStatus status;
+    private final ContentStatus status;
     private final List<String> likeUsers;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
@@ -28,7 +28,7 @@ public class Comment {
             CommentRelation commentRelation,
             int replyCount,
             Integer likeCount,
-            PostStatus status,
+            ContentStatus status,
             List<String> likeUsers,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
@@ -58,7 +58,7 @@ public class Comment {
                 CommentRelation.of(postId, null, referenceType),
                 0,
                 0,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
@@ -73,7 +73,7 @@ public class Comment {
                 this.commentRelation,
                 this.replyCount,
                 this.likeCount,
-                PostStatus.DELETED,
+                ContentStatus.DELETED,
                 this.likeUsers,
                 this.createdAt,
                 LocalDateTime.now()
@@ -140,7 +140,7 @@ public class Comment {
 
     public Integer likeCount() {return likeCount;}
 
-    public PostStatus status() {return status;}
+    public ContentStatus status() {return status;}
 
     public List<String> likeUsers() {return likeUsers;}
 

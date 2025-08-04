@@ -1,7 +1,6 @@
 package com.backend.immilog.user.presentation.payload;
 
 import com.backend.immilog.user.application.command.UserSignInCommand;
-import com.backend.immilog.user.application.result.UserSignInResult;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -39,6 +38,28 @@ public record UserSignInPayload() {
     public record UserSignInResponse(
             @Schema(description = "상태 코드", example = "200") Integer status,
             @Schema(description = "메시지", example = "success") String message,
-            @Schema(description = "사용자 로그인 정보") UserSignInResult data
-    ) {}
+            @Schema(description = "사용자 로그인 정보") UserSignInInformation data
+    ) {
+        public static UserSignInResponse success(UserSignInInformation userSignInInformation) {
+            return new UserSignInPayload.UserSignInResponse(
+                    200,
+                    "success",
+                    userSignInInformation
+            );
+        }
+    }
+
+    public record UserSignInInformation(
+            @Schema(description = "사용자 식별자", example = "1") String userId,
+            @Schema(description = "이메일", example = "email@email.com") String email,
+            @Schema(description = "닉네임", example = "nickname") String nickname,
+            @Schema(description = "액세스 토큰", example = "access token") String accessToken,
+            @Schema(description = "리프레시 토큰", example = "refresh token") String refreshToken,
+            @Schema(description = "국가", example = "Korea") String country,
+            @Schema(description = "관심 국가", example = "Korea") String interestCountry,
+            @Schema(description = "지역", example = "Seoul") String region,
+            @Schema(description = "프로필 이미지 URL", example = "profile image url") String userProfileUrl,
+            @Schema(description = "위치 일치 여부", example = "true") Boolean isLocationMatch
+    ) {
+    }
 }

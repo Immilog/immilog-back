@@ -2,7 +2,8 @@ package com.backend.immilog.comment.application.dto;
 
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.ReferenceType;
-import com.backend.immilog.post.domain.model.post.PostStatus;
+import com.backend.immilog.comment.presentation.payload.CommentResponse;
+import com.backend.immilog.shared.enums.ContentStatus;
 
 import java.time.LocalDateTime;
 
@@ -15,7 +16,7 @@ public record CommentResult(
         ReferenceType referenceType,
         int replyCount,
         Integer likeCount,
-        PostStatus status,
+        ContentStatus status,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
@@ -32,6 +33,22 @@ public record CommentResult(
                 comment.status(),
                 comment.createdAt(),
                 comment.updatedAt()
+        );
+    }
+
+    public CommentResponse.CommentInformation toInfraDTO() {
+        return new CommentResponse.CommentInformation(
+                this.id,
+                this.userId,
+                this.content,
+                this.postId,
+                this.parentId,
+                this.referenceType,
+                this.replyCount,
+                this.likeCount,
+                this.status,
+                this.createdAt,
+                this.updatedAt
         );
     }
 }

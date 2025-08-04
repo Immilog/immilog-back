@@ -2,6 +2,7 @@ package com.backend.immilog.post.domain.model.post;
 
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
+import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.shared.enums.Country;
 
 import java.time.LocalDateTime;
@@ -66,10 +67,20 @@ public class Post {
     }
 
     public Post increaseCommentCount() {
-        if (this.postInfo.status() == PostStatus.DELETED) {
+        if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
         this.commentCount++;
+        return this;
+    }
+
+    public Post decreaseCommentCount() {
+        if (this.postInfo.status() == ContentStatus.DELETED) {
+            throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
+        }
+        if (this.commentCount > 0) {
+            this.commentCount--;
+        }
         return this;
     }
 
@@ -77,7 +88,7 @@ public class Post {
         if (isPublic == null) {
             throw new PostException(PostErrorCode.INVALID_PUBLIC_STATUS);
         }
-        if (this.status().equals(PostStatus.DELETED)) {
+        if (this.status().equals(ContentStatus.DELETED)) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
         var value = isPublic ? "Y" : "N";
@@ -93,7 +104,7 @@ public class Post {
         if (newContent == null || this.postInfo.content().equals(newContent)) {
             return this;
         }
-        if (this.postInfo.status() == PostStatus.DELETED) {
+        if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
         this.postInfo = new PostInfo(
@@ -113,7 +124,7 @@ public class Post {
         if (title == null || this.postInfo.title().equals(title)) {
             return this;
         }
-        if (this.postInfo.status() == PostStatus.DELETED) {
+        if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
         this.postInfo = new PostInfo(
@@ -130,7 +141,7 @@ public class Post {
     }
 
     public Post delete() {
-        if (this.postInfo.status() == PostStatus.DELETED) {
+        if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
         this.postInfo = new PostInfo(
@@ -139,7 +150,7 @@ public class Post {
                 this.postInfo.viewCount(),
                 this.postInfo.likeCount(),
                 this.postInfo.region(),
-                PostStatus.DELETED,
+                ContentStatus.DELETED,
                 this.postInfo.country()
         );
         this.updatedAt = LocalDateTime.now();
@@ -149,7 +160,7 @@ public class Post {
     public String userId() {return this.postUserInfo.userId();}
 
     public Post increaseViewCount() {
-        if (this.postInfo.status() == PostStatus.DELETED) {
+        if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
         this.postInfo = new PostInfo(
@@ -184,7 +195,7 @@ public class Post {
 
     public Long likeCount() {return this.postInfo.likeCount();}
 
-    public PostStatus status() {return this.postInfo.status();}
+    public ContentStatus status() {return this.postInfo.status();}
 
     public String profileImage() {return this.postUserInfo.profileImage();}
 

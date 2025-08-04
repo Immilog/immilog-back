@@ -7,14 +7,10 @@ import com.backend.immilog.post.application.usecase.PostFetchUseCase;
 import com.backend.immilog.post.application.usecase.PostUpdateUseCase;
 import com.backend.immilog.post.application.usecase.PostUploadUseCase;
 import com.backend.immilog.post.domain.model.post.Categories;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
-import com.backend.immilog.post.presentation.request.PostUpdateRequest;
-import com.backend.immilog.post.presentation.request.PostUploadRequest;
-import com.backend.immilog.post.presentation.response.PostDetailResponse;
-import com.backend.immilog.post.presentation.response.PostListResponse;
-import com.backend.immilog.post.presentation.response.PostPageResponse;
+import com.backend.immilog.post.presentation.payload.*;
 import com.backend.immilog.shared.annotation.CurrentUser;
+import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -94,12 +90,12 @@ public class PostController {
     @GetMapping
     @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
     public ResponseEntity<PostPageResponse> getPosts(
-            @Parameter(description = "국가") @RequestParam(required = false) Country country,
-            @Parameter(description = "정렬 방식") @RequestParam(required = false) SortingMethods sort,
-            @Parameter(description = "공개 여부") @RequestParam(required = false) String isPublic,
-            @Parameter(description = "카테고리") @RequestParam(required = false) Categories category,
-            @Parameter(description = "검색어") @RequestParam(required = false) String q,
-            @Parameter(description = "페이지") @RequestParam(defaultValue = "0") Integer page
+            @Parameter(description = "국가") @RequestParam(value = "country", required = false) Country country,
+            @Parameter(description = "정렬 방식") @RequestParam(value = "sort", required = false) SortingMethods sort,
+            @Parameter(description = "공개 여부") @RequestParam(value = "isPublic", required = false) String isPublic,
+            @Parameter(description = "카테고리") @RequestParam(value = "category", required = false) Categories category,
+            @Parameter(description = "검색어") @RequestParam(value = "q", required = false) String q,
+            @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
         Page<PostResult> posts;
         if (q != null) {
@@ -107,13 +103,14 @@ public class PostController {
         } else {
             posts = postFetchUseCase.getPosts(country, sort, isPublic, category, page);
         }
-        return ResponseEntity.ok(PostPageResponse.of(posts));
+        var pagedPosts = posts.map(PostResult::toInfraDTO);
+        return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
     }
 
     @GetMapping("/{postId}")
     @Operation(summary = "게시물 상세 조회", description = "게시물 상세 정보를 조회합니다.")
     public ResponseEntity<PostDetailResponse> getPost(
-            @Parameter(description = "게시물 고유번호") @PathVariable String postId
+            @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId
     ) {
         // Post와 Comment를 개별적으로 조회 후 조합
         var post = postFetchUseCase.getPostDetail(postId);
@@ -126,33 +123,37 @@ public class PostController {
     @Operation(summary = "북마크한 게시물 조회", description = "인증된 사용자의 북마크한 게시물을 조회합니다.")
     public ResponseEntity<PostListResponse> getBookmarkedPosts(
             @CurrentUser String userId,
-            @Parameter(description = "포스팅 타입") @RequestParam(defaultValue = "POST") PostType postType
+            @Parameter(description = "포스팅 타입") @RequestParam(value = "contentType", defaultValue = "POST") ContentType contentType
     ) {
-        var posts = postFetchUseCase.getBookmarkedPosts(userId, postType);
-        return ResponseEntity.ok(PostListResponse.of(posts));
+        var postResults = postFetchUseCase.getBookmarkedPosts(userId, contentType);
+        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
+        return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
     @GetMapping("/hot")
     @Operation(summary = "인기 게시물 조회", description = "인기 게시물을 조회합니다.")
     public ResponseEntity<PostListResponse> getHotPosts() {
-        var posts = postFetchUseCase.getHotPosts();
-        return ResponseEntity.ok(PostListResponse.of(posts));
+        var postResults = postFetchUseCase.getHotPosts();
+        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
+        return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
     @GetMapping("/most-viewed")
     @Operation(summary = "가장 많이 조회된 게시물 조회", description = "가장 많이 조회된 게시물을 조회합니다.")
     public ResponseEntity<PostListResponse> getMostViewedPosts() {
-        var posts = postFetchUseCase.getMostViewedPosts();
-        return ResponseEntity.ok(PostListResponse.of(posts));
+        var postResults = postFetchUseCase.getMostViewedPosts();
+        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
+        return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
     @GetMapping("/my")
     @Operation(summary = "사용자 게시물 목록 조회", description = "특정 사용자의 게시물 목록을 조회합니다.")
     public ResponseEntity<PostPageResponse> getUserPosts(
             @CurrentUser String userId,
-            @Parameter(description = "페이지") @RequestParam(defaultValue = "0") Integer page
+            @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
-        var posts = postFetchUseCase.getUserPosts(userId, page);
-        return ResponseEntity.ok(PostPageResponse.of(posts));
+        var postResults = postFetchUseCase.getUserPosts(userId, page);
+        var pagedPosts = postResults.map(PostResult::toInfraDTO);
+        return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
     }
 }

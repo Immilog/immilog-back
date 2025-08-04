@@ -1,18 +1,18 @@
 package com.backend.immilog.shared.domain.model;
 
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 
 public class Resource {
     private final String id;
     private final String entityId;
-    private final PostType entityType;
+    private final ContentType entityType;
     private final ResourceType resourceType;
     private final String content;
 
     public Resource(
             String id,
             String entityId,
-            PostType entityType,
+            ContentType entityType,
             ResourceType resourceType,
             String content
     ) {
@@ -24,7 +24,7 @@ public class Resource {
     }
 
     public static Resource of(
-            PostType entityType,
+            ContentType entityType,
             ResourceType resourceType,
             String content,
             String entityId
@@ -36,7 +36,7 @@ public class Resource {
 
     public String entityId() {return entityId;}
 
-    public PostType entityType() {return entityType;}
+    public ContentType entityType() {return entityType;}
 
     public ResourceType resourceType() {return resourceType;}
 

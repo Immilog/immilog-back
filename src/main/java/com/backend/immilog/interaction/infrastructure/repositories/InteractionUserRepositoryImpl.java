@@ -4,7 +4,7 @@ import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.interaction.infrastructure.jpa.InteractionUserEntity;
 import com.backend.immilog.interaction.infrastructure.jpa.InteractionUserJpaRepository;
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,22 +19,22 @@ public class InteractionUserRepositoryImpl implements InteractionUserRepository 
     }
 
     @Override
-    public List<InteractionUser> findByPostIdListAndPostType(
+    public List<InteractionUser> findByPostIdListAndContentType(
             List<String> postIdList,
-            PostType postType
+            ContentType contentType
     ) {
-        return interactionUserJpaRepository.findByPostIdInAndPostType(postIdList, postType)
+        return interactionUserJpaRepository.findByPostIdInAndContentType(postIdList, contentType)
                 .stream()
                 .map(InteractionUserEntity::toDomain)
                 .toList();
     }
 
     @Override
-    public List<InteractionUser> findBookmarksByUserIdAndPostType(
+    public List<InteractionUser> findBookmarksByUserIdAndContentType(
             String userId,
-            PostType postType
+            ContentType contentType
     ) {
-        return interactionUserJpaRepository.findByUserIdAndPostType(userId, postType)
+        return interactionUserJpaRepository.findByUserIdAndContentType(userId, contentType)
                 .stream()
                 .map(InteractionUserEntity::toDomain)
                 .toList();

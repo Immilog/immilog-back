@@ -1,19 +1,22 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
-import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.mapper.PostResultAssembler;
+import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PostDomainRepository;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
+import com.backend.immilog.shared.domain.event.DomainEvents;
+import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
+import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.infrastructure.DataRepository;
+import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -35,24 +38,24 @@ public class PostQueryService {
     private final ObjectMapper objectMapper;
     private final PostDomainRepository postDomainRepository;
     private final DataRepository redisDataRepository;
-    private final InteractionUserQueryService interactionUserQueryService;
     private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
+    private final EventResultStorageService eventResultStorageService;
 
     public PostQueryService(
             ObjectMapper objectMapper,
             PostDomainRepository postDomainRepository,
             DataRepository redisDataRepository,
-            InteractionUserQueryService interactionUserQueryService,
             PostResourceQueryService postResourceQueryService,
-            PostResultAssembler postResultAssembler
+            PostResultAssembler postResultAssembler,
+            EventResultStorageService eventResultStorageService
     ) {
         this.objectMapper = objectMapper;
         this.postDomainRepository = postDomainRepository;
         this.redisDataRepository = redisDataRepository;
-        this.interactionUserQueryService = interactionUserQueryService;
         this.postResourceQueryService = postResourceQueryService;
         this.postResultAssembler = postResultAssembler;
+        this.eventResultStorageService = eventResultStorageService;
     }
 
     @Transactional(readOnly = true)
@@ -154,30 +157,35 @@ public class PostQueryService {
                 .boxed()
                 .collect(Collectors.toMap(resultIdList::get, i -> i));
 
-        var interactionUsers = interactionUserQueryService.getInteractionUsersByPostIdList(resultIdList, PostType.POST);
-        var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, PostType.POST);
+        // 이벤트를 통해 인터랙션 데이터 요청
+        String requestId = eventResultStorageService.generateRequestId("interaction");
+        DomainEvents.raise(new PostEvent.InteractionDataRequested(requestId, resultIdList, ContentType.POST.name()));
+
+        // Redis에서 이벤트 처리 결과 조회 (비동기 처리 대기 후)
+        var interactionUsers = getInteractionDataFromRedis(requestId);
+        var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
         return postResults.map(postResult -> {
             var resources = postResources.stream()
-                    .filter(postResource -> postResource.postId().equals(postResult.id()))
+                    .filter(postResource -> postResource.postId().equals(postResult.postId()))
                     .map(pr -> new Resource(
                             pr.id(),
                             pr.postId(),
-                            pr.postType(),
+                            pr.contentType(),
                             com.backend.immilog.shared.domain.model.ResourceType.valueOf(pr.resourceType().name()),
                             pr.content()
                     ))
                     .sorted(Comparator.comparingInt(pr -> orderMap.getOrDefault(pr.entityId(), Integer.MAX_VALUE)))
                     .toList();
 
-            var interactionUserList = interactionUsers.stream()
-                    .filter(interactionUser -> interactionUser.postId().equals(postResult.id()))
-                    .sorted(Comparator.comparingInt(iu -> orderMap.getOrDefault(iu.postId(), Integer.MAX_VALUE)))
+            var interactionDataList = interactionUsers.stream()
+                    .filter(interactionData -> interactionData.postId().equals(postResult.postId()))
+                    .sorted(Comparator.comparingInt(id -> orderMap.getOrDefault(id.postId(), Integer.MAX_VALUE)))
                     .toList();
 
-            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionUsers(
+            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionData(
                     postResult,
-                    interactionUserList
+                    interactionDataList
             );
             var postResultWithNewResources = postResultAssembler.assembleResources(
                     postResultWithNewInteractionUsers,
@@ -185,7 +193,7 @@ public class PostQueryService {
             );
             return postResultAssembler.assembleLikeCount(
                     postResultWithNewResources,
-                    interactionUserList.size()
+                    interactionDataList.size()
             );
         });
     }
@@ -214,5 +222,18 @@ public class PostQueryService {
                 post.content(),
                 null
         );
+    }
+
+    // 임시 메서드 - 실제로는 이벤트 핸들러가 처리한 결과를 조회해야 함
+    private List<InteractionData> getInteractionDataFromRedis(String requestId) {
+        // 이벤트 처리 완료까지 잠시 대기 (실제로는 더 정교한 동기화 필요)
+        try {
+            Thread.sleep(100); // 100ms 대기
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while waiting for event processing", e);
+        }
+        
+        return eventResultStorageService.getInteractionData(requestId);
     }
 }

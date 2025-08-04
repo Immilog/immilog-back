@@ -1,9 +1,13 @@
 package com.backend.immilog.post.infrastructure.jdbc;
 
-import com.backend.immilog.post.domain.model.post.*;
+import com.backend.immilog.post.domain.model.post.Badge;
+import com.backend.immilog.post.domain.model.post.Categories;
+import com.backend.immilog.post.domain.model.post.Post;
+import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostEntity;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostInfoValue;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostUserInfoValue;
+import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -213,7 +217,7 @@ public class PostJdbcRepository {
                 getNullableLong(rs, "view_count"),
                 getNullableLong(rs, "like_count"),
                 rs.getString("region"),
-                getEnum(rs, "status", PostStatus.class),
+                getEnum(rs, "status", ContentStatus.class),
                 getEnum(rs, "country", Country.class)
         );
 

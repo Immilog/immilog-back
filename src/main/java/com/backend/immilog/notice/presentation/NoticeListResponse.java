@@ -11,12 +11,13 @@ public record NoticeListResponse(
         @Schema(description = "메시지", example = "success")
         String message,
         @Schema(description = "공지사항 목록")
-        Page<NoticeModelResult> data
+        Page<NoticeDetailResponse.NoticeInformation> data
 ) {
     public static NoticeListResponse of(Page<NoticeModelResult> notices) {
         if (notices.isEmpty()) {
             return new NoticeListResponse(HttpStatus.NO_CONTENT.value(), "공지사항이 존재하지 않습니다.", null);
         }
-        return new NoticeListResponse(HttpStatus.OK.value(), "success", notices);
+        var noticeInfoPage = notices.map(NoticeModelResult::toInfraDTO);
+        return new NoticeListResponse(HttpStatus.OK.value(), "success", noticeInfoPage);
     }
 }

@@ -1,14 +1,15 @@
 package com.backend.immilog.post.application.usecase;
 
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
-import com.backend.immilog.interaction.domain.model.InteractionUser;
-import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.application.services.PostQueryService;
+import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.post.domain.model.post.Categories;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
+import com.backend.immilog.shared.domain.event.DomainEvents;
+import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
+import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -31,7 +32,7 @@ public interface PostFetchUseCase {
 
     List<PostResult> getBookmarkedPosts(
             String userId,
-            PostType postType
+            ContentType contentType
     );
 
     Page<PostResult> searchKeyword(
@@ -52,17 +53,17 @@ public interface PostFetchUseCase {
     @Service
     class PostFetcher implements PostFetchUseCase {
         private final PostQueryService postQueryService;
-        private final InteractionUserQueryService interactionUserQueryService;
         private final PostResultAssembler postResultAssembler;
+        private final EventResultStorageService eventResultStorageService;
 
         public PostFetcher(
                 PostQueryService postQueryService,
-                InteractionUserQueryService interactionUserQueryService,
-                PostResultAssembler postResultAssembler
+                PostResultAssembler postResultAssembler,
+                EventResultStorageService eventResultStorageService
         ) {
             this.postQueryService = postQueryService;
-            this.interactionUserQueryService = interactionUserQueryService;
             this.postResultAssembler = postResultAssembler;
+            this.eventResultStorageService = eventResultStorageService;
         }
 
         public Page<PostResult> getPosts(
@@ -82,10 +83,14 @@ public interface PostFetchUseCase {
 
         public List<PostResult> getBookmarkedPosts(
                 String userId,
-                PostType postType
+                ContentType contentType
         ) {
-            final var bookmarks = interactionUserQueryService.getBookmarkInteractions(userId, postType);
-            final var postIdList = bookmarks.stream().map(InteractionUser::postId).toList();
+            // 이벤트를 통해 북마크된 게시물 ID 목록 요청
+            String requestId = eventResultStorageService.generateRequestId("bookmark");
+            DomainEvents.raise(new PostEvent.BookmarkPostsRequested(requestId, userId, contentType.name()));
+
+            // Redis에서 이벤트 처리 결과 조회
+            final var postIdList = getBookmarkedPostIdsFromRedis(requestId);
             return postQueryService.getPostsByPostIdList(postIdList);
         }
 
@@ -117,6 +122,18 @@ public interface PostFetchUseCase {
 
         public List<PostResult> getHotPosts() {
             return postQueryService.getPostsFromRedis("hot_posts");
+        }
+
+        private List<String> getBookmarkedPostIdsFromRedis(String requestId) {
+            // 이벤트 처리 완료까지 잠시 대기 (실제로는 더 정교한 동기화 필요)
+            try {
+                Thread.sleep(100); // 100ms 대기
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Interrupted while waiting for bookmark event processing", e);
+            }
+            
+            return eventResultStorageService.getBookmarkData(requestId);
         }
     }
 }

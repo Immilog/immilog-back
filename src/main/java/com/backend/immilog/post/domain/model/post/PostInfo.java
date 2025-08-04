@@ -1,5 +1,6 @@
 package com.backend.immilog.post.domain.model.post;
 
+import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.shared.enums.Country;
 
 public record PostInfo(
@@ -8,7 +9,7 @@ public record PostInfo(
         Long viewCount,
         Long likeCount,
         String region,
-        PostStatus status,
+        ContentStatus status,
         Country country
 ) {
     public static <T extends Enum<T>> PostInfo of(
@@ -23,7 +24,7 @@ public record PostInfo(
                 0L,
                 0L,
                 region,
-                PostStatus.NORMAL,
+                ContentStatus.NORMAL,
                 Country.valueOf(country.name())
         );
     }

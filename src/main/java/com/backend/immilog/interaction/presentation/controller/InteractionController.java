@@ -29,11 +29,11 @@ public class InteractionController {
     ) {
         var command = request.toCommand(userId);
         var result = interactionCreateUseCase.createInteraction(command);
-        return ResponseEntity.ok(InteractionResponse.success(result));
+        return ResponseEntity.ok(InteractionResponse.success(result.toInfraDTO()));
     }
 
     @DeleteMapping("/{interactionId}")
-    public ResponseEntity<InteractionResponse> deleteInteraction(@PathVariable String interactionId) {
+    public ResponseEntity<InteractionResponse> deleteInteraction(@PathVariable("interactionId") String interactionId) {
         interactionUserCommandService.deleteInteraction(interactionId);
         return ResponseEntity.ok(InteractionResponse.success("Interaction deleted successfully"));
     }

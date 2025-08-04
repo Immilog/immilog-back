@@ -4,7 +4,7 @@ import com.backend.immilog.post.application.dto.PostUploadCommand;
 import com.backend.immilog.post.application.services.BulkCommandService;
 import com.backend.immilog.post.application.services.PostCommandService;
 import com.backend.immilog.post.domain.model.post.Post;
-import com.backend.immilog.post.domain.model.resource.PostResource;
+import com.backend.immilog.post.domain.model.resource.ContentResource;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.model.User;
@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.backend.immilog.post.domain.model.post.PostType.POST;
 import static com.backend.immilog.post.domain.model.resource.ResourceType.ATTACHMENT;
 import static com.backend.immilog.post.domain.model.resource.ResourceType.TAG;
 import static com.backend.immilog.post.exception.PostErrorCode.FAILED_TO_SAVE_POST;
+import static com.backend.immilog.shared.enums.ContentType.POST;
 
 public interface PostUploadUseCase {
     void uploadPost(
@@ -75,7 +75,7 @@ public interface PostUploadUseCase {
                     (ps, postResource) -> {
                         try {
                             ps.setString(1, postResource.postId());
-                            ps.setString(2, postResource.postType().name());
+                            ps.setString(2, postResource.contentType().name());
                             ps.setString(3, postResource.resourceType().name());
                             ps.setString(4, postResource.content());
                         } catch (SQLException e) {
@@ -86,17 +86,17 @@ public interface PostUploadUseCase {
             );
         }
 
-        private List<PostResource> getPostResourceList(
+        private List<ContentResource> getPostResourceList(
                 PostUploadCommand postUploadCommand,
                 String postId
         ) {
-            var postResources = new ArrayList<PostResource>();
+            var postResources = new ArrayList<ContentResource>();
             postResources.addAll(this.getTagEntities(postUploadCommand, postId));
             postResources.addAll(this.getAttachmentEntities(postUploadCommand, postId));
             return Collections.unmodifiableList(postResources);
         }
 
-        private List<PostResource> getTagEntities(
+        private List<ContentResource> getTagEntities(
                 PostUploadCommand postUploadCommand,
                 String postId
         ) {
@@ -106,11 +106,11 @@ public interface PostUploadUseCase {
             return postUploadCommand
                     .tags()
                     .stream()
-                    .map(tag -> PostResource.of(POST, TAG, tag, postId))
+                    .map(tag -> ContentResource.of(POST, TAG, tag, postId))
                     .toList();
         }
 
-        private List<PostResource> getAttachmentEntities(
+        private List<ContentResource> getAttachmentEntities(
                 PostUploadCommand postUploadCommand,
                 String postId
         ) {
@@ -120,7 +120,7 @@ public interface PostUploadUseCase {
             return postUploadCommand
                     .attachments()
                     .stream()
-                    .map(url -> PostResource.of(POST, ATTACHMENT, url, postId))
+                    .map(url -> ContentResource.of(POST, ATTACHMENT, url, postId))
                     .toList();
         }
 

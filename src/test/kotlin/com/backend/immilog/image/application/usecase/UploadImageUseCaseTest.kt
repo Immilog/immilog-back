@@ -9,6 +9,7 @@ import com.backend.immilog.image.domain.model.ImageId
 import com.backend.immilog.image.domain.model.ImageMetadata
 import com.backend.immilog.image.domain.model.ImagePath
 import com.backend.immilog.image.infrastructure.gateway.FileStorageHandler
+import com.backend.immilog.shared.application.event.DomainEventPublisher
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -33,6 +34,9 @@ class UploadImageUseCaseTest {
     private lateinit var imageCommandService: ImageCommandService
 
     @Mock
+    private lateinit var domainEventPublisher: DomainEventPublisher
+
+    @Mock
     private lateinit var imageQueryService: ImageQueryService
     private lateinit var uploadImageUseCase: UploadImageUseCase.ImageUploader
 
@@ -50,7 +54,8 @@ class UploadImageUseCaseTest {
         uploadImageUseCase = UploadImageUseCase.ImageUploader(
             fileStorageHandler,
             imageCommandService,
-            imageQueryService
+            imageQueryService,
+            domainEventPublisher
         )
     }
 

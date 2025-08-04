@@ -1,6 +1,8 @@
 package com.backend.immilog.comment.infrastructure.jdbc;
 
 import com.backend.immilog.comment.application.dto.CommentResult;
+import com.backend.immilog.comment.domain.model.ReferenceType;
+import com.backend.immilog.shared.enums.ContentStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -39,10 +41,10 @@ public class CommentJdbcRepository {
                 rs.getString("content"),
                 rs.getString("post_id"),
                 rs.getString("parent_id"),
-                com.backend.immilog.comment.domain.model.ReferenceType.valueOf(rs.getString("reference_type")),
+                ReferenceType.valueOf(rs.getString("reference_type")),
                 rs.getInt("reply_count"),
                 rs.getInt("like_count"),
-                com.backend.immilog.post.domain.model.post.PostStatus.valueOf(rs.getString("status")),
+                ContentStatus.valueOf(rs.getString("status")),
                 rs.getTimestamp("created_at").toLocalDateTime(),
                 rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null
         );

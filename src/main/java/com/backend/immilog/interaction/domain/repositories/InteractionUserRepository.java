@@ -1,20 +1,20 @@
 package com.backend.immilog.interaction.domain.repositories;
 
 import com.backend.immilog.interaction.domain.model.InteractionUser;
-import com.backend.immilog.post.domain.model.post.PostType;
+import com.backend.immilog.shared.enums.ContentType;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface InteractionUserRepository {
-    List<InteractionUser> findByPostIdListAndPostType(
+    List<InteractionUser> findByPostIdListAndContentType(
             List<String> postIdList,
-            PostType postType
+            ContentType contentType
     );
 
-    List<InteractionUser> findBookmarksByUserIdAndPostType(
+    List<InteractionUser> findBookmarksByUserIdAndContentType(
             String userId,
-            PostType postType
+            ContentType contentType
     );
 
     Optional<InteractionUser> findById(String id);

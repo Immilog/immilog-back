@@ -5,11 +5,11 @@ import com.backend.immilog.post.application.services.BulkCommandService;
 import com.backend.immilog.post.application.services.PostCommandService;
 import com.backend.immilog.post.application.services.PostQueryService;
 import com.backend.immilog.post.application.services.PostResourceCommandService;
-import com.backend.immilog.post.domain.model.post.PostType;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.aop.annotation.DistributedLock;
+import com.backend.immilog.shared.enums.ContentType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -105,7 +105,7 @@ public interface PostUpdateUseCase {
             if (deleteResources != null && !deleteResources.isEmpty()) {
                 postResourceCommandService.deleteAllEntities(
                         postId,
-                        PostType.POST,
+                        ContentType.POST,
                         resourceType,
                         deleteResources
                 );
@@ -131,7 +131,7 @@ public interface PostUpdateUseCase {
                         (ps, resource) -> {
                             try {
                                 ps.setString(1, postId);
-                                ps.setString(2, PostType.POST.name());
+                                ps.setString(2, ContentType.POST.name());
                                 ps.setString(3, resourceType.name());
                                 ps.setString(4, resource);
                             } catch (Exception e) {
