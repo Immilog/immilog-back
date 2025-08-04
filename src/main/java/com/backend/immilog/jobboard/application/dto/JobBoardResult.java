@@ -61,4 +61,32 @@ public record JobBoardResult(
                 jobBoard.isExpired()
         );
     }
+
+    public com.backend.immilog.jobboard.presentation.payload.JobBoardResponse.JobBoardInformation toInfraDTO() {
+        return new com.backend.immilog.jobboard.presentation.payload.JobBoardResponse.JobBoardInformation(
+                id,
+                userId,
+                companyName,
+                companyLocation,
+                title,
+                location,
+                workType,
+                experience,
+                industry,
+                salaryAmount,
+                salaryCurrency,
+                description,
+                requirements,
+                benefits,
+                applicationDeadline,
+                contactEmail,
+                isActive,
+                viewCount,
+                country,
+                createdAt,
+                updatedAt,
+                canApply,
+                isExpired
+        );
+    }
 }
