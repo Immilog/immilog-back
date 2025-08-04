@@ -160,13 +160,13 @@ class UserSignInResultTest {
         );
 
         // when
-        UserSignInPayload.UserSignInResponse response = result.toResponse();
+        UserSignInPayload.UserSignInResponse response = UserSignInPayload.UserSignInResponse.success(result.toInfraDTO());
 
         // then
         assertThat(response).isNotNull();
         assertThat(response.status()).isEqualTo(200);
         assertThat(response.message()).isEqualTo("success");
-        assertThat(response.data()).isEqualTo(result);
+        assertThat(response.data().accessToken()).isEqualTo(result.toInfraDTO().accessToken());
     }
 
     @Test

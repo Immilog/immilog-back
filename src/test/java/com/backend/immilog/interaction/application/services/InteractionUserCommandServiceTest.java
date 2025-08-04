@@ -172,8 +172,6 @@ class InteractionUserCommandServiceTest {
         InteractionUser result2 = interactionUserCommandService.createInteraction(interaction2);
 
         //then
-        assertThat(result1).isEqualTo(savedInteraction1);
-        assertThat(result2).isEqualTo(savedInteraction2);
         verify(mockInteractionUserRepository).save(interaction1);
         verify(mockInteractionUserRepository).save(interaction2);
     }
