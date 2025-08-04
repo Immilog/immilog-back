@@ -29,7 +29,7 @@ public class InteractionController {
     ) {
         var command = request.toCommand(userId);
         var result = interactionCreateUseCase.createInteraction(command);
-        return ResponseEntity.ok(InteractionResponse.success(result));
+        return ResponseEntity.ok(InteractionResponse.success(result.toInfraDTO()));
     }
 
     @DeleteMapping("/{interactionId}")
