@@ -57,6 +57,7 @@ public class CompanyController {
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId
     ) {
         final var result = getCompanyUseCase.getCompany(userId);
-        return ResponseEntity.status(OK).body(result.toResponse());
+        var companyInformation = result.toInfraDTO();
+        return ResponseEntity.status(OK).body(CompanyPayload.CompanyResponse.from(companyInformation));
     }
 }
