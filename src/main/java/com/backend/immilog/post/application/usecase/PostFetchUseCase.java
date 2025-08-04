@@ -9,6 +9,7 @@ import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
+import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -53,13 +54,16 @@ public interface PostFetchUseCase {
     class PostFetcher implements PostFetchUseCase {
         private final PostQueryService postQueryService;
         private final PostResultAssembler postResultAssembler;
+        private final EventResultStorageService eventResultStorageService;
 
         public PostFetcher(
                 PostQueryService postQueryService,
-                PostResultAssembler postResultAssembler
+                PostResultAssembler postResultAssembler,
+                EventResultStorageService eventResultStorageService
         ) {
             this.postQueryService = postQueryService;
             this.postResultAssembler = postResultAssembler;
+            this.eventResultStorageService = eventResultStorageService;
         }
 
         public Page<PostResult> getPosts(
@@ -82,11 +86,11 @@ public interface PostFetchUseCase {
                 ContentType contentType
         ) {
             // 이벤트를 통해 북마크된 게시물 ID 목록 요청
-            DomainEvents.raise(new PostEvent.BookmarkPostsRequested(userId, contentType.name()));
+            String requestId = eventResultStorageService.generateRequestId("bookmark");
+            DomainEvents.raise(new PostEvent.BookmarkPostsRequested(requestId, userId, contentType.name()));
 
-            // TODO: 실제 구현에서는 이벤트 핸들러가 북마크 데이터를 조회해서 결과를 저장
-            // 그리고 그것을 여기서 조회해야 함
-            final var postIdList = getBookmarkedPostIdsFromEvents();
+            // Redis에서 이벤트 처리 결과 조회
+            final var postIdList = getBookmarkedPostIdsFromRedis(requestId);
             return postQueryService.getPostsByPostIdList(postIdList);
         }
 
@@ -120,11 +124,16 @@ public interface PostFetchUseCase {
             return postQueryService.getPostsFromRedis("hot_posts");
         }
 
-        // 임시 메서드 - 실제로는 이벤트 핸들러가 처리한 결과를 조회해야 함
-        private List<String> getBookmarkedPostIdsFromEvents() {
-            // TODO: 실제 구현에서는 이벤트 핸들러가 북마크 데이터를 조회해서 어딘가에 저장
-            // 그리고 그것을 여기서 조회해야 함
-            return List.of();
+        private List<String> getBookmarkedPostIdsFromRedis(String requestId) {
+            // 이벤트 처리 완료까지 잠시 대기 (실제로는 더 정교한 동기화 필요)
+            try {
+                Thread.sleep(100); // 100ms 대기
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.warn("Interrupted while waiting for bookmark event processing", e);
+            }
+            
+            return eventResultStorageService.getBookmarkData(requestId);
         }
     }
 }

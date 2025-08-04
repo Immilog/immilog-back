@@ -24,7 +24,7 @@ public class PostResultAssembler {
         var updatedTags = new ArrayList<>(postResult.tags());
         updatedTags.addAll(extractTags(updatedTags, keyword));
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
@@ -66,7 +66,7 @@ public class PostResultAssembler {
                 .map(InteractionData::userId)
                 .toList());
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
@@ -110,7 +110,7 @@ public class PostResultAssembler {
                 .map(Resource::content)
                 .toList());
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),
@@ -139,7 +139,7 @@ public class PostResultAssembler {
             int size
     ) {
         return new PostResult(
-                postResult.id(),
+                postResult.postId(),
                 postResult.userId(),
                 postResult.userProfileUrl(),
                 postResult.userNickName(),

@@ -1,4 +1,4 @@
-package com.backend.immilog.post.presentation.request;
+package com.backend.immilog.post.presentation.payload;
 
 import com.backend.immilog.post.application.dto.PostUpdateCommand;
 import io.swagger.v3.oas.annotations.media.Schema;

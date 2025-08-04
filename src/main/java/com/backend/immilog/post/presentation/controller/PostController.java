@@ -8,11 +8,7 @@ import com.backend.immilog.post.application.usecase.PostUpdateUseCase;
 import com.backend.immilog.post.application.usecase.PostUploadUseCase;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
-import com.backend.immilog.post.presentation.request.PostUpdateRequest;
-import com.backend.immilog.post.presentation.request.PostUploadRequest;
-import com.backend.immilog.post.presentation.response.PostDetailResponse;
-import com.backend.immilog.post.presentation.response.PostListResponse;
-import com.backend.immilog.post.presentation.response.PostPageResponse;
+import com.backend.immilog.post.presentation.payload.*;
 import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
@@ -107,7 +103,8 @@ public class PostController {
         } else {
             posts = postFetchUseCase.getPosts(country, sort, isPublic, category, page);
         }
-        return ResponseEntity.ok(PostPageResponse.of(posts));
+        var pagedPosts = posts.map(PostResult::toInfraDTO);
+        return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
     }
 
     @GetMapping("/{postId}")
@@ -128,22 +125,25 @@ public class PostController {
             @CurrentUser String userId,
             @Parameter(description = "포스팅 타입") @RequestParam(value = "contentType", defaultValue = "POST") ContentType contentType
     ) {
-        var posts = postFetchUseCase.getBookmarkedPosts(userId, contentType);
-        return ResponseEntity.ok(PostListResponse.of(posts));
+        var postResults = postFetchUseCase.getBookmarkedPosts(userId, contentType);
+        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
+        return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
     @GetMapping("/hot")
     @Operation(summary = "인기 게시물 조회", description = "인기 게시물을 조회합니다.")
     public ResponseEntity<PostListResponse> getHotPosts() {
-        var posts = postFetchUseCase.getHotPosts();
-        return ResponseEntity.ok(PostListResponse.of(posts));
+        var postResults = postFetchUseCase.getHotPosts();
+        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
+        return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
     @GetMapping("/most-viewed")
     @Operation(summary = "가장 많이 조회된 게시물 조회", description = "가장 많이 조회된 게시물을 조회합니다.")
     public ResponseEntity<PostListResponse> getMostViewedPosts() {
-        var posts = postFetchUseCase.getMostViewedPosts();
-        return ResponseEntity.ok(PostListResponse.of(posts));
+        var postResults = postFetchUseCase.getMostViewedPosts();
+        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
+        return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
     @GetMapping("/my")
@@ -152,7 +152,8 @@ public class PostController {
             @CurrentUser String userId,
             @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
-        var posts = postFetchUseCase.getUserPosts(userId, page);
-        return ResponseEntity.ok(PostPageResponse.of(posts));
+        var postResults = postFetchUseCase.getUserPosts(userId, page);
+        var pagedPosts = postResults.map(PostResult::toInfraDTO);
+        return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
     }
 }

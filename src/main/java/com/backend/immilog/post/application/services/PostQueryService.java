@@ -16,6 +16,7 @@ import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.infrastructure.DataRepository;
+import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,19 +40,22 @@ public class PostQueryService {
     private final DataRepository redisDataRepository;
     private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
+    private final EventResultStorageService eventResultStorageService;
 
     public PostQueryService(
             ObjectMapper objectMapper,
             PostDomainRepository postDomainRepository,
             DataRepository redisDataRepository,
             PostResourceQueryService postResourceQueryService,
-            PostResultAssembler postResultAssembler
+            PostResultAssembler postResultAssembler,
+            EventResultStorageService eventResultStorageService
     ) {
         this.objectMapper = objectMapper;
         this.postDomainRepository = postDomainRepository;
         this.redisDataRepository = redisDataRepository;
         this.postResourceQueryService = postResourceQueryService;
         this.postResultAssembler = postResultAssembler;
+        this.eventResultStorageService = eventResultStorageService;
     }
 
     @Transactional(readOnly = true)
@@ -154,16 +158,16 @@ public class PostQueryService {
                 .collect(Collectors.toMap(resultIdList::get, i -> i));
 
         // 이벤트를 통해 인터랙션 데이터 요청
-        DomainEvents.raise(new PostEvent.InteractionDataRequested(resultIdList, ContentType.POST.name()));
+        String requestId = eventResultStorageService.generateRequestId("interaction");
+        DomainEvents.raise(new PostEvent.InteractionDataRequested(requestId, resultIdList, ContentType.POST.name()));
 
-        // 이벤트 처리된 인터랙션 데이터를 DomainEvents에서 조회 (임시)
-        // TODO: 실제 구현에서는 이벤트 핸들러가 결과를 어딘가에 저장하고 그것을 조회해야 함
-        var interactionUsers = getInteractionDataFromEvents();
+        // Redis에서 이벤트 처리 결과 조회 (비동기 처리 대기 후)
+        var interactionUsers = getInteractionDataFromRedis(requestId);
         var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
         return postResults.map(postResult -> {
             var resources = postResources.stream()
-                    .filter(postResource -> postResource.postId().equals(postResult.id()))
+                    .filter(postResource -> postResource.postId().equals(postResult.postId()))
                     .map(pr -> new Resource(
                             pr.id(),
                             pr.postId(),
@@ -175,7 +179,7 @@ public class PostQueryService {
                     .toList();
 
             var interactionDataList = interactionUsers.stream()
-                    .filter(interactionData -> interactionData.postId().equals(postResult.id()))
+                    .filter(interactionData -> interactionData.postId().equals(postResult.postId()))
                     .sorted(Comparator.comparingInt(id -> orderMap.getOrDefault(id.postId(), Integer.MAX_VALUE)))
                     .toList();
 
@@ -221,9 +225,15 @@ public class PostQueryService {
     }
 
     // 임시 메서드 - 실제로는 이벤트 핸들러가 처리한 결과를 조회해야 함
-    private List<InteractionData> getInteractionDataFromEvents() {
-        // TODO: 실제 구현에서는 이벤트 핸들러가 인터랙션 데이터를 조회해서 어딘가에 저장
-        // 그리고 그것을 여기서 조회해야 함
-        return List.of();
+    private List<InteractionData> getInteractionDataFromRedis(String requestId) {
+        // 이벤트 처리 완료까지 잠시 대기 (실제로는 더 정교한 동기화 필요)
+        try {
+            Thread.sleep(100); // 100ms 대기
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            log.warn("Interrupted while waiting for event processing", e);
+        }
+        
+        return eventResultStorageService.getInteractionData(requestId);
     }
 }

@@ -74,6 +74,16 @@ public class Post {
         return this;
     }
 
+    public Post decreaseCommentCount() {
+        if (this.postInfo.status() == ContentStatus.DELETED) {
+            throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
+        }
+        if (this.commentCount > 0) {
+            this.commentCount--;
+        }
+        return this;
+    }
+
     public Post updateIsPublic(Boolean isPublic) {
         if (isPublic == null) {
             throw new PostException(PostErrorCode.INVALID_PUBLIC_STATUS);
