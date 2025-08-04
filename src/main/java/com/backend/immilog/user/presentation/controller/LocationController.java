@@ -2,7 +2,7 @@ package com.backend.immilog.user.presentation.controller;
 
 import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.usecase.FetchLocationUseCase;
-import com.backend.immilog.user.presentation.payload.UserLoacationPayload;
+import com.backend.immilog.user.presentation.payload.UserLocationPayload;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +26,7 @@ public class LocationController {
 
     @GetMapping
     @Operation(summary = "위치 정보", description = "위치 정보를 가져옵니다.")
-    public ResponseEntity<UserLoacationPayload.UserLocationResponse> getLocation(
+    public ResponseEntity<UserLocationPayload.UserLocationResponse> getLocation(
             @Parameter(description = "위도") @RequestParam("latitude") Double latitude,
             @Parameter(description = "경도") @RequestParam("longitude") Double longitude
     ) {
@@ -34,7 +34,7 @@ public class LocationController {
         var country = Country.getCountryByKoreanName(locationResult.country());
         var countryName = country != null ? country.name() : "ETC";
         return ResponseEntity.status(OK).body(
-                new UserLoacationPayload.UserLocationResponse(
+                new UserLocationPayload.UserLocationResponse(
                         countryName,
                         locationResult.city()
                 )
