@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Configuration;
         JwtProperties.class,
         WebProperties.class,
         RedisProperties.class,
-        GeocodeProperties.class
+        GeocodeProperties.class,
+        EventProperties.class
 })
 public class PropertiesConfig {
 }
