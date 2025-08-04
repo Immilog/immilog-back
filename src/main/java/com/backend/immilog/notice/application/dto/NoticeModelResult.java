@@ -63,7 +63,21 @@ public record NoticeModelResult(
     }
 
     public NoticeDetailResponse toResponse() {
-        return new NoticeDetailResponse(HttpStatus.OK.value(), "success", this);
+        return new NoticeDetailResponse(HttpStatus.OK.value(), "success", toInfraDTO());
+    }
+
+    public NoticeDetailResponse.NoticeInformation toInfraDTO() {
+        return new NoticeDetailResponse.NoticeInformation(
+                id,
+                authorUserId,
+                title,
+                content,
+                type,
+                status,
+                targetCountry,
+                readUsers,
+                createdAt
+        );
     }
 }
 
