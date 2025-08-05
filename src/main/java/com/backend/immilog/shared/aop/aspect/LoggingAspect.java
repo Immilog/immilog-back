@@ -24,11 +24,12 @@ import java.util.Objects;
 @Component
 public class LoggingAspect {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .enable(SerializationFeature.INDENT_OUTPUT);
+    private final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
+    private final ObjectMapper objectMapper;
+
+    public LoggingAspect(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Around("within(@org.springframework.stereotype.Controller *) || within(@org.springframework.web.bind.annotation.RestController *)")
     public Object logHttpRequests(ProceedingJoinPoint joinPoint) throws Throwable {

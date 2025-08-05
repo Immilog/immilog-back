@@ -1,6 +1,8 @@
 package com.backend.immilog.shared.config.web;
 
+import com.backend.immilog.shared.enums.Country;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
@@ -13,6 +15,10 @@ public class JacksonConfig {
         return builder -> {
             builder.modules(new JavaTimeModule());
             builder.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            
+            SimpleModule countryModule = new SimpleModule();
+            countryModule.addDeserializer(Country.class, new CountryDeserializer());
+            builder.modules(countryModule);
         };
     }
 }

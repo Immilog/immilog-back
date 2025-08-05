@@ -26,9 +26,14 @@ import java.time.Duration;
 public class RedisConfig {
 
     private final RedisProperties redisProperties;
+    private final ObjectMapper objectMapper;
 
-    public RedisConfig(RedisProperties redisProperties) {
+    public RedisConfig(
+            RedisProperties redisProperties,
+            ObjectMapper objectMapper
+    ) {
         this.redisProperties = redisProperties;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -72,8 +77,6 @@ public class RedisConfig {
         template.setConnectionFactory(redisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         
-        // JSR310 모듈이 포함된 ObjectMapper 생성
-        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         
