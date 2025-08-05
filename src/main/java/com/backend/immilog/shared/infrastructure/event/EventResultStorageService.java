@@ -21,15 +21,18 @@ public class EventResultStorageService {
     private final RedisTemplate<String, Object> eventRedisTemplate;
     private final ObjectMapper objectMapper;
 
-    public EventResultStorageService(RedisTemplate<String, Object> eventRedisTemplate, ObjectMapper objectMapper) {
+    public EventResultStorageService(
+            RedisTemplate<String, Object> eventRedisTemplate,
+            ObjectMapper objectMapper
+    ) {
         this.eventRedisTemplate = eventRedisTemplate;
         this.objectMapper = objectMapper;
     }
 
-    /**
-     * 인터랙션 데이터를 Redis에 저장
-     */
-    public void storeInteractionData(String requestId, List<InteractionData> interactionDataList) {
+    public void storeInteractionData(
+            String requestId,
+            List<InteractionData> interactionDataList
+    ) {
         try {
             String key = INTERACTION_DATA_KEY_PREFIX + requestId;
             eventRedisTemplate.opsForValue().set(key, interactionDataList, TTL.toSeconds(), TimeUnit.SECONDS);
@@ -39,10 +42,10 @@ public class EventResultStorageService {
         }
     }
 
-    /**
-     * 북마크 데이터를 Redis에 저장
-     */
-    public void storeBookmarkData(String requestId, List<String> postIds) {
+    public void storeBookmarkData(
+            String requestId,
+            List<String> postIds
+    ) {
         try {
             String key = BOOKMARK_DATA_KEY_PREFIX + requestId;
             eventRedisTemplate.opsForValue().set(key, postIds, TTL.toSeconds(), TimeUnit.SECONDS);
@@ -52,10 +55,6 @@ public class EventResultStorageService {
         }
     }
 
-    /**
-     * 인터랙션 데이터를 Redis에서 조회
-     */
-    @SuppressWarnings("unchecked")
     public List<InteractionData> getInteractionData(String requestId) {
         try {
             String key = INTERACTION_DATA_KEY_PREFIX + requestId;
@@ -83,10 +82,6 @@ public class EventResultStorageService {
         }
     }
 
-    /**
-     * 북마크 데이터를 Redis에서 조회
-     */
-    @SuppressWarnings("unchecked")
     public List<String> getBookmarkData(String requestId) {
         try {
             String key = BOOKMARK_DATA_KEY_PREFIX + requestId;
@@ -106,9 +101,6 @@ public class EventResultStorageService {
         }
     }
 
-    /**
-     * 요청 ID 생성
-     */
     public String generateRequestId(String prefix) {
         return prefix + "_" + System.currentTimeMillis() + "_" + Thread.currentThread().hashCode();
     }

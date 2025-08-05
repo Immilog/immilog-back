@@ -55,6 +55,7 @@ public class RedisEventSubscriber implements MessageListener {
 
     public void handleDomainEvent(String messageBody) {
         try {
+            // RedisTemplate이 이미 역직렬화를 수행했으므로, 문자열을 다시 파싱할 필요가 있습니다
             var eventMessage = objectMapper.readValue(messageBody, RedisEventMessage.class);
             this.processEventMessage(eventMessage, false);
         } catch (Exception e) {

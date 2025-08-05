@@ -30,9 +30,8 @@ public class RedisEventPublisher {
     public void publishDomainEvent(DomainEvent event) {
         try {
             RedisEventMessage eventMessage = createEventMessage(event);
-            String serializedMessage = objectMapper.writeValueAsString(eventMessage);
 
-            eventRedisTemplate.convertAndSend(RedisEventConfig.DOMAIN_EVENT_CHANNEL, serializedMessage);
+            eventRedisTemplate.convertAndSend(RedisEventConfig.DOMAIN_EVENT_CHANNEL, eventMessage);
 
             log.debug("Published domain event: {} to channel: {}",
                     event.getClass().getSimpleName(), RedisEventConfig.DOMAIN_EVENT_CHANNEL);
@@ -46,9 +45,8 @@ public class RedisEventPublisher {
     public void publishCompensationEvent(DomainEvent event) {
         try {
             var eventMessage = this.createEventMessage(event);
-            var serializedMessage = objectMapper.writeValueAsString(eventMessage);
 
-            eventRedisTemplate.convertAndSend(RedisEventConfig.COMPENSATION_EVENT_CHANNEL, serializedMessage);
+            eventRedisTemplate.convertAndSend(RedisEventConfig.COMPENSATION_EVENT_CHANNEL, eventMessage);
 
             log.debug(
                     "Published compensation event: {} to channel: {}",

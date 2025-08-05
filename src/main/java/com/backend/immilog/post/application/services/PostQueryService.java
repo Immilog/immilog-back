@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -105,8 +106,7 @@ public class PostQueryService {
 
     @Transactional(readOnly = true)
     public PostResult getPostDetail(String postId) {
-        var post = postDomainRepository.findById(postId)
-                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        var post = postDomainRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
         var posts = new PageImpl<>(List.of(post));
         var postResult = posts.map(this::convertToPostResult);
         return this.assemblePostResult(List.of(postId), postResult).getContent().getFirst();
@@ -207,10 +207,10 @@ public class PostQueryService {
                 post.commentCount(),
                 post.viewCount(),
                 post.likeCount(),
-                null,
-                null,
-                null,
-                null,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
                 post.isPublic(),
                 post.countryName(),
                 post.region(),

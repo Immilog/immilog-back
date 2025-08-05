@@ -32,12 +32,12 @@ public record UserInformationPayload() {
         }
     }
 
-    public record UserNicknameResponse(
+    public record userNicknameResponse(
             @Schema(description = "상태 코드", example = "200") Integer status,
             @Schema(description = "메시지", example = "success") String message,
             @Schema(description = "닉네임 중복 여부", example = "true") Boolean data
     ) {
-        public UserNicknameResponse(Boolean nicknameExist) {
+        public userNicknameResponse(Boolean nicknameExist) {
             this(
                     200,
                     nicknameExist ? "success" : "fail",

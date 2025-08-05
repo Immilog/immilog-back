@@ -75,11 +75,11 @@ public class UserController {
 
     @GetMapping("/nicknames/{nickname}/availability")
     @Operation(summary = "닉네임 중복 체크", description = "닉네임 사용 가능 여부를 체크합니다.")
-    public ResponseEntity<UserInformationPayload.UserNicknameResponse> checkNicknameAvailability(
+    public ResponseEntity<UserInformationPayload.userNicknameResponse> checkNicknameAvailability(
             @Parameter(description = "닉네임") @PathVariable("nickname") String nickname
     ) {
         var isNicknameAvailable = userSignUpProcessor.isNicknameAvailable(nickname);
-        return ResponseEntity.ok(new UserInformationPayload.UserNicknameResponse(isNicknameAvailable));
+        return ResponseEntity.ok(new UserInformationPayload.userNicknameResponse(isNicknameAvailable));
     }
 
     @PostMapping("/blocks/{targetId}")

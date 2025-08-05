@@ -3,6 +3,7 @@ package com.backend.immilog.comment.infrastructure.jdbc;
 import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.shared.enums.ContentStatus;
+import com.backend.immilog.shared.enums.Country;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -20,12 +21,25 @@ public class CommentJdbcRepository {
 
     public List<CommentResult> findCommentsByPostId(String postId) {
         var sql = """
-                SELECT c.comment_id, c.user_id, c.content, c.post_id, c.parent_id, c.reference_type, 
-                       c.reply_count, c.like_count, c.status, c.created_at, c.updated_at,
-                       u.nickname, u.image_url
+                SELECT 
+                    c.comment_id, 
+                       c.user_id, 
+                       c.content,
+                       c.post_id,
+                       c.parent_id, 
+                       c.reference_type, 
+                       c.reply_count,
+                       c.like_count,
+                       c.status, 
+                       c.created_at, 
+                       c.updated_at,
+                       u.nickname,
+                       u.image_url,
+                       u.country,
+                       u.region
                 FROM comment c
                 LEFT JOIN user u ON c.user_id = u.user_id
-                WHERE c.post_id = ? AND c.status = 'ACTIVE'
+                WHERE c.post_id = ? AND c.status = 'NORMAL'
                 ORDER BY c.created_at ASC
                 """;
         return jdbcTemplate.query(sql, this::mapToCommentResult, postId);
@@ -38,6 +52,10 @@ public class CommentJdbcRepository {
         return new CommentResult(
                 rs.getString("comment_id"),
                 rs.getString("user_id"),
+                rs.getString("nickname"),
+                rs.getString("image_url"),
+                rs.getString("country") != null ? Country.valueOf(rs.getString("country")) : null,
+                rs.getString("region"),
                 rs.getString("content"),
                 rs.getString("post_id"),
                 rs.getString("parent_id"),

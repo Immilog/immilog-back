@@ -13,7 +13,10 @@ public record PostDetailResponse(
         PostInformation post,
         List<CommentResponse.CommentInformation> comments
 ) {
-    public static PostDetailResponse success(PostResult post, List<CommentResult> comments) {
+    public static PostDetailResponse success(
+            PostResult post,
+            List<CommentResult> comments
+    ) {
         var commentInfoList = comments.stream()
                 .map(CommentResult::toInfraDTO)
                 .toList();

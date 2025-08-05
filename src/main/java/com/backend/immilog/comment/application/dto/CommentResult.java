@@ -4,12 +4,17 @@ import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.presentation.payload.CommentResponse;
 import com.backend.immilog.shared.enums.ContentStatus;
+import com.backend.immilog.shared.enums.Country;
 
 import java.time.LocalDateTime;
 
 public record CommentResult(
         String id,
         String userId,
+        String nickname,
+        String userProfileUrl,
+        Country country,
+        String region,
         String content,
         String postId,
         String parentId,
@@ -20,10 +25,20 @@ public record CommentResult(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static CommentResult from(Comment comment) {
+    public static CommentResult from(
+            Comment comment,
+            String userNickname,
+            String userProfileUrl,
+            Country userCountry,
+            String userRegion
+    ) {
         return new CommentResult(
                 comment.id(),
                 comment.userId(),
+                userNickname,
+                userProfileUrl,
+                userCountry,
+                userRegion,
                 comment.content(),
                 comment.postId() != null ? comment.postId() : null,
                 comment.parentId() != null ? comment.parentId() : null,
@@ -40,6 +55,10 @@ public record CommentResult(
         return new CommentResponse.CommentInformation(
                 this.id,
                 this.userId,
+                this.nickname,
+                this.userProfileUrl,
+                this.country,
+                this.region,
                 this.content,
                 this.postId,
                 this.parentId,

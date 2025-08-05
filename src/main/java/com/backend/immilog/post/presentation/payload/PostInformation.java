@@ -10,7 +10,7 @@ public record PostInformation(
         @Schema(description = "게시글 ID", example = "abce") String postId,
         @Schema(description = "작성자 ID", example = "user123") String userId,
         @Schema(description = "작성자 프로필 URL", example = "https://example.com/profile.jpg") String userProfileUrl,
-        @Schema(description = "작성자 닉네임", example = "JohnDoe") String userNickName,
+        @Schema(description = "작성자 닉네임", example = "JohnDoe") String userNickname,
         @Schema(description = "댓글 수", example = "10") Long commentCount,
         @Schema(description = "조회 수", example = "100") Long viewCount,
         @Schema(description = "좋아요 수", example = "50") Long likeCount,

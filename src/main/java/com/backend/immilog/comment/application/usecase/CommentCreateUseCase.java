@@ -5,6 +5,7 @@ import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.application.services.CommentCommandService;
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.shared.application.event.DomainEventPublisher;
+import com.backend.immilog.user.application.services.query.UserQueryService;
 import org.springframework.stereotype.Service;
 
 public interface CommentCreateUseCase {
@@ -14,13 +15,16 @@ public interface CommentCreateUseCase {
     class CommentCreator implements CommentCreateUseCase {
         private final CommentCommandService commentCommandService;
         private final DomainEventPublisher domainEventPublisher;
+        private final UserQueryService userQueryService;
 
         public CommentCreator(
                 CommentCommandService commentCommandService,
-                DomainEventPublisher domainEventPublisher
+                DomainEventPublisher domainEventPublisher,
+                UserQueryService userQueryService
         ) {
             this.commentCommandService = commentCommandService;
             this.domainEventPublisher = domainEventPublisher;
+            this.userQueryService = userQueryService;
         }
 
         @Override
@@ -39,7 +43,16 @@ public interface CommentCreateUseCase {
             // 도메인 이벤트 처리
             domainEventPublisher.publishEvents();
             
-            return CommentResult.from(savedComment);
+            // User 정보 조회
+            var user = userQueryService.getUserById(command.userId());
+            
+            return CommentResult.from(
+                    savedComment,
+                    user.getNickname(),
+                    user.getImageUrl(),
+                    user.getCountry(),
+                    user.getRegion()
+            );
         }
     }
 }

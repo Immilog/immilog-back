@@ -3,7 +3,7 @@ package com.backend.immilog.user.application.usecase;
 import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
-import com.backend.immilog.user.application.result.UserNickNameResult;
+import com.backend.immilog.user.application.result.userNicknameResult;
 import com.backend.immilog.user.application.services.UserService;
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 public interface SignUpUserUseCase {
-    UserNickNameResult signUp(UserSignUpCommand command);
+    userNicknameResult signUp(UserSignUpCommand command);
 
     Boolean isNicknameAvailable(String nickname);
 
@@ -40,7 +40,7 @@ public interface SignUpUserUseCase {
         }
 
         @Override
-        public UserNickNameResult signUp(UserSignUpCommand command) {
+        public userNicknameResult signUp(UserSignUpCommand command) {
             var userId = userService.registerUser(
                     command.email(),
                     command.password(),
@@ -52,7 +52,7 @@ public interface SignUpUserUseCase {
             );
 
             var savedUser = userQueryService.getUserById(userId);
-            return new UserNickNameResult(userId.value(), savedUser.getNickname());
+            return new userNicknameResult(userId.value(), savedUser.getNickname());
         }
 
         @Override

@@ -1,8 +1,8 @@
 package com.backend.immilog.comment.presentation.payload;
 
-import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.shared.enums.ContentStatus;
+import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -28,6 +28,10 @@ public record CommentResponse(
     public record CommentInformation(
             @Schema(description = "댓글 ID", example = "comment123") String commentId,
             @Schema(description = "사용자 ID", example = "user123") String userId,
+            @Schema(description = "사용자 닉네임", example = "nickname") String nickname,
+            @Schema(description = "사용자 프로필 URL", example = "https://example.com/profile/user123") String userProfileUrl,
+            @Schema(description = "사용자 국가", example = "KOREA") Country country,
+            @Schema(description = "사용자 지역", example = "Seoul") String region,
             @Schema(description = "댓글 내용", example = "이것은 댓글입니다.") String content,
             @Schema(description = "게시물 ID", example = "post123") String postId,
             @Schema(description = "부모 댓글 ID", example = "parentComment123") String parentId,
