@@ -14,7 +14,11 @@ public class CommentQueryService {
         this.commentRepository = commentRepository;
     }
 
-    public List<CommentResult> getComments(String postId) {
+    public List<CommentResult> getCommentsByPostId(String postId) {
         return commentRepository.findCommentsByPostId(postId);
+    }
+
+    public CommentResult getCommentByCommentId(String commentId){
+        return commentRepository.getCommentById(commentId);
     }
 }

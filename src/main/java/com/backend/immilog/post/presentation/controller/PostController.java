@@ -113,7 +113,7 @@ public class PostController {
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId
     ) {
         var post = postFetchUseCase.getPostDetail(postId);
-        var comments = commentQueryService.getComments(postId);
+        var comments = commentQueryService.getCommentsByPostId(postId);
         return ResponseEntity.ok(PostDetailResponse.success(post, comments));
     }
 

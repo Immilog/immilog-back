@@ -1,6 +1,5 @@
 package com.backend.immilog.comment.application.dto;
 
-import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.presentation.payload.CommentResponse;
 import com.backend.immilog.shared.enums.ContentStatus;
@@ -25,31 +24,6 @@ public record CommentResult(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static CommentResult from(
-            Comment comment,
-            String userNickname,
-            String userProfileUrl,
-            Country userCountry,
-            String userRegion
-    ) {
-        return new CommentResult(
-                comment.id(),
-                comment.userId(),
-                userNickname,
-                userProfileUrl,
-                userCountry,
-                userRegion,
-                comment.content(),
-                comment.postId() != null ? comment.postId() : null,
-                comment.parentId() != null ? comment.parentId() : null,
-                comment.referenceType(),
-                comment.replyCount(),
-                comment.likeCount(),
-                comment.status(),
-                comment.createdAt(),
-                comment.updatedAt()
-        );
-    }
 
     public CommentResponse.CommentInformation toInfraDTO() {
         return new CommentResponse.CommentInformation(

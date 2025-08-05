@@ -44,4 +44,9 @@ public class CommentRepositoryImpl implements CommentRepository {
     public void deleteById(String commentId) {
         commentJpaRepository.deleteById(commentId);
     }
+
+    @Override
+    public CommentResult getCommentById(String commentId) {
+        return commentJdbcRepository.findCommentById(commentId);
+    }
 }

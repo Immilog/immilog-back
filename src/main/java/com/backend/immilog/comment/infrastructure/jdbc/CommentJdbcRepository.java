@@ -67,4 +67,29 @@ public class CommentJdbcRepository {
                 rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null
         );
     }
+
+    public CommentResult findCommentById(String commentId) {
+        var sql = """
+                SELECT 
+                    c.comment_id, 
+                    c.user_id, 
+                    c.content,
+                    c.post_id,
+                    c.parent_id, 
+                    c.reference_type, 
+                    c.reply_count,
+                    c.like_count,
+                    c.status, 
+                    c.created_at, 
+                    c.updated_at,
+                    u.nickname,
+                    u.image_url,
+                    u.country,
+                    u.region
+                FROM comment c
+                LEFT JOIN user u ON c.user_id = u.user_id
+                WHERE c.comment_id = ?
+                """;
+        return jdbcTemplate.queryForObject(sql, this::mapToCommentResult, commentId);
+    }
 }
