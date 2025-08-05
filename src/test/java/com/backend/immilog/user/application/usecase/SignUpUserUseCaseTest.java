@@ -3,7 +3,7 @@ package com.backend.immilog.user.application.usecase;
 import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
-import com.backend.immilog.user.application.result.UserNickNameResult;
+import com.backend.immilog.user.application.result.userNicknameResult;
 import com.backend.immilog.user.application.services.UserService;
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
@@ -95,7 +95,7 @@ class SignUpUserUseCaseTest {
         given(userQueryService.getUserById(expectedUserId)).willReturn(mockUser);
 
         // when
-        UserNickNameResult result = signUpUserUseCase.signUp(command);
+        userNicknameResult result = signUpUserUseCase.signUp(command);
 
         // then
         assertThat(result).isNotNull();
@@ -141,7 +141,7 @@ class SignUpUserUseCaseTest {
         given(userQueryService.getUserById(expectedUserId)).willReturn(mockUser);
 
         // when
-        UserNickNameResult result = signUpUserUseCase.signUp(command);
+        userNicknameResult result = signUpUserUseCase.signUp(command);
 
         // then
         assertThat(result).isNotNull();
@@ -192,7 +192,7 @@ class SignUpUserUseCaseTest {
         given(userQueryService.getUserById(expectedUserId)).willReturn(mockUser);
 
         // when
-        UserNickNameResult result = signUpUserUseCase.signUp(command);
+        userNicknameResult result = signUpUserUseCase.signUp(command);
 
         // then
         assertThat(result).isNotNull();
@@ -306,7 +306,7 @@ class SignUpUserUseCaseTest {
         given(userQueryService.getUserById(expectedUserId)).willReturn(mockUser);
 
         // when
-        UserNickNameResult result = signUpUserUseCase.signUp(command);
+        userNicknameResult result = signUpUserUseCase.signUp(command);
 
         // then
         assertThat(result).isNotNull();

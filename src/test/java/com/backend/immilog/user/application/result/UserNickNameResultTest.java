@@ -5,18 +5,18 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("UserNickNameResult 테스트")
-class UserNickNameResultTest {
+@DisplayName("userNicknameResult 테스트")
+class userNicknameResultTest {
 
     @Test
-    @DisplayName("정상적인 값들로 UserNickNameResult를 생성할 수 있다")
-    void createUserNickNameResult() {
+    @DisplayName("정상적인 값들로 userNicknameResult를 생성할 수 있다")
+    void createuserNicknameResult() {
         // given
         String userId = "user123";
         String nickName = "테스트유저";
 
         // when
-        UserNickNameResult result = new UserNickNameResult(userId, nickName);
+        userNicknameResult result = new userNicknameResult(userId, nickName);
 
         // then
         assertThat(result.userId()).isEqualTo(userId);
@@ -24,10 +24,10 @@ class UserNickNameResultTest {
     }
 
     @Test
-    @DisplayName("null 값들로도 UserNickNameResult를 생성할 수 있다")
-    void createUserNickNameResultWithNullValues() {
+    @DisplayName("null 값들로도 userNicknameResult를 생성할 수 있다")
+    void createuserNicknameResultWithNullValues() {
         // given & when
-        UserNickNameResult result = new UserNickNameResult(null, null);
+        userNicknameResult result = new userNicknameResult(null, null);
 
         // then
         assertThat(result.userId()).isNull();
@@ -35,10 +35,10 @@ class UserNickNameResultTest {
     }
 
     @Test
-    @DisplayName("빈 문자열로도 UserNickNameResult를 생성할 수 있다")
-    void createUserNickNameResultWithEmptyStrings() {
+    @DisplayName("빈 문자열로도 userNicknameResult를 생성할 수 있다")
+    void createuserNicknameResultWithEmptyStrings() {
         // given & when
-        UserNickNameResult result = new UserNickNameResult("", "");
+        userNicknameResult result = new userNicknameResult("", "");
 
         // then
         assertThat(result.userId()).isEmpty();
@@ -46,13 +46,13 @@ class UserNickNameResultTest {
     }
 
     @Test
-    @DisplayName("다양한 닉네임으로 UserNickNameResult를 생성할 수 있다")
-    void createUserNickNameResultWithVariousNicknames() {
+    @DisplayName("다양한 닉네임으로 userNicknameResult를 생성할 수 있다")
+    void createuserNicknameResultWithVariousNicknames() {
         // given & when
-        UserNickNameResult koreanResult = new UserNickNameResult("user1", "한글닉네임");
-        UserNickNameResult englishResult = new UserNickNameResult("user2", "EnglishNickname");
-        UserNickNameResult mixedResult = new UserNickNameResult("user3", "Mixed닉네임123");
-        UserNickNameResult specialResult = new UserNickNameResult("user4", "닉네임!@#");
+        userNicknameResult koreanResult = new userNicknameResult("user1", "한글닉네임");
+        userNicknameResult englishResult = new userNicknameResult("user2", "EnglishNickname");
+        userNicknameResult mixedResult = new userNicknameResult("user3", "Mixed닉네임123");
+        userNicknameResult specialResult = new userNicknameResult("user4", "닉네임!@#");
 
         // then
         assertThat(koreanResult.nickName()).isEqualTo("한글닉네임");
@@ -62,13 +62,13 @@ class UserNickNameResultTest {
     }
 
     @Test
-    @DisplayName("UserNickNameResult record의 동등성이 정상 작동한다")
-    void userNickNameResultEquality() {
+    @DisplayName("userNicknameResult record의 동등성이 정상 작동한다")
+    void userNicknameResultEquality() {
         // given
-        UserNickNameResult result1 = new UserNickNameResult("user123", "테스트유저");
-        UserNickNameResult result2 = new UserNickNameResult("user123", "테스트유저");
-        UserNickNameResult result3 = new UserNickNameResult("user456", "테스트유저");
-        UserNickNameResult result4 = new UserNickNameResult("user123", "다른유저");
+        userNicknameResult result1 = new userNicknameResult("user123", "테스트유저");
+        userNicknameResult result2 = new userNicknameResult("user123", "테스트유저");
+        userNicknameResult result3 = new userNicknameResult("user456", "테스트유저");
+        userNicknameResult result4 = new userNicknameResult("user123", "다른유저");
 
         // when & then
         assertThat(result1).isEqualTo(result2);
@@ -78,29 +78,29 @@ class UserNickNameResultTest {
     }
 
     @Test
-    @DisplayName("UserNickNameResult record의 toString이 정상 작동한다")
-    void userNickNameResultToString() {
+    @DisplayName("userNicknameResult record의 toString이 정상 작동한다")
+    void userNicknameResultToString() {
         // given
-        UserNickNameResult result = new UserNickNameResult("user123", "테스트유저");
+        userNicknameResult result = new userNicknameResult("user123", "테스트유저");
 
         // when
         String toString = result.toString();
 
         // then
-        assertThat(toString).contains("UserNickNameResult");
+        assertThat(toString).contains("userNicknameResult");
         assertThat(toString).contains("user123");
         assertThat(toString).contains("테스트유저");
     }
 
     @Test
-    @DisplayName("긴 사용자 ID로 UserNickNameResult를 생성할 수 있다")
-    void createUserNickNameResultWithLongUserId() {
+    @DisplayName("긴 사용자 ID로 userNicknameResult를 생성할 수 있다")
+    void createuserNicknameResultWithLongUserId() {
         // given
         String longUserId = "very-long-user-id-with-many-characters-1234567890";
         String nickname = "닉네임";
 
         // when
-        UserNickNameResult result = new UserNickNameResult(longUserId, nickname);
+        userNicknameResult result = new userNicknameResult(longUserId, nickname);
 
         // then
         assertThat(result.userId()).isEqualTo(longUserId);
@@ -108,14 +108,14 @@ class UserNickNameResultTest {
     }
 
     @Test
-    @DisplayName("공백이 포함된 닉네임으로 UserNickNameResult를 생성할 수 있다")
-    void createUserNickNameResultWithSpacesInNickname() {
+    @DisplayName("공백이 포함된 닉네임으로 userNicknameResult를 생성할 수 있다")
+    void createuserNicknameResultWithSpacesInNickname() {
         // given
         String userId = "user123";
         String nickname = "닉네임 with spaces";
 
         // when
-        UserNickNameResult result = new UserNickNameResult(userId, nickname);
+        userNicknameResult result = new userNicknameResult(userId, nickname);
 
         // then
         assertThat(result.userId()).isEqualTo(userId);
