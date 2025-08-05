@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 public record UserInformationPayload() {
     @Schema(description = "사용자 정보 수정 요청 DTO")
     public record UserInfoUpdateRequest(
-            @Schema(description = "닉네임", example = "닉네임") String nickName,
+            @Schema(description = "닉네임", example = "닉네임") String nickname,
             @Schema(description = "프로필 이미지", example = "프로필 이미지") String profileImage,
             @Schema(description = "국가", example = "SOUTH_KOREA") Country country,
             @Schema(description = "관심 국가", example = "MALAYSIA") Country interestCountry,
@@ -21,7 +21,7 @@ public record UserInformationPayload() {
     ) {
         public UserInfoUpdateCommand toCommand() {
             return new UserInfoUpdateCommand(
-                    this.nickName,
+                    this.nickname,
                     this.profileImage,
                     this.country,
                     this.interestCountry,

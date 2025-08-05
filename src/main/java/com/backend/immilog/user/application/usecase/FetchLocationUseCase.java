@@ -24,9 +24,14 @@ public interface FetchLocationUseCase {
     @Service
     class LocationFetcher implements FetchLocationUseCase {
         private final GeocodeGateway geocodeGateway;
+        private final ObjectMapper objectMapper;
 
-        public LocationFetcher(GeocodeGateway geocodeGateway) {
+        public LocationFetcher(
+                GeocodeGateway geocodeGateway,
+                ObjectMapper objectMapper
+        ) {
             this.geocodeGateway = geocodeGateway;
+            this.objectMapper = objectMapper;
         }
 
         @Async
@@ -62,7 +67,6 @@ public interface FetchLocationUseCase {
         }
 
         private String extractCompoundCode(String jsonResponse) {
-            var objectMapper = new ObjectMapper();
             try {
                 var rootNode = objectMapper.readTree(jsonResponse);
                 var plusCodeNode = rootNode.path("plus_code");
