@@ -2,6 +2,7 @@ package com.backend.immilog.user.application.usecase;
 
 import com.backend.immilog.user.application.result.LocationResult;
 import com.backend.immilog.user.infrastructure.gateway.GeocodeGateway;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,12 @@ class FetchLocationUseCaseTest {
 
     private final GeocodeGateway geocodeGateway = mock(GeocodeGateway.class);
     private FetchLocationUseCase locationFetcher;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        locationFetcher = new FetchLocationUseCase.LocationFetcher(geocodeGateway);
+        objectMapper = new ObjectMapper();
+        locationFetcher = new FetchLocationUseCase.LocationFetcher(geocodeGateway, objectMapper);
     }
 
     private String createValidGeocodeResponse() {
