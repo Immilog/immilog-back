@@ -30,7 +30,7 @@ class InteractionUserCommandServiceTest {
 
     @Test
     @DisplayName("인터랙션 생성 - 정상 케이스")
-    void createInteractionSuccessfully() {
+    void toggleInteractionSuccessfully() {
         //given
         InteractionUser interaction = createTestInteraction();
         InteractionUser savedInteraction = createTestInteractionWithId();
@@ -38,7 +38,7 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(interaction)).thenReturn(savedInteraction);
 
         //when
-        InteractionUser result = interactionUserCommandService.createInteraction(interaction);
+        InteractionUser result = interactionUserCommandService.toggleInteraction(interaction);
 
         //then
         assertThat(result).isEqualTo(savedInteraction);
@@ -56,7 +56,7 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(likeInteraction)).thenReturn(savedInteraction);
 
         //when
-        InteractionUser result = interactionUserCommandService.createInteraction(likeInteraction);
+        InteractionUser result = interactionUserCommandService.toggleInteraction(likeInteraction);
 
         //then
         assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
@@ -74,7 +74,7 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(bookmarkInteraction)).thenReturn(savedInteraction);
 
         //when
-        InteractionUser result = interactionUserCommandService.createInteraction(bookmarkInteraction);
+        InteractionUser result = interactionUserCommandService.toggleInteraction(bookmarkInteraction);
 
         //then
         assertThat(result.interactionType()).isEqualTo(InteractionType.BOOKMARK);
@@ -92,7 +92,7 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(jobBoardInteraction)).thenReturn(savedInteraction);
 
         //when
-        InteractionUser result = interactionUserCommandService.createInteraction(jobBoardInteraction);
+        InteractionUser result = interactionUserCommandService.toggleInteraction(jobBoardInteraction);
 
         //then
         assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
@@ -109,7 +109,7 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(interaction)).thenReturn(null);
 
         //when
-        InteractionUser result = interactionUserCommandService.createInteraction(interaction);
+        InteractionUser result = interactionUserCommandService.toggleInteraction(interaction);
 
         //then
         assertThat(result).isNull();
@@ -168,8 +168,8 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(interaction2)).thenReturn(savedInteraction2);
 
         //when
-        InteractionUser result1 = interactionUserCommandService.createInteraction(interaction1);
-        InteractionUser result2 = interactionUserCommandService.createInteraction(interaction2);
+        InteractionUser result1 = interactionUserCommandService.toggleInteraction(interaction1);
+        InteractionUser result2 = interactionUserCommandService.toggleInteraction(interaction2);
 
         //then
         verify(mockInteractionUserRepository).save(interaction1);
@@ -206,7 +206,7 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(interactionToCreate)).thenReturn(savedInteraction);
 
         //when
-        InteractionUser createResult = interactionUserCommandService.createInteraction(interactionToCreate);
+        InteractionUser createResult = interactionUserCommandService.toggleInteraction(interactionToCreate);
         interactionUserCommandService.deleteInteraction(interactionIdToDelete);
 
         //then
@@ -217,7 +217,7 @@ class InteractionUserCommandServiceTest {
 
     @Test
     @DisplayName("다양한 PostType으로 인터랙션 생성")
-    void createInteractionsWithDifferentPostTypes() {
+    void toggleInteractionsWithDifferentPostTypes() {
         //given
         InteractionUser postInteraction = createTestInteraction();
         InteractionUser jobBoardInteraction = createTestJobBoardInteraction();
@@ -228,8 +228,8 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(jobBoardInteraction)).thenReturn(savedJobBoardInteraction);
 
         //when
-        InteractionUser postResult = interactionUserCommandService.createInteraction(postInteraction);
-        InteractionUser jobBoardResult = interactionUserCommandService.createInteraction(jobBoardInteraction);
+        InteractionUser postResult = interactionUserCommandService.toggleInteraction(postInteraction);
+        InteractionUser jobBoardResult = interactionUserCommandService.toggleInteraction(jobBoardInteraction);
 
         //then
         assertThat(postResult.contentType()).isEqualTo(ContentType.POST);
@@ -240,7 +240,7 @@ class InteractionUserCommandServiceTest {
 
     @Test
     @DisplayName("모든 InteractionType으로 인터랙션 생성")
-    void createInteractionsWithAllTypes() {
+    void toggleInteractionsWithAllTypes() {
         //given
         InteractionUser likeInteraction = createTestLikeInteraction();
         InteractionUser bookmarkInteraction = createTestBookmarkInteraction();
@@ -251,8 +251,8 @@ class InteractionUserCommandServiceTest {
         when(mockInteractionUserRepository.save(bookmarkInteraction)).thenReturn(savedBookmarkInteraction);
 
         //when
-        InteractionUser likeResult = interactionUserCommandService.createInteraction(likeInteraction);
-        InteractionUser bookmarkResult = interactionUserCommandService.createInteraction(bookmarkInteraction);
+        InteractionUser likeResult = interactionUserCommandService.toggleInteraction(likeInteraction);
+        InteractionUser bookmarkResult = interactionUserCommandService.toggleInteraction(bookmarkInteraction);
 
         //then
         assertThat(likeResult.interactionType()).isEqualTo(InteractionType.LIKE);
