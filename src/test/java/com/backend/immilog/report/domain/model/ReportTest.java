@@ -149,9 +149,10 @@ class ReportTest {
 
     @Test
     @DisplayName("신고 검토 시작 - 대기 상태에서 성공")
-    void startReviewWhenPending() {
+    void startReviewWhenPending() throws InterruptedException {
         //given
         Report report = createTestReport();
+        Thread.sleep(1);
 
         //when
         report.startReview();
