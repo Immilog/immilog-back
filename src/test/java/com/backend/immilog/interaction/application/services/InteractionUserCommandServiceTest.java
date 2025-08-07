@@ -283,8 +283,8 @@ class InteractionUserCommandServiceTest {
 
     private InteractionUser createTestLikeInteraction() {
         return InteractionUser.of(
-                "userId",
-                "postId",
+                "likeUserId",
+                "likePostId",
                 ContentType.POST,
                 InteractionType.LIKE
         );
@@ -294,7 +294,7 @@ class InteractionUserCommandServiceTest {
         return new InteractionUser(
                 "likeInteractionId2",
                 "userId2",
-                "postId2",
+                "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
