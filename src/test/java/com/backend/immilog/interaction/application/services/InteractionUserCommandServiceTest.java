@@ -292,9 +292,9 @@ class InteractionUserCommandServiceTest {
 
     private InteractionUser createSavedLikeInteraction() {
         return new InteractionUser(
-                "likeInteractionId",
-                "userId",
-                "postId",
+                "likeInteractionId2",
+                "userId2",
+                "postId2",
                 ContentType.POST,
                 InteractionType.LIKE,
                 LocalDateTime.now()
