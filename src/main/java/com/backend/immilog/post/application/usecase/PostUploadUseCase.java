@@ -22,6 +22,8 @@ import static com.backend.immilog.post.domain.model.resource.ResourceType.TAG;
 import static com.backend.immilog.post.exception.PostErrorCode.FAILED_TO_SAVE_POST;
 import static com.backend.immilog.shared.enums.ContentType.POST;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+
 public interface PostUploadUseCase {
     void uploadPost(
             String userId,
@@ -65,19 +67,21 @@ public interface PostUploadUseCase {
             bulkInsertRepository.saveAll(
                     resourceList,
                     """
-                            INSERT INTO post_resource (
-                                post_id,
-                                post_type,
+                            INSERT INTO content_resource (
+                                content_resource_id,
+                                content_id,
+                                content_type,
                                 resource_type,
                                 content
-                            ) VALUES (?, ?, ?, ?)
+                            ) VALUES (?, ?, ?, ?, ?)
                             """,
                     (ps, postResource) -> {
                         try {
-                            ps.setString(1, postResource.postId());
-                            ps.setString(2, postResource.contentType().name());
-                            ps.setString(3, postResource.resourceType().name());
-                            ps.setString(4, postResource.content());
+                            ps.setString(1, postResource.id() != null ? postResource.id() : NanoIdUtils.randomNanoId());
+                            ps.setString(2, postResource.postId());
+                            ps.setString(3, postResource.contentType().name());
+                            ps.setString(4, postResource.resourceType().name());
+                            ps.setString(5, postResource.content());
                         } catch (SQLException e) {
                             log.error("Failed to save post resource: {}", e.getMessage());
                             throw new PostException(FAILED_TO_SAVE_POST);

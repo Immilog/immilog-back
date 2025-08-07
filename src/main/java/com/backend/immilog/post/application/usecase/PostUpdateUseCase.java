@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+
 public interface PostUpdateUseCase {
     void updatePost(
             String userId,
@@ -121,19 +123,21 @@ public interface PostUpdateUseCase {
                 bulkCommandService.saveAll(
                         addResources,
                         """
-                                INSERT INTO post_resource (
-                                    post_id,
-                                    post_type,
+                                INSERT INTO content_resource (
+                                    content_resource_id,
+                                    content_id,
+                                    content_type,
                                     resource_type,
                                     content
-                                ) VALUES (?, ?, ?, ?)
+                                ) VALUES (?, ?, ?, ?, ?)
                                 """,
                         (ps, resource) -> {
                             try {
-                                ps.setString(1, postId);
-                                ps.setString(2, ContentType.POST.name());
-                                ps.setString(3, resourceType.name());
-                                ps.setString(4, resource);
+                                ps.setString(1, NanoIdUtils.randomNanoId());
+                                ps.setString(2, postId);
+                                ps.setString(3, ContentType.POST.name());
+                                ps.setString(4, resourceType.name());
+                                ps.setString(5, resource);
                             } catch (Exception e) {
                                 log.error("Failed to save post resource", e);
                                 throw new PostException(PostErrorCode.FAILED_TO_SAVE_POST);

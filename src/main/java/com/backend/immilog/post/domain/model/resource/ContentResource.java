@@ -11,7 +11,7 @@ public class ContentResource {
     private final ResourceType resourceType;
     private final String content;
 
-    @ConstructorProperties({"postResourceId", "postId", "contentType", "resourceType", "content"})
+    @ConstructorProperties({"content_resource_id", "content_id", "content_type", "resource_type", "content"})
     public ContentResource(
             String postResourceId,
             String postId,
