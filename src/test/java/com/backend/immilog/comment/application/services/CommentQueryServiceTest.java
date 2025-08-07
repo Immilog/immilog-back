@@ -1,9 +1,9 @@
 package com.backend.immilog.comment.application.services;
 
 import com.backend.immilog.comment.application.dto.CommentResult;
-import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.domain.repositories.CommentRepository;
+import com.backend.immilog.shared.enums.ContentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class CommentQueryServiceTest {
 
     @Test
     @DisplayName("게시물별 댓글 조회 - 정상 케이스")
-    void getCommentsSuccessfully() {
+    void getCommentsByPostIdSuccessfully() {
         //given
         String postId = "postId";
         List<CommentResult> expectedComments = List.of(
@@ -37,7 +37,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(expectedComments);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).isEqualTo(expectedComments);
@@ -47,7 +47,7 @@ class CommentQueryServiceTest {
 
     @Test
     @DisplayName("게시물별 댓글 조회 - 빈 결과")
-    void getCommentsEmptyResult() {
+    void getCommentsByPostIdEmptyResult() {
         //given
         String postId = "postId";
         List<CommentResult> emptyComments = List.of();
@@ -55,7 +55,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(emptyComments);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).isEmpty();
@@ -64,7 +64,7 @@ class CommentQueryServiceTest {
 
     @Test
     @DisplayName("게시물별 댓글 조회 - null postId")
-    void getCommentsWithNullPostId() {
+    void getCommentsByPostIdWithNullPostId() {
         //given
         String postId = null;
         List<CommentResult> expectedComments = List.of();
@@ -72,7 +72,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(expectedComments);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).isEmpty();
@@ -81,7 +81,7 @@ class CommentQueryServiceTest {
 
     @Test
     @DisplayName("게시물별 댓글 조회 - 빈 문자열 postId")
-    void getCommentsWithEmptyPostId() {
+    void getCommentsByPostIdWithEmptyPostId() {
         //given
         String postId = "";
         List<CommentResult> expectedComments = List.of();
@@ -89,7 +89,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(expectedComments);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).isEmpty();
@@ -98,7 +98,7 @@ class CommentQueryServiceTest {
 
     @Test
     @DisplayName("대량의 댓글 조회")
-    void getCommentsLargeResult() {
+    void getCommentsByPostIdLargeResult() {
         //given
         String postId = "postId";
         List<CommentResult> largeCommentList = java.util.stream.IntStream.range(0, 100)
@@ -108,7 +108,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(largeCommentList);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).hasSize(100);
@@ -126,7 +126,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(singleComment);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).hasSize(1);
@@ -136,7 +136,7 @@ class CommentQueryServiceTest {
 
     @Test
     @DisplayName("다양한 postId로 댓글 조회")
-    void getCommentsWithDifferentPostIds() {
+    void getCommentsByPostIdWithDifferentPostIds() {
         //given
         String postId1 = "postId1";
         String postId2 = "postId2";
@@ -151,9 +151,9 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId3)).thenReturn(comments3);
 
         //when
-        List<CommentResult> result1 = commentQueryService.getComments(postId1);
-        List<CommentResult> result2 = commentQueryService.getComments(postId2);
-        List<CommentResult> result3 = commentQueryService.getComments(postId3);
+        List<CommentResult> result1 = commentQueryService.getCommentsByPostId(postId1);
+        List<CommentResult> result2 = commentQueryService.getCommentsByPostId(postId2);
+        List<CommentResult> result3 = commentQueryService.getCommentsByPostId(postId3);
 
         //then
         assertThat(result1).hasSize(1);
@@ -175,7 +175,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(comments);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).hasSize(1);
@@ -197,9 +197,9 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(comments);
 
         //when
-        commentQueryService.getComments(postId);
-        commentQueryService.getComments(postId);
-        commentQueryService.getComments(postId);
+        commentQueryService.getCommentsByPostId(postId);
+        commentQueryService.getCommentsByPostId(postId);
+        commentQueryService.getCommentsByPostId(postId);
 
         //then
         verify(mockCommentRepository, org.mockito.Mockito.times(3)).findCommentsByPostId(postId);
@@ -207,7 +207,7 @@ class CommentQueryServiceTest {
 
     @Test
     @DisplayName("특수 문자가 포함된 postId로 댓글 조회")
-    void getCommentsWithSpecialCharactersInPostId() {
+    void getCommentsByPostIdWithSpecialCharactersInPostId() {
         //given
         String postId = "post@#$%^&*()_+Id";
         List<CommentResult> comments = List.of(createTestCommentResult("comment1"));
@@ -215,7 +215,7 @@ class CommentQueryServiceTest {
         when(mockCommentRepository.findCommentsByPostId(postId)).thenReturn(comments);
 
         //when
-        List<CommentResult> result = commentQueryService.getComments(postId);
+        List<CommentResult> result = commentQueryService.getCommentsByPostId(postId);
 
         //then
         assertThat(result).hasSize(1);
@@ -226,6 +226,10 @@ class CommentQueryServiceTest {
         return new CommentResult(
                 commentId,
                 "userId",
+                "nickname",
+                "http://example.com/profile.jpg",
+                null,
+                "region",
                 "댓글 내용",
                 "postId",
                 null,

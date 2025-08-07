@@ -2,8 +2,9 @@ package com.backend.immilog.comment.application.dto;
 
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
-import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.comment.domain.model.ReferenceType;
+import com.backend.immilog.shared.enums.ContentStatus;
+import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,23 @@ class CommentResultTest {
         Comment comment = createTestComment();
 
         //when
-        CommentResult result = CommentResult.from(comment);
+        CommentResult result = new CommentResult(
+                comment.id(),
+                comment.userId(),
+                "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion",
+                comment.content(),
+                comment.postId(),
+                comment.parentId(),
+                comment.referenceType(),
+                comment.replyCount(),
+                comment.likeCount(),
+                comment.status(),
+                comment.createdAt(),
+                comment.updatedAt()
+        );
 
         //then
         assertThat(result.id()).isEqualTo(comment.id());
@@ -44,7 +61,23 @@ class CommentResultTest {
         Comment comment = createTestCommentWithNullParent();
 
         //when
-        CommentResult result = CommentResult.from(comment);
+        CommentResult result = new CommentResult(
+                comment.id(),
+                comment.userId(),
+                "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion",
+                comment.content(),
+                comment.postId(),
+                comment.parentId(),
+                comment.referenceType(),
+                comment.replyCount(),
+                comment.likeCount(),
+                comment.status(),
+                comment.createdAt(),
+                comment.updatedAt()
+        );
 
         //then
         assertThat(result.parentId()).isNull();
@@ -59,7 +92,23 @@ class CommentResultTest {
         Comment comment = createTestCommentWithNullPostId();
 
         //when
-        CommentResult result = CommentResult.from(comment);
+        CommentResult result = new CommentResult(
+                comment.id(),
+                comment.userId(),
+                "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion",
+                comment.content(),
+                comment.postId(),
+                comment.parentId(),
+                comment.referenceType(),
+                comment.replyCount(),
+                comment.likeCount(),
+                comment.status(),
+                comment.createdAt(),
+                comment.updatedAt()
+        );
 
         //then
         assertThat(result.postId()).isNull();
@@ -85,8 +134,21 @@ class CommentResultTest {
 
         //when
         CommentResult result = new CommentResult(
-                id, userId, content, postId, parentId, referenceType,
-                replyCount, likeCount, status, createdAt, updatedAt
+                id,
+                userId,
+                "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion",
+                content,
+                postId,
+                parentId,
+                referenceType,
+                replyCount,
+                likeCount,
+                status,
+                createdAt,
+                updatedAt
         );
 
         //then
@@ -109,16 +171,51 @@ class CommentResultTest {
         //given
         LocalDateTime now = LocalDateTime.now();
         CommentResult result1 = new CommentResult(
-                "id", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, ContentStatus.NORMAL, now, null
+                "id", "userId", "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion", "content", "postId", null,
+                ReferenceType.POST,
+                0,
+                0,
+                ContentStatus.NORMAL,
+                now,
+                null
         );
         CommentResult result2 = new CommentResult(
-                "id", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, ContentStatus.NORMAL, now, null
+                "id",
+                "userId",
+                "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion",
+                "content",
+                "postId",
+                null,
+                ReferenceType.POST,
+                0,
+                0,
+                ContentStatus.NORMAL,
+                now,
+
+                null
         );
         CommentResult result3 = new CommentResult(
-                "differentId", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, ContentStatus.NORMAL, now, null
+                "differentId",
+                "userId",
+                "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion",
+                "content",
+                "postId",
+                null,
+                ReferenceType.POST,
+                0,
+                0,
+                ContentStatus.NORMAL,
+                now,
+                null
         );
 
         //when & then
@@ -132,9 +229,21 @@ class CommentResultTest {
     void verifyCommentResultToString() {
         //given
         CommentResult result = new CommentResult(
-                "id", "userId", "content", "postId", null,
-                ReferenceType.POST, 0, 0, ContentStatus.NORMAL,
-                LocalDateTime.now(), null
+                "id",
+                "userId",
+                "userNickname",
+                "userProfileUrl",
+                Country.BRUNEI,
+                "userRegion",
+                "content",
+                "postId",
+                null,
+                ReferenceType.POST,
+                0,
+                0,
+                ContentStatus.NORMAL,
+                LocalDateTime.now(),
+                null
         );
 
         //when
@@ -153,9 +262,21 @@ class CommentResultTest {
         //given & when & then
         for (ReferenceType type : ReferenceType.values()) {
             CommentResult result = new CommentResult(
-                    "id", "userId", "content", "postId", null,
-                    type, 0, 0, ContentStatus.NORMAL,
-                    LocalDateTime.now(), null
+                    "id",
+                    "userId",
+                    "userNickname",
+                    "userProfileUrl",
+                    Country.BRUNEI,
+                    "userRegion",
+                    "content",
+                    "postId",
+                    null,
+                    type,
+                    0,
+                    0,
+                    ContentStatus.NORMAL,
+                    LocalDateTime.now(),
+                    null
             );
             assertThat(result.referenceType()).isEqualTo(type);
         }
@@ -167,9 +288,21 @@ class CommentResultTest {
         //given & when & then
         for (ContentStatus status : ContentStatus.values()) {
             CommentResult result = new CommentResult(
-                    "id", "userId", "content", "postId", null,
-                    ReferenceType.POST, 0, 0, status,
-                    LocalDateTime.now(), null
+                    "id",
+                    "userId",
+                    "userNickname",
+                    "userProfileUrl",
+                    Country.BRUNEI,
+                    "userRegion",
+                    "content",
+                    "postId",
+                    null,
+                    ReferenceType.POST,
+                    0,
+                    0,
+                    status,
+                    LocalDateTime.now(),
+                    null
             );
             assertThat(result.status()).isEqualTo(status);
         }
@@ -180,7 +313,7 @@ class CommentResultTest {
     void createCommentResultWithNullFields() {
         //given
         CommentResult result = new CommentResult(
-                null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null,
                 null, 0, null, null, null, null
         );
 
@@ -203,7 +336,7 @@ class CommentResultTest {
     void createCommentResultWithEmptyStringFields() {
         //given
         CommentResult result = new CommentResult(
-                "", "", "", "", "",
+                "", "", "", "", null, "", "", "", "",
                 ReferenceType.POST, 0, 0, ContentStatus.NORMAL,
                 LocalDateTime.now(), null
         );
@@ -221,7 +354,10 @@ class CommentResultTest {
     void createCommentResultWithNegativeCounts() {
         //given
         CommentResult result = new CommentResult(
-                "id", "userId", "content", "postId", null,
+                "id", "userId",
+                "userNickname", "userProfileUrl",
+                Country.BRUNEI, "userRegion",
+                "content", "postId", null,
                 ReferenceType.POST, -1, -5, ContentStatus.NORMAL,
                 LocalDateTime.now(), null
         );
