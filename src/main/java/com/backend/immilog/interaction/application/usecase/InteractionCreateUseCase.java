@@ -7,7 +7,7 @@ import com.backend.immilog.interaction.domain.model.InteractionUser;
 import org.springframework.stereotype.Service;
 
 public interface InteractionCreateUseCase {
-    InteractionResult createInteraction(InteractionCreateCommand command);
+    InteractionResult toggleInteraction(InteractionCreateCommand command);
 
     @Service
     class InteractionCreator implements InteractionCreateUseCase {
@@ -18,14 +18,14 @@ public interface InteractionCreateUseCase {
         }
 
         @Override
-        public InteractionResult createInteraction(InteractionCreateCommand command) {
+        public InteractionResult toggleInteraction(InteractionCreateCommand command) {
             var interaction = InteractionUser.of(
                     command.userId(),
                     command.postId(),
                     command.contentType(),
                     command.interactionType()
             );
-            var savedInteraction = interactionUserCommandService.createInteraction(interaction);
+            var savedInteraction = interactionUserCommandService.toggleInteraction(interaction);
             return InteractionResult.from(savedInteraction);
         }
     }

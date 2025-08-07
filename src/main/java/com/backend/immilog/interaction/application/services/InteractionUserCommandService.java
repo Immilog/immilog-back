@@ -14,8 +14,16 @@ public class InteractionUserCommandService {
     }
 
     @Transactional
-    public InteractionUser createInteraction(InteractionUser interactionUser) {
-        return interactionUserRepository.save(interactionUser);
+    public InteractionUser toggleInteraction(InteractionUser interactionUser) {
+        return interactionUserRepository
+                .findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+                        interactionUser.userId(),
+                        interactionUser.interactionType(),
+                        interactionUser.contentType(),
+                        interactionUser.postId()
+                )
+                .map(existing -> interactionUserRepository.save(existing.toggleStatus()))
+                .orElseGet(() -> interactionUserRepository.save(interactionUser));
     }
 
     @Transactional

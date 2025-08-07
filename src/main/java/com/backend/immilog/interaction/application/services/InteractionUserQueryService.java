@@ -1,5 +1,6 @@
 package com.backend.immilog.interaction.application.services;
 
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.shared.enums.ContentType;
@@ -15,17 +16,26 @@ public class InteractionUserQueryService {
         this.interactionUserRepository = interactionUserRepository;
     }
 
-    public List<InteractionUser> getInteractionUsersByPostIdList(
+    public List<InteractionUser> getInteractionUsersByPostIdListAndActive(
             List<String> postIdList,
-            ContentType contentType
+            ContentType contentType,
+            InteractionStatus interactionStatus
     ) {
-        return interactionUserRepository.findByPostIdListAndContentType(postIdList, contentType);
+        return interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
+                postIdList,
+                contentType,
+                interactionStatus);
     }
 
     public List<InteractionUser> getBookmarkInteractions(
             String userId,
-            ContentType contentType
+            ContentType contentType,
+            InteractionStatus interactionStatus
     ) {
-        return interactionUserRepository.findBookmarksByUserIdAndContentType(userId, contentType);
+        return interactionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(
+                userId,
+                contentType,
+                interactionStatus);
     }
+
 }

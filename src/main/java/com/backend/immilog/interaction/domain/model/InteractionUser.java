@@ -10,6 +10,7 @@ public record InteractionUser(
         String postId,
         ContentType contentType,
         InteractionType interactionType,
+        InteractionStatus interactionStatus,
         LocalDateTime createdAt
 ) {
     public static InteractionUser of(
@@ -24,6 +25,19 @@ public record InteractionUser(
                 postId,
                 contentType,
                 interactionType,
+                InteractionStatus.ACTIVE,
+                LocalDateTime.now()
+        );
+    }
+
+    public InteractionUser toggleStatus() {
+        return new InteractionUser(
+                this.id,
+                this.userId,
+                this.postId,
+                this.contentType,
+                this.interactionType,
+                this.interactionStatus.isActive() ? InteractionStatus.INACTIVE : InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }

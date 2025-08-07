@@ -1,5 +1,7 @@
 package com.backend.immilog.interaction.domain.repositories;
 
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
+import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.shared.enums.ContentType;
 
@@ -7,14 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface InteractionUserRepository {
-    List<InteractionUser> findByPostIdListAndContentType(
+    List<InteractionUser> findByPostIdListAndContentTypeAndInteractionStatus(
             List<String> postIdList,
-            ContentType contentType
+            ContentType contentType,
+            InteractionStatus interactionStatus
     );
 
-    List<InteractionUser> findBookmarksByUserIdAndContentType(
+    List<InteractionUser> findBookmarksByUserIdAndContentTypeAndInteractionStatus(
             String userId,
-            ContentType contentType
+            ContentType contentType,
+            InteractionStatus interactionStatus
     );
 
     Optional<InteractionUser> findById(String id);
@@ -22,4 +26,11 @@ public interface InteractionUserRepository {
     InteractionUser save(InteractionUser interactionUser);
 
     void deleteById(String id);
+
+    Optional<InteractionUser> findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+            String userId,
+            InteractionType interactionType,
+            ContentType contentType,
+            String postId
+    );
 }
