@@ -43,23 +43,26 @@ class RedisEventPublisherTest {
     void publishDomainEvent_Success() throws JsonProcessingException {
         // given
         CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
-        RedisEventMessage eventMessage = new RedisEventMessage("msg-123", event.getClass().getName(), "{\"test\":\"data\"}", event.occurredAt());
-        String serializedMessage = "{\"messageId\":\"msg-123\",\"eventType\":\"CommentCreatedEvent\"}";
+        String eventPayload = "{\"test\":\"data\"}";
 
-        when(objectMapper.writeValueAsString(any(RedisEventMessage.class))).thenReturn(serializedMessage);
-        when(objectMapper.writeValueAsString(event)).thenReturn("{\"test\":\"data\"}");
+        when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
 
         // when
         redisEventPublisher.publishDomainEvent(event);
 
         // then
         ArgumentCaptor<String> channelCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<RedisEventMessage> messageCaptor = ArgumentCaptor.forClass(RedisEventMessage.class);
         
         verify(eventRedisTemplate).convertAndSend(channelCaptor.capture(), messageCaptor.capture());
         
         assertThat(channelCaptor.getValue()).isEqualTo(RedisEventConfig.DOMAIN_EVENT_CHANNEL);
-        assertThat(messageCaptor.getValue()).isEqualTo(serializedMessage);
+        
+        RedisEventMessage capturedMessage = messageCaptor.getValue();
+        assertThat(capturedMessage.eventType()).isEqualTo(event.getClass().getName());
+        assertThat(capturedMessage.payload()).isEqualTo(eventPayload);
+        assertThat(capturedMessage.messageId()).isNotNull();
+        assertThat(capturedMessage.publishedAt()).isNotNull();
     }
 
     @Test
@@ -68,22 +71,26 @@ class RedisEventPublisherTest {
         // given
         PostCompensationEvent.CommentCountIncreaseCompensation event = 
             new PostCompensationEvent.CommentCountIncreaseCompensation("tx-123", "event-456", "post-789");
-        String serializedMessage = "{\"messageId\":\"msg-123\",\"eventType\":\"CompensationEvent\"}";
+        String eventPayload = "{\"transactionId\":\"tx-123\"}";
 
-        when(objectMapper.writeValueAsString(any(RedisEventMessage.class))).thenReturn(serializedMessage);
-        when(objectMapper.writeValueAsString(event)).thenReturn("{\"transactionId\":\"tx-123\"}");
+        when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
 
         // when
         redisEventPublisher.publishCompensationEvent(event);
 
         // then
         ArgumentCaptor<String> channelCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<RedisEventMessage> messageCaptor = ArgumentCaptor.forClass(RedisEventMessage.class);
         
         verify(eventRedisTemplate).convertAndSend(channelCaptor.capture(), messageCaptor.capture());
         
         assertThat(channelCaptor.getValue()).isEqualTo(RedisEventConfig.COMPENSATION_EVENT_CHANNEL);
-        assertThat(messageCaptor.getValue()).isEqualTo(serializedMessage);
+        
+        RedisEventMessage capturedMessage = messageCaptor.getValue();
+        assertThat(capturedMessage.eventType()).isEqualTo(event.getClass().getName());
+        assertThat(capturedMessage.payload()).isEqualTo(eventPayload);
+        assertThat(capturedMessage.messageId()).isNotNull();
+        assertThat(capturedMessage.publishedAt()).isNotNull();
     }
 
     @Test
@@ -127,20 +134,19 @@ class RedisEventPublisherTest {
         String eventPayload = "{\"commentId\":\"comment1\",\"postId\":\"post1\"}";
         
         when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
-        when(objectMapper.writeValueAsString(any(RedisEventMessage.class))).thenAnswer(invocation -> {
-            RedisEventMessage msg = invocation.getArgument(0);
-            // 메시지가 필수 필드를 포함하는지 검증
-            assertThat(msg.messageId()).isNotNull();
-            assertThat(msg.eventType()).isEqualTo(event.getClass().getName());
-            assertThat(msg.payload()).isEqualTo(eventPayload);
-            assertThat(msg.publishedAt()).isNotNull();
-            return "{\"test\":\"serialized\"}";
-        });
 
         // when
         redisEventPublisher.publishDomainEvent(event);
 
         // then
-        verify(objectMapper).writeValueAsString(any(RedisEventMessage.class));
+        ArgumentCaptor<RedisEventMessage> messageCaptor = ArgumentCaptor.forClass(RedisEventMessage.class);
+        verify(eventRedisTemplate).convertAndSend(eq(RedisEventConfig.DOMAIN_EVENT_CHANNEL), messageCaptor.capture());
+        
+        RedisEventMessage capturedMessage = messageCaptor.getValue();
+        // 메시지가 필수 필드를 포함하는지 검증
+        assertThat(capturedMessage.messageId()).isNotNull();
+        assertThat(capturedMessage.eventType()).isEqualTo(event.getClass().getName());
+        assertThat(capturedMessage.payload()).isEqualTo(eventPayload);
+        assertThat(capturedMessage.publishedAt()).isNotNull();
     }
 }
