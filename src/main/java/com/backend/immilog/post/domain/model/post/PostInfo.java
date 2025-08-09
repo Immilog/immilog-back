@@ -7,7 +7,6 @@ public record PostInfo(
         String title,
         String content,
         Long viewCount,
-        Long likeCount,
         String region,
         ContentStatus status,
         Country country
@@ -21,7 +20,6 @@ public record PostInfo(
         return new PostInfo(
                 title,
                 content,
-                0L,
                 0L,
                 region,
                 ContentStatus.NORMAL,

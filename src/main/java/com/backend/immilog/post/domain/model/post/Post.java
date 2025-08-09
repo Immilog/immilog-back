@@ -111,7 +111,6 @@ public class Post {
                 this.postInfo.title(),
                 newContent,
                 this.postInfo.viewCount(),
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 this.postInfo.status(),
                 this.postInfo.country()
@@ -131,7 +130,6 @@ public class Post {
                 title,
                 this.postInfo.content(),
                 this.postInfo.viewCount(),
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 this.postInfo.status(),
                 this.postInfo.country()
@@ -148,7 +146,6 @@ public class Post {
                 this.postInfo.title(),
                 this.postInfo.content(),
                 this.postInfo.viewCount(),
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 ContentStatus.DELETED,
                 this.postInfo.country()
@@ -167,7 +164,6 @@ public class Post {
                 this.postInfo.title(),
                 this.postInfo.content(),
                 this.postInfo.viewCount() + 1,
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 this.postInfo.status(),
                 this.postInfo.country()
@@ -193,7 +189,6 @@ public class Post {
 
     public Long viewCount() {return this.postInfo.viewCount();}
 
-    public Long likeCount() {return this.postInfo.likeCount();}
 
     public ContentStatus status() {return this.postInfo.status();}
 

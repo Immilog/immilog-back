@@ -75,7 +75,7 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
                 post.nickname(),
                 post.commentCount(),
                 post.viewCount(),
-                post.likeCount(),
+                0L,
                 null,
                 null,
                 null,

@@ -58,11 +58,11 @@ public class PostResultAssembler {
         var newLikeUsers = new ArrayList<>(postResult.likeUsers());
         var newBookmarkUsers = new ArrayList<>(postResult.bookmarkUsers());
         newLikeUsers.addAll(interactionData.stream()
-                .filter(u -> "LIKE".equals(u.interactionType()))
+                .filter(u -> "LIKE".equals(u.interactionType()) && "ACTIVE".equals(u.interactionStatus()))
                 .map(InteractionData::userId)
                 .toList());
         newBookmarkUsers.addAll(interactionData.stream()
-                .filter(u -> "BOOKMARK".equals(u.interactionType()))
+                .filter(u -> "BOOKMARK".equals(u.interactionType()) && "ACTIVE".equals(u.interactionStatus()))
                 .map(InteractionData::userId)
                 .toList());
         return new PostResult(
@@ -136,7 +136,7 @@ public class PostResultAssembler {
 
     public PostResult assembleLikeCount(
             PostResult postResult,
-            int size
+            long likeCount
     ) {
         return new PostResult(
                 postResult.postId(),
@@ -145,7 +145,7 @@ public class PostResultAssembler {
                 postResult.userNickname(),
                 postResult.commentCount(),
                 postResult.viewCount(),
-                (long) size,
+                likeCount,
                 postResult.tags(),
                 postResult.attachments(),
                 postResult.likeUsers(),

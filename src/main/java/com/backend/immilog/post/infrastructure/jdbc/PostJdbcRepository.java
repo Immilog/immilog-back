@@ -215,7 +215,6 @@ public class PostJdbcRepository {
                 rs.getString("title"),
                 rs.getString("content"),
                 getNullableLong(rs, "view_count"),
-                getNullableLong(rs, "like_count"),
                 rs.getString("region"),
                 getEnum(rs, "status", ContentStatus.class),
                 getEnum(rs, "country", Country.class)

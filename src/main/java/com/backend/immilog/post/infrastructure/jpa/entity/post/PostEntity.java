@@ -72,7 +72,6 @@ public class PostEntity {
                 postInfo.title(),
                 postInfo.content(),
                 postInfo.viewCount(),
-                postInfo.likeCount(),
                 postInfo.country(),
                 postInfo.region(),
                 postInfo.status()

@@ -155,7 +155,7 @@ public class PostQueryService {
     ) {
         var orderMap = IntStream.range(0, resultIdList.size())
                 .boxed()
-                .collect(Collectors.toMap(resultIdList::get, i -> i));
+                .collect(Collectors.toMap(resultIdList::get, i -> i, (existing, replacement) -> existing));
 
         // 이벤트를 통해 인터랙션 데이터 요청
         String requestId = eventResultStorageService.generateRequestId("interaction");
@@ -191,9 +191,14 @@ public class PostQueryService {
                     postResultWithNewInteractionUsers,
                     resources
             );
+            // 좋아요 수 실시간 계산 (ACTIVE 상태의 LIKE만 카운트)
+            long likeCount = interactionDataList.stream()
+                    .filter(interaction -> "LIKE".equals(interaction.interactionType()) &&
+                            "ACTIVE".equals(interaction.interactionStatus())).count();
+            
             return postResultAssembler.assembleLikeCount(
                     postResultWithNewResources,
-                    interactionDataList.size()
+                    likeCount
             );
         });
     }
@@ -206,7 +211,7 @@ public class PostQueryService {
                 post.nickname(),
                 post.commentCount(),
                 post.viewCount(),
-                post.likeCount(),
+                0L, // likeCount는 실시간 계산으로 변경됨
                 new ArrayList<>(),
                 new ArrayList<>(),
                 new ArrayList<>(),
