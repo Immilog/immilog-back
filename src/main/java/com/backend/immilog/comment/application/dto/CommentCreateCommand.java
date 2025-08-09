@@ -6,6 +6,7 @@ public record CommentCreateCommand(
         String userId,
         String postId,
         String content,
+        String parentId,
         ReferenceType referenceType
 ) {
 }

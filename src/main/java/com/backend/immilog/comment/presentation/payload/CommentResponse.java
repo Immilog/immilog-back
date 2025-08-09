@@ -38,9 +38,12 @@ public record CommentResponse(
             @Schema(description = "참조 타입", example = "POST") ReferenceType referenceType,
             @Schema(description = "답글 수", example = "5") int replyCount,
             @Schema(description = "좋아요 수", example = "10") Integer likeCount,
+            @Schema(description = "좋아요 누른 사용자 목록") List<String> likeUsers,
+            @Schema(description = "북마크한 사용자 목록") List<String> bookmarkUsers,
             @Schema(description = "콘텐츠 상태", example = "ACTIVE") ContentStatus status,
             @Schema(description = "생성 시간", example = "2023-10-01T12:00:00") LocalDateTime createdAt,
-            @Schema(description = "업데이트 시간", example = "2023-10-01T12:00:00") LocalDateTime updatedAt
+            @Schema(description = "업데이트 시간", example = "2023-10-01T12:00:00") LocalDateTime updatedAt,
+            @Schema(description = "대댓글 목록") List<CommentInformation> replies
     ) {
     }
 }

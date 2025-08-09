@@ -46,13 +46,14 @@ public class Comment {
             String userId,
             String postId,
             String content,
+            String parentId,
             ReferenceType referenceType
     ) {
         return new Comment(
                 null,
                 userId,
                 content,
-                CommentRelation.of(postId, null, referenceType),
+                CommentRelation.of(postId, parentId, referenceType),
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),

@@ -34,6 +34,7 @@ public interface CommentCreateUseCase {
                     command.userId(),
                     command.postId(),
                     command.content(),
+                    command.parentId(),
                     command.referenceType()
             );
             var savedComment = commentCommandService.createComment(comment);

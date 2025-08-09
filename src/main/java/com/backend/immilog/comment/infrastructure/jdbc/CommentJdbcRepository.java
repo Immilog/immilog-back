@@ -23,23 +23,26 @@ public class CommentJdbcRepository {
         var sql = """
                 SELECT 
                     c.comment_id, 
-                       c.user_id, 
-                       c.content,
-                       c.post_id,
-                       c.parent_id, 
-                       c.reference_type, 
-                       c.reply_count,
-                       c.status, 
-                       c.created_at, 
-                       c.updated_at,
-                       u.nickname,
-                       u.image_url,
-                       u.country,
-                       u.region
+                    c.user_id, 
+                    c.content,
+                    c.post_id,
+                    c.parent_id, 
+                    c.reference_type, 
+                    c.reply_count,
+                    c.status, 
+                    c.created_at, 
+                    c.updated_at,
+                    u.nickname,
+                    u.image_url,
+                    u.country,
+                    u.region
                 FROM comment c
                 LEFT JOIN user u ON c.user_id = u.user_id
                 WHERE c.post_id = ? AND c.status = 'NORMAL'
-                ORDER BY c.created_at ASC
+                ORDER BY 
+                    COALESCE(c.parent_id, c.comment_id) ASC,
+                    c.parent_id IS NULL DESC,
+                    c.created_at ASC
                 """;
         return jdbcTemplate.query(sql, this::mapToCommentResult, postId);
     }

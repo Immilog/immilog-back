@@ -39,9 +39,12 @@ public record CommentResult(
                 this.referenceType,
                 this.replyCount,
                 this.likeCount,
+                new java.util.ArrayList<>(), // 빈 likeUsers 리스트
+                new java.util.ArrayList<>(), // 빈 bookmarkUsers 리스트
                 this.status,
                 this.createdAt,
-                this.updatedAt
+                this.updatedAt,
+                new java.util.ArrayList<>() // 빈 replies 리스트
         );
     }
 }
