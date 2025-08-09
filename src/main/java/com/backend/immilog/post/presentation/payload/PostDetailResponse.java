@@ -27,4 +27,16 @@ public record PostDetailResponse(
                 commentInfoList
         );
     }
+
+    public static PostDetailResponse successWithHierarchicalComments(
+            PostResult post,
+            List<CommentResponse.CommentInformation> hierarchicalComments
+    ) {
+        return new PostDetailResponse(
+                HttpStatus.OK.value(),
+                "success",
+                post.toInfraDTO(),
+                hierarchicalComments
+        );
+    }
 }
