@@ -4,6 +4,7 @@ public record InteractionData(
     String id,
     String postId,
     String userId,
+    String interactionStatus,
     String interactionType,
     String contentType
 ) {
