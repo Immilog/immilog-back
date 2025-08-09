@@ -33,4 +33,16 @@ public interface InteractionUserRepository {
             ContentType contentType,
             String postId
     );
+
+    Long countByPostIdAndInteractionTypeAndInteractionStatus(
+            String postId,
+            InteractionType interactionType,
+            InteractionStatus interactionStatus
+    );
+
+    Long countByCommentIdAndInteractionTypeAndInteractionStatus(
+            String commentId,
+            InteractionType interactionType,
+            InteractionStatus interactionStatus
+    );
 }

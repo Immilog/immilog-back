@@ -66,6 +66,7 @@ public class InteractionDataRequestedEventHandler implements DomainEventHandler<
                 interactionUser.id(),
                 interactionUser.postId(),
                 interactionUser.userId(),
+                interactionUser.interactionStatus().name(),
                 interactionUser.interactionType().name(),
                 interactionUser.contentType().name()
         );

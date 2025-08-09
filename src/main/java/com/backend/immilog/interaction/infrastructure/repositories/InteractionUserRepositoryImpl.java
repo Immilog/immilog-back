@@ -76,4 +76,30 @@ public class InteractionUserRepositoryImpl implements InteractionUserRepository 
                 )
                 .map(InteractionUserEntity::toDomain);
     }
+
+    @Override
+    public Long countByPostIdAndInteractionTypeAndInteractionStatus(
+            String postId,
+            InteractionType interactionType,
+            InteractionStatus interactionStatus
+    ) {
+        return interactionUserJpaRepository.countByPostIdAndInteractionTypeAndInteractionStatus(
+                postId,
+                interactionType,
+                interactionStatus
+        );
+    }
+
+    @Override
+    public Long countByCommentIdAndInteractionTypeAndInteractionStatus(
+            String commentId,
+            InteractionType interactionType,
+            InteractionStatus interactionStatus
+    ) {
+        return interactionUserJpaRepository.countByPostIdAndInteractionTypeAndInteractionStatus(
+                commentId,
+                interactionType,
+                interactionStatus
+        );
+    }
 }

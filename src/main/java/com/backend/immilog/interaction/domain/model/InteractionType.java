@@ -2,5 +2,9 @@ package com.backend.immilog.interaction.domain.model;
 
 public enum InteractionType {
     LIKE,
-    BOOKMARK
+    BOOKMARK;
+
+    public boolean isLike() {
+        return this == LIKE;
+    }
 }
