@@ -31,4 +31,10 @@ public interface InteractionUserJpaRepository extends JpaRepository<InteractionU
             InteractionType interactionType,
             InteractionStatus interactionStatus
     );
+
+    List<InteractionUserEntity> findByPostIdInAndContentTypeAndInteractionStatus(
+            List<String> postIdList,
+            ContentType contentType,
+            InteractionStatus interactionStatus
+    );
 }

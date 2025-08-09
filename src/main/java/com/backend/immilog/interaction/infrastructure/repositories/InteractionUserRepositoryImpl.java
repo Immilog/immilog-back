@@ -26,7 +26,7 @@ public class InteractionUserRepositoryImpl implements InteractionUserRepository 
             ContentType contentType,
             InteractionStatus interactionStatus
     ) {
-        return interactionUserJpaRepository.findByPostIdInAndContentType(postIdList, contentType)
+        return interactionUserJpaRepository.findByPostIdInAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus)
                 .stream()
                 .map(InteractionUserEntity::toDomain)
                 .toList();
