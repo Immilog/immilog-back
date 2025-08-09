@@ -29,7 +29,6 @@ public class CommentJdbcRepository {
                        c.parent_id, 
                        c.reference_type, 
                        c.reply_count,
-                       c.like_count,
                        c.status, 
                        c.created_at, 
                        c.updated_at,
@@ -61,7 +60,7 @@ public class CommentJdbcRepository {
                 rs.getString("parent_id"),
                 ReferenceType.valueOf(rs.getString("reference_type")),
                 rs.getInt("reply_count"),
-                rs.getInt("like_count"),
+                0, // likeCount는 실시간 계산으로 변경됨
                 ContentStatus.valueOf(rs.getString("status")),
                 rs.getTimestamp("created_at").toLocalDateTime(),
                 rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toLocalDateTime() : null
@@ -78,7 +77,6 @@ public class CommentJdbcRepository {
                     c.parent_id, 
                     c.reference_type, 
                     c.reply_count,
-                    c.like_count,
                     c.status, 
                     c.created_at, 
                     c.updated_at,
