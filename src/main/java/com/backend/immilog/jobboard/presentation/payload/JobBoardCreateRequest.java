@@ -4,7 +4,6 @@ import com.backend.immilog.jobboard.application.dto.JobBoardUploadCommand;
 import com.backend.immilog.jobboard.domain.model.Experience;
 import com.backend.immilog.jobboard.domain.model.Industry;
 import com.backend.immilog.jobboard.domain.model.WorkType;
-import com.backend.immilog.shared.enums.Country;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ public record JobBoardCreateRequest(
         String benefits,
         LocalDate applicationDeadline,
         String contactEmail,
-        Country country,
+        String countryId,
         Industry industry
 ) {
     public JobBoardUploadCommand toCommand(String userId) {
@@ -42,7 +41,7 @@ public record JobBoardCreateRequest(
                 benefits,
                 applicationDeadline,
                 contactEmail,
-                country,
+                countryId,
                 industry
         );
     }

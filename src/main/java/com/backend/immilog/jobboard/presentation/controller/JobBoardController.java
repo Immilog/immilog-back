@@ -5,7 +5,6 @@ import com.backend.immilog.jobboard.application.usecase.UploadJobBoardUseCase;
 import com.backend.immilog.jobboard.presentation.payload.JobBoardCreateRequest;
 import com.backend.immilog.jobboard.presentation.payload.JobBoardResponse;
 import com.backend.immilog.shared.annotation.CurrentUser;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +24,10 @@ public class JobBoardController {
 
     @GetMapping
     public ResponseEntity<JobBoardResponse> getJobBoards(
-            @RequestParam("country") Country country,
+            @RequestParam("country") String countryId,
             @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
-        var jobBoards = fetchJobBoardUseCase.getJobBoards(country, page);
+        var jobBoards = fetchJobBoardUseCase.getJobBoards(countryId, page);
         return ResponseEntity.ok(JobBoardResponse.success(jobBoards));
     }
 

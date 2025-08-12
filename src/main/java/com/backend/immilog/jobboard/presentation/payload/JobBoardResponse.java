@@ -3,7 +3,6 @@ package com.backend.immilog.jobboard.presentation.payload;
 import com.backend.immilog.jobboard.application.dto.JobBoardResult;
 import com.backend.immilog.jobboard.domain.model.Experience;
 import com.backend.immilog.jobboard.domain.model.Industry;
-import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
 
@@ -44,7 +43,7 @@ public record JobBoardResponse(
             @Schema(description = "연락처 이메일") String contactEmail,
             @Schema(description = "활성 상태", example = "true") Boolean isActive,
             @Schema(description = "조회수", example = "100") Long viewCount,
-            @Schema(description = "국가") Country country,
+            @Schema(description = "국가") String countryId,
             @Schema(description = "생성일") LocalDateTime createdAt,
             @Schema(description = "수정일") LocalDateTime updatedAt,
             @Schema(description = "지원 가능 여부", example = "true") Boolean canApply,

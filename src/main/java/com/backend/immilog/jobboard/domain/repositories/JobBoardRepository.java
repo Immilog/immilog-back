@@ -2,7 +2,6 @@ package com.backend.immilog.jobboard.domain.repositories;
 
 import com.backend.immilog.jobboard.domain.model.JobBoard;
 import com.backend.immilog.jobboard.domain.model.JobBoardId;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -12,7 +11,7 @@ import java.util.Optional;
 
 public interface JobBoardRepository {
     Page<JobBoard> findJobBoards(
-            Country country,
+            String countryId,
             Pageable pageable
     );
 

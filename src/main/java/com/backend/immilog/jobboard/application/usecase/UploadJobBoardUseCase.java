@@ -32,7 +32,7 @@ public interface UploadJobBoardUseCase {
                     command.toJobBenefits(),
                     command.toApplicationDeadline(),
                     command.toContactEmail(),
-                    command.country()
+                    command.countryId()
             );
             return JobBoardResult.from(savedJobBoard);
         }

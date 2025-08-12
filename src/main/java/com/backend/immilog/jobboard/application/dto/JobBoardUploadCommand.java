@@ -1,7 +1,6 @@
 package com.backend.immilog.jobboard.application.dto;
 
 import com.backend.immilog.jobboard.domain.model.*;
-import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -23,7 +22,7 @@ public record JobBoardUploadCommand(
         String benefits,
         LocalDate applicationDeadline,
         String contactEmail,
-        Country country,
+        String countryId,
         Industry industry
 ) {
     public JobTitle toJobTitle() {

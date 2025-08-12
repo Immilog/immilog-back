@@ -5,7 +5,6 @@ import com.backend.immilog.jobboard.domain.model.JobBoardId;
 import com.backend.immilog.jobboard.domain.repositories.JobBoardRepository;
 import com.backend.immilog.jobboard.infrastructure.jpa.JobBoardEntity;
 import com.backend.immilog.jobboard.infrastructure.jpa.JobBoardJpaRepository;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -24,10 +23,10 @@ public class JobBoardRepositoryImpl implements JobBoardRepository {
 
     @Override
     public Page<JobBoard> findJobBoards(
-            Country country,
+            String countryId,
             Pageable pageable
     ) {
-        return jobBoardJpaRepository.findByCountryOrderByCreatedAtDesc(country, pageable)
+        return jobBoardJpaRepository.findByCountryIdOrderByCreatedAtDesc(countryId, pageable)
                 .map(JobBoardEntity::toDomain);
     }
 
