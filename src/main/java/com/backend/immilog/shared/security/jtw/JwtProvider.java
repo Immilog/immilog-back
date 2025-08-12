@@ -1,7 +1,6 @@
 package com.backend.immilog.shared.security.jtw;
 
 import com.backend.immilog.shared.config.properties.JwtProperties;
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.security.token.TokenProvider;
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.infrastructure.security.UserDetailsServiceImpl;
@@ -42,7 +41,7 @@ public class JwtProvider implements TokenProvider {
             String id,
             String email,
             UserRole userRole,
-            Country country
+            String countryId
     ) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + jwtProperties.getAccessTokenExpirationMs());
@@ -51,7 +50,7 @@ public class JwtProvider implements TokenProvider {
                 .subject(id)
                 .claim("email", email)
                 .claim("userRole", userRole.name())
-                .claim("country", country.countryCode())
+                .claim("countryId", countryId)
                 .issuer(jwtProperties.issuer())
                 .issuedAt(now)
                 .expiration(expiration)
