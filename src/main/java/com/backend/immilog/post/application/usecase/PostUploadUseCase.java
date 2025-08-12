@@ -1,5 +1,6 @@
 package com.backend.immilog.post.application.usecase;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.post.application.dto.PostUploadCommand;
 import com.backend.immilog.post.application.services.BulkCommandService;
 import com.backend.immilog.post.application.services.PostCommandService;
@@ -21,8 +22,6 @@ import static com.backend.immilog.post.domain.model.resource.ResourceType.ATTACH
 import static com.backend.immilog.post.domain.model.resource.ResourceType.TAG;
 import static com.backend.immilog.post.exception.PostErrorCode.FAILED_TO_SAVE_POST;
 import static com.backend.immilog.shared.enums.ContentType.POST;
-
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
 public interface PostUploadUseCase {
     void uploadPost(
@@ -135,7 +134,7 @@ public interface PostUploadUseCase {
             return Post.of(
                     user.getUserId().value(),
                     user.getNickname(),
-                    user.getCountry(),
+                    user.getCountryId(),
                     user.getRegion(),
                     user.getImageUrl(),
                     postUploadCommand.title(),

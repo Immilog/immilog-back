@@ -14,7 +14,6 @@ import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,14 +67,14 @@ public class PostQueryService {
     @PerformanceMonitor
     @Transactional(readOnly = true)
     public Page<PostResult> getPosts(
-            Country country,
+            String countryId,
             SortingMethods sortingMethod,
             String isPublic,
             Categories category,
             Pageable pageable
     ) {
         var posts = postDomainRepository.findPosts(
-                country,
+                countryId,
                 sortingMethod,
                 isPublic,
                 category,
@@ -217,7 +216,7 @@ public class PostQueryService {
                 new ArrayList<>(),
                 new ArrayList<>(),
                 post.isPublic(),
-                post.countryName(),
+                post.countryId(),
                 post.region(),
                 post.category(),
                 post.status(),

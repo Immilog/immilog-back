@@ -81,7 +81,7 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
                 null,
                 null,
                 post.isPublic(),
-                post.countryName(),
+                post.countryId(),
                 post.region(),
                 post.category(),
                 post.status(),

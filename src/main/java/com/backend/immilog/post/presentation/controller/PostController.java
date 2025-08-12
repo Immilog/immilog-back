@@ -11,7 +11,6 @@ import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.presentation.payload.*;
 import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.shared.enums.ContentType;
-import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -90,7 +89,7 @@ public class PostController {
     @GetMapping
     @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
     public ResponseEntity<PostPageResponse> getPosts(
-            @Parameter(description = "국가") @RequestParam(value = "country", required = false) Country country,
+            @Parameter(description = "국가") @RequestParam(value = "country", required = false) String countryId,
             @Parameter(description = "정렬 방식") @RequestParam(value = "sort", required = false) SortingMethods sort,
             @Parameter(description = "공개 여부") @RequestParam(value = "isPublic", required = false) String isPublic,
             @Parameter(description = "카테고리") @RequestParam(value = "category", required = false) Categories category,
@@ -101,7 +100,7 @@ public class PostController {
         if (keyword != null) {
             posts = postFetchUseCase.searchKeyword(keyword, page);
         } else {
-            posts = postFetchUseCase.getPosts(country, sort, isPublic, category, page);
+            posts = postFetchUseCase.getPosts(countryId, sort, isPublic, category, page);
         }
         var pagedPosts = posts.map(PostResult::toInfraDTO);
         return ResponseEntity.ok(PostPageResponse.of(pagedPosts));

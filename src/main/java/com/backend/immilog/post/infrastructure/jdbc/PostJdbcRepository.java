@@ -8,7 +8,6 @@ import com.backend.immilog.post.infrastructure.jpa.entity.post.PostEntity;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostInfoValue;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostUserInfoValue;
 import com.backend.immilog.shared.enums.ContentStatus;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +31,7 @@ public class PostJdbcRepository {
     }
 
     public Page<Post> getPosts(
-            Country country,
+            String countryId,
             SortingMethods sortingMethod,
             String isPublic,
             Categories category,
@@ -49,9 +48,9 @@ public class PostJdbcRepository {
             params.add(category.name());
         }
 
-        if (country != Country.ALL) {
-            conditions.add("p.country = ?");
-            params.add(country.name());
+        if (countryId != null && !countryId.equals("ALL")) {
+            conditions.add("p.country_id = ?");
+            params.add(countryId);
         }
 
         String whereClause = conditions.isEmpty() ? "" : "WHERE " + String.join(" AND ", conditions);
@@ -217,7 +216,7 @@ public class PostJdbcRepository {
                 getNullableLong(rs, "view_count"),
                 rs.getString("region"),
                 getEnum(rs, "status", ContentStatus.class),
-                getEnum(rs, "country", Country.class)
+                rs.getString("country_id")
         );
 
         return new PostEntity(
