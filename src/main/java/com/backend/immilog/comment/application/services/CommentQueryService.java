@@ -92,7 +92,7 @@ public class CommentQueryService {
                 comment.userId(),
                 comment.nickname(),
                 comment.userProfileUrl(),
-                comment.country(),
+                comment.countryId(),
                 comment.region(),
                 comment.content(),
                 comment.postId(),

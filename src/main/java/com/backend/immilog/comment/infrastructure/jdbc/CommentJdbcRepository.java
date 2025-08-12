@@ -3,7 +3,6 @@ package com.backend.immilog.comment.infrastructure.jdbc;
 import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.shared.enums.ContentStatus;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -34,7 +33,7 @@ public class CommentJdbcRepository {
                     c.updated_at,
                     u.nickname,
                     u.image_url,
-                    u.country,
+                    u.country_id,
                     u.region
                 FROM comment c
                 LEFT JOIN user u ON c.user_id = u.user_id
@@ -56,7 +55,7 @@ public class CommentJdbcRepository {
                 rs.getString("user_id"),
                 rs.getString("nickname"),
                 rs.getString("image_url"),
-                rs.getString("country") != null ? Country.valueOf(rs.getString("country")) : null,
+                rs.getString("country_id"),
                 rs.getString("region"),
                 rs.getString("content"),
                 rs.getString("post_id"),
@@ -85,7 +84,7 @@ public class CommentJdbcRepository {
                     c.updated_at,
                     u.nickname,
                     u.image_url,
-                    u.country,
+                    u.country_id,
                     u.region
                 FROM comment c
                 LEFT JOIN user u ON c.user_id = u.user_id

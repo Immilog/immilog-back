@@ -3,7 +3,6 @@ package com.backend.immilog.comment.application.dto;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.presentation.payload.CommentResponse;
 import com.backend.immilog.shared.enums.ContentStatus;
-import com.backend.immilog.shared.enums.Country;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +11,7 @@ public record CommentResult(
         String userId,
         String nickname,
         String userProfileUrl,
-        Country country,
+        String countryId,
         String region,
         String content,
         String postId,
@@ -31,7 +30,7 @@ public record CommentResult(
                 this.userId,
                 this.nickname,
                 this.userProfileUrl,
-                this.country,
+                this.countryId,
                 this.region,
                 this.content,
                 this.postId,
