@@ -1,6 +1,5 @@
 package com.backend.immilog.user.domain.model;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.exception.UserErrorCode;
@@ -153,9 +152,9 @@ public class User {
 
     public String getImageUrl() {return profile.imageUrl();}
 
-    public Country getInterestCountry() {return profile.interestCountry();}
+    public String getInterestCountryId() {return profile.interestCountryId();}
 
-    public Country getCountry() {return location.country();}
+    public String getCountryId() {return location.countryId();}
 
     public String getRegion() {return location.region();}
 

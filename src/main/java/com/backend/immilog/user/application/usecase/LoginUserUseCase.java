@@ -53,15 +53,15 @@ public interface LoginUserUseCase {
             final var user = userQueryService.getUserByEmail(command.email());
             userPasswordPolicy.validatePasswordMatch(command.password(), user.getPassword());
 
-            var userCountry = user.getCountry();
+            var userCountryId = user.getCountryId();
             var userEmail = user.getEmail();
 
-            final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountry);
+            final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountryId);
             final var refreshToken = userTokenGenerator.generateRefreshToken();
 
             tokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
             var locationResult = country.orTimeout(5, TimeUnit.SECONDS).exceptionally(throwable -> new LocationResult("Error", "Timeout")).join();
-            boolean locationMatch = userCountry.koreanName().equals(locationResult.country()) && user.getRegion().equals(locationResult.city());
+            boolean locationMatch = userCountryId.equals(locationResult.country());
 
             return UserSignInResult.of(user, accessToken, refreshToken, locationMatch);
         }
@@ -72,10 +72,10 @@ public interface LoginUserUseCase {
                 LocationResult locationResult
         ) {
             final var user = userQueryService.getUserById(userId);
-            var userCountry = user.getCountry();
+            var userCountryId = user.getCountryId();
             var userEmail = user.getEmail();
-            boolean isLocationMatch = userCountry.koreanName().equals(locationResult.country()) && user.getRegion().equals(locationResult.city());
-            final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountry);
+            boolean isLocationMatch = userCountryId.equals(locationResult.country()) && user.getRegion().equals(locationResult.city());
+            final var accessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountryId);
             final var refreshToken = userTokenGenerator.generateRefreshToken();
 
             tokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);

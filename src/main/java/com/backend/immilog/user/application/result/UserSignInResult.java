@@ -27,8 +27,8 @@ public record UserSignInResult(
                 user.getNickname(),
                 accessToken == null ? "" : accessToken,
                 refreshToken == null ? "" : refreshToken,
-                user.getCountry().koreanName(),
-                user.getInterestCountry() == null ? null : user.getCountry().koreanName(),
+                user.getCountryId(),
+                user.getInterestCountryId(),
                 user.getRegion(),
                 user.getImageUrl(),
                 isLocationMatch

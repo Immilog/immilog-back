@@ -1,13 +1,10 @@
 package com.backend.immilog.user.infrastructure.jpa;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.model.Profile;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -21,35 +18,34 @@ public class ProfileJpaValue {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "interest_country")
-    private Country interestCountry;
+    @Column(name = "interest_country_id")
+    private String interestCountryId;
 
     protected ProfileJpaValue() {}
 
     protected ProfileJpaValue(
             String nickname,
             String imageUrl,
-            Country interestCountry
+            String interestCountryId
     ) {
         this.nickname = nickname;
         this.imageUrl = imageUrl;
-        this.interestCountry = interestCountry;
+        this.interestCountryId = interestCountryId;
     }
 
     public static ProfileJpaValue of(
             String nickname,
             String imageUrl,
-            Country interestCountry
+            String interestCountryId
     ) {
-        return new ProfileJpaValue(nickname, imageUrl, interestCountry);
+        return new ProfileJpaValue(nickname, imageUrl, interestCountryId);
     }
 
     public static ProfileJpaValue from(Profile profile) {
         return new ProfileJpaValue(
                 profile.nickname(),
                 profile.imageUrl(),
-                profile.interestCountry()
+                profile.interestCountryId()
         );
     }
 
@@ -57,6 +53,6 @@ public class ProfileJpaValue {
         if (this.nickname == null) {
             throw new UserException(UserErrorCode.ENTITY_TO_DOMAIN_ERROR);
         }
-        return Profile.of(this.nickname, this.imageUrl, this.interestCountry);
+        return Profile.of(this.nickname, this.imageUrl, this.interestCountryId);
     }
 }

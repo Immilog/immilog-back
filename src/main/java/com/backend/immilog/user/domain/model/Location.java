@@ -1,27 +1,26 @@
 package com.backend.immilog.user.domain.model;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 
 public record Location(
-        Country country,
+        String countryId,
         String region
 ) {
     public Location {
-        validateCountry(country);
+        validateCountry(countryId);
         validateRegion(region);
     }
 
     public static Location of(
-            Country country,
+            String countryId,
             String region
     ) {
-        return new Location(country, region);
+        return new Location(countryId, region);
     }
 
-    private void validateCountry(Country country) {
-        if (country == null) {
+    private void validateCountry(String countryId) {
+        if (countryId == null || countryId.trim().isEmpty()) {
             throw new UserException(UserErrorCode.INVALID_REGION);
         }
     }

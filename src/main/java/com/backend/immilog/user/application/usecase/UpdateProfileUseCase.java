@@ -66,9 +66,9 @@ public interface UpdateProfileUseCase {
             var newProfile = Profile.of(
                     userInfoUpdateCommand.nickName(),
                     userInfoUpdateCommand.profileImage(),
-                    userInfoUpdateCommand.interestCountry()
+                    userInfoUpdateCommand.interestCountryId()
             );
-            var newLocation = Location.of(userInfoUpdateCommand.country(), region);
+            var newLocation = Location.of(userInfoUpdateCommand.countryId(), region);
             var updatedUser = user
                     .updateProfile(newProfile)
                     .updateLocation(newLocation)
