@@ -11,7 +11,7 @@ public class CompanyMapper {
             CompanyRegisterCommand cmd
     ) {
         return Company.createEmpty()
-                .manager(cmd.country(), cmd.region(), userId)
+                .manager(cmd.countryId(), cmd.region(), userId)
                 .companyData(
                         cmd.industry(),
                         cmd.name(),
@@ -28,7 +28,7 @@ public class CompanyMapper {
             CompanyRegisterCommand cmd
     ) {
         return existing.updateAddress(cmd.address())
-                .updateCountry(cmd.country())
+                .updateCountry(cmd.countryId())
                 .updateEmail(cmd.email())
                 .updateHomepage(cmd.homepage())
                 .updateLogo(cmd.logo())

@@ -2,7 +2,6 @@ package com.backend.immilog.company.presentation;
 
 import com.backend.immilog.company.application.dto.CompanyRegisterCommand;
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 
@@ -14,7 +13,7 @@ public record CompanyPayload() {
             @Schema(description = "회사 전화번호") String companyPhone,
             @Schema(description = "회사 주소") String companyAddress,
             @Schema(description = "회사 홈페이지") String companyHomepage,
-            @Schema(description = "회사 국가") Country companyCountry,
+            @Schema(description = "회사 국가") String companyCountryId,
             @Schema(description = "회사 지역") String companyRegion,
             @Schema(description = "회사 로고") String companyLogo
     ) {
@@ -26,7 +25,7 @@ public record CompanyPayload() {
                     this.companyPhone,
                     this.companyAddress,
                     this.companyHomepage,
-                    this.companyCountry,
+                    this.companyCountryId,
                     this.companyRegion,
                     this.companyLogo
             );
@@ -56,7 +55,7 @@ public record CompanyPayload() {
             @Schema(description = "회사 전화번호") String companyPhone,
             @Schema(description = "회사 주소") String companyAddress,
             @Schema(description = "회사 홈페이지") String companyHomepage,
-            @Schema(description = "회사 국가") Country companyCountry,
+            @Schema(description = "회사 국가") String companyCountryId,
             @Schema(description = "회사 지역") String companyRegion,
             @Schema(description = "회사 로고") String companyLogo,
             @Schema(description = "회사 관리자 식별자") String companyManagerUserId

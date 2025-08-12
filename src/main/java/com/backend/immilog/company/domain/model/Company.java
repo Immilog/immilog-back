@@ -2,7 +2,6 @@ package com.backend.immilog.company.domain.model;
 
 import com.backend.immilog.company.exception.CompanyErrorCode;
 import com.backend.immilog.company.exception.CompanyException;
-import com.backend.immilog.shared.enums.Country;
 
 public class Company {
     private final String id;
@@ -45,11 +44,11 @@ public class Company {
     }
 
     public Company manager(
-            Country country,
+            String countryId,
             String region,
             String userId
     ) {
-        var manager = CompanyManager.of(country, region, userId);
+        var manager = CompanyManager.of(countryId, region, userId);
         return new Company(this.id, manager, this.companyMetaData);
     }
 
@@ -109,11 +108,11 @@ public class Company {
         return new Company(this.id, this.manager, updatedMetaData);
     }
 
-    public Company updateCountry(Country newCountry) {
-        if (newCountry == null || this.manager.country().equals(newCountry)) {
+    public Company updateCountry(String newCountryId) {
+        if (newCountryId == null || this.manager.countryId().equals(newCountryId)) {
             return this;
         }
-        var updatedManager = this.manager.withCountry(newCountry);
+        var updatedManager = this.manager.withCountry(newCountryId);
         return new Company(this.id, updatedManager, this.companyMetaData);
     }
 
@@ -153,7 +152,7 @@ public class Company {
 
     public String homepage() {return this.companyMetaData.homepage();}
 
-    public Country country() {return this.manager.country();}
+    public String countryId() {return this.manager.countryId();}
 
     public String region() {return this.manager.region();}
 
