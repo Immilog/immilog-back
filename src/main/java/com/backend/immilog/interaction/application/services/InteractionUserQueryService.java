@@ -35,7 +35,8 @@ public class InteractionUserQueryService {
         return interactionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(
                 userId,
                 contentType,
-                interactionStatus);
+                interactionStatus
+        );
     }
 
 }

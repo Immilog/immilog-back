@@ -19,7 +19,8 @@ public class BookmarkPostsRequestedEventHandler implements DomainEventHandler<Po
 
     public BookmarkPostsRequestedEventHandler(
             InteractionUserQueryService interactionUserQueryService,
-            EventResultStorageService eventResultStorageService) {
+            EventResultStorageService eventResultStorageService
+    ) {
         this.interactionUserQueryService = interactionUserQueryService;
         this.eventResultStorageService = eventResultStorageService;
     }
