@@ -6,7 +6,6 @@ import com.backend.immilog.notice.domain.model.NoticeId;
 import com.backend.immilog.notice.domain.service.NoticeAuthorizationService;
 import com.backend.immilog.notice.domain.service.NoticeFactory;
 import com.backend.immilog.notice.domain.service.NoticeValidationService;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,7 +40,7 @@ public class NoticeService {
             String title,
             String content,
             NoticeType type,
-            List<Country> targetCountries
+            List<String> targetCountries
     ) {
         var author = authorizationService.validateAndGetAuthor(token);
         validationService.validateNoticeCreation(title, content, type, targetCountries);
@@ -87,10 +86,10 @@ public class NoticeService {
     public void markAsRead(
             NoticeId noticeId,
             String userId,
-            Country userCountry
+            String userCountryId
     ) {
         var notice = noticeQueryService.getById(noticeId);
-        authorizationService.validateNoticeReadAccess(notice, userId, userCountry);
+        authorizationService.validateNoticeReadAccess(notice, userId, userCountryId);
 
         var readNotice = notice.markAsRead(userId);
         noticeCommandService.save(readNotice);
@@ -102,8 +101,8 @@ public class NoticeService {
     }
 
     @Transactional(readOnly = true)
-    public List<Notice> getNoticesForCountry(Country country) {
-        return noticeQueryService.getActiveNoticesForCountry(country);
+    public List<Notice> getNoticesForCountry(String countryId) {
+        return noticeQueryService.getActiveNoticesForCountryId(countryId);
     }
 
     @Transactional(readOnly = true)

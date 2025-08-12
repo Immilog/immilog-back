@@ -8,7 +8,6 @@ import com.backend.immilog.notice.domain.repository.NoticeRepository;
 import com.backend.immilog.notice.infrastructure.jdbc.NoticeJdbcRepository;
 import com.backend.immilog.notice.infrastructure.jpa.NoticeJpaEntity;
 import com.backend.immilog.notice.infrastructure.jpa.NoticeJpaRepository;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -61,9 +60,9 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     }
 
     @Override
-    public List<Notice> findActiveNoticesForCountry(Country country) {
+    public List<Notice> findActiveNoticesForCountryId(String countryId) {
         return noticeJpaRepository
-                .findByStatusNotAndTargetCountryContaining(NoticeStatus.DELETED, country)
+                .findByStatusNotAndTargetCountriesContaining(NoticeStatus.DELETED, countryId)
                 .stream()
                 .map(NoticeJpaEntity::toDomain)
                 .toList();
@@ -110,9 +109,9 @@ public class NoticeRepositoryImpl implements NoticeRepository {
 
     @Override
     public Boolean areUnreadNoticesExist(
-            Country country,
+            String countryId,
             String id
     ) {
-        return noticeJpaRepository.existsByTargetCountryContainingAndReadUsersNotContaining(country, id);
+        return noticeJpaRepository.existsByTargetCountriesContainingAndReadUsersNotContaining(countryId, id);
     }
 }

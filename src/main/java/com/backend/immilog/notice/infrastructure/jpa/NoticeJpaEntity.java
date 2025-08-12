@@ -4,7 +4,6 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.*;
-import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.DynamicUpdate;
@@ -41,9 +40,9 @@ public class NoticeJpaEntity {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "notice_target_country", joinColumns = @JoinColumn(name = "notice_id"))
-    @Column(name = "country")
+    @Column(name = "country_jd")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<Country> targetCountry;
+    private List<String> targetCountries;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "notice_read_user", joinColumns = @JoinColumn(name = "notice_id"))
@@ -75,7 +74,7 @@ public class NoticeJpaEntity {
             String content,
             NoticeType type,
             NoticeStatus status,
-            List<Country> targetCountry,
+            List<String> targetCountries,
             List<String> readUsers
     ) {
         this.id = id;
@@ -84,7 +83,7 @@ public class NoticeJpaEntity {
         this.content = content;
         this.type = type;
         this.status = status;
-        this.targetCountry = targetCountry;
+        this.targetCountries = targetCountries;
         this.readUsers = readUsers;
         this.updatedAt = id == null ? null : LocalDateTime.now();
     }
@@ -110,7 +109,7 @@ public class NoticeJpaEntity {
                 NoticeContent.of(this.content),
                 this.type,
                 this.status,
-                NoticeTargeting.of(this.targetCountry),
+                NoticeTargeting.of(this.targetCountries),
                 NoticeReadStatus.of(this.readUsers),
                 this.createdAt,
                 this.updatedAt

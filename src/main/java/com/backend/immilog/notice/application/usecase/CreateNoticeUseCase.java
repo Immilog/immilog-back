@@ -3,7 +3,6 @@ package com.backend.immilog.notice.application.usecase;
 import com.backend.immilog.notice.application.service.NoticeService;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.NoticeId;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,17 +21,8 @@ public class CreateNoticeUseCase {
             String title,
             String content,
             NoticeType type,
-            List<Country> targetCountries
+            List<String> targetCountries
     ) {
         return noticeService.createNotice(token, title, content, type, targetCountries);
-    }
-
-    public NoticeId executeGlobal(
-            String token,
-            String title,
-            String content,
-            NoticeType type
-    ) {
-        return noticeService.createNotice(token, title, content, type, List.of(Country.values()));
     }
 }

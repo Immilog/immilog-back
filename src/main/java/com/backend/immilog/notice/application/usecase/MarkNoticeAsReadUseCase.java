@@ -2,7 +2,6 @@ package com.backend.immilog.notice.application.usecase;
 
 import com.backend.immilog.notice.application.service.NoticeService;
 import com.backend.immilog.notice.domain.model.NoticeId;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,16 +16,16 @@ public class MarkNoticeAsReadUseCase {
     public void execute(
             NoticeId noticeId,
             String userId,
-            Country userCountry
+            String userCountryId
     ) {
-        noticeService.markAsRead(noticeId, userId, userCountry);
+        noticeService.markAsRead(noticeId, userId, userCountryId);
     }
 
     public void execute(
             String noticeId,
             String userId,
-            Country userCountry
+            String userCountryId
     ) {
-        noticeService.markAsRead(NoticeId.of(noticeId), userId, userCountry);
+        noticeService.markAsRead(NoticeId.of(noticeId), userId, userCountryId);
     }
 }

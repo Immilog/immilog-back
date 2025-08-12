@@ -2,15 +2,14 @@ package com.backend.immilog.notice.infrastructure.jpa;
 
 import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, String> {
-    Boolean existsByTargetCountryContainingAndReadUsersNotContaining(
-            Country country,
+    Boolean existsByTargetCountriesContainingAndReadUsersNotContaining(
+            String countryId,
             String id
     );
 
@@ -19,9 +18,9 @@ public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Stri
             NoticeStatus status
     );
 
-    List<NoticeJpaEntity> findByStatusNotAndTargetCountryContaining(
+    List<NoticeJpaEntity> findByStatusNotAndTargetCountriesContaining(
             NoticeStatus status,
-            Country country
+            String country
     );
 
     List<NoticeJpaEntity> findByStatusNot(NoticeStatus status);

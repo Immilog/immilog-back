@@ -4,7 +4,6 @@ import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.model.NoticeAuthor;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,7 +28,7 @@ public class NoticeAuthorizationService {
     public void validateNoticeReadAccess(
             Notice notice,
             String userId,
-            Country userCountry
+            String userCountryId
     ) {
         if (notice == null) {
             throw new NoticeException(NoticeErrorCode.NOTICE_NOT_FOUND);
@@ -43,7 +42,7 @@ public class NoticeAuthorizationService {
             throw new NoticeException(NoticeErrorCode.INVALID_USER_SEQ);
         }
 
-        if (userCountry != null && !notice.isTargetedTo(userCountry)) {
+        if (userCountryId != null && !notice.isTargetedTo(userCountryId)) {
             throw new NoticeException(NoticeErrorCode.NOTICE_NOT_FOUND);
         }
     }
