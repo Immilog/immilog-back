@@ -9,7 +9,6 @@ import com.backend.immilog.company.domain.model.Industry;
 import com.backend.immilog.company.domain.repository.CompanyRepository;
 import com.backend.immilog.company.exception.CompanyErrorCode;
 import com.backend.immilog.company.exception.CompanyException;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -39,12 +38,12 @@ class CompanyRegistrationServiceTest {
                 "010-1234-5678",
                 "test@company.com",
                 "https://company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울시 강남구",
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 
@@ -58,7 +57,7 @@ class CompanyRegistrationServiceTest {
         // then
         assertThat(result).isEqualTo(expectedCompany);
         assertThat(result.name()).isEqualTo("테스트 회사");
-        assertThat(result.country()).isEqualTo(Country.SOUTH_KOREA);
+        assertThat(result.countryId()).isEqualTo("KR");
         assertThat(result.region()).isEqualTo("서울");
     }
 
@@ -74,12 +73,12 @@ class CompanyRegistrationServiceTest {
                 "010-1234-5678",
                 "서울",
                 "https://company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울시 강남구",
                 "logo.png"
         );
 
-        CompanyManager existingManager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager existingManager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData existingMetaData = CompanyMetaData.of(Industry.IT, "기존 회사", "existing@company.com", "010-9876-5432", null, null, null);
         Company existingCompany = new Company("1", existingManager, existingMetaData);
 
@@ -103,13 +102,13 @@ class CompanyRegistrationServiceTest {
                 "010-1234-5678",
                 "서울",
                 "https://company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울시 강남구",
                 "logo.png"
         );
 
         Company emptyCompany = Company.createEmpty();
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 
@@ -136,7 +135,7 @@ class CompanyRegistrationServiceTest {
                 "010-1234-5678",
                 "서울",
                 "https://company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울시 강남구",
                 "logo.png"
         );
@@ -162,12 +161,12 @@ class CompanyRegistrationServiceTest {
                 "test@company.com",
                 "010-1234-5678",
                 "https://company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울시 강남구",
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 
@@ -201,12 +200,12 @@ class CompanyRegistrationServiceTest {
                 "010-1234-5678",
                 "서울",
                 "https://company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울시 강남구",
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "유니크한 회사명", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company expectedCompany = new Company(null, manager, metaData);
 

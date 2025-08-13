@@ -7,7 +7,6 @@ import com.backend.immilog.notice.domain.model.NoticeId;
 import com.backend.immilog.notice.domain.repository.NoticeRepository;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -38,8 +37,8 @@ public class NoticeQueryService {
                 .orElseThrow(() -> new NoticeException(NoticeErrorCode.NOTICE_NOT_FOUND));
     }
 
-    public List<Notice> getActiveNoticesForCountry(Country country) {
-        return noticeRepository.findActiveNoticesForCountry(country);
+    public List<Notice> getActiveNoticesForCountryId(String countryId) {
+        return noticeRepository.findActiveNoticesForCountryId(countryId);
     }
 
     public List<Notice> getAllActiveNotices() {
@@ -67,9 +66,9 @@ public class NoticeQueryService {
 
     @Transactional(readOnly = true)
     public Boolean areUnreadNoticesExist(
-            Country Country,
+            String countryId,
             String id
     ) {
-        return noticeRepository.areUnreadNoticesExist(Country, id);
+        return noticeRepository.areUnreadNoticesExist(countryId, id);
     }
 }

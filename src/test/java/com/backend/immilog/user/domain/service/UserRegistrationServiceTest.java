@@ -1,6 +1,6 @@
 package com.backend.immilog.user.domain.service;
 
-import com.backend.immilog.shared.enums.Country;
+
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.Auth;
@@ -40,11 +40,11 @@ class UserRegistrationServiceTest {
     }
 
     private Profile createValidProfile() {
-        return Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA);
+        return Profile.of("테스트유저", "https://example.com/image.jpg", "KR");
     }
 
     private Location createValidLocation() {
-        return Location.of(Country.SOUTH_KOREA, "서울특별시");
+        return Location.of("KR", "서울특별시");
     }
 
     @Test
@@ -123,10 +123,10 @@ class UserRegistrationServiceTest {
     void registerUserWithDifferentProfilesAndLocations() {
         // given
         Auth auth = createValidAuth();
-        Profile koreanProfile = Profile.of("한국유저", null, Country.SOUTH_KOREA);
-        Profile japanProfile = Profile.of("日本ユーザー", "https://japan.com/img.jpg", Country.JAPAN);
-        Location seoulLocation = Location.of(Country.SOUTH_KOREA, "서울특별시");
-        Location tokyoLocation = Location.of(Country.JAPAN, "도쿄");
+        Profile koreanProfile = Profile.of("한국유저", null, "KR");
+        Profile japanProfile = Profile.of("日本ユーザー", "https://japan.com/img.jpg", "JP");
+        Location seoulLocation = Location.of("KR", "서울특별시");
+        Location tokyoLocation = Location.of("JP", "도쿄");
 
         given(userRepository.existsByEmail(auth.email())).willReturn(false);
 
@@ -136,8 +136,8 @@ class UserRegistrationServiceTest {
         // then
         assertThat(koreanUser.getNickname()).isEqualTo("한국유저");
         assertThat(koreanUser.getImageUrl()).isNull();
-        assertThat(koreanUser.getInterestCountry()).isEqualTo(Country.SOUTH_KOREA);
-        assertThat(koreanUser.getCountry()).isEqualTo(Country.SOUTH_KOREA);
+        assertThat(koreanUser.getInterestCountryId()).isEqualTo("KR");
+        assertThat(koreanUser.getCountryId()).isEqualTo("KR");
         assertThat(koreanUser.getRegion()).isEqualTo("서울특별시");
     }
 
@@ -173,7 +173,7 @@ class UserRegistrationServiceTest {
         // null 닉네임으로 Profile 생성 시 Profile 생성자에서 예외 발생
         assertThrows(UserException.class,
                 () -> userRegistrationService.registerNewUser(
-                        auth, Profile.of(null, "image.jpg", Country.SOUTH_KOREA), location));
+                        auth, Profile.of(null, "image.jpg", "KR"), location));
 
         verifyNoInteractions(userRepository);
     }

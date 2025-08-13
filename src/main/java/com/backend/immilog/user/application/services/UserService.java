@@ -1,6 +1,5 @@
 package com.backend.immilog.user.application.services;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.model.*;
@@ -35,8 +34,8 @@ public class UserService {
             String rawPassword,
             String nickname,
             String imageUrl,
-            Country interestCountry,
-            Country country,
+            String interestCountryId,
+            String countryId,
             String region
     ) {
         // 1. 비밀번호 암호화
@@ -44,8 +43,8 @@ public class UserService {
 
         // 2. 도메인 객체 생성
         var auth = Auth.of(email, encodedPassword);
-        var profile = Profile.of(nickname, imageUrl, interestCountry);
-        var location = Location.of(country, region);
+        var profile = Profile.of(nickname, imageUrl, interestCountryId);
+        var location = Location.of(countryId, region);
 
         // 3. 도메인 서비스를 통한 사용자 등록
         var newUser = userRegistrationService.registerNewUser(auth, profile, location);
@@ -71,11 +70,11 @@ public class UserService {
             UserId userId,
             String nickname,
             String imageUrl,
-            Country interestCountry
+            String interestCountryId
     ) {
         var user = getUserById(userId);
 
-        var newProfile = Profile.of(nickname, imageUrl, interestCountry);
+        var newProfile = Profile.of(nickname, imageUrl, interestCountryId);
         user.updateProfile(newProfile);
 
         userCommandService.save(user);

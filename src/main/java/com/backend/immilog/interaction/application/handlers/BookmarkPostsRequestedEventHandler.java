@@ -1,6 +1,7 @@
 package com.backend.immilog.interaction.application.handlers;
 
 import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
@@ -8,8 +9,6 @@ import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Slf4j
 @Component
@@ -20,7 +19,8 @@ public class BookmarkPostsRequestedEventHandler implements DomainEventHandler<Po
 
     public BookmarkPostsRequestedEventHandler(
             InteractionUserQueryService interactionUserQueryService,
-            EventResultStorageService eventResultStorageService) {
+            EventResultStorageService eventResultStorageService
+    ) {
         this.interactionUserQueryService = interactionUserQueryService;
         this.eventResultStorageService = eventResultStorageService;
     }
@@ -31,17 +31,19 @@ public class BookmarkPostsRequestedEventHandler implements DomainEventHandler<Po
         
         try {
             // Interaction 도메인 서비스를 통해 북마크 데이터 조회
-            List<InteractionUser> bookmarkInteractions = interactionUserQueryService
-                    .getBookmarkInteractions(event.getUserId(), ContentType.valueOf(event.getContentType()));
-            
-            List<String> postIds = bookmarkInteractions.stream()
+            var bookmarkInteractions = interactionUserQueryService.getBookmarkInteractions(
+                    event.getUserId(),
+                    ContentType.valueOf(event.getContentType()),
+                    InteractionStatus.ACTIVE
+            );
+
+            var postIds = bookmarkInteractions.stream()
                     .map(InteractionUser::postId)
                     .toList();
             
             // Redis에 결과 저장
             eventResultStorageService.storeBookmarkData(event.getRequestId(), postIds);
-            log.debug("Successfully processed and stored {} bookmark records with requestId: {}", 
-                    postIds.size(), event.getRequestId());
+            log.debug("Successfully processed and stored {} bookmark records with requestId: {}", postIds.size(), event.getRequestId());
             
         } catch (Exception e) {
             log.error("Failed to process BookmarkPostsRequested event", e);

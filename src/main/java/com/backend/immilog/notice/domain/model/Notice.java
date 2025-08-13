@@ -4,7 +4,6 @@ import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.shared.enums.Country;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -129,8 +128,8 @@ public class Notice {
         return this;
     }
 
-    public boolean isTargetedTo(Country country) {
-        return targeting.isTargetedTo(country);
+    public boolean isTargetedTo(String countryId) {
+        return targeting.isTargetedTo(countryId);
     }
 
     public boolean isReadBy(String userId) {
@@ -205,7 +204,7 @@ public class Notice {
 
     public NoticeStatus getStatus() {return metadata.status();}
 
-    public List<Country> getTargetCountries() {return targeting.targetCountries();}
+    public List<String> getTargetCountries() {return targeting.targetCountryIds();}
 
     public List<String> getReadUsers() {return readStatus.getReadUsersList();}
 

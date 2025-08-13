@@ -9,7 +9,6 @@ import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.post.infrastructure.jdbc.PostJdbcRepository;
 import com.backend.immilog.post.infrastructure.jpa.entity.post.PostEntity;
 import com.backend.immilog.post.infrastructure.jpa.repository.PostJpaRepository;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -33,14 +32,14 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public Page<Post> getPosts(
-            Country country,
+            String countryId,
             SortingMethods sortingMethod,
             String isPublic,
             Categories category,
             Pageable pageable
     ) {
         return postJdbcRepository.getPosts(
-                country,
+                countryId,
                 sortingMethod,
                 isPublic,
                 category,

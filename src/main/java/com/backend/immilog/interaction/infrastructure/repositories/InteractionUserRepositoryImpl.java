@@ -1,5 +1,7 @@
 package com.backend.immilog.interaction.infrastructure.repositories;
 
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
+import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.interaction.infrastructure.jpa.InteractionUserEntity;
@@ -19,20 +21,22 @@ public class InteractionUserRepositoryImpl implements InteractionUserRepository 
     }
 
     @Override
-    public List<InteractionUser> findByPostIdListAndContentType(
+    public List<InteractionUser> findByPostIdListAndContentTypeAndInteractionStatus(
             List<String> postIdList,
-            ContentType contentType
+            ContentType contentType,
+            InteractionStatus interactionStatus
     ) {
-        return interactionUserJpaRepository.findByPostIdInAndContentType(postIdList, contentType)
+        return interactionUserJpaRepository.findByPostIdInAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus)
                 .stream()
                 .map(InteractionUserEntity::toDomain)
                 .toList();
     }
 
     @Override
-    public List<InteractionUser> findBookmarksByUserIdAndContentType(
+    public List<InteractionUser> findBookmarksByUserIdAndContentTypeAndInteractionStatus(
             String userId,
-            ContentType contentType
+            ContentType contentType,
+            InteractionStatus interactionStatus
     ) {
         return interactionUserJpaRepository.findByUserIdAndContentType(userId, contentType)
                 .stream()
@@ -55,5 +59,47 @@ public class InteractionUserRepositoryImpl implements InteractionUserRepository 
     @Override
     public void deleteById(String id) {
         interactionUserJpaRepository.deleteById(id);
+    }
+
+    @Override
+    public Optional<InteractionUser> findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+            String userId,
+            InteractionType interactionType,
+            ContentType contentType,
+            String postId
+    ) {
+        return interactionUserJpaRepository.findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+                        userId,
+                        interactionType,
+                        contentType,
+                        postId
+                )
+                .map(InteractionUserEntity::toDomain);
+    }
+
+    @Override
+    public Long countByPostIdAndInteractionTypeAndInteractionStatus(
+            String postId,
+            InteractionType interactionType,
+            InteractionStatus interactionStatus
+    ) {
+        return interactionUserJpaRepository.countByPostIdAndInteractionTypeAndInteractionStatus(
+                postId,
+                interactionType,
+                interactionStatus
+        );
+    }
+
+    @Override
+    public Long countByCommentIdAndInteractionTypeAndInteractionStatus(
+            String commentId,
+            InteractionType interactionType,
+            InteractionStatus interactionStatus
+    ) {
+        return interactionUserJpaRepository.countByPostIdAndInteractionTypeAndInteractionStatus(
+                commentId,
+                interactionType,
+                interactionStatus
+        );
     }
 }

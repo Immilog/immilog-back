@@ -3,7 +3,6 @@ package com.backend.immilog.jobboard.application.services;
 import com.backend.immilog.jobboard.application.dto.JobBoardResult;
 import com.backend.immilog.jobboard.domain.model.JobBoard;
 import com.backend.immilog.jobboard.domain.repositories.JobBoardRepository;
-import com.backend.immilog.shared.enums.Country;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +20,10 @@ public class JobBoardQueryService {
 
     @Transactional(readOnly = true)
     public Page<JobBoardResult> getJobBoards(
-            Country country,
+            String countryId,
             Pageable pageable
     ) {
-        var jobBoards = jobBoardRepository.findJobBoards(country, pageable);
+        var jobBoards = jobBoardRepository.findJobBoards(countryId, pageable);
         return jobBoards.map(this::convertToJobBoardResult);
     }
 

@@ -13,7 +13,10 @@ public record PostDetailResponse(
         PostInformation post,
         List<CommentResponse.CommentInformation> comments
 ) {
-    public static PostDetailResponse success(PostResult post, List<CommentResult> comments) {
+    public static PostDetailResponse success(
+            PostResult post,
+            List<CommentResult> comments
+    ) {
         var commentInfoList = comments.stream()
                 .map(CommentResult::toInfraDTO)
                 .toList();
@@ -22,6 +25,18 @@ public record PostDetailResponse(
                 "success",
                 post.toInfraDTO(),
                 commentInfoList
+        );
+    }
+
+    public static PostDetailResponse successWithHierarchicalComments(
+            PostResult post,
+            List<CommentResponse.CommentInformation> hierarchicalComments
+    ) {
+        return new PostDetailResponse(
+                HttpStatus.OK.value(),
+                "success",
+                post.toInfraDTO(),
+                hierarchicalComments
         );
     }
 }

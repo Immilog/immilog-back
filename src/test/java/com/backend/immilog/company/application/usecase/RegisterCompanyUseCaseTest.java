@@ -4,7 +4,6 @@ import com.backend.immilog.company.application.dto.CompanyRegisterCommand;
 import com.backend.immilog.company.application.service.CompanyService;
 import com.backend.immilog.company.domain.model.CompanyId;
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +28,7 @@ class RegisterCompanyUseCaseTest {
                 "010-1234-5678",
                 "서울시 강남구",
                 "https://company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울",
                 "logo.png"
         );
@@ -59,7 +58,7 @@ class RegisterCompanyUseCaseTest {
                 "010-1111-2222",
                 "서울시 종로구",
                 "https://it-company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울",
                 "it-logo.png"
         );
@@ -89,7 +88,7 @@ class RegisterCompanyUseCaseTest {
                 "010-3333-4444",
                 "부산시 해운대구",
                 "https://etc-company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "부산",
                 "etc-logo.png"
         );
@@ -119,7 +118,7 @@ class RegisterCompanyUseCaseTest {
                 "090-1234-5678",
                 "도쿄시 시부야구",
                 "https://japan-company.com",
-                Country.JAPAN,
+                "JP",
                 "도쿄",
                 "japan-logo.png"
         );
@@ -149,7 +148,7 @@ class RegisterCompanyUseCaseTest {
                 "010-5555-6666",
                 "대구시 중구",
                 null,
-                Country.SOUTH_KOREA,
+                "KR",
                 "대구",
                 "no-homepage-logo.png"
         );
@@ -179,7 +178,7 @@ class RegisterCompanyUseCaseTest {
                 "051-7777-8888",
                 "부산시 중구",
                 "https://no-logo-company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "부산",
                 null
         );
@@ -211,7 +210,7 @@ class RegisterCompanyUseCaseTest {
                 "010-1111-1111",
                 "서울시 강남구",
                 "https://first-company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울",
                 "first-logo.png"
         );
@@ -223,7 +222,7 @@ class RegisterCompanyUseCaseTest {
                 "010-2222-2222",
                 "부산시 해운대구",
                 "https://second-company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "부산",
                 "second-logo.png"
         );
@@ -259,7 +258,7 @@ class RegisterCompanyUseCaseTest {
                 "010-9999-0000",
                 "광주시 서구",
                 "https://service-test.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "광주",
                 "service-test-logo.png"
         );

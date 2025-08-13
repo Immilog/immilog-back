@@ -5,10 +5,14 @@ import com.backend.immilog.shared.domain.event.DomainEvent;
 import java.time.LocalDateTime;
 
 public class CommentCreatedEvent implements DomainEvent {
-    private final String commentId;
-    private final String postId;
-    private final String userId;
-    private final LocalDateTime occurredAt;
+    private String commentId;
+    private String postId;
+    private String userId;
+    private LocalDateTime occurredAt;
+
+    public CommentCreatedEvent() {
+        this.occurredAt = LocalDateTime.now();
+    }
 
     public CommentCreatedEvent(String commentId, String postId, String userId) {
         this.commentId = commentId;

@@ -2,6 +2,7 @@ package com.backend.immilog.user.application.usecase;
 
 import com.backend.immilog.user.application.result.LocationResult;
 import com.backend.immilog.user.infrastructure.gateway.GeocodeGateway;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,32 +17,64 @@ class FetchLocationUseCaseTest {
 
     private final GeocodeGateway geocodeGateway = mock(GeocodeGateway.class);
     private FetchLocationUseCase locationFetcher;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        locationFetcher = new FetchLocationUseCase.LocationFetcher(geocodeGateway);
+        objectMapper = new ObjectMapper();
+        locationFetcher = new FetchLocationUseCase.LocationFetcher(geocodeGateway, objectMapper);
     }
 
     private String createValidGeocodeResponse() {
         return """
                 {
                     "plus_code": {
-                        "compound_code": "8Q98+5V Seoul, South Korea"
+                        "compound_code": "J365+R7X 대한민국 서울특별시"
                     },
-                    "results": []
+                    "results": [
+                        {
+                            "address_components": [
+                                {
+                                    "long_name": "대한민국",
+                                    "short_name": "KR",
+                                    "types": ["country", "political"]
+                                },
+                                {
+                                    "long_name": "서울특별시",
+                                    "short_name": "서울특별시",
+                                    "types": ["administrative_area_level_1", "political"]
+                                }
+                            ]
+                        }
+                    ]
                 }
                 """;
     }
 
-    private String createGeocodeResponseWithCity(String compoundCode) {
+    private String createGeocodeResponseWithCity(String countryName, String countryCode, String cityName) {
         return String.format("""
                 {
                     "plus_code": {
-                        "compound_code": "%s"
+                        "compound_code": "J365+R7X %s %s"
                     },
-                    "results": []
+                    "results": [
+                        {
+                            "address_components": [
+                                {
+                                    "long_name": "%s",
+                                    "short_name": "%s",
+                                    "types": ["country", "political"]
+                                },
+                                {
+                                    "long_name": "%s",
+                                    "short_name": "%s",
+                                    "types": ["administrative_area_level_1", "political"]
+                                }
+                            ]
+                        }
+                    ]
                 }
-                """, compoundCode);
+                """, countryName, cityName, countryName, countryCode, cityName, cityName);
     }
 
     @Test
@@ -60,8 +93,8 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("Seoul,");
-        assertThat(locationResult.city()).isEqualTo("South");
+        assertThat(locationResult.country()).isEqualTo("KR");
+        assertThat(locationResult.city()).isEqualTo("서울특별시");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
 
@@ -128,7 +161,7 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("기타 국가");
+        assertThat(locationResult.country()).isEqualTo("기타");
         assertThat(locationResult.city()).isEqualTo("기타 지역");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
@@ -149,7 +182,7 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("기타 국가");
+        assertThat(locationResult.country()).isEqualTo("기타");
         assertThat(locationResult.city()).isEqualTo("기타 지역");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
@@ -174,7 +207,7 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("기타 국가");
+        assertThat(locationResult.country()).isEqualTo("기타");
         assertThat(locationResult.city()).isEqualTo("기타 지역");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
@@ -185,7 +218,14 @@ class FetchLocationUseCaseTest {
         // given
         double latitude = 37.5665;
         double longitude = 126.9780;
-        String responseWithShortCode = createGeocodeResponseWithCity("8Q98+5V");
+        String responseWithShortCode = """
+                {
+                    "plus_code": {
+                        "compound_code": "8Q98+5V"
+                    },
+                    "results": []
+                }
+                """;
 
         given(geocodeGateway.fetchGeocode(latitude, longitude)).willReturn(responseWithShortCode);
 
@@ -195,7 +235,7 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("기타 국가");
+        assertThat(locationResult.country()).isEqualTo("기타");
         assertThat(locationResult.city()).isEqualTo("기타 지역");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
@@ -208,9 +248,9 @@ class FetchLocationUseCaseTest {
         double tokyoLat = 35.6762, tokyoLon = 139.6503;
         double newyorkLat = 40.7128, newyorkLon = 74.0060;
 
-        String seoulResponse = createGeocodeResponseWithCity("8Q98+5V Seoul, South Korea");
-        String tokyoResponse = createGeocodeResponseWithCity("8Q7X+X2 Tokyo, Japan");
-        String newyorkResponse = createGeocodeResponseWithCity("87G8+5X New York, United States");
+        String seoulResponse = createGeocodeResponseWithCity("대한민국", "KR", "서울특별시");
+        String tokyoResponse = createGeocodeResponseWithCity("Japan", "JP", "Tokyo");
+        String newyorkResponse = createGeocodeResponseWithCity("United States", "US", "New York");
 
         given(geocodeGateway.fetchGeocode(seoulLat, seoulLon)).willReturn(seoulResponse);
         given(geocodeGateway.fetchGeocode(tokyoLat, tokyoLon)).willReturn(tokyoResponse);
@@ -226,14 +266,14 @@ class FetchLocationUseCaseTest {
         LocationResult tokyo = tokyoResult.get();
         LocationResult newyork = newyorkResult.get();
 
-        assertThat(seoul.country()).isEqualTo("Seoul,");
-        assertThat(seoul.city()).isEqualTo("South");
+        assertThat(seoul.country()).isEqualTo("KR");
+        assertThat(seoul.city()).isEqualTo("서울특별시");
 
-        assertThat(tokyo.country()).isEqualTo("Tokyo,");
-        assertThat(tokyo.city()).isEqualTo("Japan");
+        assertThat(tokyo.country()).isEqualTo("JP");
+        assertThat(tokyo.city()).isEqualTo("Tokyo");
 
-        assertThat(newyork.country()).isEqualTo("New");
-        assertThat(newyork.city()).isEqualTo("York,");
+        assertThat(newyork.country()).isEqualTo("US");
+        assertThat(newyork.city()).isEqualTo("New York");
     }
 
     @Test
@@ -262,8 +302,8 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.country()).isEqualTo("Error");
-        assertThat(result.city()).isEqualTo("Timeout");
+        assertThat(result.country()).isEqualTo("기타");
+        assertThat(result.city()).isEqualTo("기타 지역");
     }
 
     @Test
@@ -279,28 +319,8 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(result).isNotNull();
-        assertThat(result.country()).isEqualTo("Error");
-        assertThat(result.city()).isEqualTo("Timeout");
-    }
-
-    @Test
-    @DisplayName("극한값 좌표로 위치 정보를 조회할 수 있다")
-    void getCountryWithExtremeCoordinates() throws Exception {
-        // given
-        double maxLat = 90.0, maxLon = 180.0;
-        String response = createGeocodeResponseWithCity("XXXX+XX North Pole, Arctic");
-
-        given(geocodeGateway.fetchGeocode(maxLat, maxLon)).willReturn(response);
-
-        // when
-        CompletableFuture<LocationResult> result = locationFetcher.getCountry(maxLat, maxLon);
-        LocationResult locationResult = result.get();
-
-        // then
-        assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("North");
-        assertThat(locationResult.city()).isEqualTo("Pole,");
-        verify(geocodeGateway).fetchGeocode(maxLat, maxLon);
+        assertThat(result.country()).isEqualTo("기타");
+        assertThat(result.city()).isEqualTo("기타 지역");
     }
 
     @Test
@@ -328,7 +348,14 @@ class FetchLocationUseCaseTest {
         // given
         double latitude = 37.5665;
         double longitude = 126.9780;
-        String responseWithEmptyCode = createGeocodeResponseWithCity("");
+        String responseWithEmptyCode = """
+                {
+                    "plus_code": {
+                        "compound_code": ""
+                    },
+                    "results": []
+                }
+                """;
 
         given(geocodeGateway.fetchGeocode(latitude, longitude)).willReturn(responseWithEmptyCode);
 
@@ -338,7 +365,7 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("기타 국가");
+        assertThat(locationResult.country()).isEqualTo("기타");
         assertThat(locationResult.city()).isEqualTo("기타 지역");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
@@ -366,7 +393,7 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("기타 국가");
+        assertThat(locationResult.country()).isEqualTo("기타");
         assertThat(locationResult.city()).isEqualTo("기타 지역");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
@@ -377,7 +404,7 @@ class FetchLocationUseCaseTest {
         // given
         double latitude = 37.5665;
         double longitude = 126.9780;
-        String responseWithSpaces = createGeocodeResponseWithCity("8Q98+5V  Seoul   South   Korea");
+        String responseWithSpaces = createGeocodeResponseWithCity("대한민국", "KR", "서울특별시");
 
         given(geocodeGateway.fetchGeocode(latitude, longitude)).willReturn(responseWithSpaces);
 
@@ -387,8 +414,8 @@ class FetchLocationUseCaseTest {
 
         // then
         assertThat(locationResult).isNotNull();
-        assertThat(locationResult.country()).isEqualTo("Seoul");
-        assertThat(locationResult.city()).isEqualTo("South");
+        assertThat(locationResult.country()).isEqualTo("KR");
+        assertThat(locationResult.city()).isEqualTo("서울특별시");
         verify(geocodeGateway).fetchGeocode(latitude, longitude);
     }
 
@@ -399,9 +426,9 @@ class FetchLocationUseCaseTest {
         double[] latitudes = {37.5665, 35.6762, 40.7128};
         double[] longitudes = {126.9780, 139.6503, 74.0060};
         String[] responses = {
-                createGeocodeResponseWithCity("8Q98+5V Seoul, South Korea"),
-                createGeocodeResponseWithCity("8Q7X+X2 Tokyo, Japan"),
-                createGeocodeResponseWithCity("87G8+5X New York, United States")
+                createGeocodeResponseWithCity("대한민국", "KR", "서울특별시"),
+                createGeocodeResponseWithCity("Japan", "JP", "Tokyo"),
+                createGeocodeResponseWithCity("United States", "US", "New York")
         };
 
         for (int i = 0; i < latitudes.length; i++) {

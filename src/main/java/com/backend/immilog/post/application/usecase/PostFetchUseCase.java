@@ -8,7 +8,6 @@ import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.enums.ContentType;
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,7 +20,7 @@ import java.util.Objects;
 
 public interface PostFetchUseCase {
     Page<PostResult> getPosts(
-            Country country,
+            String countryId,
             SortingMethods sortingMethod,
             String isPublic,
             Categories category,
@@ -67,14 +66,14 @@ public interface PostFetchUseCase {
         }
 
         public Page<PostResult> getPosts(
-                Country country,
+                String countryId,
                 SortingMethods sortingMethod,
                 String isPublic,
                 Categories category,
                 Integer page
         ) {
             final var pageable = PageRequest.of(Objects.requireNonNullElse(page, 0), 10);
-            return postQueryService.getPosts(country, sortingMethod, isPublic, category, pageable);
+            return postQueryService.getPosts(countryId, sortingMethod, isPublic, category, pageable);
         }
 
         public PostResult getPostDetail(String postId) {

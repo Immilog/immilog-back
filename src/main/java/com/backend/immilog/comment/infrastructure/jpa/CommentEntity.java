@@ -38,9 +38,6 @@ public class CommentEntity {
     @Column(name = "reply_count")
     private int replyCount = 0;
 
-    @Column(name = "like_count")
-    private Integer likeCount = 0;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private ContentStatus status;
@@ -68,7 +65,6 @@ public class CommentEntity {
             String content,
             ReferenceType referenceType,
             int replyCount,
-            Integer likeCount,
             ContentStatus status,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
@@ -80,7 +76,6 @@ public class CommentEntity {
         this.content = content;
         this.referenceType = referenceType;
         this.replyCount = replyCount;
-        this.likeCount = likeCount;
         this.status = status;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
@@ -95,7 +90,6 @@ public class CommentEntity {
                 comment.content(),
                 comment.referenceType(),
                 comment.replyCount(),
-                comment.likeCount(),
                 comment.status(),
                 comment.createdAt(),
                 comment.updatedAt()
@@ -113,7 +107,6 @@ public class CommentEntity {
                         referenceType
                 ),
                 replyCount,
-                likeCount,
                 status,
                 new ArrayList<>(),
                 createdAt,

@@ -19,10 +19,11 @@ class CommentTest {
         String userId = "userId";
         String postId = "postId";
         String content = "댓글 내용";
+        String parentId = null;
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        Comment comment = Comment.of(userId, postId, content, referenceType);
+        Comment comment = Comment.of(userId, postId, content, parentId, referenceType);
 
         //then
         assertThat(comment.userId()).isEqualTo(userId);
@@ -30,7 +31,7 @@ class CommentTest {
         assertThat(comment.postId()).isEqualTo(postId);
         assertThat(comment.referenceType()).isEqualTo(referenceType);
         assertThat(comment.replyCount()).isEqualTo(0);
-        assertThat(comment.likeCount()).isEqualTo(0);
+        assertThat(comment.likeUsers().size()).isEqualTo(0);
         assertThat(comment.status()).isEqualTo(ContentStatus.NORMAL);
         assertThat(comment.likeUsers()).isEmpty();
         assertThat(comment.createdAt()).isNotNull();
@@ -65,7 +66,7 @@ class CommentTest {
         Comment likedComment = comment.addLikeUser(likeUserId);
 
         //then
-        assertThat(likedComment.likeCount()).isEqualTo(comment.likeCount() + 1);
+        assertThat(likedComment.likeUsers().size()).isEqualTo(comment.likeUsers().size() + 1);
         assertThat(likedComment.likeUsers()).contains(likeUserId);
         assertThat(likedComment.id()).isEqualTo(comment.id());
         assertThat(likedComment.userId()).isEqualTo(comment.userId());
@@ -142,7 +143,7 @@ class CommentTest {
     void getPostIdSuccessfully() {
         //given
         String expectedPostId = "postId";
-        Comment comment = Comment.of("userId", expectedPostId, "content", ReferenceType.POST);
+        Comment comment = Comment.of("userId", expectedPostId, "content", "parentId", ReferenceType.POST);
 
         //when
         String actualPostId = comment.postId();
@@ -170,7 +171,7 @@ class CommentTest {
     void getReferenceTypeSuccessfully() {
         //given
         ReferenceType expectedType = ReferenceType.COMMENT;
-        Comment comment = Comment.of("userId", "postId", "content", expectedType);
+        Comment comment = Comment.of("userId", "postId", "content", null, expectedType);
 
         //when
         ReferenceType actualType = comment.referenceType();
@@ -185,11 +186,12 @@ class CommentTest {
         //given
         String userId = "userId";
         String postId = "postId";
+        String parentId = null;
         String content = "댓글 내용";
 
         //when & then
         for (ReferenceType type : ReferenceType.values()) {
-            Comment comment = Comment.of(userId, postId, content, type);
+            Comment comment = Comment.of(userId, postId, content, parentId, type);
             assertThat(comment.referenceType()).isEqualTo(type);
         }
     }
@@ -208,7 +210,7 @@ class CommentTest {
         }
 
         //then
-        assertThat(result.likeCount()).isEqualTo(comment.likeCount() + likeUserIds.size());
+        assertThat(result.likeUsers().size()).isEqualTo(comment.likeUsers().size() + likeUserIds.size());
         assertThat(result.likeUsers()).containsAll(likeUserIds);
     }
 
@@ -239,7 +241,7 @@ class CommentTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        Comment comment = Comment.of(userId, postId, content, referenceType);
+        Comment comment = Comment.of(userId, postId, content, "parentId", referenceType);
 
         //then
         assertThat(comment.content()).isEmpty();
@@ -269,7 +271,7 @@ class CommentTest {
         LocalDateTime beforeCreate = LocalDateTime.now().minusSeconds(1);
         
         //when
-        Comment comment = Comment.of("userId", "postId", "content", ReferenceType.POST);
+        Comment comment = Comment.of("userId", "postId", "content", null, ReferenceType.POST);
         
         //then
         LocalDateTime afterCreate = LocalDateTime.now().plusSeconds(1);
@@ -283,7 +285,6 @@ class CommentTest {
                 "userId",
                 "댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.POST),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
@@ -299,7 +300,6 @@ class CommentTest {
                 "댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 null,
                 LocalDateTime.now(),
@@ -313,7 +313,6 @@ class CommentTest {
                 "userId",
                 "댓글 내용",
                 CommentRelation.of("postId", parentId, ReferenceType.COMMENT),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),

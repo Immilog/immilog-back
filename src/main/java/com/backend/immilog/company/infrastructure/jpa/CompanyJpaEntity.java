@@ -3,7 +3,6 @@ package com.backend.immilog.company.infrastructure.jpa;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.company.domain.model.Company;
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -38,7 +37,7 @@ public class CompanyJpaEntity {
             String companyPhone,
             String companyAddress,
             String companyHomepage,
-            Country companyCountry,
+            String companyCountryId,
             String companyRegion,
             String companyLogo,
             String companyManagerUserId
@@ -53,7 +52,7 @@ public class CompanyJpaEntity {
                 companyLogo
         );
         CompanyManagerJpaValue manager = CompanyManagerJpaValue.of(
-                companyCountry,
+                companyCountryId,
                 companyRegion,
                 companyManagerUserId
         );
@@ -71,7 +70,7 @@ public class CompanyJpaEntity {
                 company.phone(),
                 company.address(),
                 company.homepage(),
-                company.country(),
+                company.countryId(),
                 company.region(),
                 company.logo(),
                 company.managerUserId()

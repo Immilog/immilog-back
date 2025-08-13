@@ -4,7 +4,7 @@ import com.backend.immilog.comment.domain.model.ReferenceType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CommentCreateCommandTest {
 
@@ -18,7 +18,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, null, referenceType);
 
         //then
         assertThat(command.userId()).isEqualTo(userId);
@@ -37,7 +37,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.COMMENT;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, null, referenceType);
 
         //then
         assertThat(command.referenceType()).isEqualTo(ReferenceType.COMMENT);
@@ -54,7 +54,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.JOB_BOARD;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, null, referenceType);
 
         //then
         assertThat(command.referenceType()).isEqualTo(ReferenceType.JOB_BOARD);
@@ -71,7 +71,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = null;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, null, referenceType);
 
         //then
         assertThat(command.userId()).isNull();
@@ -90,7 +90,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, null, referenceType);
 
         //then
         assertThat(command.userId()).isEmpty();
@@ -104,13 +104,13 @@ class CommentCreateCommandTest {
     void verifyCommentCreateCommandEquals() {
         //given
         CommentCreateCommand command1 = new CommentCreateCommand(
-                "userId", "postId", "content", ReferenceType.POST
+                "userId", "postId", "content", null, ReferenceType.POST
         );
         CommentCreateCommand command2 = new CommentCreateCommand(
-                "userId", "postId", "content", ReferenceType.POST
+                "userId", "postId", "content", null, ReferenceType.POST
         );
         CommentCreateCommand command3 = new CommentCreateCommand(
-                "differentUserId", "postId", "content", ReferenceType.POST
+                "differentUserId", "postId", "content", null, ReferenceType.POST
         );
 
         //when & then
@@ -124,7 +124,7 @@ class CommentCreateCommandTest {
     void verifyCommentCreateCommandToString() {
         //given
         CommentCreateCommand command = new CommentCreateCommand(
-                "userId", "postId", "content", ReferenceType.POST
+                "userId", "postId", "content", null, ReferenceType.POST
         );
 
         //when
@@ -147,7 +147,7 @@ class CommentCreateCommandTest {
 
         //when & then
         for (ReferenceType type : ReferenceType.values()) {
-            CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, type);
+            CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, null, type);
             assertThat(command.referenceType()).isEqualTo(type);
             assertThat(command.userId()).isEqualTo(userId);
             assertThat(command.postId()).isEqualTo(postId);
@@ -165,7 +165,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, longContent, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, longContent, null, referenceType);
 
         //then
         assertThat(command.content()).hasSize(1000);
@@ -182,7 +182,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, specialContent, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, specialContent, null, referenceType);
 
         //then
         assertThat(command.content()).isEqualTo(specialContent);
@@ -200,7 +200,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, unicodeContent, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, unicodeContent, null, referenceType);
 
         //then
         assertThat(command.content()).isEqualTo(unicodeContent);
@@ -218,7 +218,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, multilineContent, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, multilineContent, null, referenceType);
 
         //then
         assertThat(command.content()).isEqualTo(multilineContent);
@@ -236,7 +236,7 @@ class CommentCreateCommandTest {
         ReferenceType referenceType = ReferenceType.POST;
 
         //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, whitespaceContent, referenceType);
+        CommentCreateCommand command = new CommentCreateCommand(userId, postId, whitespaceContent, null, referenceType);
 
         //then
         assertThat(command.content()).isEqualTo(whitespaceContent);

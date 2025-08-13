@@ -1,6 +1,5 @@
 package com.backend.immilog.user.domain.model;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.exception.UserErrorCode;
@@ -21,11 +20,11 @@ class UserTest {
     }
 
     private Profile createValidProfile() {
-        return Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA);
+        return Profile.of("테스트유저", "https://example.com/image.jpg", "KR");
     }
 
     private Location createValidLocation() {
-        return Location.of(Country.SOUTH_KOREA, "서울특별시");
+        return Location.of("KR", "서울특별시");
     }
 
     @Test
@@ -136,7 +135,7 @@ class UserTest {
     void updateProfile() {
         // given
         User user = User.create(createValidAuth(), createValidProfile(), createValidLocation());
-        Profile newProfile = Profile.of("새로운닉네임", "https://new.example.com/image.jpg", Country.JAPAN);
+        Profile newProfile = Profile.of("새로운닉네임", "https://new.example.com/image.jpg", "JP");
         LocalDateTime beforeUpdate = user.getUpdatedAt();
 
         // when
@@ -147,7 +146,7 @@ class UserTest {
         assertThat(user.getProfile()).isEqualTo(newProfile);
         assertThat(user.getNickname()).isEqualTo("새로운닉네임");
         assertThat(user.getImageUrl()).isEqualTo("https://new.example.com/image.jpg");
-        assertThat(user.getInterestCountry()).isEqualTo(Country.JAPAN);
+        assertThat(user.getInterestCountryId()).isEqualTo("JP");
         assertThat(user.getUpdatedAt()).isAfter(beforeUpdate);
     }
 
@@ -168,7 +167,7 @@ class UserTest {
     void updateLocation() {
         // given
         User user = User.create(createValidAuth(), createValidProfile(), createValidLocation());
-        Location newLocation = Location.of(Country.JAPAN, "도쿄");
+        Location newLocation = Location.of("JP", "도쿄");
         LocalDateTime beforeUpdate = user.getUpdatedAt();
 
         // when
@@ -177,7 +176,7 @@ class UserTest {
         // then
         assertThat(updatedUser).isSameAs(user);
         assertThat(user.getLocation()).isEqualTo(newLocation);
-        assertThat(user.getCountry()).isEqualTo(Country.JAPAN);
+        assertThat(user.getCountryId()).isEqualTo("JP");
         assertThat(user.getRegion()).isEqualTo("도쿄");
         assertThat(user.getUpdatedAt()).isAfter(beforeUpdate);
     }
@@ -372,8 +371,8 @@ class UserTest {
         assertThat(user.getUserRole()).isEqualTo(userRole);
         assertThat(user.getNickname()).isEqualTo(profile.nickname());
         assertThat(user.getImageUrl()).isEqualTo(profile.imageUrl());
-        assertThat(user.getInterestCountry()).isEqualTo(profile.interestCountry());
-        assertThat(user.getCountry()).isEqualTo(location.country());
+        assertThat(user.getInterestCountryId()).isEqualTo(profile.interestCountryId());
+        assertThat(user.getCountryId()).isEqualTo(location.countryId());
         assertThat(user.getRegion()).isEqualTo(location.region());
         assertThat(user.getUserStatus()).isEqualTo(userStatus);
         assertThat(user.getCreatedAt()).isEqualTo(createdAt);
@@ -388,8 +387,8 @@ class UserTest {
     void chainedUpdates() {
         // given
         User user = User.create(createValidAuth(), createValidProfile(), createValidLocation());
-        Profile newProfile = Profile.of("새닉네임", "https://new.com/image.jpg", Country.JAPAN);
-        Location newLocation = Location.of(Country.JAPAN, "오사카");
+        Profile newProfile = Profile.of("새닉네임", "https://new.com/image.jpg", "JP");
+        Location newLocation = Location.of("JP", "오사카");
 
         // when
         user.updateProfile(newProfile)

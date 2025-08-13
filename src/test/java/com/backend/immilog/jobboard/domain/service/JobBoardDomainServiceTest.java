@@ -2,7 +2,6 @@ package com.backend.immilog.jobboard.domain.service;
 
 import com.backend.immilog.jobboard.domain.model.*;
 import com.backend.immilog.jobboard.domain.repositories.JobBoardRepository;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -49,7 +48,7 @@ class JobBoardDomainServiceTest {
         JobBenefits benefits = new JobBenefits("건강보험, 연차");
         ApplicationDeadline deadline = new ApplicationDeadline(LocalDate.now().plusDays(30));
         ContactEmail contactEmail = new ContactEmail("hr@testcompany.com");
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
 
         JobBoard createdJobBoard = createSampleJobBoard();
         when(mockJobBoardRepository.save(any(JobBoard.class))).thenReturn(createdJobBoard);
@@ -58,7 +57,7 @@ class JobBoardDomainServiceTest {
         JobBoard result = jobBoardDomainService.createJobBoard(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         );
 
         // then
@@ -89,7 +88,7 @@ class JobBoardDomainServiceTest {
         JobBenefits benefits = new JobBenefits("건강보험, 연차");
         ApplicationDeadline deadline = new ApplicationDeadline(LocalDate.now().plusDays(30));
         ContactEmail contactEmail = new ContactEmail("hr@testcompany.com");
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
 
         doThrow(new IllegalArgumentException("Invalid job board data"))
                 .when(mockValidationService).validateJobBoardCreation(
@@ -100,7 +99,7 @@ class JobBoardDomainServiceTest {
         assertThatThrownBy(() -> jobBoardDomainService.createJobBoard(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         )).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Invalid job board data");
 
@@ -244,7 +243,7 @@ class JobBoardDomainServiceTest {
                 new ContactEmail("hr@testcompany.com"),
                 true,
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );
@@ -268,7 +267,7 @@ class JobBoardDomainServiceTest {
                 new ContactEmail("hr@testcompany.com"),
                 true,
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );
@@ -292,7 +291,7 @@ class JobBoardDomainServiceTest {
                 new ContactEmail("hr@testcompany.com"),
                 false, // 비활성
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );
@@ -317,7 +316,7 @@ class JobBoardDomainServiceTest {
                 new ContactEmail("hr@testcompany.com"),
                 true,
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );

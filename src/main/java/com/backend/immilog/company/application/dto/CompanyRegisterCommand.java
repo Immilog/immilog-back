@@ -1,7 +1,6 @@
 package com.backend.immilog.company.application.dto;
 
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.shared.enums.Country;
 
 public record CompanyRegisterCommand(
         Industry industry,
@@ -10,7 +9,7 @@ public record CompanyRegisterCommand(
         String phone,
         String address,
         String homepage,
-        Country country,
+        String countryId,
         String region,
         String logo
 ) {

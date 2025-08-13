@@ -3,11 +3,12 @@ package com.backend.immilog.comment.application.usecase;
 import com.backend.immilog.comment.application.dto.CommentCreateCommand;
 import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.application.services.CommentCommandService;
+import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
-import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.shared.application.event.DomainEventPublisher;
+import com.backend.immilog.shared.enums.ContentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import static org.mockito.Mockito.*;
 class CommentCreateUseCaseTest {
 
     private final CommentCommandService mockCommentCommandService = mock(CommentCommandService.class);
+    private final CommentQueryService mockCommentQueryService = mock(CommentQueryService.class);
     private final DomainEventPublisher mockDomainEventPublisher = mock(DomainEventPublisher.class);
 
     private CommentCreateUseCase.CommentCreator commentCreator;
@@ -30,6 +32,7 @@ class CommentCreateUseCaseTest {
     void setUp() {
         commentCreator = new CommentCreateUseCase.CommentCreator(
                 mockCommentCommandService,
+                mockCommentQueryService,
                 mockDomainEventPublisher
         );
     }
@@ -42,22 +45,26 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "댓글 내용",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithId();
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         CommentResult result = commentCreator.createComment(command);
 
         //then
-        assertThat(result.id()).isEqualTo(savedComment.id());
+        assertThat(result.id()).isEqualTo(expectedResult.id());
         assertThat(result.userId()).isEqualTo(command.userId());
         assertThat(result.content()).isEqualTo(command.content());
         assertThat(result.postId()).isEqualTo(command.postId());
         assertThat(result.referenceType()).isEqualTo(command.referenceType());
         verify(mockCommentCommandService).createComment(any(Comment.class));
+        verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher).publishEvents();
     }
 
@@ -69,6 +76,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "게시물 댓글",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = new Comment(
@@ -77,14 +85,15 @@ class CommentCreateUseCaseTest {
                 "게시물 댓글",
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
                 null
         );
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         CommentResult result = commentCreator.createComment(command);
@@ -93,6 +102,7 @@ class CommentCreateUseCaseTest {
         assertThat(result.referenceType()).isEqualTo(ReferenceType.POST);
         assertThat(result.content()).isEqualTo("게시물 댓글");
         verify(mockCommentCommandService).createComment(any(Comment.class));
+        verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher).publishEvents();
     }
 
@@ -104,11 +114,14 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "대댓글 내용",
+                "parentId",
                 ReferenceType.COMMENT
         );
         Comment savedComment = createTestCommentWithCommentType();
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         CommentResult result = commentCreator.createComment(command);
@@ -117,6 +130,7 @@ class CommentCreateUseCaseTest {
         assertThat(result.referenceType()).isEqualTo(ReferenceType.COMMENT);
         assertThat(result.content()).isEqualTo("대댓글 내용");
         verify(mockCommentCommandService).createComment(any(Comment.class));
+        verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher).publishEvents();
     }
 
@@ -128,11 +142,14 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "jobBoardId",
                 "채용 게시판 댓글",
+                "parentId",
                 ReferenceType.JOB_BOARD
         );
         Comment savedComment = createTestCommentWithJobBoardType();
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         CommentResult result = commentCreator.createComment(command);
@@ -141,6 +158,7 @@ class CommentCreateUseCaseTest {
         assertThat(result.referenceType()).isEqualTo(ReferenceType.JOB_BOARD);
         assertThat(result.content()).isEqualTo("채용 게시판 댓글");
         verify(mockCommentCommandService).createComment(any(Comment.class));
+        verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher).publishEvents();
     }
 
@@ -152,11 +170,14 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithEmptyContent();
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         CommentResult result = commentCreator.createComment(command);
@@ -166,6 +187,7 @@ class CommentCreateUseCaseTest {
         assertThat(result.userId()).isEqualTo(command.userId());
         assertThat(result.postId()).isEqualTo(command.postId());
         verify(mockCommentCommandService).createComment(any(Comment.class));
+        verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher).publishEvents();
     }
 
@@ -177,11 +199,14 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 null,
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithNullContent();
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         CommentResult result = commentCreator.createComment(command);
@@ -191,6 +216,7 @@ class CommentCreateUseCaseTest {
         assertThat(result.userId()).isEqualTo(command.userId());
         assertThat(result.postId()).isEqualTo(command.postId());
         verify(mockCommentCommandService).createComment(any(Comment.class));
+        verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher).publishEvents();
     }
 
@@ -202,11 +228,14 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "댓글 내용",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithId();
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         commentCreator.createComment(command);
@@ -223,19 +252,23 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "댓글 내용",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithId();
+        CommentResult expectedResult = createCommentResultFromCommand(command);
         
         when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
+        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
 
         //when
         commentCreator.createComment(command);
 
         //then
-        var inOrder = org.mockito.Mockito.inOrder(mockCommentCommandService, mockDomainEventPublisher);
+        var inOrder = org.mockito.Mockito.inOrder(mockCommentCommandService, mockCommentQueryService, mockDomainEventPublisher);
         inOrder.verify(mockCommentCommandService).createComment(any(Comment.class));
         inOrder.verify(mockDomainEventPublisher).publishEvents();
+        inOrder.verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
     }
 
     @Test
@@ -253,15 +286,19 @@ class CommentCreateUseCaseTest {
                     userId,
                     "postId",
                     "댓글 내용",
+                    "parentId",
                     ReferenceType.POST
             );
+            CommentResult expectedResult = createCommentResultFromCommand(command);
+            when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
             
             CommentResult result = commentCreator.createComment(command);
             
-            assertThat(result.userId()).isEqualTo(savedComment.userId());
+            assertThat(result.userId()).isEqualTo(command.userId());
         }
         
         verify(mockCommentCommandService, org.mockito.Mockito.times(3)).createComment(any(Comment.class));
+        verify(mockCommentQueryService, org.mockito.Mockito.times(3)).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher, org.mockito.Mockito.times(3)).publishEvents();
     }
 
@@ -280,15 +317,19 @@ class CommentCreateUseCaseTest {
                     "userId",
                     postId,
                     "댓글 내용",
+                    "parentId",
                     ReferenceType.POST
             );
+            CommentResult expectedResult = createCommentResultFromCommand(command);
+            when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
             
             CommentResult result = commentCreator.createComment(command);
             
-            assertThat(result.postId()).isEqualTo(savedComment.postId());
+            assertThat(result.postId()).isEqualTo(command.postId());
         }
         
         verify(mockCommentCommandService, org.mockito.Mockito.times(3)).createComment(any(Comment.class));
+        verify(mockCommentQueryService, org.mockito.Mockito.times(3)).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher, org.mockito.Mockito.times(3)).publishEvents();
     }
 
@@ -306,15 +347,19 @@ class CommentCreateUseCaseTest {
                     "userId",
                     "postId",
                     "댓글 내용",
+                    "parentId",
                     type
             );
+            CommentResult expectedResult = createCommentResultFromCommand(command);
+            when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
             
             CommentResult result = commentCreator.createComment(command);
             
-            assertThat(result.referenceType()).isEqualTo(savedComment.referenceType());
+            assertThat(result.referenceType()).isEqualTo(command.referenceType());
         }
         
         verify(mockCommentCommandService, org.mockito.Mockito.times(3)).createComment(any(Comment.class));
+        verify(mockCommentQueryService, org.mockito.Mockito.times(3)).getCommentByCommentId(savedComment.id());
         verify(mockDomainEventPublisher, org.mockito.Mockito.times(3)).publishEvents();
     }
 
@@ -324,7 +369,6 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.POST),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
@@ -340,7 +384,6 @@ class CommentCreateUseCaseTest {
                 "",
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
@@ -354,7 +397,6 @@ class CommentCreateUseCaseTest {
                 "userId",
                 null,
                 CommentRelation.of("postId", null, ReferenceType.POST),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
@@ -370,7 +412,6 @@ class CommentCreateUseCaseTest {
                 "대댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.COMMENT),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
@@ -385,9 +426,28 @@ class CommentCreateUseCaseTest {
                 "채용 게시판 댓글",
                 CommentRelation.of("jobBoardId", null, ReferenceType.JOB_BOARD),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
+                LocalDateTime.now(),
+                null
+        );
+    }
+
+    private CommentResult createCommentResultFromCommand(CommentCreateCommand command) {
+        return new CommentResult(
+                "commentId",
+                command.userId(),
+                "testNickname",
+                "testProfileUrl",
+                "KR",
+                "testRegion",
+                command.content(),
+                command.postId(),
+                null,
+                command.referenceType(),
+                0,
+                0,
+                ContentStatus.NORMAL,
                 LocalDateTime.now(),
                 null
         );

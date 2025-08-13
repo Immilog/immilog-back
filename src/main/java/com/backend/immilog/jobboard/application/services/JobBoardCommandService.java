@@ -3,7 +3,6 @@ package com.backend.immilog.jobboard.application.services;
 import com.backend.immilog.jobboard.domain.model.*;
 import com.backend.immilog.jobboard.domain.repositories.JobBoardRepository;
 import com.backend.immilog.jobboard.domain.service.JobBoardDomainService;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +34,7 @@ public class JobBoardCommandService {
             JobBenefits benefits,
             ApplicationDeadline applicationDeadline,
             ContactEmail contactEmail,
-            Country country
+            String countryId
     ) {
         return jobBoardDomainService.createJobBoard(
                 userId,
@@ -51,7 +50,7 @@ public class JobBoardCommandService {
                 benefits,
                 applicationDeadline,
                 contactEmail,
-                country
+                countryId
         );
     }
 

@@ -15,7 +15,6 @@ public class Comment {
     private final String content;
     private final CommentRelation commentRelation;
     private final int replyCount;
-    private final Integer likeCount;
     private final ContentStatus status;
     private final List<String> likeUsers;
     private final LocalDateTime createdAt;
@@ -27,7 +26,6 @@ public class Comment {
             String content,
             CommentRelation commentRelation,
             int replyCount,
-            Integer likeCount,
             ContentStatus status,
             List<String> likeUsers,
             LocalDateTime createdAt,
@@ -38,7 +36,6 @@ public class Comment {
         this.content = content;
         this.commentRelation = commentRelation;
         this.replyCount = replyCount;
-        this.likeCount = likeCount;
         this.status = status;
         this.likeUsers = likeUsers;
         this.createdAt = createdAt;
@@ -49,14 +46,14 @@ public class Comment {
             String userId,
             String postId,
             String content,
+            String parentId,
             ReferenceType referenceType
     ) {
         return new Comment(
                 null,
                 userId,
                 content,
-                CommentRelation.of(postId, null, referenceType),
-                0,
+                CommentRelation.of(postId, parentId, referenceType),
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
@@ -72,7 +69,6 @@ public class Comment {
                 this.content,
                 this.commentRelation,
                 this.replyCount,
-                this.likeCount,
                 ContentStatus.DELETED,
                 this.likeUsers,
                 this.createdAt,
@@ -82,16 +78,14 @@ public class Comment {
 
     public Comment addLikeUser(String userId) {
         if (!Objects.isNull(this.likeUsers)) {
-            var newLikeUsers = this.likeUsers;
+            var newLikeUsers = new ArrayList<>(this.likeUsers);
             newLikeUsers.add(userId);
-            var newLikeCount = this.likeCount + 1;
             return new Comment(
                     this.id,
                     this.userId,
                     this.content,
                     this.commentRelation,
                     this.replyCount,
-                    newLikeCount,
                     this.status,
                     newLikeUsers,
                     this.createdAt,
@@ -108,7 +102,6 @@ public class Comment {
                 this.content,
                 this.commentRelation,
                 this.replyCount + 1,
-                this.likeCount,
                 this.status,
                 this.likeUsers,
                 this.createdAt,
@@ -138,7 +131,6 @@ public class Comment {
 
     public int replyCount() {return replyCount;}
 
-    public Integer likeCount() {return likeCount;}
 
     public ContentStatus status() {return status;}
 
@@ -155,7 +147,6 @@ public class Comment {
                 newContent,
                 this.commentRelation,
                 this.replyCount,
-                this.likeCount,
                 this.status,
                 this.likeUsers,
                 this.createdAt,
@@ -176,7 +167,6 @@ public class Comment {
                 this.content,
                 this.commentRelation,
                 this.replyCount,
-                this.likeCount,
                 this.status,
                 this.likeUsers,
                 this.createdAt,

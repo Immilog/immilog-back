@@ -1,6 +1,6 @@
 package com.backend.immilog.user.presentation.controller;
 
-import com.backend.immilog.shared.enums.Country;
+import com.backend.immilog.country.application.services.CountryQueryService;
 import com.backend.immilog.user.application.usecase.FetchLocationUseCase;
 import com.backend.immilog.user.presentation.payload.UserLocationPayload;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,9 +19,11 @@ import static org.springframework.http.HttpStatus.OK;
 @RestController
 public class LocationController {
     private final FetchLocationUseCase locationFetcher;
+    private final CountryQueryService countryQueryService;
 
-    public LocationController(FetchLocationUseCase locationFetcher) {
+    public LocationController(FetchLocationUseCase locationFetcher, CountryQueryService countryQueryService) {
         this.locationFetcher = locationFetcher;
+        this.countryQueryService = countryQueryService;
     }
 
     @GetMapping
@@ -31,11 +33,14 @@ public class LocationController {
             @Parameter(description = "경도") @RequestParam("longitude") Double longitude
     ) {
         var locationResult = locationFetcher.getCountry(latitude, longitude).join();
-        var country = Country.getCountryByKoreanName(locationResult.country());
-        var countryName = country != null ? country.name() : "ETC";
+        var countries = countryQueryService.getActiveCountries();
+        var country = countries.stream()
+                .filter(c -> c.id().equals(locationResult.country()))
+                .findFirst();
+        var countryId = country.map(c -> c.id()).orElse("ETC");
         return ResponseEntity.status(OK).body(
                 new UserLocationPayload.UserLocationResponse(
-                        countryName,
+                        countryId,
                         locationResult.city()
                 )
         );

@@ -1,6 +1,6 @@
 package com.backend.immilog.jobboard.domain.model;
 
-import com.backend.immilog.shared.enums.Country;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -30,13 +30,13 @@ class JobBoardTest {
         JobBenefits benefits = new JobBenefits("건강보험, 연차");
         ApplicationDeadline deadline = new ApplicationDeadline(LocalDate.now().plusDays(30));
         ContactEmail contactEmail = new ContactEmail("hr@testcompany.com");
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
 
         // when
         JobBoard jobBoard = JobBoard.create(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         );
 
         // then
@@ -46,7 +46,7 @@ class JobBoardTest {
         assertThat(jobBoard.title().value()).isEqualTo("Software Engineer");
         assertThat(jobBoard.isActive()).isTrue();
         assertThat(jobBoard.viewCount()).isEqualTo(0L);
-        assertThat(jobBoard.country()).isEqualTo(Country.SOUTH_KOREA);
+        assertThat(jobBoard.countryId()).isEqualTo("KR");
         assertThat(jobBoard.createdAt()).isNotNull();
     }
 
@@ -70,7 +70,7 @@ class JobBoardTest {
         ContactEmail contactEmail = new ContactEmail("hr@testcompany.com");
         Boolean isActive = true;
         Long viewCount = 100L;
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         LocalDateTime createdAt = LocalDateTime.now().minusDays(1);
         LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -78,7 +78,7 @@ class JobBoardTest {
         JobBoard jobBoard = JobBoard.restore(
                 id, userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, isActive, viewCount, country,
+                deadline, contactEmail, isActive, viewCount, countryId,
                 createdAt, updatedAt
         );
 
@@ -220,13 +220,13 @@ class JobBoardTest {
         JobBenefits benefits = new JobBenefits("건강보험, 연차");
         ApplicationDeadline deadline = new ApplicationDeadline(LocalDate.now().plusDays(30));
         ContactEmail contactEmail = new ContactEmail("hr@testcompany.com");
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
 
         // when & then
         assertThatThrownBy(() -> JobBoard.create(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         )).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("User ID cannot be null or empty");
     }
@@ -248,13 +248,13 @@ class JobBoardTest {
         JobBenefits benefits = new JobBenefits("건강보험, 연차");
         ApplicationDeadline deadline = new ApplicationDeadline(LocalDate.now().plusDays(30));
         ContactEmail contactEmail = new ContactEmail("hr@testcompany.com");
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
 
         // when & then
         assertThatThrownBy(() -> JobBoard.create(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         )).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("User ID cannot be null or empty");
     }
@@ -277,7 +277,7 @@ class JobBoardTest {
                 new ContactEmail("hr@testcompany.com"),
                 true,
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );
@@ -301,7 +301,7 @@ class JobBoardTest {
                 new ContactEmail("hr@testcompany.com"),
                 false,
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );
@@ -327,7 +327,7 @@ class JobBoardTest {
                 new ContactEmail("hr@testcompany.com"),
                 false,
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );

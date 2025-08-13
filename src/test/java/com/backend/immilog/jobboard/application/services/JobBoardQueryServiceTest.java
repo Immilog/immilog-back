@@ -3,7 +3,6 @@ package com.backend.immilog.jobboard.application.services;
 import com.backend.immilog.jobboard.application.dto.JobBoardResult;
 import com.backend.immilog.jobboard.domain.model.*;
 import com.backend.immilog.jobboard.domain.repositories.JobBoardRepository;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +36,7 @@ class JobBoardQueryServiceTest {
     @DisplayName("국가별 채용공고 목록 조회 성공")
     void getJobBoards_Success() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         Pageable pageable = PageRequest.of(0, 10);
         
         List<JobBoard> jobBoards = List.of(
@@ -46,11 +45,11 @@ class JobBoardQueryServiceTest {
         );
         Page<JobBoard> jobBoardPage = new PageImpl<>(jobBoards, pageable, 2);
 
-        when(mockJobBoardRepository.findJobBoards(country, pageable))
+        when(mockJobBoardRepository.findJobBoards(countryId, pageable))
                 .thenReturn(jobBoardPage);
 
         // when
-        Page<JobBoardResult> result = jobBoardQueryService.getJobBoards(country, pageable);
+        Page<JobBoardResult> result = jobBoardQueryService.getJobBoards(countryId, pageable);
 
         // then
         assertThat(result).isNotNull();
@@ -59,29 +58,29 @@ class JobBoardQueryServiceTest {
         assertThat(result.getContent().get(0).title()).isEqualTo("Software Engineer");
         assertThat(result.getContent().get(1).title()).isEqualTo("DevOps Engineer");
 
-        verify(mockJobBoardRepository).findJobBoards(country, pageable);
+        verify(mockJobBoardRepository).findJobBoards(countryId, pageable);
     }
 
     @Test
     @DisplayName("빈 채용공고 목록 조회")
     void getJobBoards_EmptyResult() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         Pageable pageable = PageRequest.of(0, 10);
         Page<JobBoard> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-        when(mockJobBoardRepository.findJobBoards(country, pageable))
+        when(mockJobBoardRepository.findJobBoards(countryId, pageable))
                 .thenReturn(emptyPage);
 
         // when
-        Page<JobBoardResult> result = jobBoardQueryService.getJobBoards(country, pageable);
+        Page<JobBoardResult> result = jobBoardQueryService.getJobBoards(countryId, pageable);
 
         // then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
         assertThat(result.getTotalElements()).isEqualTo(0);
 
-        verify(mockJobBoardRepository).findJobBoards(country, pageable);
+        verify(mockJobBoardRepository).findJobBoards(countryId, pageable);
     }
 
     @Test
@@ -161,7 +160,7 @@ class JobBoardQueryServiceTest {
                 new ContactEmail("hr@testcompany.com"),
                 true,
                 100L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );

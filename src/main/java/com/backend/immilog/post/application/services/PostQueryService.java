@@ -14,7 +14,6 @@ import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -67,14 +67,14 @@ public class PostQueryService {
     @PerformanceMonitor
     @Transactional(readOnly = true)
     public Page<PostResult> getPosts(
-            Country country,
+            String countryId,
             SortingMethods sortingMethod,
             String isPublic,
             Categories category,
             Pageable pageable
     ) {
         var posts = postDomainRepository.findPosts(
-                country,
+                countryId,
                 sortingMethod,
                 isPublic,
                 category,
@@ -105,8 +105,7 @@ public class PostQueryService {
 
     @Transactional(readOnly = true)
     public PostResult getPostDetail(String postId) {
-        var post = postDomainRepository.findById(postId)
-                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+        var post = postDomainRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
         var posts = new PageImpl<>(List.of(post));
         var postResult = posts.map(this::convertToPostResult);
         return this.assemblePostResult(List.of(postId), postResult).getContent().getFirst();
@@ -155,7 +154,7 @@ public class PostQueryService {
     ) {
         var orderMap = IntStream.range(0, resultIdList.size())
                 .boxed()
-                .collect(Collectors.toMap(resultIdList::get, i -> i));
+                .collect(Collectors.toMap(resultIdList::get, i -> i, (existing, replacement) -> existing));
 
         // 이벤트를 통해 인터랙션 데이터 요청
         String requestId = eventResultStorageService.generateRequestId("interaction");
@@ -191,9 +190,14 @@ public class PostQueryService {
                     postResultWithNewInteractionUsers,
                     resources
             );
+            // 좋아요 수 실시간 계산 (ACTIVE 상태의 LIKE만 카운트)
+            long likeCount = interactionDataList.stream()
+                    .filter(interaction -> "LIKE".equals(interaction.interactionType()) &&
+                            "ACTIVE".equals(interaction.interactionStatus())).count();
+            
             return postResultAssembler.assembleLikeCount(
                     postResultWithNewResources,
-                    interactionDataList.size()
+                    likeCount
             );
         });
     }
@@ -206,13 +210,13 @@ public class PostQueryService {
                 post.nickname(),
                 post.commentCount(),
                 post.viewCount(),
-                post.likeCount(),
-                null,
-                null,
-                null,
-                null,
+                0L, // likeCount는 실시간 계산으로 변경됨
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
                 post.isPublic(),
-                post.countryName(),
+                post.countryId(),
                 post.region(),
                 post.category(),
                 post.status(),

@@ -1,6 +1,5 @@
 package com.backend.immilog.comment.application.dto;
 
-import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.presentation.payload.CommentResponse;
 import com.backend.immilog.shared.enums.ContentStatus;
@@ -10,6 +9,10 @@ import java.time.LocalDateTime;
 public record CommentResult(
         String id,
         String userId,
+        String nickname,
+        String userProfileUrl,
+        String countryId,
+        String region,
         String content,
         String postId,
         String parentId,
@@ -20,35 +23,27 @@ public record CommentResult(
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-    public static CommentResult from(Comment comment) {
-        return new CommentResult(
-                comment.id(),
-                comment.userId(),
-                comment.content(),
-                comment.postId() != null ? comment.postId() : null,
-                comment.parentId() != null ? comment.parentId() : null,
-                comment.referenceType(),
-                comment.replyCount(),
-                comment.likeCount(),
-                comment.status(),
-                comment.createdAt(),
-                comment.updatedAt()
-        );
-    }
 
     public CommentResponse.CommentInformation toInfraDTO() {
         return new CommentResponse.CommentInformation(
                 this.id,
                 this.userId,
+                this.nickname,
+                this.userProfileUrl,
+                this.countryId,
+                this.region,
                 this.content,
                 this.postId,
                 this.parentId,
                 this.referenceType,
                 this.replyCount,
                 this.likeCount,
+                new java.util.ArrayList<>(), // 빈 likeUsers 리스트
+                new java.util.ArrayList<>(), // 빈 bookmarkUsers 리스트
                 this.status,
                 this.createdAt,
-                this.updatedAt
+                this.updatedAt,
+                new java.util.ArrayList<>() // 빈 replies 리스트
         );
     }
 }

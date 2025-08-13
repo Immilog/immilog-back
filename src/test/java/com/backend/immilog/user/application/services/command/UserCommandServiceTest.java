@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.services.command;
 
-import com.backend.immilog.shared.enums.Country;
+
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.*;
@@ -30,8 +30,8 @@ class UserCommandServiceTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -41,8 +41,8 @@ class UserCommandServiceTest {
     private User createNewUser() {
         return User.create(
                 Auth.of("new@example.com", "password"),
-                Profile.of("신규유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "부산광역시")
+                Profile.of("신규유저", null, "KR"),
+                Location.of("KR", "부산광역시")
         );
     }
 
@@ -72,8 +72,8 @@ class UserCommandServiceTest {
                 UserId.of("new123"),
                 Auth.of("new@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("신규유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "부산광역시"),
+                Profile.of("신규유저", null, "KR"),
+                Location.of("KR", "부산광역시"),
                 UserStatus.PENDING,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -98,8 +98,8 @@ class UserCommandServiceTest {
                 UserId.of("pending123"),
                 Auth.of("pending@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("대기유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("대기유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.PENDING,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -109,8 +109,8 @@ class UserCommandServiceTest {
                 UserId.of("active123"),
                 Auth.of("active@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("활성유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("활성유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -120,8 +120,8 @@ class UserCommandServiceTest {
                 UserId.of("blocked123"),
                 Auth.of("blocked@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("차단유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("차단유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.BLOCKED,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -154,8 +154,8 @@ class UserCommandServiceTest {
                 UserId.of("regular123"),
                 Auth.of("regular@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("일반유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("일반유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -165,8 +165,8 @@ class UserCommandServiceTest {
                 UserId.of("admin123"),
                 Auth.of("admin@example.com", "password"),
                 UserRole.ROLE_ADMIN,
-                Profile.of("관리자", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("관리자", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -195,8 +195,8 @@ class UserCommandServiceTest {
                 UserId.of("korean123"),
                 Auth.of("korean@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("한국유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("한국유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -206,8 +206,8 @@ class UserCommandServiceTest {
                 UserId.of("japanese123"),
                 Auth.of("japanese@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("일본유저", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("일본유저", null, "JP"),
+                Location.of("JP", "도쿄"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -221,8 +221,8 @@ class UserCommandServiceTest {
         User japaneseResult = userCommandService.save(japaneseUser);
 
         // then
-        assertThat(koreanResult.getCountry()).isEqualTo(Country.SOUTH_KOREA);
-        assertThat(japaneseResult.getCountry()).isEqualTo(Country.JAPAN);
+        assertThat(koreanResult.getCountryId()).isEqualTo("KR");
+        assertThat(japaneseResult.getCountryId()).isEqualTo("JP");
 
         verify(userRepository).save(koreanUser);
         verify(userRepository).save(japaneseUser);
@@ -233,7 +233,7 @@ class UserCommandServiceTest {
     void saveUserWithUpdatedProfile() {
         // given
         User user = createMockUser();
-        Profile newProfile = Profile.of("업데이트된유저", "https://new.example.com/image.jpg", Country.JAPAN);
+        Profile newProfile = Profile.of("업데이트된유저", "https://new.example.com/image.jpg", "JP");
         user.updateProfile(newProfile);
 
         given(userRepository.save(user)).willReturn(user);
@@ -244,7 +244,7 @@ class UserCommandServiceTest {
         // then
         assertThat(result.getNickname()).isEqualTo("업데이트된유저");
         assertThat(result.getImageUrl()).isEqualTo("https://new.example.com/image.jpg");
-        assertThat(result.getInterestCountry()).isEqualTo(Country.JAPAN);
+        assertThat(result.getInterestCountryId()).isEqualTo("JP");
         verify(userRepository).save(user);
     }
 
@@ -253,7 +253,7 @@ class UserCommandServiceTest {
     void saveUserWithUpdatedLocation() {
         // given
         User user = createMockUser();
-        Location newLocation = Location.of(Country.JAPAN, "오사카");
+        Location newLocation = Location.of("JP", "오사카");
         user.updateLocation(newLocation);
 
         given(userRepository.save(user)).willReturn(user);
@@ -262,7 +262,7 @@ class UserCommandServiceTest {
         User result = userCommandService.save(user);
 
         // then
-        assertThat(result.getCountry()).isEqualTo(Country.JAPAN);
+        assertThat(result.getCountryId()).isEqualTo("JP");
         assertThat(result.getRegion()).isEqualTo("오사카");
         verify(userRepository).save(user);
     }
@@ -296,8 +296,8 @@ class UserCommandServiceTest {
                 UserId.of("user3"),
                 Auth.of("user3@example.com", "password"),
                 UserRole.ROLE_ADMIN,
-                Profile.of("유저3", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "교토"),
+                Profile.of("유저3", null, "JP"),
+                Location.of("JP", "교토"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -365,8 +365,8 @@ class UserCommandServiceTest {
 
         // 여러 변경사항 적용
         user.changePassword("newPassword123");
-        user.updateProfile(Profile.of("새닉네임", "https://new.com/image.jpg", Country.JAPAN));
-        user.updateLocation(Location.of(Country.JAPAN, "나고야"));
+        user.updateProfile(Profile.of("새닉네임", "https://new.com/image.jpg", "JP"));
+        user.updateLocation(Location.of("JP", "나고야"));
         user.changeStatus(UserStatus.BLOCKED);
 
         given(userRepository.save(user)).willReturn(user);
@@ -378,8 +378,8 @@ class UserCommandServiceTest {
         assertThat(result.getPassword()).isEqualTo("newPassword123");
         assertThat(result.getNickname()).isEqualTo("새닉네임");
         assertThat(result.getImageUrl()).isEqualTo("https://new.com/image.jpg");
-        assertThat(result.getInterestCountry()).isEqualTo(Country.JAPAN);
-        assertThat(result.getCountry()).isEqualTo(Country.JAPAN);
+        assertThat(result.getInterestCountryId()).isEqualTo("JP");
+        assertThat(result.getCountryId()).isEqualTo("JP");
         assertThat(result.getRegion()).isEqualTo("나고야");
         assertThat(result.getUserStatus()).isEqualTo(UserStatus.BLOCKED);
 

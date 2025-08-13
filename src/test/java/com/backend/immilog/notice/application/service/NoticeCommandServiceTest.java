@@ -6,10 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class NoticeCommandServiceTest {
 
@@ -188,7 +186,7 @@ class NoticeCommandServiceTest {
                 com.backend.immilog.notice.domain.model.NoticeTitle.of("테스트 제목"),
                 com.backend.immilog.notice.domain.model.NoticeContent.of("테스트 내용"),
                 com.backend.immilog.notice.domain.enums.NoticeType.NOTICE,
-                com.backend.immilog.notice.domain.model.NoticeTargeting.of(java.util.List.of(com.backend.immilog.shared.enums.Country.SOUTH_KOREA))
+                com.backend.immilog.notice.domain.model.NoticeTargeting.of(java.util.List.of("KR"))
         );
     }
 
@@ -200,7 +198,7 @@ class NoticeCommandServiceTest {
                 com.backend.immilog.notice.domain.model.NoticeContent.of("테스트 내용"),
                 com.backend.immilog.notice.domain.enums.NoticeType.NOTICE,
                 com.backend.immilog.notice.domain.enums.NoticeStatus.NORMAL,
-                com.backend.immilog.notice.domain.model.NoticeTargeting.of(java.util.List.of(com.backend.immilog.shared.enums.Country.SOUTH_KOREA)),
+                com.backend.immilog.notice.domain.model.NoticeTargeting.of(java.util.List.of("KR")),
                 com.backend.immilog.notice.domain.model.NoticeReadStatus.empty(),
                 java.time.LocalDateTime.now(),
                 java.time.LocalDateTime.now()

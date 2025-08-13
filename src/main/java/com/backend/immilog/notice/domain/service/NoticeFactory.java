@@ -2,7 +2,6 @@ package com.backend.immilog.notice.domain.service;
 
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.*;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +14,7 @@ public class NoticeFactory {
             String title,
             String content,
             NoticeType type,
-            List<Country> targetCountries
+            List<String> targetCountries
     ) {
         NoticeAuthor author = NoticeAuthor.of(authorUserId);
         NoticeTitle noticeTitle = NoticeTitle.of(title);

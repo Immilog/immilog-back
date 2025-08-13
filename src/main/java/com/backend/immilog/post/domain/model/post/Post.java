@@ -3,7 +3,6 @@ package com.backend.immilog.post.domain.model.post;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.enums.ContentStatus;
-import com.backend.immilog.shared.enums.Country;
 
 import java.time.LocalDateTime;
 
@@ -43,7 +42,7 @@ public class Post {
     public static Post of(
             String userId,
             String userNickname,
-            Country userCountry,
+            String userCountryId,
             String userRegion,
             String userImageUrl,
             String title,
@@ -51,7 +50,7 @@ public class Post {
             Categories category,
             String isPublic
     ) {
-        final var postInfo = PostInfo.of(title, content, userCountry, userRegion);
+        final var postInfo = PostInfo.of(title, content, userCountryId, userRegion);
         final var postUserInfo = new PostUserInfo(userId, userNickname, userImageUrl);
         return new Post(
                 null,
@@ -111,10 +110,9 @@ public class Post {
                 this.postInfo.title(),
                 newContent,
                 this.postInfo.viewCount(),
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 this.postInfo.status(),
-                this.postInfo.country()
+                this.postInfo.countryId()
         );
         this.updatedAt = LocalDateTime.now();
         return this;
@@ -131,10 +129,9 @@ public class Post {
                 title,
                 this.postInfo.content(),
                 this.postInfo.viewCount(),
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 this.postInfo.status(),
-                this.postInfo.country()
+                this.postInfo.countryId()
         );
         this.updatedAt = LocalDateTime.now();
         return this;
@@ -148,10 +145,9 @@ public class Post {
                 this.postInfo.title(),
                 this.postInfo.content(),
                 this.postInfo.viewCount(),
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 ContentStatus.DELETED,
-                this.postInfo.country()
+                this.postInfo.countryId()
         );
         this.updatedAt = LocalDateTime.now();
         return this;
@@ -167,10 +163,9 @@ public class Post {
                 this.postInfo.title(),
                 this.postInfo.content(),
                 this.postInfo.viewCount() + 1,
-                this.postInfo.likeCount(),
                 this.postInfo.region(),
                 this.postInfo.status(),
-                this.postInfo.country()
+                this.postInfo.countryId()
         );
         return this;
     }
@@ -187,13 +182,12 @@ public class Post {
 
     public String content() {return this.postInfo.content();}
 
-    public String countryName() {return this.postInfo.country().name();}
+    public String countryId() {return this.postInfo.countryId();}
 
     public String region() {return this.postInfo.region();}
 
     public Long viewCount() {return this.postInfo.viewCount();}
 
-    public Long likeCount() {return this.postInfo.likeCount();}
 
     public ContentStatus status() {return this.postInfo.status();}
 

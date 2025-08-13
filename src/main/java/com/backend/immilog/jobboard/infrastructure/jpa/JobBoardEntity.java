@@ -2,7 +2,6 @@ package com.backend.immilog.jobboard.infrastructure.jpa;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.jobboard.domain.model.*;
-import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -72,9 +71,8 @@ public class JobBoardEntity {
     @Column(name = "view_count")
     private Long viewCount = 0L;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "country")
-    private Country country;
+    private String countryId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -110,7 +108,7 @@ public class JobBoardEntity {
             String contactEmail,
             Boolean isActive,
             Long viewCount,
-            Country country,
+            String countryId,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -132,7 +130,7 @@ public class JobBoardEntity {
         this.contactEmail = contactEmail;
         this.isActive = isActive;
         this.viewCount = viewCount;
-        this.country = country;
+        this.countryId = countryId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -157,7 +155,7 @@ public class JobBoardEntity {
                 jobBoard.contactEmail().value(),
                 jobBoard.isActive(),
                 jobBoard.viewCount(),
-                jobBoard.country(),
+                jobBoard.countryId(),
                 jobBoard.createdAt(),
                 jobBoard.updatedAt()
         );
@@ -181,7 +179,7 @@ public class JobBoardEntity {
                 ContactEmail.of(contactEmail),
                 isActive,
                 viewCount,
-                country,
+                countryId,
                 createdAt,
                 updatedAt
         );

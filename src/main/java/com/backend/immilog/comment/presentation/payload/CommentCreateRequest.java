@@ -6,9 +6,10 @@ import com.backend.immilog.comment.domain.model.ReferenceType;
 public record CommentCreateRequest(
         String postId,
         String content,
+        String parentId,
         ReferenceType referenceType
 ) {
     public CommentCreateCommand toCommand(String userId) {
-        return new CommentCreateCommand(userId, postId, content, referenceType);
+        return new CommentCreateCommand(userId, postId, content, parentId, referenceType);
     }
 }

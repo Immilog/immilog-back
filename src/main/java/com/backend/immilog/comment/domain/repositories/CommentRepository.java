@@ -14,4 +14,6 @@ public interface CommentRepository {
     Comment save(Comment comment);
 
     void deleteById(String commentId);
+
+    CommentResult getCommentById(String commentId);
 }

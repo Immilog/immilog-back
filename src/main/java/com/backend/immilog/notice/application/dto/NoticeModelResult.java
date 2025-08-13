@@ -6,7 +6,6 @@ import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
 import com.backend.immilog.notice.presentation.NoticeDetailResponse;
-import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public record NoticeModelResult(
         @Schema(description = "내용") String content,
         @Schema(description = "공지사항 타입") NoticeType type,
         @Schema(description = "공지사항 상태") NoticeStatus status,
-        @Schema(description = "대상 국가") List<Country> targetCountry,
+        @Schema(description = "대상 국가") List<String> targetCountryIds,
         @Schema(description = "읽은 사용자 목록") List<String> readUsers,
         @Schema(description = "생성일") LocalDateTime createdAt
 ) {
@@ -53,7 +52,7 @@ public record NoticeModelResult(
                     rs.getString("content"),
                     NoticeType.valueOf(rs.getString("type")),
                     NoticeStatus.valueOf(rs.getString("status")),
-                    Arrays.asList((Country[]) targetCountry.getArray()),
+                    Arrays.asList((String[]) targetCountry.getArray()),
                     Arrays.asList((String[]) rs.getArray("read_users").getArray()),
                     rs.getTimestamp("created_at").toLocalDateTime()
             );
@@ -74,7 +73,7 @@ public record NoticeModelResult(
                 content,
                 type,
                 status,
-                targetCountry,
+                targetCountryIds,
                 readUsers,
                 createdAt
         );

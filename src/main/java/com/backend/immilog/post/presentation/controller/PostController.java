@@ -11,7 +11,6 @@ import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.presentation.payload.*;
 import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.shared.enums.ContentType;
-import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -90,18 +89,18 @@ public class PostController {
     @GetMapping
     @Operation(summary = "게시물 목록 조회", description = "게시물 목록을 조회합니다.")
     public ResponseEntity<PostPageResponse> getPosts(
-            @Parameter(description = "국가") @RequestParam(value = "country", required = false) Country country,
+            @Parameter(description = "국가") @RequestParam(value = "country", required = false) String countryId,
             @Parameter(description = "정렬 방식") @RequestParam(value = "sort", required = false) SortingMethods sort,
             @Parameter(description = "공개 여부") @RequestParam(value = "isPublic", required = false) String isPublic,
             @Parameter(description = "카테고리") @RequestParam(value = "category", required = false) Categories category,
-            @Parameter(description = "검색어") @RequestParam(value = "q", required = false) String q,
+            @Parameter(description = "검색어") @RequestParam(value = "keyword", required = false) String keyword,
             @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
         Page<PostResult> posts;
-        if (q != null) {
-            posts = postFetchUseCase.searchKeyword(q, page);
+        if (keyword != null) {
+            posts = postFetchUseCase.searchKeyword(keyword, page);
         } else {
-            posts = postFetchUseCase.getPosts(country, sort, isPublic, category, page);
+            posts = postFetchUseCase.getPosts(countryId, sort, isPublic, category, page);
         }
         var pagedPosts = posts.map(PostResult::toInfraDTO);
         return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
@@ -112,11 +111,9 @@ public class PostController {
     public ResponseEntity<PostDetailResponse> getPost(
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId
     ) {
-        // Post와 Comment를 개별적으로 조회 후 조합
         var post = postFetchUseCase.getPostDetail(postId);
-        var comments = commentQueryService.getComments(postId);
-
-        return ResponseEntity.ok(PostDetailResponse.success(post, comments));
+        var comments = commentQueryService.getHierarchicalCommentsByPostId(postId);
+        return ResponseEntity.ok(PostDetailResponse.successWithHierarchicalComments(post, comments));
     }
 
     @GetMapping("/bookmarked")

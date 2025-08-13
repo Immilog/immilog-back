@@ -6,7 +6,6 @@ import com.backend.immilog.notice.domain.model.NoticeContent;
 import com.backend.immilog.notice.domain.model.NoticeTitle;
 import com.backend.immilog.notice.exception.NoticeErrorCode;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +17,7 @@ public class NoticeValidationService {
             String title,
             String content,
             NoticeType type,
-            List<Country> targetCountries
+            List<String> targetCountries
     ) {
         validateTitle(title);
         validateContent(content);
@@ -94,7 +93,7 @@ public class NoticeValidationService {
         }
     }
 
-    private void validateTargetCountries(List<Country> targetCountries) {
+    private void validateTargetCountries(List<String> targetCountries) {
         if (targetCountries == null || targetCountries.isEmpty()) {
             throw new NoticeException(NoticeErrorCode.INVALID_NOTICE_TARGET_COUNTRIES);
         }

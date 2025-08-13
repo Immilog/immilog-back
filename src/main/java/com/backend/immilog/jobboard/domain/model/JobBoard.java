@@ -1,7 +1,5 @@
 package com.backend.immilog.jobboard.domain.model;
 
-import com.backend.immilog.shared.enums.Country;
-
 import java.time.LocalDateTime;
 
 public class JobBoard {
@@ -21,7 +19,7 @@ public class JobBoard {
     private final ContactEmail contactEmail;
     private Boolean isActive;
     private Long viewCount;
-    private final Country country;
+    private final String countryId;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -42,7 +40,7 @@ public class JobBoard {
             ContactEmail contactEmail,
             Boolean isActive,
             Long viewCount,
-            Country country,
+            String countryId,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -62,7 +60,7 @@ public class JobBoard {
         this.contactEmail = contactEmail;
         this.isActive = isActive;
         this.viewCount = viewCount;
-        this.country = country;
+        this.countryId = countryId;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -81,7 +79,7 @@ public class JobBoard {
             JobBenefits benefits,
             ApplicationDeadline applicationDeadline,
             ContactEmail contactEmail,
-            Country country
+            String countryId
     ) {
         validateJobBoardCreation(userId, company, title, description, requirements);
 
@@ -102,7 +100,7 @@ public class JobBoard {
                 contactEmail,
                 true,
                 0L,
-                country,
+                countryId,
                 LocalDateTime.now(),
                 null
         );
@@ -125,7 +123,7 @@ public class JobBoard {
             ContactEmail contactEmail,
             Boolean isActive,
             Long viewCount,
-            Country country,
+            String countryId,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -146,7 +144,7 @@ public class JobBoard {
                 contactEmail,
                 isActive,
                 viewCount,
-                country,
+                countryId,
                 createdAt,
                 updatedAt
         );
@@ -246,7 +244,7 @@ public class JobBoard {
 
     public Long viewCount() {return viewCount;}
 
-    public Country country() {return country;}
+    public String countryId() {return countryId;}
 
     public LocalDateTime createdAt() {return createdAt;}
 

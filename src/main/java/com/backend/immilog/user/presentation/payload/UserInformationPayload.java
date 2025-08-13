@@ -1,6 +1,5 @@
 package com.backend.immilog.user.presentation.payload;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
 import com.backend.immilog.user.domain.enums.UserStatus;
@@ -11,20 +10,20 @@ import jakarta.validation.constraints.Size;
 public record UserInformationPayload() {
     @Schema(description = "사용자 정보 수정 요청 DTO")
     public record UserInfoUpdateRequest(
-            @Schema(description = "닉네임", example = "닉네임") String nickName,
+            @Schema(description = "닉네임", example = "닉네임") String nickname,
             @Schema(description = "프로필 이미지", example = "프로필 이미지") String profileImage,
-            @Schema(description = "국가", example = "SOUTH_KOREA") Country country,
-            @Schema(description = "관심 국가", example = "MALAYSIA") Country interestCountry,
+            @Schema(description = "국가", example = "SOUTH_KOREA") String countryId,
+            @Schema(description = "관심 국가", example = "MALAYSIA") String interestCountryId,
             @Schema(description = "위도", example = "37.123456") Double latitude,
             @Schema(description = "경도", example = "127.123456") Double longitude,
             @Schema(description = "사용자 상태", example = "ACTIVE") UserStatus status
     ) {
         public UserInfoUpdateCommand toCommand() {
             return new UserInfoUpdateCommand(
-                    this.nickName,
+                    this.nickname,
                     this.profileImage,
-                    this.country,
-                    this.interestCountry,
+                    this.countryId,
+                    this.interestCountryId,
                     this.latitude,
                     this.longitude,
                     this.status
@@ -32,12 +31,12 @@ public record UserInformationPayload() {
         }
     }
 
-    public record UserNicknameResponse(
+    public record userNicknameResponse(
             @Schema(description = "상태 코드", example = "200") Integer status,
             @Schema(description = "메시지", example = "success") String message,
             @Schema(description = "닉네임 중복 여부", example = "true") Boolean data
     ) {
-        public UserNicknameResponse(Boolean nicknameExist) {
+        public userNicknameResponse(Boolean nicknameExist) {
             this(
                     200,
                     nicknameExist ? "success" : "fail",

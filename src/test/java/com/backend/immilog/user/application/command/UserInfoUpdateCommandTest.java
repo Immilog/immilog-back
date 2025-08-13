@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.command;
 
-import com.backend.immilog.shared.enums.Country;
+
 import com.backend.immilog.user.domain.enums.UserStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,22 +16,22 @@ class UserInfoUpdateCommandTest {
         // given
         String nickName = "테스트유저";
         String profileImage = "https://example.com/image.jpg";
-        Country country = Country.SOUTH_KOREA;
-        Country interestCountry = Country.JAPAN;
+        String countryId = "KR";
+        String interestCountryId = "JP";
         Double latitude = 37.5665;
         Double longitude = 126.9780;
         UserStatus status = UserStatus.ACTIVE;
 
         // when
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
-                nickName, profileImage, country, interestCountry, latitude, longitude, status
+                nickName, profileImage, countryId, interestCountryId, latitude, longitude, status
         );
 
         // then
         assertThat(command.nickName()).isEqualTo(nickName);
         assertThat(command.profileImage()).isEqualTo(profileImage);
-        assertThat(command.country()).isEqualTo(country);
-        assertThat(command.interestCountry()).isEqualTo(interestCountry);
+        assertThat(command.countryId()).isEqualTo(countryId);
+        assertThat(command.interestCountryId()).isEqualTo(interestCountryId);
         assertThat(command.latitude()).isEqualTo(latitude);
         assertThat(command.longitude()).isEqualTo(longitude);
         assertThat(command.status()).isEqualTo(status);
@@ -44,8 +44,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "닉네임",
                 null,
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -54,8 +54,8 @@ class UserInfoUpdateCommandTest {
         // then
         assertThat(command.nickName()).isEqualTo("닉네임");
         assertThat(command.profileImage()).isNull();
-        assertThat(command.country()).isEqualTo(Country.SOUTH_KOREA);
-        assertThat(command.interestCountry()).isEqualTo(Country.SOUTH_KOREA);
+        assertThat(command.countryId()).isEqualTo("KR");
+        assertThat(command.interestCountryId()).isEqualTo("KR");
         assertThat(command.latitude()).isEqualTo(37.5665);
         assertThat(command.longitude()).isEqualTo(126.9780);
         assertThat(command.status()).isEqualTo(UserStatus.ACTIVE);
@@ -68,8 +68,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "닉네임",
                 "https://example.com/image.jpg",
-                Country.JAPAN,
-                Country.SOUTH_KOREA,
+                "JP",
+                "KR",
                 null,
                 null,
                 UserStatus.PENDING
@@ -78,8 +78,8 @@ class UserInfoUpdateCommandTest {
         // then
         assertThat(command.nickName()).isEqualTo("닉네임");
         assertThat(command.profileImage()).isEqualTo("https://example.com/image.jpg");
-        assertThat(command.country()).isEqualTo(Country.JAPAN);
-        assertThat(command.interestCountry()).isEqualTo(Country.SOUTH_KOREA);
+        assertThat(command.countryId()).isEqualTo("JP");
+        assertThat(command.interestCountryId()).isEqualTo("KR");
         assertThat(command.latitude()).isNull();
         assertThat(command.longitude()).isNull();
         assertThat(command.status()).isEqualTo(UserStatus.PENDING);
@@ -92,8 +92,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand koreanToJapan = new UserInfoUpdateCommand(
                 "한일거주자",
                 "https://example.com/image1.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -102,19 +102,19 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand japanToKorea = new UserInfoUpdateCommand(
                 "일한거주자",
                 "https://example.com/image2.jpg",
-                Country.JAPAN,
-                Country.SOUTH_KOREA,
+                "JP",
+                "KR",
                 35.6762,
                 139.6503,
                 UserStatus.ACTIVE
         );
 
         // then
-        assertThat(koreanToJapan.country()).isEqualTo(Country.SOUTH_KOREA);
-        assertThat(koreanToJapan.interestCountry()).isEqualTo(Country.JAPAN);
+        assertThat(koreanToJapan.countryId()).isEqualTo("KR");
+        assertThat(koreanToJapan.interestCountryId()).isEqualTo("JP");
 
-        assertThat(japanToKorea.country()).isEqualTo(Country.JAPAN);
-        assertThat(japanToKorea.interestCountry()).isEqualTo(Country.SOUTH_KOREA);
+        assertThat(japanToKorea.countryId()).isEqualTo("JP");
+        assertThat(japanToKorea.interestCountryId()).isEqualTo("KR");
     }
 
     @Test
@@ -122,17 +122,17 @@ class UserInfoUpdateCommandTest {
     void createUserInfoUpdateCommandWithDifferentStatuses() {
         // given & when
         UserInfoUpdateCommand activeCommand = new UserInfoUpdateCommand(
-                "활성유저", null, Country.SOUTH_KOREA, Country.SOUTH_KOREA,
+                "활성유저", null, "KR", "KR",
                 37.5665, 126.9780, UserStatus.ACTIVE
         );
 
         UserInfoUpdateCommand pendingCommand = new UserInfoUpdateCommand(
-                "대기유저", null, Country.SOUTH_KOREA, Country.SOUTH_KOREA,
+                "대기유저", null, "KR", "KR",
                 37.5665, 126.9780, UserStatus.PENDING
         );
 
         UserInfoUpdateCommand blockedCommand = new UserInfoUpdateCommand(
-                "차단유저", null, Country.SOUTH_KOREA, Country.SOUTH_KOREA,
+                "차단유저", null, "KR", "KR",
                 37.5665, 126.9780, UserStatus.BLOCKED
         );
 
@@ -149,8 +149,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand maxCoordinates = new UserInfoUpdateCommand(
                 "극한좌표유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 90.0,
                 180.0,
                 UserStatus.ACTIVE
@@ -159,8 +159,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand minCoordinates = new UserInfoUpdateCommand(
                 "최소좌표유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 -90.0,
                 -180.0,
                 UserStatus.ACTIVE
@@ -181,8 +181,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "정밀좌표유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.56656789,
                 126.97801234,
                 UserStatus.ACTIVE
@@ -200,8 +200,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "영점좌표유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 0.0,
                 0.0,
                 UserStatus.ACTIVE
@@ -222,8 +222,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "긴URL유저",
                 longImageUrl,
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -240,8 +240,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand koreanSpecial = new UserInfoUpdateCommand(
                 "특수문자유저!@#$%",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -250,8 +250,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand japaneseSpecial = new UserInfoUpdateCommand(
                 "日本語ユーザー123",
                 "https://example.com/image.jpg",
-                Country.JAPAN,
-                Country.JAPAN,
+                "JP",
+                "JP",
                 35.6762,
                 139.6503,
                 UserStatus.ACTIVE
@@ -260,8 +260,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand englishSpecial = new UserInfoUpdateCommand(
                 "User_With-Special.Chars",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -280,8 +280,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command1 = new UserInfoUpdateCommand(
                 "테스트유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -290,8 +290,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command2 = new UserInfoUpdateCommand(
                 "테스트유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -300,8 +300,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command3 = new UserInfoUpdateCommand(
                 "다른유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -320,8 +320,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "테스트유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -334,8 +334,8 @@ class UserInfoUpdateCommandTest {
         assertThat(toString).contains("UserInfoUpdateCommand");
         assertThat(toString).contains("테스트유저");
         assertThat(toString).contains("https://example.com/image.jpg");
-        assertThat(toString).contains("SOUTH_KOREA");
-        assertThat(toString).contains("JAPAN");
+        assertThat(toString).contains("KR");
+        assertThat(toString).contains("JP");
         assertThat(toString).contains("37.5665");
         assertThat(toString).contains("126.978");
         assertThat(toString).contains("ACTIVE");
@@ -352,8 +352,8 @@ class UserInfoUpdateCommandTest {
         // then
         assertThat(command.nickName()).isNull();
         assertThat(command.profileImage()).isNull();
-        assertThat(command.country()).isNull();
-        assertThat(command.interestCountry()).isNull();
+        assertThat(command.countryId()).isNull();
+        assertThat(command.interestCountryId()).isNull();
         assertThat(command.latitude()).isNull();
         assertThat(command.longitude()).isNull();
         assertThat(command.status()).isNull();
@@ -366,8 +366,8 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
@@ -384,16 +384,16 @@ class UserInfoUpdateCommandTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "동일국가유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE
         );
 
         // then
-        assertThat(command.country()).isEqualTo(Country.SOUTH_KOREA);
-        assertThat(command.interestCountry()).isEqualTo(Country.SOUTH_KOREA);
-        assertThat(command.country()).isEqualTo(command.interestCountry());
+        assertThat(command.countryId()).isEqualTo("KR");
+        assertThat(command.interestCountryId()).isEqualTo("KR");
+        assertThat(command.countryId()).isEqualTo(command.interestCountryId());
     }
 }

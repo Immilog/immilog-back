@@ -1,9 +1,8 @@
 package com.backend.immilog.user.application.usecase;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
-import com.backend.immilog.user.application.result.UserNickNameResult;
+import com.backend.immilog.user.application.result.userNicknameResult;
 import com.backend.immilog.user.application.services.UserService;
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
@@ -13,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 public interface SignUpUserUseCase {
-    UserNickNameResult signUp(UserSignUpCommand command);
+    userNicknameResult signUp(UserSignUpCommand command);
 
     Boolean isNicknameAvailable(String nickname);
 
@@ -40,19 +39,19 @@ public interface SignUpUserUseCase {
         }
 
         @Override
-        public UserNickNameResult signUp(UserSignUpCommand command) {
+        public userNicknameResult signUp(UserSignUpCommand command) {
             var userId = userService.registerUser(
                     command.email(),
                     command.password(),
                     command.nickName(),
                     command.profileImage(),
-                    parseCountry(command.interestCountry(), command.country()),
-                    Country.valueOf(command.country()),
+                    parseCountryId(command.interestCountry(), command.country()),
+                    command.country(),
                     command.region()
             );
 
             var savedUser = userQueryService.getUserById(userId);
-            return new UserNickNameResult(userId.value(), savedUser.getNickname());
+            return new userNicknameResult(userId.value(), savedUser.getNickname());
         }
 
         @Override
@@ -66,7 +65,7 @@ public interface SignUpUserUseCase {
 
             var verificationResult = emailVerificationService.generateVerificationResult(
                     user.getUserStatus(),
-                    user.getCountry()
+                    user.getCountryId()
             );
 
             userCommandService.save(user.activate());
@@ -74,14 +73,14 @@ public interface SignUpUserUseCase {
             return new EmailVerificationResult(verificationResult.message(), verificationResult.isLoginAvailable());
         }
 
-        private Country parseCountry(
+        private String parseCountryId(
                 String interestCountryValue,
                 String defaultCountry
         ) {
             if (interestCountryValue == null || interestCountryValue.isEmpty()) {
-                return Country.valueOf(defaultCountry);
+                return defaultCountry;
             }
-            return Country.valueOf(interestCountryValue);
+            return interestCountryValue;
         }
     }
 }

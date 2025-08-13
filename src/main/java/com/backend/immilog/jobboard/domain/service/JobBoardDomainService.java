@@ -2,7 +2,6 @@ package com.backend.immilog.jobboard.domain.service;
 
 import com.backend.immilog.jobboard.domain.model.*;
 import com.backend.immilog.jobboard.domain.repositories.JobBoardRepository;
-import com.backend.immilog.shared.enums.Country;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,7 +31,7 @@ public class JobBoardDomainService {
             JobBenefits benefits,
             ApplicationDeadline applicationDeadline,
             ContactEmail contactEmail,
-            Country country
+            String countryId
     ) {
         validationService.validateJobBoardCreation(
                 userId,
@@ -57,7 +56,7 @@ public class JobBoardDomainService {
                 benefits,
                 applicationDeadline,
                 contactEmail,
-                country
+                countryId
         );
 
         return jobBoardRepository.save(jobBoard);

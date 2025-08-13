@@ -4,7 +4,6 @@ import com.backend.immilog.jobboard.application.dto.JobBoardResult;
 import com.backend.immilog.jobboard.application.dto.JobBoardUploadCommand;
 import com.backend.immilog.jobboard.application.services.JobBoardCommandService;
 import com.backend.immilog.jobboard.domain.model.*;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,7 +49,7 @@ class UploadJobBoardUseCaseTest {
                 any(JobBenefits.class),
                 any(ApplicationDeadline.class),
                 any(ContactEmail.class),
-                any(Country.class)
+                any(String.class)
         )).thenReturn(savedJobBoard);
 
         // when
@@ -76,7 +75,7 @@ class UploadJobBoardUseCaseTest {
                 command.toJobBenefits(),
                 command.toApplicationDeadline(),
                 command.toContactEmail(),
-                command.country()
+                command.countryId()
         );
     }
 
@@ -101,7 +100,7 @@ class UploadJobBoardUseCaseTest {
                 any(JobBenefits.class),
                 any(ApplicationDeadline.class),
                 any(ContactEmail.class),
-                any(Country.class)
+                any(String.class)
         )).thenReturn(savedJobBoard);
 
         // when
@@ -125,7 +124,7 @@ class UploadJobBoardUseCaseTest {
                 any(JobBenefits.class),
                 any(ApplicationDeadline.class),
                 any(ContactEmail.class),
-                any(Country.class)
+                any(String.class)
         );
     }
 
@@ -150,7 +149,7 @@ class UploadJobBoardUseCaseTest {
                 any(JobBenefits.class),
                 any(ApplicationDeadline.class),
                 any(ContactEmail.class),
-                any(Country.class)
+                any(String.class)
         )).thenReturn(savedJobBoard);
 
         // when
@@ -172,7 +171,7 @@ class UploadJobBoardUseCaseTest {
                 any(JobBenefits.class),
                 any(ApplicationDeadline.class),
                 any(ContactEmail.class),
-                eq(Country.SOUTH_KOREA)
+                eq("KR")
         );
     }
 
@@ -192,7 +191,7 @@ class UploadJobBoardUseCaseTest {
                 "건강보험, 연차",
                 LocalDate.now().plusDays(30),
                 "hr@testcompany.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 Industry.IT
         );
     }
@@ -213,7 +212,7 @@ class UploadJobBoardUseCaseTest {
                 "교육지원",
                 LocalDate.now().plusDays(20),
                 "recruit@startup.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 Industry.IT
         );
     }
@@ -234,7 +233,7 @@ class UploadJobBoardUseCaseTest {
                 "유연근무",
                 LocalDate.now().plusDays(15),
                 "hr@testcompany.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 Industry.IT
         );
     }
@@ -257,7 +256,7 @@ class UploadJobBoardUseCaseTest {
                 new ContactEmail("hr@testcompany.com"),
                 true,
                 0L,
-                Country.SOUTH_KOREA,
+                "KR",
                 LocalDateTime.now(),
                 null
         );

@@ -5,7 +5,6 @@ import com.backend.immilog.company.domain.model.CompanyManager;
 import com.backend.immilog.company.domain.model.CompanyMetaData;
 import com.backend.immilog.company.domain.model.Industry;
 import com.backend.immilog.company.exception.CompanyException;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +20,7 @@ class CompanyValidationServiceTest {
     @DisplayName("유효한 Company가 존재할 때 예외가 발생하지 않는다")
     void shouldNotThrowExceptionWhenCompanyExists() {
         // given
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
+        CompanyManager manager = CompanyManager.of("KR", "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", null, null, null);
         Company company = new Company("1", manager, metaData);
 

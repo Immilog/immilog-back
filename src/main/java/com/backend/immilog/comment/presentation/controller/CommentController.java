@@ -7,8 +7,11 @@ import com.backend.immilog.comment.application.usecase.CommentCreateUseCase;
 import com.backend.immilog.comment.presentation.payload.CommentCreateRequest;
 import com.backend.immilog.comment.presentation.payload.CommentResponse;
 import com.backend.immilog.shared.annotation.CurrentUser;
+import com.backend.immilog.user.application.services.query.UserQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -39,25 +42,23 @@ public class CommentController {
 
     @GetMapping
     public ResponseEntity<CommentResponse> getComments(@RequestParam("postId") String postId) {
-        var comments = commentQueryService.getComments(postId);
+        var comments = commentQueryService.getCommentsByPostId(postId);
         var commentInformationList = comments.stream().map(CommentResult::toInfraDTO).toList();
         return ResponseEntity.ok(CommentResponse.success(commentInformationList));
     }
 
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
-            @CurrentUser String userId,
             @PathVariable("commentId") String commentId,
             @RequestBody CommentCreateRequest request
     ) {
         var updatedComment = commentCommandService.updateComment(commentId, request.content());
-        var commentInformation = CommentResult.from(updatedComment).toInfraDTO();
-        return ResponseEntity.ok(CommentResponse.success(commentInformation));
+        var commentByCommentId = commentQueryService.getCommentByCommentId(updatedComment.id());
+        return ResponseEntity.ok(CommentResponse.success(commentByCommentId.toInfraDTO()));
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<CommentResponse> deleteComment(
-            @CurrentUser String userId,
             @PathVariable("commentId") String commentId
     ) {
         commentCommandService.deleteComment(commentId);

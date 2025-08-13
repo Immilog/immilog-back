@@ -1,6 +1,7 @@
 package com.backend.immilog.interaction.infrastructure.jpa;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.shared.enums.ContentType;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 public class InteractionUserEntity {
     @Id
     @Column(name = "interaction_user_id")
-    private String id;
+    private String interactionUserId;
 
     @Column(name = "user_id", nullable = false)
     private String userId;
@@ -31,31 +32,37 @@ public class InteractionUserEntity {
     @Column(name = "interaction_type", nullable = false)
     private InteractionType interactionType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "interaction_status", nullable = false)
+    private InteractionStatus interactionStatus;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @PrePersist
     public void generateId() {
-        if (this.id == null) {
-            this.id = NanoIdUtils.randomNanoId();
+        if (this.interactionUserId == null) {
+            this.interactionUserId = NanoIdUtils.randomNanoId();
         }
     }
 
     protected InteractionUserEntity() {}
 
     public InteractionUserEntity(
-            String id,
+            String interactionUserId,
             String userId,
             String postId,
             ContentType contentType,
             InteractionType interactionType,
+            InteractionStatus interactionStatus,
             LocalDateTime createdAt
     ) {
-        this.id = id;
+        this.interactionUserId = interactionUserId;
         this.userId = userId;
         this.postId = postId;
         this.contentType = contentType;
         this.interactionType = interactionType;
+        this.interactionStatus = interactionStatus;
         this.createdAt = createdAt;
     }
 
@@ -66,18 +73,20 @@ public class InteractionUserEntity {
                 interactionUser.postId(),
                 interactionUser.contentType(),
                 interactionUser.interactionType(),
+                interactionUser.interactionStatus(),
                 interactionUser.createdAt()
         );
     }
 
     public InteractionUser toDomain() {
         return new InteractionUser(
-                id,
-                userId,
-                postId,
-                contentType,
-                interactionType,
-                createdAt
+                this.interactionUserId,
+                this.userId,
+                this.postId,
+                this.contentType,
+                this.interactionType,
+                this.interactionStatus,
+                this.createdAt
         );
     }
 }

@@ -6,7 +6,6 @@ import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.domain.model.NoticeId;
 import com.backend.immilog.notice.domain.repository.NoticeRepository;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,10 +17,9 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 class NoticeQueryServiceTest {
 
@@ -85,19 +83,19 @@ class NoticeQueryServiceTest {
 
     @Test
     @DisplayName("국가별 활성 공지사항 조회 - 정상 케이스")
-    void getActiveNoticesForCountrySuccessfully() {
+    void getActiveNoticesForCountryIdSuccessfully() {
         //given
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         List<Notice> expectedNotices = List.of(createTestNotice(), createTestNotice());
-        
-        when(mockNoticeRepository.findActiveNoticesForCountry(country)).thenReturn(expectedNotices);
+
+        when(mockNoticeRepository.findActiveNoticesForCountryId(countryId)).thenReturn(expectedNotices);
 
         //when
-        List<Notice> result = noticeQueryService.getActiveNoticesForCountry(country);
+        List<Notice> result = noticeQueryService.getActiveNoticesForCountryId(countryId);
 
         //then
         assertThat(result).isEqualTo(expectedNotices);
-        verify(mockNoticeRepository).findActiveNoticesForCountry(country);
+        verify(mockNoticeRepository).findActiveNoticesForCountryId(countryId);
     }
 
     @Test
@@ -217,7 +215,7 @@ class NoticeQueryServiceTest {
     @DisplayName("읽지 않은 공지사항 존재 여부 확인 - 존재하는 경우")
     void areUnreadNoticesExistWhenExists() {
         //given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String userId = "userId";
         
         when(mockNoticeRepository.areUnreadNoticesExist(country, userId)).thenReturn(true);
@@ -234,7 +232,7 @@ class NoticeQueryServiceTest {
     @DisplayName("읽지 않은 공지사항 존재 여부 확인 - 존재하지 않는 경우")
     void areUnreadNoticesExistWhenNotExists() {
         //given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String userId = "userId";
         
         when(mockNoticeRepository.areUnreadNoticesExist(country, userId)).thenReturn(false);
@@ -251,17 +249,17 @@ class NoticeQueryServiceTest {
     @DisplayName("빈 결과 조회")
     void getEmptyResults() {
         //given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         List<Notice> emptyList = List.of();
-        
-        when(mockNoticeRepository.findActiveNoticesForCountry(country)).thenReturn(emptyList);
+
+        when(mockNoticeRepository.findActiveNoticesForCountryId(country)).thenReturn(emptyList);
 
         //when
-        List<Notice> result = noticeQueryService.getActiveNoticesForCountry(country);
+        List<Notice> result = noticeQueryService.getActiveNoticesForCountryId(country);
 
         //then
         assertThat(result).isEmpty();
-        verify(mockNoticeRepository).findActiveNoticesForCountry(country);
+        verify(mockNoticeRepository).findActiveNoticesForCountryId(country);
     }
 
     @Test
@@ -283,17 +281,17 @@ class NoticeQueryServiceTest {
     @DisplayName("다양한 국가로 활성 공지사항 조회")
     void getActiveNoticesForVariousCountries() {
         //given
-        Country[] countries = {Country.SOUTH_KOREA, Country.JAPAN, Country.CHINA, Country.AUSTRALIA};
+        String[] countries = {"KR", "JP", "CN", "AU"};
         List<Notice> expectedNotices = List.of(createTestNotice());
 
         //when & then
-        for (Country country : countries) {
-            when(mockNoticeRepository.findActiveNoticesForCountry(country)).thenReturn(expectedNotices);
-            
-            List<Notice> result = noticeQueryService.getActiveNoticesForCountry(country);
+        for (String country : countries) {
+            when(mockNoticeRepository.findActiveNoticesForCountryId(country)).thenReturn(expectedNotices);
+
+            List<Notice> result = noticeQueryService.getActiveNoticesForCountryId(country);
             
             assertThat(result).isEqualTo(expectedNotices);
-            verify(mockNoticeRepository).findActiveNoticesForCountry(country);
+            verify(mockNoticeRepository).findActiveNoticesForCountryId(country);
         }
     }
 
@@ -321,7 +319,7 @@ class NoticeQueryServiceTest {
                 com.backend.immilog.notice.domain.model.NoticeTitle.of("테스트 제목"),
                 com.backend.immilog.notice.domain.model.NoticeContent.of("테스트 내용"),
                 NoticeType.NOTICE,
-                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of(Country.SOUTH_KOREA))
+                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of("KR"))
         );
     }
 
@@ -333,7 +331,7 @@ class NoticeQueryServiceTest {
                 com.backend.immilog.notice.domain.model.NoticeContent.of("테스트 내용"),
                 NoticeType.NOTICE,
                 com.backend.immilog.notice.domain.enums.NoticeStatus.NORMAL,
-                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of(Country.SOUTH_KOREA)),
+                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of("KR")),
                 com.backend.immilog.notice.domain.model.NoticeReadStatus.empty(),
                 java.time.LocalDateTime.now(),
                 java.time.LocalDateTime.now()

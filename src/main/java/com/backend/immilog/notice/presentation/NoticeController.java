@@ -4,7 +4,6 @@ import com.backend.immilog.notice.application.service.NoticeQueryService;
 import com.backend.immilog.notice.application.usecase.*;
 import com.backend.immilog.notice.domain.model.NoticeId;
 import com.backend.immilog.shared.annotation.CurrentUser;
-import com.backend.immilog.shared.enums.Country;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -82,9 +81,9 @@ public class NoticeController {
     @Operation(summary = "공지사항 존재 여부 조회", description = "공지사항이 존재하는지 여부를 조회합니다.")
     public ResponseEntity<NoticeRegistrationResponse> isNoticeExist(
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
-            @Parameter(description = "사용자 국가") @RequestParam("country") Country country
+            @Parameter(description = "사용자 국가") @RequestParam("countryId") String countryId
     ) {
-        var unreadNoticeExist = noticeQueryService.areUnreadNoticesExist(country, userId);
+        var unreadNoticeExist = noticeQueryService.areUnreadNoticesExist(countryId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeRegistrationResponse.of(unreadNoticeExist));
     }
 
@@ -110,9 +109,9 @@ public class NoticeController {
     public ResponseEntity<Void> readNotice(
             @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId,
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
-            @Parameter(description = "사용자 국가") @RequestParam("country") Country userCountry
+            @Parameter(description = "사용자 국가") @RequestParam("countryId") String userCountryId
     ) {
-        markNoticeAsReadUseCase.execute(noticeId, userId, userCountry);
+        markNoticeAsReadUseCase.execute(noticeId, userId, userCountryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 

@@ -2,7 +2,6 @@ package com.backend.immilog.post.infrastructure.jpa.entity.post;
 
 import com.backend.immilog.post.domain.model.post.PostInfo;
 import com.backend.immilog.shared.enums.ContentStatus;
-import com.backend.immilog.shared.enums.Country;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
@@ -19,9 +18,6 @@ public class PostInfoValue {
     @Column(name = "view_count")
     private Long viewCount;
 
-    @Column(name = "like_count")
-    private Long likeCount;
-
     @Column(name = "region")
     private String region;
 
@@ -29,9 +25,8 @@ public class PostInfoValue {
     @Enumerated(EnumType.STRING)
     private ContentStatus status;
 
-    @Column(name = "country")
-    @Enumerated(EnumType.STRING)
-    private Country country;
+    @Column(name = "country_id")
+    private String countryId;
 
     protected PostInfoValue() {}
 
@@ -39,26 +34,23 @@ public class PostInfoValue {
             String title,
             String content,
             Long viewCount,
-            Long likeCount,
             String region,
             ContentStatus status,
-            Country country
+            String countryId
     ) {
         this.title = title;
         this.content = content;
         this.viewCount = viewCount;
-        this.likeCount = likeCount;
         this.region = region;
         this.status = status;
-        this.country = country;
+        this.countryId = countryId;
     }
 
     public static PostInfoValue of(
             String title,
             String content,
             Long viewCount,
-            Long likeCount,
-            Country country,
+            String countryId,
             String region,
             ContentStatus status
     ) {
@@ -66,10 +58,9 @@ public class PostInfoValue {
                 title,
                 content,
                 viewCount,
-                likeCount,
                 region,
                 status,
-                Country.valueOf(country.name())
+                countryId
         );
     }
 
@@ -78,10 +69,9 @@ public class PostInfoValue {
                 title,
                 content,
                 viewCount,
-                likeCount,
                 region,
                 status,
-                country
+                countryId
         );
     }
 }

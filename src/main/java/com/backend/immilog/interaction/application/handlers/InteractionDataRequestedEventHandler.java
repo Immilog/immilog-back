@@ -1,6 +1,8 @@
 package com.backend.immilog.interaction.application.handlers;
 
 import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
+import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
@@ -32,8 +34,11 @@ public class InteractionDataRequestedEventHandler implements DomainEventHandler<
         
         try {
             // Interaction 도메인 서비스를 통해 데이터 조회
-            List<InteractionUser> interactionUsers = interactionUserQueryService
-                    .getInteractionUsersByPostIdList(event.getPostIds(), ContentType.valueOf(event.getContentType()));
+            var interactionUsers = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(
+                    event.getPostIds(),
+                    ContentType.valueOf(event.getContentType()),
+                            InteractionStatus.ACTIVE
+            );
             
             // InteractionUser를 InteractionData로 변환
             List<InteractionData> interactionDataList = interactionUsers.stream()
@@ -61,6 +66,7 @@ public class InteractionDataRequestedEventHandler implements DomainEventHandler<
                 interactionUser.id(),
                 interactionUser.postId(),
                 interactionUser.userId(),
+                interactionUser.interactionStatus().name(),
                 interactionUser.interactionType().name(),
                 interactionUser.contentType().name()
         );

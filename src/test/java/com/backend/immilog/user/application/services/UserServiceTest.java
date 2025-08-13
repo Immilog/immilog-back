@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.services;
 
-import com.backend.immilog.shared.enums.Country;
+
 import com.backend.immilog.user.application.services.command.UserCommandService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.enums.UserRole;
@@ -54,8 +54,8 @@ class UserServiceTest {
                 userId,
                 Auth.of("test@example.com", "encodedPassword123"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -71,8 +71,8 @@ class UserServiceTest {
         String encodedPassword = "encodedPassword123";
         String nickname = "테스트유저";
         String imageUrl = "https://example.com/image.jpg";
-        Country interestCountry = Country.SOUTH_KOREA;
-        Country country = Country.SOUTH_KOREA;
+        String interestCountry = "KR";
+        String country = "KR";
         String region = "서울특별시";
 
         Auth expectedAuth = Auth.of(email, encodedPassword);
@@ -108,8 +108,8 @@ class UserServiceTest {
         assertThat(authCaptor.getValue().password()).isEqualTo(encodedPassword);
         assertThat(profileCaptor.getValue().nickname()).isEqualTo(nickname);
         assertThat(profileCaptor.getValue().imageUrl()).isEqualTo(imageUrl);
-        assertThat(profileCaptor.getValue().interestCountry()).isEqualTo(interestCountry);
-        assertThat(locationCaptor.getValue().country()).isEqualTo(country);
+        assertThat(profileCaptor.getValue().interestCountryId()).isEqualTo(interestCountry);
+        assertThat(locationCaptor.getValue().countryId()).isEqualTo(country);
         assertThat(locationCaptor.getValue().region()).isEqualTo(region);
     }
 
@@ -145,8 +145,8 @@ class UserServiceTest {
                 userId,
                 Auth.of(email, "encodedPassword123"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", null, "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.PENDING, // 비활성 상태
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -171,7 +171,7 @@ class UserServiceTest {
         UserId userId = UserId.of("user123");
         String newNickname = "새로운닉네임";
         String newImageUrl = "https://new.example.com/image.jpg";
-        Country newInterestCountry = Country.JAPAN;
+        String newInterestCountry = "JP";
 
         User mockUser = createMockUser(userId);
         User updatedUser = createMockUser(userId);
@@ -254,8 +254,8 @@ class UserServiceTest {
                 userId,
                 Auth.of("test@example.com", "encodedPassword123"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", null, "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.PENDING,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -301,7 +301,7 @@ class UserServiceTest {
                 .willThrow(new UserException(UserErrorCode.USER_NOT_FOUND));
 
         // when & then
-        assertThatThrownBy(() -> userService.updateUserProfile(userId, newNickname, null, Country.SOUTH_KOREA))
+        assertThatThrownBy(() -> userService.updateUserProfile(userId, newNickname, null, "KR"))
                 .isInstanceOf(UserException.class)
                 .extracting("errorCode")
                 .isEqualTo(UserErrorCode.USER_NOT_FOUND);
@@ -322,7 +322,7 @@ class UserServiceTest {
 
         // when & then
         assertThatThrownBy(() -> userService.registerUser(
-                email, rawPassword, "nickname", null, Country.SOUTH_KOREA, Country.SOUTH_KOREA, "서울"
+                email, rawPassword, "nickname", null, "KR", "KR", "서울"
         )).isInstanceOf(UserException.class)
                 .extracting("errorCode")
                 .isEqualTo(UserErrorCode.INVALID_PASSWORD_FORMAT);

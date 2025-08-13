@@ -3,7 +3,6 @@ package com.backend.immilog.jobboard.application.dto;
 import com.backend.immilog.jobboard.domain.model.Experience;
 import com.backend.immilog.jobboard.domain.model.Industry;
 import com.backend.immilog.jobboard.domain.model.JobBoard;
-import com.backend.immilog.shared.enums.Country;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -28,7 +27,7 @@ public record JobBoardResult(
         String contactEmail,
         Boolean isActive,
         Long viewCount,
-        Country country,
+        String countryId,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         Boolean canApply,
@@ -54,7 +53,7 @@ public record JobBoardResult(
                 jobBoard.contactEmail().value(),
                 jobBoard.isActive(),
                 jobBoard.viewCount(),
-                jobBoard.country(),
+                jobBoard.countryId(),
                 jobBoard.createdAt(),
                 jobBoard.updatedAt(),
                 jobBoard.canApply(),
@@ -82,7 +81,7 @@ public record JobBoardResult(
                 contactEmail,
                 isActive,
                 viewCount,
-                country,
+                countryId,
                 createdAt,
                 updatedAt,
                 canApply,

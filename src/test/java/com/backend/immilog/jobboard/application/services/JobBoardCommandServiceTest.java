@@ -3,14 +3,12 @@ package com.backend.immilog.jobboard.application.services;
 import com.backend.immilog.jobboard.domain.model.*;
 import com.backend.immilog.jobboard.domain.repositories.JobBoardRepository;
 import com.backend.immilog.jobboard.domain.service.JobBoardDomainService;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,25 +49,25 @@ class JobBoardCommandServiceTest {
         JobBenefits benefits = new JobBenefits("건강보험, 연차");
         ApplicationDeadline deadline = new ApplicationDeadline(LocalDate.now().plusDays(30));
         ContactEmail contactEmail = new ContactEmail("hr@testcompany.com");
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
 
         JobBoard expectedJobBoard = JobBoard.create(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         );
 
         when(mockJobBoardDomainService.createJobBoard(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         )).thenReturn(expectedJobBoard);
 
         // when
         JobBoard result = jobBoardCommandService.createJobBoard(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         );
 
         // then
@@ -79,7 +77,7 @@ class JobBoardCommandServiceTest {
         verify(mockJobBoardDomainService).createJobBoard(
                 userId, company, title, location, workType, experience,
                 industry, salary, description, requirements, benefits,
-                deadline, contactEmail, country
+                deadline, contactEmail, countryId
         );
     }
 

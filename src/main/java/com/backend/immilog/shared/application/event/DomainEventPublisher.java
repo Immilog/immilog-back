@@ -18,10 +18,6 @@ public class DomainEventPublisher {
         this.redisEventPublisher = redisEventPublisher;
     }
 
-    /**
-     * ThreadLocal에 저장된 이벤트들을 일괄 발행 (fallback용)
-     * 이제 DomainEvents.raise()에서 즉시 발행하므로 이 메소드는 fallback 상황에서만 사용
-     */
     public void publishEvents() {
         List<DomainEvent> events = DomainEvents.getEvents();
         
@@ -37,7 +33,6 @@ public class DomainEventPublisher {
                 redisEventPublisher.publishDomainEvent(event);
             } catch (Exception e) {
                 log.error("Failed to publish fallback domain event: {}", event.getClass().getSimpleName(), e);
-                // 필요에 따라 실패한 이벤트를 별도로 처리하거나 재시도 로직 추가
             }
         }
         
@@ -45,9 +40,6 @@ public class DomainEventPublisher {
         log.debug("Cleared fallback domain events from ThreadLocal");
     }
 
-    /**
-     * 보상 이벤트 발행
-     */
     public void publishCompensationEvent(DomainEvent event) {
         try {
             log.debug("Publishing compensation event: {}", event.getClass().getSimpleName());

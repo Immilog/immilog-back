@@ -1,5 +1,6 @@
 package com.backend.immilog.interaction.application.services;
 
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
@@ -13,10 +14,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class InteractionUserQueryServiceTest {
 
@@ -31,22 +30,23 @@ class InteractionUserQueryServiceTest {
 
     @Test
     @DisplayName("게시물 ID 목록으로 인터랙션 조회 - 정상 케이스")
-    void getInteractionUsersByPostIdListSuccessfully() {
+    void getInteractionUsersByPostIdListAndActiveSuccessfully() {
         //given
         List<String> postIdList = Arrays.asList("post1", "post2", "post3");
         ContentType contentType = ContentType.POST;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> expectedInteractions = createTestInteractionList();
-        
-        when(mockInteractionUserRepository.findByPostIdListAndContentType(postIdList, contentType))
+
+        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus))
                 .thenReturn(expectedInteractions);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdList(postIdList, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(postIdList, contentType, interactionStatus);
 
         //then
         assertThat(result).isEqualTo(expectedInteractions);
         assertThat(result).hasSize(3);
-        verify(mockInteractionUserRepository).findByPostIdListAndContentType(postIdList, contentType);
+        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus);
     }
 
     @Test
@@ -55,17 +55,18 @@ class InteractionUserQueryServiceTest {
         //given
         List<String> emptyPostIdList = Collections.emptyList();
         ContentType contentType = ContentType.POST;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> expectedInteractions = Collections.emptyList();
-        
-        when(mockInteractionUserRepository.findByPostIdListAndContentType(emptyPostIdList, contentType))
+
+        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(emptyPostIdList, contentType, interactionStatus))
                 .thenReturn(expectedInteractions);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdList(emptyPostIdList, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(emptyPostIdList, contentType, interactionStatus);
 
         //then
         assertThat(result).isEmpty();
-        verify(mockInteractionUserRepository).findByPostIdListAndContentType(emptyPostIdList, contentType);
+        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(emptyPostIdList, contentType, interactionStatus);
     }
 
     @Test
@@ -74,18 +75,19 @@ class InteractionUserQueryServiceTest {
         //given
         List<String> postIdList = Arrays.asList("jobBoard1", "jobBoard2");
         ContentType contentType = ContentType.JOB_BOARD;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> expectedInteractions = createJobBoardInteractionList();
-        
-        when(mockInteractionUserRepository.findByPostIdListAndContentType(postIdList, contentType))
+
+        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus))
                 .thenReturn(expectedInteractions);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdList(postIdList, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(postIdList, contentType, interactionStatus);
 
         //then
         assertThat(result).hasSize(2);
         assertThat(result.get(0).contentType()).isEqualTo(ContentType.JOB_BOARD);
-        verify(mockInteractionUserRepository).findByPostIdListAndContentType(postIdList, contentType);
+        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus);
     }
 
     @Test
@@ -94,18 +96,19 @@ class InteractionUserQueryServiceTest {
         //given
         List<String> singlePostIdList = Collections.singletonList("singlePost");
         ContentType contentType = ContentType.POST;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> expectedInteractions = Collections.singletonList(createTestInteraction());
-        
-        when(mockInteractionUserRepository.findByPostIdListAndContentType(singlePostIdList, contentType))
+
+        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(singlePostIdList, contentType, interactionStatus))
                 .thenReturn(expectedInteractions);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdList(singlePostIdList, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(singlePostIdList, contentType, interactionStatus);
 
         //then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).postId()).isEqualTo("singlePost");
-        verify(mockInteractionUserRepository).findByPostIdListAndContentType(singlePostIdList, contentType);
+        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(singlePostIdList, contentType, interactionStatus);
     }
 
     @Test
@@ -114,19 +117,20 @@ class InteractionUserQueryServiceTest {
         //given
         String userId = "userId";
         ContentType contentType = ContentType.POST;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> expectedBookmarks = createBookmarkInteractionList();
-        
-        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentType(userId, contentType))
+
+        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus))
                 .thenReturn(expectedBookmarks);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType, interactionStatus);
 
         //then
         assertThat(result).isEqualTo(expectedBookmarks);
         assertThat(result).hasSize(2);
         assertThat(result).allMatch(interaction -> interaction.interactionType() == InteractionType.BOOKMARK);
-        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentType(userId, contentType);
+        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus);
     }
 
     @Test
@@ -135,17 +139,18 @@ class InteractionUserQueryServiceTest {
         //given
         String userId = "userWithNoBookmarks";
         ContentType contentType = ContentType.POST;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> emptyBookmarks = Collections.emptyList();
-        
-        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentType(userId, contentType))
+
+        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus))
                 .thenReturn(emptyBookmarks);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType, interactionStatus);
 
         //then
         assertThat(result).isEmpty();
-        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentType(userId, contentType);
+        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus);
     }
 
     @Test
@@ -154,19 +159,20 @@ class InteractionUserQueryServiceTest {
         //given
         String userId = "userId";
         ContentType contentType = ContentType.JOB_BOARD;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> expectedBookmarks = createJobBoardBookmarkList();
-        
-        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentType(userId, contentType))
+
+        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus))
                 .thenReturn(expectedBookmarks);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType, interactionStatus);
 
         //then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).contentType()).isEqualTo(ContentType.JOB_BOARD);
         assertThat(result.get(0).interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentType(userId, contentType);
+        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus);
     }
 
     @Test
@@ -175,17 +181,18 @@ class InteractionUserQueryServiceTest {
         //given
         String userId = null;
         ContentType contentType = ContentType.POST;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> emptyBookmarks = Collections.emptyList();
-        
-        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentType(userId, contentType))
+
+        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus))
                 .thenReturn(emptyBookmarks);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType, interactionStatus);
 
         //then
         assertThat(result).isEmpty();
-        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentType(userId, contentType);
+        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus);
     }
 
     @Test
@@ -194,48 +201,50 @@ class InteractionUserQueryServiceTest {
         //given
         String userId = "";
         ContentType contentType = ContentType.POST;
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<InteractionUser> emptyBookmarks = Collections.emptyList();
-        
-        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentType(userId, contentType))
+
+        when(mockInteractionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus))
                 .thenReturn(emptyBookmarks);
 
         //when
-        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType);
+        List<InteractionUser> result = interactionUserQueryService.getBookmarkInteractions(userId, contentType, interactionStatus);
 
         //then
         assertThat(result).isEmpty();
-        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentType(userId, contentType);
+        verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus);
     }
 
     @Test
     @DisplayName("다양한 PostType으로 조회")
     void getInteractionsWithDifferentPostTypes() {
         //given
+        InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<String> postIdList = Arrays.asList("post1", "post2");
         List<InteractionUser> postInteractions = createTestInteractionList();
         List<InteractionUser> jobBoardInteractions = createJobBoardInteractionList();
-        
-        when(mockInteractionUserRepository.findByPostIdListAndContentType(postIdList, ContentType.POST))
+
+        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.POST, interactionStatus))
                 .thenReturn(postInteractions);
-        when(mockInteractionUserRepository.findByPostIdListAndContentType(postIdList, ContentType.JOB_BOARD))
+        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.JOB_BOARD, interactionStatus))
                 .thenReturn(jobBoardInteractions);
 
         //when
-        List<InteractionUser> postResults = interactionUserQueryService.getInteractionUsersByPostIdList(postIdList, ContentType.POST);
-        List<InteractionUser> jobBoardResults = interactionUserQueryService.getInteractionUsersByPostIdList(postIdList, ContentType.JOB_BOARD);
+        List<InteractionUser> postResults = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(postIdList, ContentType.POST, interactionStatus);
+        List<InteractionUser> jobBoardResults = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(postIdList, ContentType.JOB_BOARD, interactionStatus);
 
         //then
         assertThat(postResults).allMatch(interaction -> interaction.contentType() == ContentType.POST);
         assertThat(jobBoardResults).allMatch(interaction -> interaction.contentType() == ContentType.JOB_BOARD);
-        verify(mockInteractionUserRepository).findByPostIdListAndContentType(postIdList, ContentType.POST);
-        verify(mockInteractionUserRepository).findByPostIdListAndContentType(postIdList, ContentType.JOB_BOARD);
+        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.POST, interactionStatus);
+        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.JOB_BOARD, interactionStatus);
     }
 
     private List<InteractionUser> createTestInteractionList() {
         return Arrays.asList(
-                new InteractionUser("id1", "user1", "post1", ContentType.POST, InteractionType.LIKE, LocalDateTime.now()),
-                new InteractionUser("id2", "user2", "post2", ContentType.POST, InteractionType.BOOKMARK, LocalDateTime.now()),
-                new InteractionUser("id3", "user3", "post3", ContentType.POST, InteractionType.LIKE, LocalDateTime.now())
+                new InteractionUser("id1", "user1", "post1", ContentType.POST, InteractionType.LIKE, InteractionStatus.ACTIVE, LocalDateTime.now()),
+                new InteractionUser("id2", "user2", "post2", ContentType.POST, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now()),
+                new InteractionUser("id3", "user3", "post3", ContentType.POST, InteractionType.LIKE, InteractionStatus.ACTIVE, LocalDateTime.now())
         );
     }
 
@@ -246,27 +255,28 @@ class InteractionUserQueryServiceTest {
                 "singlePost",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
 
     private List<InteractionUser> createJobBoardInteractionList() {
         return Arrays.asList(
-                new InteractionUser("id1", "user1", "jobBoard1", ContentType.JOB_BOARD, InteractionType.LIKE, LocalDateTime.now()),
-                new InteractionUser("id2", "user2", "jobBoard2", ContentType.JOB_BOARD, InteractionType.BOOKMARK, LocalDateTime.now())
+                new InteractionUser("id1", "user1", "jobBoard1", ContentType.JOB_BOARD, InteractionType.LIKE, InteractionStatus.ACTIVE, LocalDateTime.now()),
+                new InteractionUser("id2", "user2", "jobBoard2", ContentType.JOB_BOARD, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now())
         );
     }
 
     private List<InteractionUser> createBookmarkInteractionList() {
         return Arrays.asList(
-                new InteractionUser("id1", "userId", "post1", ContentType.POST, InteractionType.BOOKMARK, LocalDateTime.now()),
-                new InteractionUser("id2", "userId", "post2", ContentType.POST, InteractionType.BOOKMARK, LocalDateTime.now())
+                new InteractionUser("id1", "userId", "post1", ContentType.POST, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now()),
+                new InteractionUser("id2", "userId", "post2", ContentType.POST, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now())
         );
     }
 
     private List<InteractionUser> createJobBoardBookmarkList() {
         return Collections.singletonList(
-                new InteractionUser("id1", "userId", "jobBoard1", ContentType.JOB_BOARD, InteractionType.BOOKMARK, LocalDateTime.now())
+                new InteractionUser("id1", "userId", "jobBoard1", ContentType.JOB_BOARD, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now())
         );
     }
 }

@@ -28,7 +28,7 @@ public class InteractionController {
             @RequestBody InteractionCreateRequest request
     ) {
         var command = request.toCommand(userId);
-        var result = interactionCreateUseCase.createInteraction(command);
+        var result = interactionCreateUseCase.toggleInteraction(command);
         return ResponseEntity.ok(InteractionResponse.success(result.toInfraDTO()));
     }
 

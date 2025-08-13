@@ -3,15 +3,21 @@ package com.backend.immilog.post.domain.events;
 import com.backend.immilog.shared.domain.event.DomainEvent;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class PostEvent implements DomainEvent {
 
     public static class InteractionDataRequested extends PostEvent {
-        private final String requestId;
-        private final List<String> postIds;
-        private final String contentType;
-        private final LocalDateTime occurredAt;
+        private String requestId;
+        private List<String> postIds;
+        private String contentType;
+        private LocalDateTime occurredAt;
+
+        public InteractionDataRequested() {
+            this.postIds = new ArrayList<>();
+            this.occurredAt = LocalDateTime.now();
+        }
 
         public InteractionDataRequested(
                 String requestId,
@@ -43,10 +49,14 @@ public abstract class PostEvent implements DomainEvent {
     }
 
     public static class BookmarkPostsRequested extends PostEvent {
-        private final String requestId;
-        private final String userId;
-        private final String contentType;
-        private final LocalDateTime occurredAt;
+        private String requestId;
+        private String userId;
+        private String contentType;
+        private LocalDateTime occurredAt;
+
+        public BookmarkPostsRequested() {
+            this.occurredAt = LocalDateTime.now();
+        }
 
         public BookmarkPostsRequested(
                 String requestId,
