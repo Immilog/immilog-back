@@ -1,6 +1,6 @@
 package com.backend.immilog.company.domain.model;
 
-import com.backend.immilog.shared.enums.Country;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +14,7 @@ class CompanyManagerTest {
     @DisplayName("유효한 파라미터로 CompanyManager를 생성할 수 있다")
     void shouldCreateCompanyManagerWithValidParameters() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String region = "서울";
         String userId = "1";
 
@@ -22,7 +22,7 @@ class CompanyManagerTest {
         CompanyManager companyManager = CompanyManager.of(country, region, userId);
 
         // then
-        assertThat(companyManager.country()).isEqualTo(country);
+        assertThat(companyManager.countryId()).isEqualTo(country);
         assertThat(companyManager.region()).isEqualTo(region);
         assertThat(companyManager.userId()).isEqualTo(userId);
     }
@@ -31,21 +31,21 @@ class CompanyManagerTest {
     @DisplayName("country가 null이면 예외가 발생한다")
     void shouldThrowExceptionWhenCountryIsNull() {
         // given
-        Country country = null;
+        String country = null;
         String region = "서울";
         String userId = "1";
 
         // when & then
         assertThatThrownBy(() -> CompanyManager.of(country, region, userId))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("Country cannot be null");
+                .hasMessage("CountryId cannot be null or empty");
     }
 
     @Test
     @DisplayName("region이 null이면 예외가 발생한다")
     void shouldThrowExceptionWhenRegionIsNull() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String region = null;
         String userId = "1";
 
@@ -59,7 +59,7 @@ class CompanyManagerTest {
     @DisplayName("region이 공백이면 예외가 발생한다")
     void shouldThrowExceptionWhenRegionIsEmpty() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String region = "   ";
         String userId = "1";
 
@@ -73,7 +73,7 @@ class CompanyManagerTest {
     @DisplayName("userId가 null이면 예외가 발생한다")
     void shouldThrowExceptionWhenUserIdIsNull() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String region = "서울";
         String userId = null;
 
@@ -87,7 +87,7 @@ class CompanyManagerTest {
     @DisplayName("userId가 빈값이면 예외가 발생한다")
     void shouldThrowExceptionWhenUserIdIsNegative() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String region = "서울";
         String userId = "";
 
@@ -104,23 +104,23 @@ class CompanyManagerTest {
         CompanyManager companyManager = CompanyManager.createEmpty();
 
         // then
-        assertThat(companyManager.country()).isNull();
+        assertThat(companyManager.countryId()).isNull();
         assertThat(companyManager.region()).isNull();
         assertThat(companyManager.userId()).isNull();
     }
 
     @Test
     @DisplayName("withCountry로 새로운 country를 가진 CompanyManager를 생성할 수 있다")
-    void shouldCreateCompanyManagerWithNewCountry() {
+    void shouldCreateCompanyManagerWithNewcountryId() {
         // given
-        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
-        Country newCountry = Country.JAPAN;
+        CompanyManager original = CompanyManager.of("KR", "서울", "1");
+        String newCountry = "JP";
 
         // when
         CompanyManager updated = original.withCountry(newCountry);
 
         // then
-        assertThat(updated.country()).isEqualTo(newCountry);
+        assertThat(updated.countryId()).isEqualTo(newCountry);
         assertThat(updated.region()).isEqualTo(original.region());
         assertThat(updated.userId()).isEqualTo(original.userId());
         assertThat(updated).isNotSameAs(original);
@@ -130,14 +130,14 @@ class CompanyManagerTest {
     @DisplayName("withRegion으로 새로운 region을 가진 CompanyManager를 생성할 수 있다")
     void shouldCreateCompanyManagerWithNewRegion() {
         // given
-        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
+        CompanyManager original = CompanyManager.of("KR", "서울", "1");
         String newRegion = "부산";
 
         // when
         CompanyManager updated = original.withRegion(newRegion);
 
         // then
-        assertThat(updated.country()).isEqualTo(original.country());
+        assertThat(updated.countryId()).isEqualTo(original.countryId());
         assertThat(updated.region()).isEqualTo(newRegion);
         assertThat(updated.userId()).isEqualTo(original.userId());
         assertThat(updated).isNotSameAs(original);
@@ -147,14 +147,14 @@ class CompanyManagerTest {
     @DisplayName("withUserId로 새로운 userId를 가진 CompanyManager를 생성할 수 있다")
     void shouldCreateCompanyManagerWithNewUserId() {
         // given
-        CompanyManager original = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
+        CompanyManager original = CompanyManager.of("KR", "서울", "1");
         String newUserId = "2";
 
         // when
         CompanyManager updated = original.withUserId(newUserId);
 
         // then
-        assertThat(updated.country()).isEqualTo(original.country());
+        assertThat(updated.countryId()).isEqualTo(original.countryId());
         assertThat(updated.region()).isEqualTo(original.region());
         assertThat(updated.userId()).isEqualTo(newUserId);
         assertThat(updated).isNotSameAs(original);
@@ -164,7 +164,7 @@ class CompanyManagerTest {
     @DisplayName("같은 값을 가진 CompanyManager는 동등하다")
     void shouldBeEqualWhenSameValues() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String country = "KR";
         String region = "서울";
         String userId = "1";
 

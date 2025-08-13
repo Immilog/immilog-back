@@ -1,6 +1,5 @@
 package com.backend.immilog.user.domain.model;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import org.junit.jupiter.api.DisplayName;
@@ -20,15 +19,15 @@ class ProfileTest {
         // given
         String validNickname = "테스트유저";
         String validImageUrl = "https://example.com/image.jpg";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when
-        Profile profile = Profile.of(validNickname, validImageUrl, validInterestCountry);
+        Profile profile = Profile.of(validNickname, validImageUrl, validinterestCountryId);
 
         // then
         assertThat(profile.nickname()).isEqualTo(validNickname);
         assertThat(profile.imageUrl()).isEqualTo(validImageUrl);
-        assertThat(profile.interestCountry()).isEqualTo(validInterestCountry);
+        assertThat(profile.interestCountryId()).isEqualTo(validinterestCountryId);
     }
 
     @Test
@@ -37,15 +36,15 @@ class ProfileTest {
         // given
         String validNickname = "테스트유저";
         String nullImageUrl = null;
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when
-        Profile profile = Profile.of(validNickname, nullImageUrl, validInterestCountry);
+        Profile profile = Profile.of(validNickname, nullImageUrl, validinterestCountryId);
 
         // then
         assertThat(profile.nickname()).isEqualTo(validNickname);
         assertThat(profile.imageUrl()).isNull();
-        assertThat(profile.interestCountry()).isEqualTo(validInterestCountry);
+        assertThat(profile.interestCountryId()).isEqualTo(validinterestCountryId);
     }
 
     @Test
@@ -54,11 +53,11 @@ class ProfileTest {
         // given
         String nullNickname = null;
         String validImageUrl = "https://example.com/image.jpg";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when & then
         UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(nullNickname, validImageUrl, validInterestCountry));
+                () -> Profile.of(nullNickname, validImageUrl, validinterestCountryId));
         assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
     }
 
@@ -68,11 +67,11 @@ class ProfileTest {
         // given
         String emptyNickname = "";
         String validImageUrl = "https://example.com/image.jpg";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when & then
         UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(emptyNickname, validImageUrl, validInterestCountry));
+                () -> Profile.of(emptyNickname, validImageUrl, validinterestCountryId));
         assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
     }
 
@@ -82,11 +81,11 @@ class ProfileTest {
         // given
         String blankNickname = "   ";
         String validImageUrl = "https://example.com/image.jpg";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when & then
         UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(blankNickname, validImageUrl, validInterestCountry));
+                () -> Profile.of(blankNickname, validImageUrl, validinterestCountryId));
         assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
     }
 
@@ -96,11 +95,11 @@ class ProfileTest {
         // given
         String tooLongNickname = "a".repeat(21); // 21자
         String validImageUrl = "https://example.com/image.jpg";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when & then
         UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(tooLongNickname, validImageUrl, validInterestCountry));
+                () -> Profile.of(tooLongNickname, validImageUrl, validinterestCountryId));
         assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
     }
 
@@ -111,10 +110,10 @@ class ProfileTest {
         // given
         String validNickname = "a".repeat(nicknameLength);
         String validImageUrl = "https://example.com/image.jpg";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when
-        Profile profile = Profile.of(validNickname, validImageUrl, validInterestCountry);
+        Profile profile = Profile.of(validNickname, validImageUrl, validinterestCountryId);
 
         // then
         assertThat(profile.nickname()).isEqualTo(validNickname);
@@ -123,30 +122,16 @@ class ProfileTest {
 
     @Test
     @DisplayName("null 관심 국가로 Profile 생성 시 예외가 발생한다")
-    void createProfileWithNullInterestCountry() {
+    void createProfileWithNullinterestCountryId() {
         // given
         String validNickname = "테스트유저";
         String validImageUrl = "https://example.com/image.jpg";
-        Country nullInterestCountry = null;
+        String nullinterestCountryId = null;
 
         // when & then
         UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(validNickname, validImageUrl, nullInterestCountry));
+                () -> Profile.of(validNickname, validImageUrl, nullinterestCountryId));
         assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_REGION);
-    }
-
-    @Test
-    @DisplayName("모든 Country enum 값으로 Profile을 생성할 수 있다")
-    void createProfileWithAllCountryValues() {
-        // given
-        String validNickname = "테스트유저";
-        String validImageUrl = "https://example.com/image.jpg";
-
-        // when & then
-        for (Country country : Country.values()) {
-            Profile profile = Profile.of(validNickname, validImageUrl, country);
-            assertThat(profile.interestCountry()).isEqualTo(country);
-        }
     }
 
     @Test
@@ -155,11 +140,11 @@ class ProfileTest {
         // given
         String nickname = "테스트유저";
         String imageUrl = "https://example.com/image.jpg";
-        Country interestCountry = Country.SOUTH_KOREA;
+        String interestCountryId = "KR";
 
-        Profile profile1 = Profile.of(nickname, imageUrl, interestCountry);
-        Profile profile2 = Profile.of(nickname, imageUrl, interestCountry);
-        Profile profile3 = Profile.of("다른유저", imageUrl, interestCountry);
+        Profile profile1 = Profile.of(nickname, imageUrl, interestCountryId);
+        Profile profile2 = Profile.of(nickname, imageUrl, interestCountryId);
+        Profile profile3 = Profile.of("다른유저", imageUrl, interestCountryId);
 
         // when & then
         assertThat(profile1).isEqualTo(profile2);
@@ -173,8 +158,8 @@ class ProfileTest {
         // given
         String nickname = "테스트유저";
         String imageUrl = "https://example.com/image.jpg";
-        Country interestCountry = Country.SOUTH_KOREA;
-        Profile profile = Profile.of(nickname, imageUrl, interestCountry);
+        String interestCountryId = "KR";
+        Profile profile = Profile.of(nickname, imageUrl, interestCountryId);
 
         // when
         String toString = profile.toString();
@@ -183,7 +168,7 @@ class ProfileTest {
         assertThat(toString).contains("Profile");
         assertThat(toString).contains(nickname);
         assertThat(toString).contains(imageUrl);
-        assertThat(toString).contains(interestCountry.toString());
+        assertThat(toString).contains(interestCountryId.toString());
     }
 
     @Test
@@ -192,10 +177,10 @@ class ProfileTest {
         // given
         String validNickname = "테스트유저";
         String emptyImageUrl = "";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when
-        Profile profile = Profile.of(validNickname, emptyImageUrl, validInterestCountry);
+        Profile profile = Profile.of(validNickname, emptyImageUrl, validinterestCountryId);
 
         // then
         // validateImageUrl 메서드에서 빈 문자열을 null로 변경하려 했지만 실제로는 적용되지 않음
@@ -209,10 +194,10 @@ class ProfileTest {
         // given
         String validNickname = "테스트유저";
         String blankImageUrl = "   ";
-        Country validInterestCountry = Country.SOUTH_KOREA;
+        String validinterestCountryId = "KR";
 
         // when
-        Profile profile = Profile.of(validNickname, blankImageUrl, validInterestCountry);
+        Profile profile = Profile.of(validNickname, blankImageUrl, validinterestCountryId);
 
         // then
         assertThat(profile.imageUrl()).isEqualTo(blankImageUrl);

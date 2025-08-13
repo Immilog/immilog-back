@@ -1,6 +1,5 @@
 package com.backend.immilog.user.application.usecase;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.command.UserSignUpCommand;
 import com.backend.immilog.user.application.result.EmailVerificationResult;
 import com.backend.immilog.user.application.result.userNicknameResult;
@@ -66,8 +65,8 @@ class SignUpUserUseCaseTest {
                 userId,
                 Auth.of("test@example.com", "encodedPassword"),
                 com.backend.immilog.user.domain.enums.UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.PENDING,
                 java.time.LocalDateTime.now(),
                 java.time.LocalDateTime.now()
@@ -87,8 +86,8 @@ class SignUpUserUseCaseTest {
                 "password123",
                 "테스트유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "SOUTH_KOREA",
+                "SOUTH_KOREA",
                 "서울특별시"
         )).willReturn(expectedUserId);
 
@@ -107,8 +106,8 @@ class SignUpUserUseCaseTest {
                 "password123",
                 "테스트유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "SOUTH_KOREA",
+                "SOUTH_KOREA",
                 "서울특별시"
         );
         verify(userQueryService).getUserById(expectedUserId);
@@ -133,8 +132,8 @@ class SignUpUserUseCaseTest {
 
         given(userService.registerUser(
                 any(), any(), any(), any(),
-                eq(Country.SOUTH_KOREA), // 기본 국가 사용
-                eq(Country.SOUTH_KOREA),
+                eq("SOUTH_KOREA"), // 기본 국가 사용
+                eq("SOUTH_KOREA"),
                 any()
         )).willReturn(expectedUserId);
 
@@ -150,8 +149,8 @@ class SignUpUserUseCaseTest {
                 "password123",
                 "테스트유저",
                 "https://example.com/image.jpg",
-                Country.SOUTH_KOREA, // 기본 국가가 관심 국가로 설정됨
-                Country.SOUTH_KOREA,
+                "SOUTH_KOREA", // 기본 국가가 관심 국가로 설정됨
+                "SOUTH_KOREA",
                 "서울특별시"
         );
     }
@@ -175,8 +174,8 @@ class SignUpUserUseCaseTest {
                 expectedUserId,
                 Auth.of("test@example.com", "encodedPassword"),
                 com.backend.immilog.user.domain.enums.UserRole.ROLE_USER,
-                Profile.of("테스트유저", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("테스트유저", null, "JP"),
+                Location.of("JP", "도쿄"),
                 UserStatus.PENDING,
                 java.time.LocalDateTime.now(),
                 java.time.LocalDateTime.now()
@@ -184,8 +183,8 @@ class SignUpUserUseCaseTest {
 
         given(userService.registerUser(
                 any(), any(), any(), any(),
-                eq(Country.JAPAN),
-                eq(Country.JAPAN),
+                eq("JAPAN"),
+                eq("JAPAN"),
                 any()
         )).willReturn(expectedUserId);
 
@@ -201,8 +200,8 @@ class SignUpUserUseCaseTest {
                 "password123",
                 "테스트유저",
                 null,
-                Country.JAPAN,
-                Country.JAPAN,
+                "JAPAN",
+                "JAPAN",
                 "도쿄"
         );
     }
@@ -251,7 +250,7 @@ class SignUpUserUseCaseTest {
         given(userQueryService.getUserById(userIdObj)).willReturn(mockUser);
         given(emailVerificationService.generateVerificationResult(
                 mockUser.getUserStatus(),
-                mockUser.getCountry()
+                mockUser.getCountryId()
         )).willReturn(mockVerificationResult);
 
         // when
@@ -264,7 +263,7 @@ class SignUpUserUseCaseTest {
 
         verify(userQueryService).getUserById(userIdObj);
         verify(userCommandService).save(mockUser.activate());
-        verify(emailVerificationService).generateVerificationResult(UserStatus.PENDING, Country.SOUTH_KOREA);
+        verify(emailVerificationService).generateVerificationResult(UserStatus.PENDING, "KR");
     }
 
     @Test
@@ -286,8 +285,8 @@ class SignUpUserUseCaseTest {
                 expectedUserId,
                 Auth.of("japan@example.com", "encodedPassword"),
                 com.backend.immilog.user.domain.enums.UserRole.ROLE_USER,
-                Profile.of("일본유저", null, Country.MALAYSIA),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("일본유저", null, "MY"),
+                Location.of("JP", "도쿄"),
                 UserStatus.PENDING,
                 java.time.LocalDateTime.now(),
                 java.time.LocalDateTime.now()
@@ -298,8 +297,8 @@ class SignUpUserUseCaseTest {
                 "password123",
                 "일본유저",
                 null,
-                Country.MALAYSIA, // 관심 국가
-                Country.JAPAN,    // 거주 국가
+                "MALAYSIA", // 관심 국가
+                "JAPAN",    // 거주 국가
                 "도쿄"
         )).willReturn(expectedUserId);
 

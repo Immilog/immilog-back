@@ -28,7 +28,7 @@ public record NoticeTargeting(List<String> targetCountryIds) {
     }
 
     public boolean isGlobal() {
-        return targetCountryIds.size() > 1;
+        return this.targetCountryIds.size() > 1;
     }
 
     public int getTargetCount() {

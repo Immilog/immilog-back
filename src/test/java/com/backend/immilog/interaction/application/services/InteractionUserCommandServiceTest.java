@@ -1,5 +1,6 @@
 package com.backend.immilog.interaction.application.services;
 
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
@@ -11,10 +12,8 @@ import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class InteractionUserCommandServiceTest {
 
@@ -98,22 +97,6 @@ class InteractionUserCommandServiceTest {
         assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
         assertThat(result.id()).isNotNull();
         verify(mockInteractionUserRepository).save(jobBoardInteraction);
-    }
-
-    @Test
-    @DisplayName("null 인터랙션 생성")
-    void createNullInteraction() {
-        //given
-        InteractionUser interaction = null;
-
-        when(mockInteractionUserRepository.save(interaction)).thenReturn(null);
-
-        //when
-        InteractionUser result = interactionUserCommandService.toggleInteraction(interaction);
-
-        //then
-        assertThat(result).isNull();
-        verify(mockInteractionUserRepository).save(interaction);
     }
 
     @Test
@@ -277,6 +260,7 @@ class InteractionUserCommandServiceTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -297,6 +281,7 @@ class InteractionUserCommandServiceTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -317,6 +302,7 @@ class InteractionUserCommandServiceTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.BOOKMARK,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -337,6 +323,7 @@ class InteractionUserCommandServiceTest {
                 "jobBoardId",
                 ContentType.JOB_BOARD,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }

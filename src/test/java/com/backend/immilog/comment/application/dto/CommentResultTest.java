@@ -4,7 +4,6 @@ import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.shared.enums.ContentStatus;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -27,14 +26,14 @@ class CommentResultTest {
                 comment.userId(),
                 "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion",
                 comment.content(),
                 comment.postId(),
                 comment.parentId(),
                 comment.referenceType(),
                 comment.replyCount(),
-                comment.likeCount(),
+                comment.likeUsers().size(),
                 comment.status(),
                 comment.createdAt(),
                 comment.updatedAt()
@@ -48,7 +47,7 @@ class CommentResultTest {
         assertThat(result.parentId()).isEqualTo(comment.parentId());
         assertThat(result.referenceType()).isEqualTo(comment.referenceType());
         assertThat(result.replyCount()).isEqualTo(comment.replyCount());
-        assertThat(result.likeCount()).isEqualTo(comment.likeCount());
+        assertThat(result.likeCount()).isEqualTo(comment.likeUsers().size());
         assertThat(result.status()).isEqualTo(comment.status());
         assertThat(result.createdAt()).isEqualTo(comment.createdAt());
         assertThat(result.updatedAt()).isEqualTo(comment.updatedAt());
@@ -66,14 +65,14 @@ class CommentResultTest {
                 comment.userId(),
                 "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion",
                 comment.content(),
                 comment.postId(),
                 comment.parentId(),
                 comment.referenceType(),
                 comment.replyCount(),
-                comment.likeCount(),
+                comment.likeUsers().size(),
                 comment.status(),
                 comment.createdAt(),
                 comment.updatedAt()
@@ -97,14 +96,14 @@ class CommentResultTest {
                 comment.userId(),
                 "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion",
                 comment.content(),
                 comment.postId(),
                 comment.parentId(),
                 comment.referenceType(),
                 comment.replyCount(),
-                comment.likeCount(),
+                comment.likeUsers().size(),
                 comment.status(),
                 comment.createdAt(),
                 comment.updatedAt()
@@ -138,7 +137,7 @@ class CommentResultTest {
                 userId,
                 "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion",
                 content,
                 postId,
@@ -173,7 +172,7 @@ class CommentResultTest {
         CommentResult result1 = new CommentResult(
                 "id", "userId", "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion", "content", "postId", null,
                 ReferenceType.POST,
                 0,
@@ -187,7 +186,7 @@ class CommentResultTest {
                 "userId",
                 "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion",
                 "content",
                 "postId",
@@ -205,7 +204,7 @@ class CommentResultTest {
                 "userId",
                 "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion",
                 "content",
                 "postId",
@@ -233,7 +232,7 @@ class CommentResultTest {
                 "userId",
                 "userNickname",
                 "userProfileUrl",
-                Country.BRUNEI,
+                "BN",
                 "userRegion",
                 "content",
                 "postId",
@@ -266,7 +265,7 @@ class CommentResultTest {
                     "userId",
                     "userNickname",
                     "userProfileUrl",
-                    Country.BRUNEI,
+                    "BN",
                     "userRegion",
                     "content",
                     "postId",
@@ -292,7 +291,7 @@ class CommentResultTest {
                     "userId",
                     "userNickname",
                     "userProfileUrl",
-                    Country.BRUNEI,
+                    "BN",
                     "userRegion",
                     "content",
                     "postId",
@@ -356,7 +355,7 @@ class CommentResultTest {
         CommentResult result = new CommentResult(
                 "id", "userId",
                 "userNickname", "userProfileUrl",
-                Country.BRUNEI, "userRegion",
+                "BN", "userRegion",
                 "content", "postId", null,
                 ReferenceType.POST, -1, -5, ContentStatus.NORMAL,
                 LocalDateTime.now(), null
@@ -374,7 +373,6 @@ class CommentResultTest {
                 "댓글 내용",
                 CommentRelation.of("postId", "parentId", ReferenceType.COMMENT),
                 3,
-                5,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
@@ -389,7 +387,6 @@ class CommentResultTest {
                 "댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
@@ -403,7 +400,6 @@ class CommentResultTest {
                 "userId",
                 "댓글 내용",
                 CommentRelation.of(null, null, ReferenceType.POST),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),

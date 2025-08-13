@@ -1,5 +1,6 @@
 package com.backend.immilog.interaction.application.result;
 
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.shared.enums.ContentType;
@@ -8,7 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class InteractionResultTest {
 
@@ -45,6 +47,7 @@ class InteractionResultTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
 
@@ -70,6 +73,7 @@ class InteractionResultTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
 
@@ -92,6 +96,7 @@ class InteractionResultTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.BOOKMARK,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
 
@@ -114,6 +119,7 @@ class InteractionResultTest {
                 "jobBoardPostId",
                 ContentType.JOB_BOARD,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
 
@@ -136,6 +142,7 @@ class InteractionResultTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.BOOKMARK,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
 
@@ -214,7 +221,7 @@ class InteractionResultTest {
         //when & then
         for (InteractionType type : InteractionType.values()) {
             InteractionUser interaction = new InteractionUser(
-                    "id", "userId", "postId", ContentType.POST, type, createdAt);
+                    "id", "userId", "postId", ContentType.POST, type, InteractionStatus.ACTIVE, createdAt);
             InteractionResult result = InteractionResult.from(interaction);
             
             assertThat(result.interactionType()).isEqualTo(type);
@@ -231,7 +238,7 @@ class InteractionResultTest {
         //when & then
         for (ContentType type : ContentType.values()) {
             InteractionUser interaction = new InteractionUser(
-                    "id", "userId", "postId", type, InteractionType.LIKE, createdAt);
+                    "id", "userId", "postId", type, InteractionType.LIKE, InteractionStatus.ACTIVE, createdAt);
             InteractionResult result = InteractionResult.from(interaction);
             
             assertThat(result.contentType()).isEqualTo(type);
@@ -245,7 +252,7 @@ class InteractionResultTest {
         //given
         LocalDateTime createdAt = LocalDateTime.now();
         InteractionUser interaction = new InteractionUser(
-                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
+                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, InteractionStatus.ACTIVE, createdAt);
 
         //when
         InteractionResult result1 = InteractionResult.from(interaction);
@@ -267,11 +274,11 @@ class InteractionResultTest {
         //given
         LocalDateTime createdAt = LocalDateTime.now();
         InteractionUser interaction1 = new InteractionUser(
-                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
+                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, InteractionStatus.ACTIVE, createdAt);
         InteractionUser interaction2 = new InteractionUser(
-                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
+                "id", "userId", "postId", ContentType.POST, InteractionType.LIKE, InteractionStatus.ACTIVE, createdAt);
         InteractionUser interaction3 = new InteractionUser(
-                "differentId", "userId", "postId", ContentType.POST, InteractionType.LIKE, createdAt);
+                "differentId", "userId", "postId", ContentType.POST, InteractionType.LIKE, InteractionStatus.ACTIVE, createdAt);
 
         //when
         InteractionResult result1 = InteractionResult.from(interaction1);
@@ -290,7 +297,7 @@ class InteractionResultTest {
     void verifyToString() {
         //given
         InteractionUser interaction = new InteractionUser(
-                "interactionId", "userId", "postId", ContentType.POST, InteractionType.LIKE, LocalDateTime.now());
+                "interactionId", "userId", "postId", ContentType.POST, InteractionType.LIKE, InteractionStatus.ACTIVE, LocalDateTime.now());
 
         //when
         InteractionResult result = InteractionResult.from(interaction);
@@ -310,7 +317,7 @@ class InteractionResultTest {
         //given
         LocalDateTime specificTime = LocalDateTime.of(2023, 10, 15, 14, 30, 45);
         InteractionUser interaction = new InteractionUser(
-                "id", "userId", "postId", ContentType.POST, InteractionType.BOOKMARK, specificTime);
+                "id", "userId", "postId", ContentType.POST, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, specificTime);
 
         //when
         InteractionResult result = InteractionResult.from(interaction);

@@ -5,7 +5,6 @@ import com.backend.immilog.company.domain.model.CompanyManager;
 import com.backend.immilog.company.domain.model.CompanyMetaData;
 import com.backend.immilog.company.domain.model.Industry;
 import com.backend.immilog.company.domain.repository.CompanyRepository;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +24,7 @@ class CompanyQueryServiceTest {
     void shouldGetCompanyByManagerUserId() {
         // given
         String userId = "1";
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company company = new Company("1", manager, metaData);
 
@@ -63,7 +62,7 @@ class CompanyQueryServiceTest {
     void shouldGetCompanyById() {
         // given
         String companyId = "1";
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
+        CompanyManager manager = CompanyManager.of("KR", "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company company = new Company(companyId, manager, metaData);
 
@@ -133,7 +132,7 @@ class CompanyQueryServiceTest {
     void shouldGetCompanyByDifferentManagerUserId() {
         // given
         String userId = "2";
-        CompanyManager manager = CompanyManager.of(Country.JAPAN, "도쿄", userId);
+        CompanyManager manager = CompanyManager.of("JP", "도쿄", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.ETC, "일본 회사", "japan@company.com", "090-1234-5678", "도쿄시", "https://japan.com", "japan-logo.png");
         Company company = new Company("2", manager, metaData);
 
@@ -146,7 +145,7 @@ class CompanyQueryServiceTest {
         assertThat(result).isEqualTo(company);
         assertThat(result.id()).isEqualTo("2");
         assertThat(result.name()).isEqualTo("일본 회사");
-        assertThat(result.country()).isEqualTo(Country.JAPAN);
+        assertThat(result.countryId()).isEqualTo("JP");
         assertThat(result.region()).isEqualTo("도쿄");
         assertThat(result.managerUserId()).isEqualTo(userId);
     }
@@ -156,7 +155,7 @@ class CompanyQueryServiceTest {
     void shouldGetCompanyByDifferentId() {
         // given
         String companyId = "3";
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "부산", "3");
+        CompanyManager manager = CompanyManager.of("KR", "부산", "3");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "부산 회사", "busan@company.com", "051-1234-5678", "부산시 해운대구", "https://busan.com", "busan-logo.png");
         Company company = new Company(companyId, manager, metaData);
 

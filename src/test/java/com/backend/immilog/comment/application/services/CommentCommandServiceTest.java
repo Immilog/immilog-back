@@ -2,10 +2,10 @@ package com.backend.immilog.comment.application.services;
 
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.model.CommentRelation;
-import com.backend.immilog.shared.enums.ContentStatus;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.domain.repositories.CommentRepository;
 import com.backend.immilog.comment.exception.CommentException;
+import com.backend.immilog.shared.enums.ContentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -266,6 +266,7 @@ class CommentCommandServiceTest {
                 "userId",
                 "postId",
                 "댓글 내용",
+                "parentId",
                 ReferenceType.POST
         );
     }
@@ -276,7 +277,6 @@ class CommentCommandServiceTest {
                 "userId",
                 "댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.POST),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),

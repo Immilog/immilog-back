@@ -3,7 +3,6 @@ package com.backend.immilog.company.application.usecase;
 import com.backend.immilog.company.application.dto.CompanyRegisterCommand;
 import com.backend.immilog.company.application.service.CompanyService;
 import com.backend.immilog.company.domain.model.Industry;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +27,7 @@ class UpdateCompanyUseCaseTest {
                 "010-9876-5432",
                 "서울시 서초구",
                 "https://updated-company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울",
                 "updated-logo.png"
         );
@@ -52,7 +51,7 @@ class UpdateCompanyUseCaseTest {
                 "010-1111-2222",
                 "부산시 중구",
                 "https://industry-change.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "부산",
                 "industry-change-logo.png"
         );
@@ -72,13 +71,13 @@ class UpdateCompanyUseCaseTest {
         CompanyRegisterCommand command = new CompanyRegisterCommand(
                 Industry.IT,
                 "지역 변경 회사",
-                "country-change@company.com",
+                "countryId-change@company.com",
                 "090-3333-4444",
                 "도쿄시 시부야구",
                 "https://country-change.com",
-                Country.JAPAN,
+                "JP",
                 "도쿄",
-                "country-change-logo.png"
+                "countryId-change-logo.png"
         );
 
         // when
@@ -100,7 +99,7 @@ class UpdateCompanyUseCaseTest {
                 "010-1234-5678",
                 "서울시 강남구",
                 "https://same-company.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울",
                 "same-logo.png"
         );
@@ -124,7 +123,7 @@ class UpdateCompanyUseCaseTest {
                 "010-9999-8888",
                 "대구시 수성구",
                 "https://new-contact.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "대구",
                 "new-contact-logo.png"
         );
@@ -148,7 +147,7 @@ class UpdateCompanyUseCaseTest {
                 "010-7777-6666",
                 "광주시 서구",
                 null,
-                Country.SOUTH_KOREA,
+                "KR",
                 "광주",
                 "no-homepage-logo.png"
         );
@@ -172,7 +171,7 @@ class UpdateCompanyUseCaseTest {
                 "051-5555-4444",
                 "부산시 해운대구",
                 "https://no-logo.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "부산",
                 null
         );
@@ -196,7 +195,7 @@ class UpdateCompanyUseCaseTest {
                 "070-1234-5678",
                 "인천시 연수구",
                 "https://complete-change.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "인천",
                 "complete-change-logo.png"
         );
@@ -221,7 +220,7 @@ class UpdateCompanyUseCaseTest {
                 "010-1111-1111",
                 "서울시 종로구",
                 "https://first-update.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "서울",
                 "first-logo.png"
         );
@@ -233,7 +232,7 @@ class UpdateCompanyUseCaseTest {
                 "010-2222-2222",
                 "부산시 동래구",
                 "https://second-update.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "부산",
                 "second-logo.png"
         );
@@ -259,7 +258,7 @@ class UpdateCompanyUseCaseTest {
                 "010-0000-9999",
                 "울산시 중구",
                 "https://service-call.com",
-                Country.SOUTH_KOREA,
+                "KR",
                 "울산",
                 "service-call-logo.png"
         );

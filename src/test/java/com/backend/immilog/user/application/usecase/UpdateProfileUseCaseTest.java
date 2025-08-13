@@ -1,7 +1,6 @@
 package com.backend.immilog.user.application.usecase;
 
 import com.backend.immilog.image.application.usecase.UploadImageUseCase;
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
 import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
 import com.backend.immilog.user.application.result.LocationResult;
@@ -50,8 +49,8 @@ class UpdateProfileUseCaseTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("기존닉네임", "https://old.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("기존닉네임", "https://old.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -63,8 +62,8 @@ class UpdateProfileUseCaseTest {
                 UserId.of("admin123"),
                 Auth.of("admin@example.com", "adminPassword"),
                 UserRole.ROLE_ADMIN,
-                Profile.of("관리자", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("관리자", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -83,8 +82,8 @@ class UpdateProfileUseCaseTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "새닉네임",
                 "https://new.com/image.jpg",
-                Country.JAPAN,
-                Country.JAPAN,
+                "JP",
+                "JP",
                 35.6762,
                 139.6503,
                 UserStatus.ACTIVE
@@ -113,8 +112,8 @@ class UpdateProfileUseCaseTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "새닉네임",
                 "https://new.com/image.jpg",
-                Country.JAPAN,
-                Country.JAPAN,
+                "JP",
+                "JP",
                 null,
                 null,
                 UserStatus.ACTIVE
@@ -144,8 +143,8 @@ class UpdateProfileUseCaseTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "새닉네임",
                 null,
-                Country.JAPAN,
-                Country.JAPAN,
+                "JP",
+                "JP",
                 null,
                 null,
                 UserStatus.ACTIVE
@@ -174,8 +173,8 @@ class UpdateProfileUseCaseTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "새닉네임",
                 null,
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 35.1796,
                 129.0756,
                 UserStatus.ACTIVE
@@ -205,8 +204,8 @@ class UpdateProfileUseCaseTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "업데이트닉네임",
                 "https://updated.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.JAPAN,
+                "KR",
+                "JP",
                 37.5665,
                 126.9780,
                 UserStatus.BLOCKED
@@ -310,8 +309,8 @@ class UpdateProfileUseCaseTest {
                 UserId.of("target123"),
                 Auth.of("target@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("타겟유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("타겟유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.BLOCKED,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -392,8 +391,8 @@ class UpdateProfileUseCaseTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "일본거주자",
                 "https://jp.com/image.jpg",
-                Country.JAPAN,
-                Country.SOUTH_KOREA,
+                "JP",
+                "KR",
                 35.6762,
                 139.6503,
                 UserStatus.ACTIVE
@@ -446,8 +445,8 @@ class UpdateProfileUseCaseTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("기존닉네임", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("기존닉네임", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -459,8 +458,8 @@ class UpdateProfileUseCaseTest {
         UserInfoUpdateCommand command = new UserInfoUpdateCommand(
                 "새닉네임",
                 "https://new.com/image.jpg",
-                Country.SOUTH_KOREA,
-                Country.SOUTH_KOREA,
+                "KR",
+                "KR",
                 37.5665,
                 126.9780,
                 UserStatus.ACTIVE

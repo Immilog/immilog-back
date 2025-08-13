@@ -9,7 +9,6 @@ import com.backend.immilog.comment.domain.model.CommentRelation;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.shared.application.event.DomainEventPublisher;
 import com.backend.immilog.shared.enums.ContentStatus;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -46,6 +45,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "댓글 내용",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithId();
@@ -76,6 +76,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "게시물 댓글",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = new Comment(
@@ -83,7 +84,6 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "게시물 댓글",
                 CommentRelation.of("postId", null, ReferenceType.POST),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
@@ -114,6 +114,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "대댓글 내용",
+                "parentId",
                 ReferenceType.COMMENT
         );
         Comment savedComment = createTestCommentWithCommentType();
@@ -141,6 +142,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "jobBoardId",
                 "채용 게시판 댓글",
+                "parentId",
                 ReferenceType.JOB_BOARD
         );
         Comment savedComment = createTestCommentWithJobBoardType();
@@ -168,6 +170,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithEmptyContent();
@@ -196,6 +199,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 null,
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithNullContent();
@@ -224,6 +228,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "댓글 내용",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithId();
@@ -247,6 +252,7 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "postId",
                 "댓글 내용",
+                "parentId",
                 ReferenceType.POST
         );
         Comment savedComment = createTestCommentWithId();
@@ -280,6 +286,7 @@ class CommentCreateUseCaseTest {
                     userId,
                     "postId",
                     "댓글 내용",
+                    "parentId",
                     ReferenceType.POST
             );
             CommentResult expectedResult = createCommentResultFromCommand(command);
@@ -310,6 +317,7 @@ class CommentCreateUseCaseTest {
                     "userId",
                     postId,
                     "댓글 내용",
+                    "parentId",
                     ReferenceType.POST
             );
             CommentResult expectedResult = createCommentResultFromCommand(command);
@@ -339,6 +347,7 @@ class CommentCreateUseCaseTest {
                     "userId",
                     "postId",
                     "댓글 내용",
+                    "parentId",
                     type
             );
             CommentResult expectedResult = createCommentResultFromCommand(command);
@@ -361,7 +370,6 @@ class CommentCreateUseCaseTest {
                 "댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
@@ -375,7 +383,6 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "",
                 CommentRelation.of("postId", null, ReferenceType.POST),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
@@ -391,7 +398,6 @@ class CommentCreateUseCaseTest {
                 null,
                 CommentRelation.of("postId", null, ReferenceType.POST),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
@@ -405,7 +411,6 @@ class CommentCreateUseCaseTest {
                 "userId",
                 "대댓글 내용",
                 CommentRelation.of("postId", null, ReferenceType.COMMENT),
-                0,
                 0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
@@ -421,7 +426,6 @@ class CommentCreateUseCaseTest {
                 "채용 게시판 댓글",
                 CommentRelation.of("jobBoardId", null, ReferenceType.JOB_BOARD),
                 0,
-                0,
                 ContentStatus.NORMAL,
                 new ArrayList<>(),
                 LocalDateTime.now(),
@@ -435,7 +439,7 @@ class CommentCreateUseCaseTest {
                 command.userId(),
                 "testNickname",
                 "testProfileUrl",
-                Country.SOUTH_KOREA,
+                "KR",
                 "testRegion",
                 command.content(),
                 command.postId(),

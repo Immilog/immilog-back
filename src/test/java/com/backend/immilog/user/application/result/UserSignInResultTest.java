@@ -1,6 +1,5 @@
 package com.backend.immilog.user.application.result;
 
-import com.backend.immilog.shared.enums.Country;
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.*;
@@ -20,8 +19,8 @@ class UserSignInResultTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -37,8 +36,8 @@ class UserSignInResultTest {
         String nickname = "테스트유저";
         String accessToken = "accessToken123";
         String refreshToken = "refreshToken123";
-        String country = "대한민국";
-        String interestCountry = "일본";
+        String country = "KR";
+        String interestCountry = "JP";
         String region = "서울특별시";
         String userProfileUrl = "https://example.com/image.jpg";
         Boolean isLocationMatch = true;
@@ -80,8 +79,8 @@ class UserSignInResultTest {
         assertThat(result.nickname()).isEqualTo("테스트유저");
         assertThat(result.accessToken()).isEqualTo("accessToken123");
         assertThat(result.refreshToken()).isEqualTo("refreshToken123");
-        assertThat(result.country()).isEqualTo("대한민국");
-        assertThat(result.interestCountry()).isEqualTo("대한민국"); // 코드에서 interestCountry가 country로 설정됨
+        assertThat(result.country()).isEqualTo("KR");
+        assertThat(result.interestCountry()).isEqualTo("KR"); // 코드에서 interestCountry가 country로 설정됨
         assertThat(result.region()).isEqualTo("서울특별시");
         assertThat(result.userProfileUrl()).isEqualTo("https://example.com/image.jpg");
         assertThat(result.isLocationMatch()).isTrue();
@@ -113,8 +112,8 @@ class UserSignInResultTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", null, Country.SOUTH_KOREA), // null 이미지
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", null, "KR"), // null 이미지
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -135,8 +134,8 @@ class UserSignInResultTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -146,7 +145,7 @@ class UserSignInResultTest {
         UserSignInResult result = UserSignInResult.of(user, "token", "refresh", true);
 
         // then
-        assertThat(result.interestCountry()).isEqualTo("대한민국");
+        assertThat(result.interestCountry()).isEqualTo("KR");
     }
 
     @Test
@@ -155,7 +154,7 @@ class UserSignInResultTest {
         // given
         UserSignInResult result = new UserSignInResult(
                 "user123", "test@example.com", "테스트유저",
-                "accessToken", "refreshToken", "대한민국", "일본",
+                "accessToken", "refreshToken", "KR", "JP",
                 "서울특별시", "image.jpg", true
         );
 
@@ -177,8 +176,8 @@ class UserSignInResultTest {
                 UserId.of("japanUser123"),
                 Auth.of("japan@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("일본유저", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("일본유저", null, "JP"),
+                Location.of("JP", "도쿄"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -189,7 +188,7 @@ class UserSignInResultTest {
 
         // then
         assertThat(result.userId()).isEqualTo("japanUser123");
-        assertThat(result.country()).isEqualTo("일본");
+        assertThat(result.country()).isEqualTo("JP");
         assertThat(result.region()).isEqualTo("도쿄");
         assertThat(result.isLocationMatch()).isFalse();
     }
@@ -200,17 +199,17 @@ class UserSignInResultTest {
         // given
         UserSignInResult result1 = new UserSignInResult(
                 "user123", "test@example.com", "테스트유저",
-                "token", "refresh", "대한민국", "일본",
+                "token", "refresh", "KR", "JP",
                 "서울", "image.jpg", true
         );
         UserSignInResult result2 = new UserSignInResult(
                 "user123", "test@example.com", "테스트유저",
-                "token", "refresh", "대한민국", "일본",
+                "token", "refresh", "KR", "JP",
                 "서울", "image.jpg", true
         );
         UserSignInResult result3 = new UserSignInResult(
                 "user456", "test@example.com", "테스트유저",
-                "token", "refresh", "대한민국", "일본",
+                "token", "refresh", "KR", "JP",
                 "서울", "image.jpg", true
         );
 
@@ -226,7 +225,7 @@ class UserSignInResultTest {
         // given
         UserSignInResult result = new UserSignInResult(
                 "user123", "test@example.com", "테스트유저",
-                "accessToken", "refreshToken", "대한민국", "일본",
+                "accessToken", "refreshToken", "KR", "JP",
                 "서울특별시", "image.jpg", true
         );
 
@@ -238,6 +237,6 @@ class UserSignInResultTest {
         assertThat(toString).contains("user123");
         assertThat(toString).contains("test@example.com");
         assertThat(toString).contains("테스트유저");
-        assertThat(toString).contains("대한민국");
+        assertThat(toString).contains("KR");
     }
 }

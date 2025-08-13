@@ -3,6 +3,7 @@ package com.backend.immilog.interaction.application.usecase;
 import com.backend.immilog.interaction.application.command.InteractionCreateCommand;
 import com.backend.immilog.interaction.application.result.InteractionResult;
 import com.backend.immilog.interaction.application.services.InteractionUserCommandService;
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.shared.enums.ContentType;
@@ -12,11 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class InteractionCreateUseCaseTest {
 
@@ -147,6 +146,7 @@ class InteractionCreateUseCaseTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.BOOKMARK,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
         
@@ -380,6 +380,7 @@ class InteractionCreateUseCaseTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -391,6 +392,7 @@ class InteractionCreateUseCaseTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -402,6 +404,7 @@ class InteractionCreateUseCaseTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.BOOKMARK,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -413,6 +416,7 @@ class InteractionCreateUseCaseTest {
                 "jobBoardId",
                 ContentType.JOB_BOARD,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -424,6 +428,7 @@ class InteractionCreateUseCaseTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -435,6 +440,7 @@ class InteractionCreateUseCaseTest {
                 null,
                 ContentType.POST,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -446,6 +452,7 @@ class InteractionCreateUseCaseTest {
                 "postId",
                 ContentType.POST,
                 InteractionType.BOOKMARK,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }
@@ -457,6 +464,7 @@ class InteractionCreateUseCaseTest {
                 "",
                 ContentType.JOB_BOARD,
                 InteractionType.LIKE,
+                InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
     }

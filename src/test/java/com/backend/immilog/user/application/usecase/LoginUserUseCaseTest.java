@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.usecase;
 
-import com.backend.immilog.shared.enums.Country;
+
 import com.backend.immilog.user.application.command.UserSignInCommand;
 import com.backend.immilog.user.application.result.LocationResult;
 import com.backend.immilog.user.application.result.UserSignInResult;
@@ -67,8 +67,8 @@ class LoginUserUseCaseTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword123"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -81,11 +81,11 @@ class LoginUserUseCaseTest {
         // given
         UserSignInCommand command = createValidSignInCommand();
         User mockUser = createMockUser();
-        LocationResult locationResult = new LocationResult("대한민국", "서울특별시");
+        LocationResult locationResult = new LocationResult("KR", "서울특별시");
         CompletableFuture<LocationResult> locationFuture = CompletableFuture.completedFuture(locationResult);
 
         given(userQueryService.getUserByEmail("test@example.com")).willReturn(mockUser);
-        given(userTokenGenerator.generate("user123", "test@example.com", UserRole.ROLE_USER, Country.SOUTH_KOREA))
+        given(userTokenGenerator.generate("user123", "test@example.com", UserRole.ROLE_USER, "KR"))
                 .willReturn("accessToken123");
         given(userTokenGenerator.generateRefreshToken()).willReturn("refreshToken123");
 
@@ -99,13 +99,13 @@ class LoginUserUseCaseTest {
         assertThat(result.nickname()).isEqualTo("테스트유저");
         assertThat(result.accessToken()).isEqualTo("accessToken123");
         assertThat(result.refreshToken()).isEqualTo("refreshToken123");
-        assertThat(result.country()).isEqualTo("대한민국");
+        assertThat(result.country()).isEqualTo("KR");
         assertThat(result.region()).isEqualTo("서울특별시");
         assertThat(result.isLocationMatch()).isTrue();
 
         verify(userQueryService).getUserByEmail("test@example.com");
         verify(userPasswordPolicy).validatePasswordMatch("password123", "encodedPassword123");
-        verify(userTokenGenerator).generate("user123", "test@example.com", UserRole.ROLE_USER, Country.SOUTH_KOREA);
+        verify(userTokenGenerator).generate("user123", "test@example.com", UserRole.ROLE_USER, "KR");
         verify(userTokenGenerator).generateRefreshToken();
         verify(tokenCommandService).saveKeyAndValue("Refresh: refreshToken123", "test@example.com", 5 * 29 * 24 * 60);
     }
@@ -116,7 +116,7 @@ class LoginUserUseCaseTest {
         // given
         UserSignInCommand command = createValidSignInCommand();
         User mockUser = createMockUser();
-        LocationResult locationResult = new LocationResult("일본", "도쿄"); // 다른 위치
+        LocationResult locationResult = new LocationResult("JP", "도쿄"); // 다른 위치
         CompletableFuture<LocationResult> locationFuture = CompletableFuture.completedFuture(locationResult);
 
         given(userQueryService.getUserByEmail("test@example.com")).willReturn(mockUser);
@@ -157,7 +157,7 @@ class LoginUserUseCaseTest {
         // given
         UserSignInCommand command = createValidSignInCommand();
         User mockUser = createMockUser();
-        LocationResult locationResult = new LocationResult("대한민국", "서울특별시");
+        LocationResult locationResult = new LocationResult("KR", "서울특별시");
         CompletableFuture<LocationResult> locationFuture = CompletableFuture.completedFuture(locationResult);
 
         given(userQueryService.getUserByEmail("test@example.com")).willReturn(mockUser);
@@ -178,7 +178,7 @@ class LoginUserUseCaseTest {
     void signInWithNonExistentUser() {
         // given
         UserSignInCommand command = createValidSignInCommand();
-        LocationResult locationResult = new LocationResult("대한민국", "서울특별시");
+        LocationResult locationResult = new LocationResult("KR", "서울특별시");
         CompletableFuture<LocationResult> locationFuture = CompletableFuture.completedFuture(locationResult);
 
         given(userQueryService.getUserByEmail("test@example.com"))
@@ -198,10 +198,10 @@ class LoginUserUseCaseTest {
         // given
         String userId = "user123";
         User mockUser = createMockUser();
-        LocationResult locationResult = new LocationResult("대한민국", "서울특별시");
+        LocationResult locationResult = new LocationResult("KR", "서울특별시");
 
         given(userQueryService.getUserById(userId)).willReturn(mockUser);
-        given(userTokenGenerator.generate("user123", "test@example.com", UserRole.ROLE_USER, Country.SOUTH_KOREA))
+        given(userTokenGenerator.generate("user123", "test@example.com", UserRole.ROLE_USER, "KR"))
                 .willReturn("accessToken123");
         given(userTokenGenerator.generateRefreshToken()).willReturn("refreshToken123");
 
@@ -215,7 +215,7 @@ class LoginUserUseCaseTest {
         assertThat(result.isLocationMatch()).isTrue();
 
         verify(userQueryService).getUserById(userId);
-        verify(userTokenGenerator).generate("user123", "test@example.com", UserRole.ROLE_USER, Country.SOUTH_KOREA);
+        verify(userTokenGenerator).generate("user123", "test@example.com", UserRole.ROLE_USER, "KR");
         verify(userTokenGenerator).generateRefreshToken();
         verify(tokenCommandService).saveKeyAndValue("Refresh: refreshToken123", "test@example.com", 5 * 29 * 24 * 60);
     }
@@ -229,17 +229,17 @@ class LoginUserUseCaseTest {
                 UserId.of("admin123"),
                 Auth.of("admin@example.com", "encodedPassword123"),
                 UserRole.ROLE_ADMIN,
-                Profile.of("관리자", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("관리자", null, "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );
-        LocationResult locationResult = new LocationResult("대한민국", "서울특별시");
+        LocationResult locationResult = new LocationResult("KR", "서울특별시");
         CompletableFuture<LocationResult> locationFuture = CompletableFuture.completedFuture(locationResult);
 
         given(userQueryService.getUserByEmail("test@example.com")).willReturn(adminUser);
-        given(userTokenGenerator.generate("admin123", "admin@example.com", UserRole.ROLE_ADMIN, Country.SOUTH_KOREA))
+        given(userTokenGenerator.generate("admin123", "admin@example.com", UserRole.ROLE_ADMIN, "KR"))
                 .willReturn("adminAccessToken123");
         given(userTokenGenerator.generateRefreshToken()).willReturn("adminRefreshToken123");
 
@@ -253,7 +253,7 @@ class LoginUserUseCaseTest {
         assertThat(result.accessToken()).isEqualTo("adminAccessToken123");
         assertThat(result.refreshToken()).isEqualTo("adminRefreshToken123");
 
-        verify(userTokenGenerator).generate("admin123", "admin@example.com", UserRole.ROLE_ADMIN, Country.SOUTH_KOREA);
+        verify(userTokenGenerator).generate("admin123", "admin@example.com", UserRole.ROLE_ADMIN, "KR");
     }
 
     @Test
@@ -265,17 +265,17 @@ class LoginUserUseCaseTest {
                 UserId.of("japanUser123"),
                 Auth.of("japan@example.com", "encodedPassword123"),
                 UserRole.ROLE_USER,
-                Profile.of("일본유저", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("일본유저", null, "JP"),
+                Location.of("JP", "도쿄"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
         );
-        LocationResult locationResult = new LocationResult("일본", "도쿄");
+        LocationResult locationResult = new LocationResult("JP", "도쿄");
         CompletableFuture<LocationResult> locationFuture = CompletableFuture.completedFuture(locationResult);
 
         given(userQueryService.getUserByEmail("test@example.com")).willReturn(japanUser);
-        given(userTokenGenerator.generate("japanUser123", "japan@example.com", UserRole.ROLE_USER, Country.JAPAN))
+        given(userTokenGenerator.generate("japanUser123", "japan@example.com", UserRole.ROLE_USER, "JP"))
                 .willReturn("japanAccessToken123");
         given(userTokenGenerator.generateRefreshToken()).willReturn("japanRefreshToken123");
 
@@ -284,7 +284,7 @@ class LoginUserUseCaseTest {
 
         // then
         assertThat(result.userId()).isEqualTo("japanUser123");
-        assertThat(result.country()).isEqualTo("일본");
+        assertThat(result.country()).isEqualTo("JP");
         assertThat(result.region()).isEqualTo("도쿄");
         assertThat(result.isLocationMatch()).isTrue();
     }

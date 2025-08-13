@@ -4,7 +4,6 @@ import com.backend.immilog.jobboard.application.dto.JobBoardResult;
 import com.backend.immilog.jobboard.application.services.JobBoardQueryService;
 import com.backend.immilog.jobboard.domain.model.Experience;
 import com.backend.immilog.jobboard.domain.model.Industry;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ class FetchJobBoardUseCaseTest {
     @DisplayName("채용공고 목록 조회 성공 - 페이지 지정")
     void getJobBoards_WithPage_Success() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         Integer page = 1;
         var pageable = PageRequest.of(page, 10);
         
@@ -44,11 +43,11 @@ class FetchJobBoardUseCaseTest {
                 List.of(jobBoardResult), pageable, 1
         );
 
-        when(mockJobBoardQueryService.getJobBoards(country, pageable))
+        when(mockJobBoardQueryService.getJobBoards(countryId, pageable))
                 .thenReturn(expectedPage);
 
         // when
-        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(country, page);
+        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(countryId, page);
 
         // then
         assertThat(result).isNotNull();
@@ -57,14 +56,14 @@ class FetchJobBoardUseCaseTest {
         assertThat(result.getNumber()).isEqualTo(1);
         assertThat(result.getSize()).isEqualTo(10);
 
-        verify(mockJobBoardQueryService).getJobBoards(country, pageable);
+        verify(mockJobBoardQueryService).getJobBoards(countryId, pageable);
     }
 
     @Test
     @DisplayName("채용공고 목록 조회 성공 - 페이지 null (기본값 0)")
     void getJobBoards_WithNullPage_DefaultsToZero() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         Integer page = null;
         var pageable = PageRequest.of(0, 10);
         
@@ -73,48 +72,48 @@ class FetchJobBoardUseCaseTest {
                 List.of(jobBoardResult), pageable, 1
         );
 
-        when(mockJobBoardQueryService.getJobBoards(country, pageable))
+        when(mockJobBoardQueryService.getJobBoards(countryId, pageable))
                 .thenReturn(expectedPage);
 
         // when
-        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(country, page);
+        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(countryId, page);
 
         // then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).hasSize(1);
         assertThat(result.getNumber()).isEqualTo(0);
 
-        verify(mockJobBoardQueryService).getJobBoards(country, pageable);
+        verify(mockJobBoardQueryService).getJobBoards(countryId, pageable);
     }
 
     @Test
     @DisplayName("채용공고 목록 조회 - 빈 결과")
     void getJobBoards_EmptyResult() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         Integer page = 0;
         var pageable = PageRequest.of(0, 10);
         Page<JobBoardResult> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
-        when(mockJobBoardQueryService.getJobBoards(country, pageable))
+        when(mockJobBoardQueryService.getJobBoards(countryId, pageable))
                 .thenReturn(emptyPage);
 
         // when
-        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(country, page);
+        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(countryId, page);
 
         // then
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEmpty();
         assertThat(result.getTotalElements()).isEqualTo(0);
 
-        verify(mockJobBoardQueryService).getJobBoards(country, pageable);
+        verify(mockJobBoardQueryService).getJobBoards(countryId, pageable);
     }
 
     @Test
     @DisplayName("채용공고 목록 조회 - null 국가")
     void getJobBoards_WithNullCountry() {
         // given
-        Country country = null;
+        String countryId = null;
         Integer page = 0;
         var pageable = PageRequest.of(0, 10);
         Page<JobBoardResult> emptyPage = new PageImpl<>(List.of(), pageable, 0);
@@ -123,7 +122,7 @@ class FetchJobBoardUseCaseTest {
                 .thenReturn(emptyPage);
 
         // when
-        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(country, page);
+        Page<JobBoardResult> result = fetchJobBoardUseCase.getJobBoards(countryId, page);
 
         // then
         assertThat(result).isNotNull();
@@ -157,18 +156,18 @@ class FetchJobBoardUseCaseTest {
     @DisplayName("다양한 페이지 크기로 채용공고 목록 조회")
     void getJobBoards_VerifyPageSize() {
         // given
-        Country country = Country.SOUTH_KOREA;
+        String countryId = "KR";
         Integer page = 2;
         var expectedPageable = PageRequest.of(2, 10);
 
-        when(mockJobBoardQueryService.getJobBoards(eq(country), any()))
+        when(mockJobBoardQueryService.getJobBoards(eq(countryId), any()))
                 .thenReturn(new PageImpl<>(List.of(), expectedPageable, 0));
 
         // when
-        fetchJobBoardUseCase.getJobBoards(country, page);
+        fetchJobBoardUseCase.getJobBoards(countryId, page);
 
         // then
-        verify(mockJobBoardQueryService).getJobBoards(country, expectedPageable);
+        verify(mockJobBoardQueryService).getJobBoards(countryId, expectedPageable);
     }
 
     private JobBoardResult createSampleJobBoardResult(String id, String title) {
@@ -191,7 +190,7 @@ class FetchJobBoardUseCaseTest {
                 "hr@testcompany.com",
                 true,
                 100L,
-                com.backend.immilog.shared.enums.Country.SOUTH_KOREA,
+                "KR",
                 java.time.LocalDateTime.now(),
                 null,
                 true,

@@ -78,7 +78,7 @@ public class Comment {
 
     public Comment addLikeUser(String userId) {
         if (!Objects.isNull(this.likeUsers)) {
-            var newLikeUsers = this.likeUsers;
+            var newLikeUsers = new ArrayList<>(this.likeUsers);
             newLikeUsers.add(userId);
             return new Comment(
                     this.id,

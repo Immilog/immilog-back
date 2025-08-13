@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.services.query;
 
-import com.backend.immilog.shared.enums.Country;
+
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.*;
@@ -34,8 +34,8 @@ class UserQueryServiceTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -225,8 +225,8 @@ class UserQueryServiceTest {
                 UserId.of("pending123"),
                 Auth.of("pending@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("대기유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("대기유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.PENDING,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -236,8 +236,8 @@ class UserQueryServiceTest {
                 UserId.of("active123"),
                 Auth.of("active@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("활성유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("활성유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -247,8 +247,8 @@ class UserQueryServiceTest {
                 UserId.of("blocked123"),
                 Auth.of("blocked@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("차단유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("차단유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.BLOCKED,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -277,8 +277,8 @@ class UserQueryServiceTest {
                 UserId.of("regular123"),
                 Auth.of("regular@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("일반유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("일반유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -288,8 +288,8 @@ class UserQueryServiceTest {
                 UserId.of("admin123"),
                 Auth.of("admin@example.com", "password"),
                 UserRole.ROLE_ADMIN,
-                Profile.of("관리자", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("관리자", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -380,8 +380,8 @@ class UserQueryServiceTest {
                 UserId.of("korean123"),
                 Auth.of("korean@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("한국유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("한국유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -391,8 +391,8 @@ class UserQueryServiceTest {
                 UserId.of("japanese123"),
                 Auth.of("japanese@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("日本ユーザー", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("日本ユーザー", null, "JP"),
+                Location.of("JP", "도쿄"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -406,8 +406,8 @@ class UserQueryServiceTest {
         User japaneseResult = userQueryService.getUserByEmail("japanese@example.com");
 
         // then
-        assertThat(koreanResult.getCountry()).isEqualTo(Country.SOUTH_KOREA);
-        assertThat(japaneseResult.getCountry()).isEqualTo(Country.JAPAN);
+        assertThat(koreanResult.getCountryId()).isEqualTo("KR");
+        assertThat(japaneseResult.getCountryId()).isEqualTo("JP");
         assertThat(koreanResult.getRegion()).isEqualTo("서울");
         assertThat(japaneseResult.getRegion()).isEqualTo("도쿄");
     }

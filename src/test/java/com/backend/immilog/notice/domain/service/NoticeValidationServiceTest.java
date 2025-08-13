@@ -3,14 +3,14 @@ package com.backend.immilog.notice.domain.service;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.domain.model.Notice;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class NoticeValidationServiceTest {
 
@@ -28,7 +28,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String content = "공지사항 내용";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatCode(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -42,7 +42,7 @@ class NoticeValidationServiceTest {
         String title = null;
         String content = "공지사항 내용";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -56,7 +56,7 @@ class NoticeValidationServiceTest {
         String title = "";
         String content = "공지사항 내용";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -70,7 +70,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String content = null;
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -84,7 +84,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String content = "";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -98,7 +98,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String content = "공지사항 내용";
         NoticeType type = null;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -112,7 +112,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String content = "공지사항 내용";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = null;
+        List<String> targetCountries = null;
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -126,7 +126,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String content = "공지사항 내용";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of();
+        List<String> targetCountries = List.of();
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, content, type, targetCountries))
@@ -317,7 +317,7 @@ class NoticeValidationServiceTest {
         String longTitle = "a".repeat(201);
         String content = "공지사항 내용";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(longTitle, content, type, targetCountries))
@@ -331,7 +331,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String longContent = "a".repeat(5001);
         NoticeType type = NoticeType.NOTICE;
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         assertThatThrownBy(() -> noticeValidationService.validateNoticeCreation(title, longContent, type, targetCountries))
@@ -344,7 +344,7 @@ class NoticeValidationServiceTest {
         //given
         String title = "공지사항 제목";
         String content = "공지사항 내용";
-        List<Country> targetCountries = List.of(Country.SOUTH_KOREA);
+        List<String> targetCountries = List.of("KR");
 
         //when & then
         for (NoticeType type : NoticeType.values()) {
@@ -360,7 +360,7 @@ class NoticeValidationServiceTest {
         String title = "공지사항 제목";
         String content = "공지사항 내용";
         NoticeType type = NoticeType.NOTICE;
-        List<Country> allCountries = List.of(Country.values());
+        List<String> allCountries = List.of("KR", "JP", "CN", "US", "UK", "DE", "FR", "CA", "AU", "SG", "MY", "TH", "VN", "PH", "IN", "BR", "MX", "AR", "CL", "CO");
 
         //when & then
         assertThatCode(() -> noticeValidationService.validateNoticeCreation(title, content, type, allCountries))
@@ -373,7 +373,7 @@ class NoticeValidationServiceTest {
                 com.backend.immilog.notice.domain.model.NoticeTitle.of("테스트 제목"),
                 com.backend.immilog.notice.domain.model.NoticeContent.of("테스트 내용"),
                 NoticeType.NOTICE,
-                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of(Country.SOUTH_KOREA))
+                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of("KR"))
         );
     }
 
@@ -383,7 +383,7 @@ class NoticeValidationServiceTest {
                 com.backend.immilog.notice.domain.model.NoticeTitle.of("테스트 제목"),
                 com.backend.immilog.notice.domain.model.NoticeContent.of("테스트 내용"),
                 NoticeType.NOTICE,
-                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of(Country.SOUTH_KOREA))
+                com.backend.immilog.notice.domain.model.NoticeTargeting.of(List.of("KR"))
         );
     }
 }

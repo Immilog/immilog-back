@@ -69,10 +69,10 @@ public interface FetchLocationUseCase {
                     for (var component : addressComponents) {
                         var types = component.path("types");
 
-                        // 국가 코드 추출 (types에 "countryId"가 포함된 경우)
+                        // 국가 코드 추출 (types에 "country"가 포함된 경우)
                         if (types.isArray()) {
                             for (var type : types) {
-                                if ("countryId".equals(type.asText())) {
+                                if ("country".equals(type.asText())) {
                                     countryCode = component.path("short_name").asText(); // "KR"
                                     break;
                                 }

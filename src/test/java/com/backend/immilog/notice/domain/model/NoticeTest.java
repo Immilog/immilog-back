@@ -3,14 +3,14 @@ package com.backend.immilog.notice.domain.model;
 import com.backend.immilog.notice.domain.enums.NoticeStatus;
 import com.backend.immilog.notice.domain.enums.NoticeType;
 import com.backend.immilog.notice.exception.NoticeException;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class NoticeTest {
 
@@ -22,7 +22,7 @@ class NoticeTest {
         NoticeTitle title = NoticeTitle.of("공지사항 제목");
         NoticeContent content = NoticeContent.of("공지사항 내용");
         NoticeType type = NoticeType.NOTICE;
-        NoticeTargeting targeting = NoticeTargeting.of(List.of(Country.SOUTH_KOREA));
+        NoticeTargeting targeting = NoticeTargeting.of(List.of("KR"));
 
         //when
         Notice notice = Notice.create(author, title, content, type, targeting);
@@ -46,7 +46,7 @@ class NoticeTest {
         NoticeTitle title = NoticeTitle.of("공지사항 제목");
         NoticeContent content = NoticeContent.of("공지사항 내용");
         NoticeType type = NoticeType.NOTICE;
-        NoticeTargeting targeting = NoticeTargeting.of(List.of(Country.SOUTH_KOREA));
+        NoticeTargeting targeting = NoticeTargeting.of(List.of("KR"));
 
         //when & then
         assertThatThrownBy(() -> Notice.create(author, title, content, type, targeting))
@@ -61,7 +61,7 @@ class NoticeTest {
         NoticeTitle title = null;
         NoticeContent content = NoticeContent.of("공지사항 내용");
         NoticeType type = NoticeType.NOTICE;
-        NoticeTargeting targeting = NoticeTargeting.of(List.of(Country.SOUTH_KOREA));
+        NoticeTargeting targeting = NoticeTargeting.of(List.of("KR"));
 
         //when & then
         assertThatThrownBy(() -> Notice.create(author, title, content, type, targeting))
@@ -76,7 +76,7 @@ class NoticeTest {
         NoticeTitle title = NoticeTitle.of("공지사항 제목");
         NoticeContent content = null;
         NoticeType type = NoticeType.NOTICE;
-        NoticeTargeting targeting = NoticeTargeting.of(List.of(Country.SOUTH_KOREA));
+        NoticeTargeting targeting = NoticeTargeting.of(List.of("KR"));
 
         //when & then
         assertThatThrownBy(() -> Notice.create(author, title, content, type, targeting))
@@ -91,7 +91,7 @@ class NoticeTest {
         NoticeTitle title = NoticeTitle.of("공지사항 제목");
         NoticeContent content = NoticeContent.of("공지사항 내용");
         NoticeType type = null;
-        NoticeTargeting targeting = NoticeTargeting.of(List.of(Country.SOUTH_KOREA));
+        NoticeTargeting targeting = NoticeTargeting.of(List.of("KR"));
 
         //when & then
         assertThatThrownBy(() -> Notice.create(author, title, content, type, targeting))
@@ -341,7 +341,7 @@ class NoticeTest {
         Notice notice = createTestNotice();
 
         //when & then
-        assertThat(notice.isTargetedTo(Country.SOUTH_KOREA)).isTrue();
+        assertThat(notice.isTargetedTo("KR")).isTrue();
     }
 
     @Test
@@ -351,7 +351,7 @@ class NoticeTest {
         Notice notice = createTestNotice();
 
         //when & then
-        assertThat(notice.isTargetedTo(Country.JAPAN)).isFalse();
+        assertThat(notice.isTargetedTo("JP")).isFalse();
     }
 
     @Test
@@ -387,7 +387,7 @@ class NoticeTest {
         NoticeContent content = NoticeContent.of("복원된 내용");
         NoticeType type = NoticeType.EVENT;
         NoticeStatus status = NoticeStatus.DELETED;
-        NoticeTargeting targeting = NoticeTargeting.of(List.of(Country.JAPAN));
+        NoticeTargeting targeting = NoticeTargeting.of(List.of("JP"));
         NoticeReadStatus readStatus = NoticeReadStatus.of(List.of("user1", "user2"));
         LocalDateTime createdAt = LocalDateTime.now().minusDays(1);
         LocalDateTime updatedAt = LocalDateTime.now();
@@ -421,7 +421,7 @@ class NoticeTest {
         assertThat(notice.getAuthorUserId()).isEqualTo("authorId");
         assertThat(notice.getTitleValue()).isEqualTo("공지사항 제목");
         assertThat(notice.getContentValue()).isEqualTo("공지사항 내용");
-        assertThat(notice.getTargetCountries()).containsExactly(Country.SOUTH_KOREA);
+        assertThat(notice.getTargetCountries()).containsExactly("KR");
         assertThat(notice.getReadUsers()).isEmpty();
         assertThat(notice.getCreatedAt()).isNotNull();
         assertThat(notice.getUpdatedAt()).isNotNull();
@@ -440,7 +440,7 @@ class NoticeTest {
                 NoticeContent.of("내용"),
                 NoticeType.NOTICE,
                 NoticeStatus.NORMAL,
-                NoticeTargeting.of(List.of(Country.SOUTH_KOREA)),
+                NoticeTargeting.of(List.of("KR")),
                 NoticeReadStatus.empty(),
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -478,7 +478,7 @@ class NoticeTest {
                 NoticeTitle.of("공지사항 제목"),
                 NoticeContent.of("공지사항 내용"),
                 NoticeType.NOTICE,
-                NoticeTargeting.of(List.of(Country.SOUTH_KOREA))
+                NoticeTargeting.of(List.of("KR"))
         );
     }
 
@@ -488,7 +488,7 @@ class NoticeTest {
                 NoticeTitle.of("공지사항 제목"),
                 NoticeContent.of("공지사항 내용"),
                 NoticeType.NOTICE,
-                NoticeTargeting.of(List.of(Country.SOUTH_KOREA))
+                NoticeTargeting.of(List.of("KR"))
         );
     }
 }

@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.services;
 
-import com.backend.immilog.shared.enums.Country;
+
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.*;
@@ -28,8 +28,8 @@ class NotificationServiceTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -41,8 +41,8 @@ class NotificationServiceTest {
                 UserId.of("user123"),
                 Auth.of("test@example.com", "encodedPassword"),
                 UserRole.ROLE_USER,
-                Profile.of(nickname, "https://example.com/image.jpg", Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울특별시"),
+                Profile.of(nickname, "https://example.com/image.jpg", "KR"),
+                Location.of("KR", "서울특별시"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now().minusDays(1),
                 LocalDateTime.now()
@@ -173,8 +173,8 @@ class NotificationServiceTest {
                 UserId.of("user1"),
                 Auth.of("user1@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("유저1", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("유저1", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -183,8 +183,8 @@ class NotificationServiceTest {
                 UserId.of("user2"),
                 Auth.of("user2@gmail.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("유저2", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("유저2", null, "JP"),
+                Location.of("JP", "도쿄"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -236,8 +236,8 @@ class NotificationServiceTest {
                 UserId.of("admin123"),
                 Auth.of("admin@example.com", "password"),
                 UserRole.ROLE_ADMIN,
-                Profile.of("관리자", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("관리자", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -262,8 +262,8 @@ class NotificationServiceTest {
                 UserId.of("korean"),
                 Auth.of("korean@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("한국유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("한국유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -273,8 +273,8 @@ class NotificationServiceTest {
                 UserId.of("japanese"),
                 Auth.of("japanese@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("일본유저", null, Country.JAPAN),
-                Location.of(Country.JAPAN, "도쿄"),
+                Profile.of("일본유저", null, "JP"),
+                Location.of("JP", "도쿄"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -305,8 +305,8 @@ class NotificationServiceTest {
                 UserId.of("inactive"),
                 Auth.of("inactive@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("비활성유저", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("비활성유저", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.PENDING,
                 LocalDateTime.now(),
                 LocalDateTime.now()
@@ -331,8 +331,8 @@ class NotificationServiceTest {
                 UserId.of("noimage"),
                 Auth.of("noimage@example.com", "password"),
                 UserRole.ROLE_USER,
-                Profile.of("이미지없음", null, Country.SOUTH_KOREA),
-                Location.of(Country.SOUTH_KOREA, "서울"),
+                Profile.of("이미지없음", null, "KR"),
+                Location.of("KR", "서울"),
                 UserStatus.ACTIVE,
                 LocalDateTime.now(),
                 LocalDateTime.now()

@@ -3,6 +3,7 @@ package com.backend.immilog.comment.application.services;
 import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.domain.model.ReferenceType;
 import com.backend.immilog.comment.domain.repositories.CommentRepository;
+import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.shared.enums.ContentStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,12 +17,15 @@ import static org.mockito.Mockito.*;
 class CommentQueryServiceTest {
 
     private final CommentRepository mockCommentRepository = mock(CommentRepository.class);
+    private final InteractionUserRepository interactionUserRepository = mock(InteractionUserRepository.class);
 
     private CommentQueryService commentQueryService;
 
     @BeforeEach
     void setUp() {
-        commentQueryService = new CommentQueryService(mockCommentRepository);
+        commentQueryService = new CommentQueryService(
+                mockCommentRepository,
+                interactionUserRepository);
     }
 
     @Test

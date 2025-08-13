@@ -6,7 +6,6 @@ import com.backend.immilog.company.application.mapper.CompanyMapper;
 import com.backend.immilog.company.domain.model.*;
 import com.backend.immilog.company.domain.service.CompanyRegistrationService;
 import com.backend.immilog.company.domain.service.CompanyValidationService;
-import com.backend.immilog.shared.enums.Country;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -41,12 +40,12 @@ class CompanyServiceTest {
                 "test@company.com",
                 "010-1234-5678",
                 "서울시 강남구",
-                Country.SOUTH_KOREA,
+                "KR",
                 "https://company.com",
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company newCompany = new Company(null, manager, metaData);
         Company savedCompany = new Company("1", manager, metaData);
@@ -75,12 +74,12 @@ class CompanyServiceTest {
                 "updated@company.com",
                 "010-9876-5432",
                 "서울시 서초구",
-                Country.SOUTH_KOREA,
+                "KR",
                 "https://updated.com",
                 "updated-logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData existingMetaData = CompanyMetaData.of(Industry.IT, "기존 회사", "existing@company.com", "010-1234-5678", "서울시 강남구", "https://existing.com", "logo.png");
         Company existingCompany = new Company("1", manager, existingMetaData);
 
@@ -106,7 +105,7 @@ class CompanyServiceTest {
     void shouldGetCompanyByManagerUserId() {
         // given
         String userId = "1";
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company company = new Company("1", manager, metaData);
 
@@ -142,7 +141,7 @@ class CompanyServiceTest {
     void shouldGetCompanyById() {
         // given
         CompanyId companyId = CompanyId.of("1");
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", "1");
+        CompanyManager manager = CompanyManager.of("KR", "서울", "1");
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company company = new Company("1", manager, metaData);
 
@@ -161,7 +160,7 @@ class CompanyServiceTest {
     void shouldDeleteCompany() {
         // given
         String userId = "1";
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company company = new Company("1", manager, metaData);
 
@@ -189,12 +188,12 @@ class CompanyServiceTest {
                 "test@company.com",
                 "010-1234-5678",
                 "서울시 강남구",
-                Country.SOUTH_KOREA,
+                "KR",
                 "https://company.com",
                 "logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData metaData = CompanyMetaData.of(Industry.IT, "테스트 회사", "test@company.com", "010-1234-5678", "서울시 강남구", "https://company.com", "logo.png");
         Company newCompany = new Company(null, manager, metaData);
         Company savedCompany = new Company(expectedCompanyId, manager, metaData);
@@ -221,16 +220,16 @@ class CompanyServiceTest {
                 "new@company.com",
                 "090-1234-5678",
                 "도쿄시",
-                Country.JAPAN,
+                "JP",
                 "https://new.com",
                 "new-logo.png"
         );
 
-        CompanyManager manager = CompanyManager.of(Country.SOUTH_KOREA, "서울", userId);
+        CompanyManager manager = CompanyManager.of("KR", "서울", userId);
         CompanyMetaData existingMetaData = CompanyMetaData.of(Industry.IT, "기존 회사", "existing@company.com", "010-1234-5678", null, null, null);
         Company existingCompany = new Company("1", manager, existingMetaData);
 
-        CompanyManager updatedManager = CompanyManager.of(Country.JAPAN, "도쿄", userId);
+        CompanyManager updatedManager = CompanyManager.of("JP", "도쿄", userId);
         CompanyMetaData updatedMetaData = CompanyMetaData.of(Industry.ETC, "새로운 회사명", "new@company.com", "090-1234-5678", "도쿄시", "https://new.com", "new-logo.png");
         Company updatedCompany = new Company("1", updatedManager, updatedMetaData);
 

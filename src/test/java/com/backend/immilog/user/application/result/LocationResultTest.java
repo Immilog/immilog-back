@@ -12,7 +12,7 @@ class LocationResultTest {
     @DisplayName("정상적인 값들로 LocationResult를 생성할 수 있다")
     void createLocationResult() {
         // given
-        String country = "대한민국";
+        String country = "KR";
         String city = "서울특별시";
 
         // when
@@ -49,26 +49,26 @@ class LocationResultTest {
     @DisplayName("다양한 국가와 도시로 LocationResult를 생성할 수 있다")
     void createLocationResultWithVariousLocations() {
         // given & when
-        LocationResult koreaResult = new LocationResult("대한민국", "서울특별시");
-        LocationResult japanResult = new LocationResult("일본", "도쿄");
-        LocationResult usaResult = new LocationResult("미국", "뉴욕");
-        LocationResult chinaResult = new LocationResult("중국", "베이징");
-        LocationResult malaysiaResult = new LocationResult("말레이시아", "쿠알라룸푸르");
+        LocationResult koreaResult = new LocationResult("KR", "서울특별시");
+        LocationResult japanResult = new LocationResult("JP", "도쿄");
+        LocationResult usaResult = new LocationResult("US", "뉴욕");
+        LocationResult chinaResult = new LocationResult("CN", "베이징");
+        LocationResult malaysiaResult = new LocationResult("MY", "쿠알라룸푸르");
 
         // then
-        assertThat(koreaResult.country()).isEqualTo("대한민국");
+        assertThat(koreaResult.country()).isEqualTo("KR");
         assertThat(koreaResult.city()).isEqualTo("서울특별시");
 
-        assertThat(japanResult.country()).isEqualTo("일본");
+        assertThat(japanResult.country()).isEqualTo("JP");
         assertThat(japanResult.city()).isEqualTo("도쿄");
 
-        assertThat(usaResult.country()).isEqualTo("미국");
+        assertThat(usaResult.country()).isEqualTo("US");
         assertThat(usaResult.city()).isEqualTo("뉴욕");
 
-        assertThat(chinaResult.country()).isEqualTo("중국");
+        assertThat(chinaResult.country()).isEqualTo("CN");
         assertThat(chinaResult.city()).isEqualTo("베이징");
 
-        assertThat(malaysiaResult.country()).isEqualTo("말레이시아");
+        assertThat(malaysiaResult.country()).isEqualTo("MY");
         assertThat(malaysiaResult.city()).isEqualTo("쿠알라룸푸르");
     }
 
@@ -102,10 +102,10 @@ class LocationResultTest {
     @DisplayName("LocationResult record의 동등성이 정상 작동한다")
     void locationResultEquality() {
         // given
-        LocationResult result1 = new LocationResult("대한민국", "서울특별시");
-        LocationResult result2 = new LocationResult("대한민국", "서울특별시");
-        LocationResult result3 = new LocationResult("일본", "서울특별시");
-        LocationResult result4 = new LocationResult("대한민국", "부산광역시");
+        LocationResult result1 = new LocationResult("KR", "서울특별시");
+        LocationResult result2 = new LocationResult("KR", "서울특별시");
+        LocationResult result3 = new LocationResult("JP", "서울특별시");
+        LocationResult result4 = new LocationResult("KR", "부산광역시");
 
         // when & then
         assertThat(result1).isEqualTo(result2);
