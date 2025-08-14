@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>회원가입 완료</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0 30px;
+        }
+
+        .message {
+            font-size: 18px;
+            text-align: center;
+            margin: -18px 0 20px;
+        }
+
+        .message p {
+            margin: 18px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="message">
+    <p th:text="${message}"></p>
+    <p th:if="${isLoginAvailable}">앱에서 로그인을 진행해주세요.</p>
+</div>
+</body>
+</html>
