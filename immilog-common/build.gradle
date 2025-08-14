@@ -1,0 +1,16 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // 최소 필요한 의존성만 유지
+    api 'org.springframework.boot:spring-boot-starter'
+    api 'org.springframework.security:spring-security-core'
+    
+    // Jackson for JSON
+    api 'com.fasterxml.jackson.core:jackson-databind'
+    
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
