@@ -1,1 +1,5 @@
-rootProject.name = 'immilog'
+rootProject.name = 'ko-meet-backend'
+
+include 'immilog-common'
+include 'immilog-core'  
+include 'immilog-chat'

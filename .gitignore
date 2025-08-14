@@ -41,3 +41,5 @@ out/
 ### Generated ###
 /src/main/generated/
 /src/main/resources/application.yml
+/immilog-chat/src/main/resources/application.yml
+/immilog-core/src/main/resources/application.yml
