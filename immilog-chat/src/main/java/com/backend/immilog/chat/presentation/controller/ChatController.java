@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/chat")
-@CrossOrigin(origins = "*")
 public class ChatController {
     
     private final ChatRoomService chatRoomService;
@@ -27,9 +26,9 @@ public class ChatController {
     
     @PostMapping("/rooms")
     public Mono<ResponseEntity<ChatRoomDto>> createChatRoom(
-            @RequestParam String name,
-            @RequestParam String countryId,
-            @RequestParam String createdBy
+            @RequestParam("name") String name,
+            @RequestParam("countryId") String countryId,
+            @RequestParam("createdBy") String createdBy
     ) {
         return chatRoomService.createChatRoom(name, countryId, createdBy)
                 .map(ChatRoomDto::from)
@@ -37,17 +36,23 @@ public class ChatController {
     }
     
     @GetMapping("/rooms/country/{countryId}")
-    public Flux<ChatRoomDto> getChatRoomsByCountry(@PathVariable String countryId) {
+    public Flux<ChatRoomDto> getChatRoomsByCountry(
+            @PathVariable("countryId") String countryId
+    ) {
         return chatRoomService.getChatRoomsByCountry(countryId).map(ChatRoomDto::from);
     }
     
     @GetMapping("/rooms/user/{userId}")
-    public Flux<ChatRoomDto> getUserChatRooms(@PathVariable String userId) {
+    public Flux<ChatRoomDto> getUserChatRooms(
+            @PathVariable("userId") String userId
+    ) {
         return chatRoomService.getUserChatRooms(userId).map(ChatRoomDto::from);
     }
     
     @GetMapping("/rooms/{chatRoomId}")
-    public Mono<ResponseEntity<ChatRoomDto>> getChatRoom(@PathVariable String chatRoomId) {
+    public Mono<ResponseEntity<ChatRoomDto>> getChatRoom(
+            @PathVariable("chatRoomId") String chatRoomId
+    ) {
         return chatRoomService.getChatRoom(chatRoomId)
                 .map(ChatRoomDto::from)
                 .map(ResponseEntity::ok)
@@ -56,23 +61,28 @@ public class ChatController {
     
     @GetMapping("/rooms/{chatRoomId}/messages")
     public Flux<ChatMessageDto> getChatHistory(
-            @PathVariable String chatRoomId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size
+            @PathVariable("chatRoomId") String chatRoomId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "50") int size
     ) {
         return chatMessageService.getChatHistory(chatRoomId, page, size).map(ChatMessageDto::from);
     }
     
     @GetMapping("/rooms/{chatRoomId}/messages/recent")
-    public Flux<ChatMessageDto> getRecentMessages(@PathVariable String chatRoomId) {
+    public Flux<ChatMessageDto> getRecentMessages(
+            @PathVariable("chatRoomId") String chatRoomId
+    ) {
         return chatMessageService.getRecentMessages(chatRoomId).map(ChatMessageDto::from);
     }
     
     @DeleteMapping("/messages/{messageId}")
-    public Mono<ResponseEntity<ChatMessageDto>> deleteMessage(@PathVariable String messageId) {
+    public Mono<ResponseEntity<ChatMessageDto>> deleteMessage(
+            @PathVariable("messageId") String messageId
+    ) {
         return chatMessageService.deleteMessage(messageId)
                 .map(ChatMessageDto::from)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
+    
 }
