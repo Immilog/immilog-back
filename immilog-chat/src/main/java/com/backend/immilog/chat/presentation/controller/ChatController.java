@@ -3,6 +3,7 @@ package com.backend.immilog.chat.presentation.controller;
 import com.backend.immilog.chat.application.service.ChatMessageService;
 import com.backend.immilog.chat.application.service.ChatRoomService;
 import com.backend.immilog.chat.presentation.dto.ChatMessageDto;
+import com.backend.immilog.chat.presentation.dto.ChatRoomCreateRequest;
 import com.backend.immilog.chat.presentation.dto.ChatRoomDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +27,10 @@ public class ChatController {
     
     @PostMapping("/rooms")
     public Mono<ResponseEntity<ChatRoomDto>> createChatRoom(
-            @RequestParam("name") String name,
-            @RequestParam("countryId") String countryId,
-            @RequestParam("createdBy") String createdBy
+            @RequestBody ChatRoomCreateRequest request
     ) {
-        return chatRoomService.createChatRoom(name, countryId, createdBy)
+        return chatRoomService
+                .createChatRoom(request.name(), request.countryId(), request.createdBy())
                 .map(ChatRoomDto::from)
                 .map(ResponseEntity::ok);
     }

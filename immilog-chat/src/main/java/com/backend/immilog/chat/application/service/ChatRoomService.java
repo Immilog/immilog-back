@@ -21,6 +21,9 @@ public class ChatRoomService {
     }
     
     public Flux<ChatRoom> getChatRoomsByCountry(String countryId) {
+        if ("ALL".equals(countryId)) {
+            return chatRoomRepository.findByIsActiveTrue();
+        }
         return chatRoomRepository.findByCountryIdAndIsActiveTrue(countryId);
     }
     
