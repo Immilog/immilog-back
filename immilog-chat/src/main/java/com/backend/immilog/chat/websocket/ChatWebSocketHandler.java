@@ -87,14 +87,23 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                     ).map(ChatMessageDto::from);
 
                 case "JOIN":
-                    return chatRoomService.joinChatRoom(chatRoomId, request.senderId())
-                            .then(chatMessageService.sendSystemMessage(
-                                    chatRoomId,
-                                    request.senderId(),
-                                    request.senderNickname(),
-                                    com.backend.immilog.chat.domain.model.ChatMessage.MessageType.SYSTEM_JOIN
-                            ))
-                            .map(ChatMessageDto::from);
+                    return chatRoomService.isUserAlreadyParticipant(chatRoomId, request.senderId())
+                            .flatMap(isAlreadyParticipant -> {
+                                if (isAlreadyParticipant) {
+                                    // 이미 참여 중인 사용자는 JOIN 메시지를 보내지 않음
+                                    return Mono.empty();
+                                } else {
+                                    // 새로운 참여자만 JOIN 메시지 전송
+                                    return chatRoomService.joinChatRoom(chatRoomId, request.senderId())
+                                            .then(chatMessageService.sendSystemMessage(
+                                                    chatRoomId,
+                                                    request.senderId(),
+                                                    request.senderNickname(),
+                                                    com.backend.immilog.chat.domain.model.ChatMessage.MessageType.SYSTEM_JOIN
+                                            ))
+                                            .map(ChatMessageDto::from);
+                                }
+                            });
 
                 case "LEAVE":
                     return chatMessageService.sendSystemMessage(

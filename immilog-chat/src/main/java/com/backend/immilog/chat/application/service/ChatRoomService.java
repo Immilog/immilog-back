@@ -46,4 +46,10 @@ public class ChatRoomService {
     public Mono<ChatRoom> getChatRoom(String chatRoomId) {
         return chatRoomRepository.findById(chatRoomId);
     }
+    
+    public Mono<Boolean> isUserAlreadyParticipant(String chatRoomId, String userId) {
+        return chatRoomRepository.findById(chatRoomId)
+                .map(chatRoom -> chatRoom.hasParticipant(userId))
+                .defaultIfEmpty(false);
+    }
 }
