@@ -23,6 +23,8 @@ public interface LoginUserUseCase {
             LocationResult country
     );
 
+    UserSignInResult refreshToken(String refreshToken);
+
     @Service
     class UserLoginProcessor implements LoginUserUseCase {
         private final UserQueryService userQueryService;
@@ -81,6 +83,25 @@ public interface LoginUserUseCase {
             tokenCommandService.saveKeyAndValue(TOKEN_PREFIX + refreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
 
             return UserSignInResult.of(user, accessToken, refreshToken, isLocationMatch);
+        }
+
+        @Override
+        public UserSignInResult refreshToken(String refreshToken) {
+            final var userEmail = tokenCommandService.getValue(TOKEN_PREFIX + refreshToken);
+            if (userEmail == null) {
+                throw new IllegalArgumentException("Invalid refresh token");
+            }
+
+            final var user = userQueryService.getUserByEmail(userEmail);
+            var userCountryId = user.getCountryId();
+
+            final var newAccessToken = userTokenGenerator.generate(user.getUserId().value(), userEmail, user.getUserRole(), userCountryId);
+            final var newRefreshToken = userTokenGenerator.generateRefreshToken();
+
+            tokenCommandService.deleteKey(TOKEN_PREFIX + refreshToken);
+            tokenCommandService.saveKeyAndValue(TOKEN_PREFIX + newRefreshToken, userEmail, REFRESH_TOKEN_EXPIRE_TIME);
+
+            return UserSignInResult.of(user, newAccessToken, newRefreshToken, true);
         }
 
     }
