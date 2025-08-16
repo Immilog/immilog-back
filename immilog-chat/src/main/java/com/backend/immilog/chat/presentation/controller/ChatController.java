@@ -2,9 +2,11 @@ package com.backend.immilog.chat.presentation.controller;
 
 import com.backend.immilog.chat.application.service.ChatMessageService;
 import com.backend.immilog.chat.application.service.ChatRoomService;
+import com.backend.immilog.chat.application.service.ChatRoomStreamService;
 import com.backend.immilog.chat.presentation.dto.ChatMessageDto;
 import com.backend.immilog.chat.presentation.dto.ChatRoomCreateRequest;
 import com.backend.immilog.chat.presentation.dto.ChatRoomDto;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -16,13 +18,16 @@ public class ChatController {
     
     private final ChatRoomService chatRoomService;
     private final ChatMessageService chatMessageService;
+    private final ChatRoomStreamService chatRoomStreamService;
     
     public ChatController(
             ChatRoomService chatRoomService,
-            ChatMessageService chatMessageService
+            ChatMessageService chatMessageService,
+            ChatRoomStreamService chatRoomStreamService
     ) {
         this.chatRoomService = chatRoomService;
         this.chatMessageService = chatMessageService;
+        this.chatRoomStreamService = chatRoomStreamService;
     }
     
     @PostMapping("/rooms")
@@ -37,16 +42,49 @@ public class ChatController {
     
     @GetMapping("/rooms/country/{countryId}")
     public Flux<ChatRoomDto> getChatRoomsByCountry(
+            @PathVariable("countryId") String countryId,
+            @RequestParam(value = "includeLatestMessage", defaultValue = "true") boolean includeLatestMessage
+    ) {
+        if (includeLatestMessage) {
+            return chatRoomService.getChatRoomsByCountryWithLatestMessage(countryId);
+        }
+        return chatRoomService.getChatRoomsByCountry(countryId).map(ChatRoomDto::from);
+    }
+    
+    @GetMapping(value = "/rooms/country/{countryId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ChatRoomDto> streamChatRoomsByCountry(
             @PathVariable("countryId") String countryId
     ) {
-        return chatRoomService.getChatRoomsByCountry(countryId).map(ChatRoomDto::from);
+        return chatRoomStreamService.streamChatRoomsByCountry(countryId);
     }
     
     @GetMapping("/rooms/user/{userId}")
     public Flux<ChatRoomDto> getUserChatRooms(
+            @PathVariable("userId") String userId,
+            @RequestParam(value = "includeLatestMessage", defaultValue = "true") boolean includeLatestMessage
+    ) {
+        if (includeLatestMessage) {
+            return chatRoomService.getUserChatRoomsWithLatestMessage(userId);
+        }
+        return chatRoomService.getUserChatRooms(userId).map(ChatRoomDto::from);
+    }
+    
+    @GetMapping(value = "/rooms/user/{userId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ChatRoomDto> streamUserChatRooms(
             @PathVariable("userId") String userId
     ) {
-        return chatRoomService.getUserChatRooms(userId).map(ChatRoomDto::from);
+        return chatRoomStreamService.streamUserChatRooms(userId);
+    }
+    
+    @PostMapping("/rooms/{chatRoomId}/join")
+    public Mono<ResponseEntity<ChatRoomDto>> joinChatRoom(
+            @PathVariable("chatRoomId") String chatRoomId,
+            @RequestParam("userId") String userId
+    ) {
+        return chatRoomService.joinChatRoom(chatRoomId, userId)
+                .map(ChatRoomDto::from)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/rooms/{chatRoomId}")
