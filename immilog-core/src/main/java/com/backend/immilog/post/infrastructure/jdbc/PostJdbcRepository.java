@@ -246,7 +246,16 @@ public class PostJdbcRepository {
             Class<T> enumClass
     ) throws SQLException {
         String value = rs.getString(columnName);
-        return value != null ? Enum.valueOf(enumClass, value) : null;
+        if (value == null || value.trim().isEmpty() || value.equals("0")) {
+            return null;
+        }
+        try {
+            return Enum.valueOf(enumClass, value);
+        } catch (IllegalArgumentException e) {
+            // 잘못된 enum 값이 있는 경우 null 반환하고 로그 출력
+            System.err.println("Invalid enum value for " + columnName + ": " + value);
+            return null;
+        }
     }
 
     private static LocalDateTime getNullableTimestamp(

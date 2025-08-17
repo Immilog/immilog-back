@@ -3,6 +3,7 @@ package com.backend.immilog.post.application.services;
 import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.domain.events.PostEvent;
+import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
@@ -29,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -62,6 +64,10 @@ public class PostQueryService {
     public Post getPostById(String postId) {
         return postDomainRepository.findById(postId)
                 .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+    }
+
+    public Optional<Post> getPostByIdOptional(String postId) {
+        return postDomainRepository.findById(postId);
     }
 
     @PerformanceMonitor
@@ -239,5 +245,23 @@ public class PostQueryService {
         }
         
         return eventResultStorageService.getInteractionData(requestId);
+    }
+
+    public List<Post> findByBadge(Badge badge) {
+        log.info("[POST QUERY] Finding posts with badge: {}", badge);
+
+        if (badge == null) {
+            log.warn("[POST QUERY] Badge is null, returning empty list");
+            return List.of();
+        }
+
+        var posts = postDomainRepository.findByBadge(badge);
+        if (posts.isEmpty()) {
+            log.info("[POST QUERY] No posts found with badge: {}", badge);
+        } else {
+            log.info("[POST QUERY] Found {} posts with badge: {}", posts.size(), badge);
+        }
+
+        return posts;
     }
 }
