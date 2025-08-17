@@ -1,32 +1,32 @@
 package com.backend.immilog.chat.config;
 
+import com.backend.immilog.chat.websocket.ChatWebSocketHandler;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.reactive.HandlerMapping;
+import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
+import org.springframework.web.reactive.socket.WebSocketHandler;
+import org.springframework.web.reactive.socket.server.support.WebSocketHandlerAdapter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+public class WebSocketConfig {
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        // 클라이언트가 구독할 topic prefix
-        config.enableSimpleBroker("/topic", "/queue");
+    @Bean
+    public HandlerMapping webSocketMapping(ChatWebSocketHandler chatWebSocketHandler) {
+        Map<String, WebSocketHandler> map = new HashMap<>();
+        map.put("/ws/chat/**", chatWebSocketHandler);
         
-        // 클라이언트에서 메시지를 보낼 때 사용할 prefix
-        config.setApplicationDestinationPrefixes("/app");
-        
-        // 특정 사용자에게 메시지를 보낼 때 사용할 prefix
-        config.setUserDestinationPrefix("/user");
+        SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
+        mapping.setUrlMap(map);
+        mapping.setOrder(-1); // WebSocket을 우선순위로 처리
+        return mapping;
     }
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // WebSocket 연결 엔드포인트
-        registry.addEndpoint("/ws/chat")
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
+    @Bean
+    public WebSocketHandlerAdapter handlerAdapter() {
+        return new WebSocketHandlerAdapter();
     }
 }

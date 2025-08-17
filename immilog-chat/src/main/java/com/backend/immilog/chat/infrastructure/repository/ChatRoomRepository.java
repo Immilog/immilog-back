@@ -10,6 +10,8 @@ public interface ChatRoomRepository extends ReactiveMongoRepository<ChatRoom, St
     
     Flux<ChatRoom> findByCountryIdAndIsActiveTrue(String countryId);
     
+    Flux<ChatRoom> findByIsActiveTrue();
+    
     Flux<ChatRoom> findByParticipantIdsContaining(String userId);
     
     Flux<ChatRoom> findByCreatedBy(String userId);

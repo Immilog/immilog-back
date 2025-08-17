@@ -22,4 +22,12 @@ public class TokenCommandService {
     public void deleteValueByKey(String key) {
         dataRepository.deleteByKey(key);
     }
+
+    public String getValue(String key) {
+        return dataRepository.findByKey(key);
+    }
+
+    public void deleteKey(String key) {
+        dataRepository.deleteByKey(key);
+    }
 }

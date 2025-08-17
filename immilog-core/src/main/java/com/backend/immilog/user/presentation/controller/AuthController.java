@@ -51,5 +51,24 @@ public class AuthController {
         return ResponseEntity.ok(UserSignInPayload.UserSignInResponse.success(userSignInInformation));
     }
 
+    @GetMapping("/refresh")
+    @Operation(summary = "토큰 갱신", description = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다.")
+    public ResponseEntity<UserSignInPayload.RefreshTokenResponse> refreshToken(
+            @Parameter(description = "리프레시 토큰") @RequestParam("token") String refreshToken
+    ) {
+        try {
+            var userSignInResult = userLoginProcessor.refreshToken(refreshToken);
+            var userSignInInformation = userSignInResult.toInfraDTO();
+            return ResponseEntity.ok(UserSignInPayload.RefreshTokenResponse.success(
+                    userSignInInformation.userId(),
+                    userSignInInformation.accessToken(), 
+                    userSignInInformation.refreshToken()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(UserSignInPayload.RefreshTokenResponse.failure("유효하지 않은 리프레시 토큰입니다."));
+        }
+    }
+
 }
 

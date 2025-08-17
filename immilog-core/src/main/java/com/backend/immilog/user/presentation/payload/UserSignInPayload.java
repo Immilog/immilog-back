@@ -47,6 +47,14 @@ public record UserSignInPayload() {
                     userSignInInformation
             );
         }
+
+        public static UserSignInResponse failure(String message) {
+            return new UserSignInPayload.UserSignInResponse(
+                    400,
+                    message,
+                    null
+            );
+        }
     }
 
     public record UserSignInInformation(
@@ -60,6 +68,32 @@ public record UserSignInPayload() {
             @Schema(description = "지역", example = "Seoul") String region,
             @Schema(description = "프로필 이미지 URL", example = "profile image url") String userProfileUrl,
             @Schema(description = "위치 일치 여부", example = "true") Boolean isLocationMatch
+    ) {
+    }
+
+    @Schema(description = "토큰 갱신 응답 DTO")
+    public record RefreshTokenResponse(
+            @Schema(description = "상태 코드", example = "200") Integer status,
+            @Schema(description = "토큰 데이터") TokenData data
+    ) {
+        public static RefreshTokenResponse success(
+                String userId,
+                String accessToken,
+                String refreshToken
+        ) {
+            return new RefreshTokenResponse(200, new TokenData(userId, accessToken, refreshToken));
+        }
+
+        public static RefreshTokenResponse failure(String message) {
+            return new RefreshTokenResponse(400, null);
+        }
+    }
+
+    @Schema(description = "토큰 데이터")
+    public record TokenData(
+            @Schema(description = "사용자 식별자", example = "1") String userId,
+            @Schema(description = "액세스 토큰", example = "access_token") String accessToken,
+            @Schema(description = "리프레시 토큰", example = "refresh_token") String refreshToken
     ) {
     }
 }
