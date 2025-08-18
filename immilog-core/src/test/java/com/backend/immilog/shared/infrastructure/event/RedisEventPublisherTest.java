@@ -3,7 +3,6 @@ package com.backend.immilog.shared.infrastructure.event;
 import com.backend.immilog.comment.domain.event.CommentCreatedEvent;
 import com.backend.immilog.post.domain.events.PostCompensationEvent;
 import com.backend.immilog.shared.config.event.RedisEventConfig;
-import com.backend.immilog.shared.infrastructure.event.dto.RedisEventMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +12,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StreamOperations;
+
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,12 +32,16 @@ class RedisEventPublisherTest {
     private RedisTemplate<String, Object> eventRedisTemplate;
     
     @Mock
+    private StreamOperations<String, Object, Object> streamOperations;
+    
+    @Mock
     private ObjectMapper objectMapper;
 
     private RedisEventPublisher redisEventPublisher;
 
     @BeforeEach
     void setUp() {
+        when(eventRedisTemplate.opsForStream()).thenReturn(streamOperations);
         redisEventPublisher = new RedisEventPublisher(eventRedisTemplate, objectMapper);
     }
 
@@ -44,25 +51,23 @@ class RedisEventPublisherTest {
         // given
         CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
         String eventPayload = "{\"test\":\"data\"}";
+        RecordId recordId = RecordId.of("1234567890-0");
 
         when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"eventMessage\":\"test\"}");
+        when(streamOperations.add(eq(RedisEventConfig.DOMAIN_EVENT_STREAM), any(Map.class))).thenReturn(recordId);
 
         // when
         redisEventPublisher.publishDomainEvent(event);
 
         // then
-        ArgumentCaptor<String> channelCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<RedisEventMessage> messageCaptor = ArgumentCaptor.forClass(RedisEventMessage.class);
+        ArgumentCaptor<Map<String, String>> fieldsCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(streamOperations).add(eq(RedisEventConfig.DOMAIN_EVENT_STREAM), fieldsCaptor.capture());
         
-        verify(eventRedisTemplate).convertAndSend(channelCaptor.capture(), messageCaptor.capture());
-        
-        assertThat(channelCaptor.getValue()).isEqualTo(RedisEventConfig.DOMAIN_EVENT_CHANNEL);
-        
-        RedisEventMessage capturedMessage = messageCaptor.getValue();
-        assertThat(capturedMessage.eventType()).isEqualTo(event.getClass().getName());
-        assertThat(capturedMessage.payload()).isEqualTo(eventPayload);
-        assertThat(capturedMessage.messageId()).isNotNull();
-        assertThat(capturedMessage.publishedAt()).isNotNull();
+        Map<String, String> capturedFields = fieldsCaptor.getValue();
+        assertThat(capturedFields).containsKey("event");
+        assertThat(capturedFields).containsKey("messageId");
+        assertThat(capturedFields).containsKey("eventType");
     }
 
     @Test
@@ -72,25 +77,23 @@ class RedisEventPublisherTest {
         PostCompensationEvent.CommentCountIncreaseCompensation event = 
             new PostCompensationEvent.CommentCountIncreaseCompensation("tx-123", "event-456", "post-789");
         String eventPayload = "{\"transactionId\":\"tx-123\"}";
+        RecordId recordId = RecordId.of("1234567890-1");
 
         when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
+        when(objectMapper.writeValueAsString(any())).thenReturn("{\"eventMessage\":\"compensation\"}");
+        when(streamOperations.add(eq(RedisEventConfig.COMPENSATION_EVENT_STREAM), any(Map.class))).thenReturn(recordId);
 
         // when
         redisEventPublisher.publishCompensationEvent(event);
 
         // then
-        ArgumentCaptor<String> channelCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<RedisEventMessage> messageCaptor = ArgumentCaptor.forClass(RedisEventMessage.class);
+        ArgumentCaptor<Map<String, String>> fieldsCaptor = ArgumentCaptor.forClass(Map.class);
+        verify(streamOperations).add(eq(RedisEventConfig.COMPENSATION_EVENT_STREAM), fieldsCaptor.capture());
         
-        verify(eventRedisTemplate).convertAndSend(channelCaptor.capture(), messageCaptor.capture());
-        
-        assertThat(channelCaptor.getValue()).isEqualTo(RedisEventConfig.COMPENSATION_EVENT_CHANNEL);
-        
-        RedisEventMessage capturedMessage = messageCaptor.getValue();
-        assertThat(capturedMessage.eventType()).isEqualTo(event.getClass().getName());
-        assertThat(capturedMessage.payload()).isEqualTo(eventPayload);
-        assertThat(capturedMessage.messageId()).isNotNull();
-        assertThat(capturedMessage.publishedAt()).isNotNull();
+        Map<String, String> capturedFields = fieldsCaptor.getValue();
+        assertThat(capturedFields).containsKey("event");
+        assertThat(capturedFields).containsKey("messageId");
+        assertThat(capturedFields).containsKey("eventType");
     }
 
     @Test
@@ -106,47 +109,6 @@ class RedisEventPublisherTest {
             .isInstanceOf(RuntimeException.class)
             .hasMessage("Failed to publish domain event");
 
-        verify(eventRedisTemplate, never()).convertAndSend(any(), any());
-    }
-
-    @Test
-    @DisplayName("보상 이벤트 직렬화 실패 시 예외 발생")
-    void publishCompensationEvent_SerializationFailure() throws JsonProcessingException {
-        // given
-        PostCompensationEvent.CommentCountIncreaseCompensation event = 
-            new PostCompensationEvent.CommentCountIncreaseCompensation("tx-123", "event-456", "post-789");
-        
-        when(objectMapper.writeValueAsString(event)).thenThrow(new JsonProcessingException("Serialization error") {});
-
-        // when & then
-        assertThatThrownBy(() -> redisEventPublisher.publishCompensationEvent(event))
-            .isInstanceOf(RuntimeException.class)
-            .hasMessage("Failed to publish compensation event");
-
-        verify(eventRedisTemplate, never()).convertAndSend(any(), any());
-    }
-
-    @Test
-    @DisplayName("이벤트 메시지 생성 시 필수 필드 확인")
-    void createEventMessage_ContainsRequiredFields() throws JsonProcessingException {
-        // given
-        CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
-        String eventPayload = "{\"commentId\":\"comment1\",\"postId\":\"post1\"}";
-        
-        when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
-
-        // when
-        redisEventPublisher.publishDomainEvent(event);
-
-        // then
-        ArgumentCaptor<RedisEventMessage> messageCaptor = ArgumentCaptor.forClass(RedisEventMessage.class);
-        verify(eventRedisTemplate).convertAndSend(eq(RedisEventConfig.DOMAIN_EVENT_CHANNEL), messageCaptor.capture());
-        
-        RedisEventMessage capturedMessage = messageCaptor.getValue();
-        // 메시지가 필수 필드를 포함하는지 검증
-        assertThat(capturedMessage.messageId()).isNotNull();
-        assertThat(capturedMessage.eventType()).isEqualTo(event.getClass().getName());
-        assertThat(capturedMessage.payload()).isEqualTo(eventPayload);
-        assertThat(capturedMessage.publishedAt()).isNotNull();
+        verify(streamOperations, never()).add(any(String.class), any(Map.class));
     }
 }
