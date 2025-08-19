@@ -17,6 +17,9 @@ import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
+import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +46,8 @@ public class PostQueryService {
     private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
     private final EventResultStorageService eventResultStorageService;
+    private final InteractionUserQueryService interactionUserQueryService;
+    private final CommentQueryService commentQueryService;
 
     public PostQueryService(
             ObjectMapper objectMapper,
@@ -50,7 +55,9 @@ public class PostQueryService {
             DataRepository redisDataRepository,
             PostResourceQueryService postResourceQueryService,
             PostResultAssembler postResultAssembler,
-            EventResultStorageService eventResultStorageService
+            EventResultStorageService eventResultStorageService,
+            InteractionUserQueryService interactionUserQueryService,
+            CommentQueryService commentQueryService
     ) {
         this.objectMapper = objectMapper;
         this.postDomainRepository = postDomainRepository;
@@ -58,6 +65,8 @@ public class PostQueryService {
         this.postResourceQueryService = postResourceQueryService;
         this.postResultAssembler = postResultAssembler;
         this.eventResultStorageService = eventResultStorageService;
+        this.interactionUserQueryService = interactionUserQueryService;
+        this.commentQueryService = commentQueryService;
     }
 
     @Transactional(readOnly = true)
@@ -162,12 +171,28 @@ public class PostQueryService {
                 .boxed()
                 .collect(Collectors.toMap(resultIdList::get, i -> i, (existing, replacement) -> existing));
 
-        // 이벤트를 통해 인터랙션 데이터 요청
-        String requestId = eventResultStorageService.generateRequestId("interaction");
-        DomainEvents.raise(new PostEvent.InteractionDataRequested(requestId, resultIdList, ContentType.POST.name()));
-
-        // Redis에서 이벤트 처리 결과 조회 (비동기 처리 대기 후)
-        var interactionUsers = getInteractionDataFromRedis(requestId);
+        // 인터랙션 데이터 직접 조회
+        log.debug("Directly querying interaction data for {} posts", resultIdList.size());
+        var interactionUsers = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(
+                resultIdList,
+                ContentType.POST,
+                InteractionStatus.ACTIVE
+        ).stream()
+        .map(interactionUser -> new InteractionData(
+                interactionUser.id(),
+                interactionUser.postId(),
+                interactionUser.userId(),
+                interactionUser.interactionStatus().name(),
+                interactionUser.interactionType().name(),
+                interactionUser.contentType().name()
+        ))
+        .toList();
+        log.debug("Retrieved {} interaction data items directly", interactionUsers.size());
+        
+        // 실시간 댓글 개수 조회
+        var commentCounts = commentQueryService.getCommentCountsByPostIds(resultIdList);
+        log.debug("Retrieved comment counts for {} posts", commentCounts.size());
+        
         var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
         return postResults.map(postResult -> {
@@ -201,9 +226,17 @@ public class PostQueryService {
                     .filter(interaction -> "LIKE".equals(interaction.interactionType()) &&
                             "ACTIVE".equals(interaction.interactionStatus())).count();
             
-            return postResultAssembler.assembleLikeCount(
+            // 댓글 수 실시간 적용
+            long commentCount = commentCounts.getOrDefault(postResult.postId(), 0L);
+            
+            var postResultWithLikeCount = postResultAssembler.assembleLikeCount(
                     postResultWithNewResources,
                     likeCount
+            );
+            
+            return postResultAssembler.assembleCommentCount(
+                    postResultWithLikeCount,
+                    commentCount
             );
         });
     }
@@ -234,18 +267,6 @@ public class PostQueryService {
         );
     }
 
-    // 임시 메서드 - 실제로는 이벤트 핸들러가 처리한 결과를 조회해야 함
-    private List<InteractionData> getInteractionDataFromRedis(String requestId) {
-        // 이벤트 처리 완료까지 잠시 대기 (실제로는 더 정교한 동기화 필요)
-        try {
-            Thread.sleep(100); // 100ms 대기
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.warn("Interrupted while waiting for event processing", e);
-        }
-        
-        return eventResultStorageService.getInteractionData(requestId);
-    }
 
     public List<Post> findByBadge(Badge badge) {
         log.info("[POST QUERY] Finding posts with badge: {}", badge);
