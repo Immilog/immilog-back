@@ -13,15 +13,18 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatReadStatusService chatReadStatusService;
     private final ChatRoomService chatRoomService;
+    private final UserNotificationService userNotificationService;
     
     public ChatMessageService(
             ChatMessageRepository chatMessageRepository,
             ChatReadStatusService chatReadStatusService,
-            ChatRoomService chatRoomService
+            ChatRoomService chatRoomService,
+            UserNotificationService userNotificationService
     ) {
         this.chatMessageRepository = chatMessageRepository;
         this.chatReadStatusService = chatReadStatusService;
         this.chatRoomService = chatRoomService;
+        this.userNotificationService = userNotificationService;
     }
     
     public Mono<ChatMessage> sendMessage(
@@ -33,15 +36,20 @@ public class ChatMessageService {
         var message = ChatMessage.createTextMessage(chatRoomId, senderId, senderNickname, content);
         return chatMessageRepository.save(message)
                 .doOnSuccess(savedMessage -> {
-                    // 새 메시지 발송 시 다른 참여자들의 안읽은 수 증가
+                    // 새 메시지 발송 시 다른 참여자들의 안읽은 수 증가 및 실시간 알림
                     chatRoomService.getChatRoom(chatRoomId)
-                            .flatMap(chatRoom -> 
-                                chatReadStatusService.incrementUnreadCountForParticipants(
+                            .flatMap(chatRoom -> {
+                                var participantIds = chatRoom.participantIds().stream()
+                                        .filter(userId -> !userId.equals(senderId)) // 발신자 제외
+                                        .toList();
+                                
+                                return chatReadStatusService.incrementUnreadCountForParticipants(
                                         chatRoomId, 
                                         chatRoom.participantIds(), 
                                         senderId
                                 )
-                            )
+                                .then(userNotificationService.notifyUnreadCountUpdateToUsers(chatRoomId, participantIds));
+                            })
                             .subscribe();
                 });
     }

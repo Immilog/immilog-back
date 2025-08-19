@@ -18,13 +18,16 @@ public class ChatReadStatusService {
     
     private final ChatRoomReadStatusRepository readStatusRepository;
     private final ChatMessageRepository messageRepository;
+    private final UserNotificationService userNotificationService;
     
     public ChatReadStatusService(
             ChatRoomReadStatusRepository readStatusRepository,
-            ChatMessageRepository messageRepository
+            ChatMessageRepository messageRepository,
+            UserNotificationService userNotificationService
     ) {
         this.readStatusRepository = readStatusRepository;
         this.messageRepository = messageRepository;
+        this.userNotificationService = userNotificationService;
     }
     
     /**
@@ -35,7 +38,8 @@ public class ChatReadStatusService {
                 .switchIfEmpty(Mono.defer(() -> {
                     var newStatus = ChatRoomReadStatus.create(chatRoomId, userId);
                     return readStatusRepository.save(newStatus);
-                }));
+                }))
+                .doOnSuccess(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId).subscribe());
     }
     
     /**
@@ -52,8 +56,8 @@ public class ChatReadStatusService {
                                 return readStatusRepository.save(updatedStatus);
                             });
                 })
-                .doOnSuccess(result -> { /* Marked message as read */ })
-                .then();
+                .flatMap(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId))
+                .doOnSuccess(result -> { /* Marked message as read and notified */ });
     }
     
     /**
@@ -70,8 +74,8 @@ public class ChatReadStatusService {
                                 return readStatusRepository.save(updatedStatus);
                             });
                 })
-                .doOnSuccess(result -> { /* Marked all messages as read */ })
-                .then();
+                .flatMap(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId))
+                .doOnSuccess(result -> { /* Marked all messages as read and notified */ });
     }
     
     /**
