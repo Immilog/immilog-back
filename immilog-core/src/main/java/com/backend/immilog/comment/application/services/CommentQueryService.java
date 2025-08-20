@@ -119,6 +119,7 @@ public class CommentQueryService {
 
     public Map<String, Long> getCommentCountsByPostIds(List<String> postIds) {
         return postIds.stream()
+                .distinct()
                 .collect(Collectors.toMap(
                         postId -> postId,
                         this::getCommentCountByPostId

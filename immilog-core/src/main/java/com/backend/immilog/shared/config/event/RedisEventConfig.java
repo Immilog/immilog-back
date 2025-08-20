@@ -88,6 +88,9 @@ public class RedisEventConfig {
         );
 
         log.info("Configured Redis Streams Push listeners with consumer: {}", consumerName);
+        
+        container.start();
+        log.info("Started StreamMessageListenerContainer for Redis Streams");
 
         return container;
     }

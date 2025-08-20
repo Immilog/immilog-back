@@ -6,6 +6,7 @@ import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import com.backend.immilog.shared.infrastructure.event.dto.RedisEventMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,7 +26,7 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
     private final Map<Class<? extends DomainEvent>, DomainEventHandler<? extends DomainEvent>> handlerCache = new ConcurrentHashMap<>();
 
     public RedisStreamsPushEventListener(
-            ObjectMapper objectMapper,
+            @Qualifier("eventObjectMapper") ObjectMapper objectMapper,
             ApplicationContext applicationContext,
             RedisTemplate<String, Object> eventRedisTemplate
     ) {
@@ -67,6 +68,23 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
                 return;
             }
 
+            log.debug("Processing event JSON: {}", eventJson);
+            log.debug("Event JSON type: {}", eventJson.getClass().getName());
+            log.debug("Event JSON length: {}", eventJson.length());
+            log.debug("First 100 chars: {}", eventJson.length() > 100 ? eventJson.substring(0, 100) + "..." : eventJson);
+            
+            // JSON 문자열이 이스케이프된 상태인지 확인
+            if (eventJson.startsWith("\"") && eventJson.endsWith("\"")) {
+                log.warn("Event JSON appears to be double-encoded (starts and ends with quotes)");
+                // 이스케이프된 JSON 문자열을 언이스케이프
+                try {
+                    eventJson = objectMapper.readValue(eventJson, String.class);
+                    log.debug("Unescaped JSON: {}", eventJson);
+                } catch (Exception e) {
+                    log.error("Failed to unescape JSON", e);
+                }
+            }
+            
             RedisEventMessage eventMessage = objectMapper.readValue(eventJson, RedisEventMessage.class);
             
             // 이벤트 타입에 따른 처리

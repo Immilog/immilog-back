@@ -9,6 +9,8 @@ import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -54,15 +56,18 @@ public interface PostFetchUseCase {
         private final PostQueryService postQueryService;
         private final PostResultAssembler postResultAssembler;
         private final EventResultStorageService eventResultStorageService;
+        private final InteractionUserQueryService interactionUserQueryService;
 
         public PostFetcher(
                 PostQueryService postQueryService,
                 PostResultAssembler postResultAssembler,
-                EventResultStorageService eventResultStorageService
+                EventResultStorageService eventResultStorageService,
+                InteractionUserQueryService interactionUserQueryService
         ) {
             this.postQueryService = postQueryService;
             this.postResultAssembler = postResultAssembler;
             this.eventResultStorageService = eventResultStorageService;
+            this.interactionUserQueryService = interactionUserQueryService;
         }
 
         public Page<PostResult> getPosts(
@@ -84,12 +89,20 @@ public interface PostFetchUseCase {
                 String userId,
                 ContentType contentType
         ) {
-            // 이벤트를 통해 북마크된 게시물 ID 목록 요청
+            // 이벤트를 통해 북마크된 게시물 ID 목록 요청 (CompletableFuture로 동기화)
             String requestId = eventResultStorageService.generateRequestId("bookmark");
+            log.debug("Requesting bookmark data for userId: {} with requestId: {}", userId, requestId);
+            
+            // Future 등록
+            eventResultStorageService.registerEventProcessing(requestId);
+            
+            // 이벤트 발행
             DomainEvents.raise(new PostEvent.BookmarkPostsRequested(requestId, userId, contentType.name()));
 
-            // Redis에서 이벤트 처리 결과 조회
-            final var postIdList = getBookmarkedPostIdsFromRedis(requestId);
+            // 이벤트 처리 완료 대기 (최대 2초)
+            final var postIdList = eventResultStorageService.waitForBookmarkData(requestId, java.time.Duration.ofSeconds(2));
+            log.debug("Retrieved {} bookmarked post IDs via event for user: {}", postIdList.size(), userId);
+            
             return postQueryService.getPostsByPostIdList(postIdList);
         }
 
@@ -123,16 +136,5 @@ public interface PostFetchUseCase {
             return postQueryService.getPostsFromRedis("hot_posts");
         }
 
-        private List<String> getBookmarkedPostIdsFromRedis(String requestId) {
-            // 이벤트 처리 완료까지 잠시 대기 (실제로는 더 정교한 동기화 필요)
-            try {
-                Thread.sleep(100); // 100ms 대기
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("Interrupted while waiting for bookmark event processing", e);
-            }
-            
-            return eventResultStorageService.getBookmarkData(requestId);
-        }
     }
 }

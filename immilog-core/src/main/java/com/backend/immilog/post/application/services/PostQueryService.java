@@ -171,23 +171,19 @@ public class PostQueryService {
                 .boxed()
                 .collect(Collectors.toMap(resultIdList::get, i -> i, (existing, replacement) -> existing));
 
-        // 인터랙션 데이터 직접 조회
-        log.debug("Directly querying interaction data for {} posts", resultIdList.size());
-        var interactionUsers = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(
-                resultIdList,
-                ContentType.POST,
-                InteractionStatus.ACTIVE
-        ).stream()
-        .map(interactionUser -> new InteractionData(
-                interactionUser.id(),
-                interactionUser.postId(),
-                interactionUser.userId(),
-                interactionUser.interactionStatus().name(),
-                interactionUser.interactionType().name(),
-                interactionUser.contentType().name()
-        ))
-        .toList();
-        log.debug("Retrieved {} interaction data items directly", interactionUsers.size());
+        // 이벤트를 통해 인터랙션 데이터 요청 (CompletableFuture로 동기화)
+        String requestId = eventResultStorageService.generateRequestId("interaction");
+        log.debug("Requesting interaction data for {} posts with requestId: {}", resultIdList.size(), requestId);
+        
+        // Future 등록
+        eventResultStorageService.registerEventProcessing(requestId);
+        
+        // 이벤트 발행
+        DomainEvents.raise(new PostEvent.InteractionDataRequested(requestId, resultIdList, ContentType.POST.name()));
+
+        // 이벤트 처리 완료 대기 (최대 2초)
+        var interactionUsers = eventResultStorageService.waitForInteractionData(requestId, java.time.Duration.ofSeconds(2));
+        log.debug("Retrieved {} interaction data items via event", interactionUsers.size());
         
         // 실시간 댓글 개수 조회
         var commentCounts = commentQueryService.getCommentCountsByPostIds(resultIdList);

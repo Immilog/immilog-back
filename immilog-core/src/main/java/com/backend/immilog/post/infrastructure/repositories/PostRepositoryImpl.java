@@ -88,9 +88,7 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public List<Post> getPostsByPostIdList(List<String> postIdList) {
-        return postJpaRepository.findAllByIdIn(postIdList).stream()
-                .map(PostEntity::toDomain)
-                .toList();
+        return postJdbcRepository.getPostsByPostIdList(postIdList);
     }
     
     @Override

@@ -7,6 +7,7 @@ import com.backend.immilog.shared.infrastructure.event.dto.RedisEventMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class RedisEventPublisher implements EventPublisher {
 
     public RedisEventPublisher(
             RedisTemplate<String, Object> eventRedisTemplate,
-            ObjectMapper objectMapper
+            @Qualifier("eventObjectMapper") ObjectMapper objectMapper
     ) {
         this.eventRedisTemplate = eventRedisTemplate;
         this.objectMapper = objectMapper;

@@ -201,6 +201,27 @@ public class PostJdbcRepository {
         return postEntities.stream().map(PostEntity::toDomain).toList();
     }
 
+    public List<Post> getPostsByPostIdList(List<String> postIdList) {
+        if (postIdList.isEmpty()) {
+            return List.of();
+        }
+
+        String inClause = String.join(",", postIdList.stream().map(id -> "?").toList());
+        String sql = String.format("""
+                SELECT p.*, u.nickname, u.image_url
+                FROM post p
+                LEFT JOIN user u ON p.user_id = u.user_id
+                WHERE p.post_id IN (%s)
+                """, inClause);
+
+        List<PostEntity> postEntities = jdbcClient.sql(sql)
+                .params(postIdList.toArray())
+                .query(POST_ENTITY_ROW_MAPPER)
+                .list();
+
+        return postEntities.stream().map(PostEntity::toDomain).toList();
+    }
+
     private static final RowMapper<PostEntity> POST_ENTITY_ROW_MAPPER = (rs, rowNum) -> {
         String id = rs.getString("post_id");
 
