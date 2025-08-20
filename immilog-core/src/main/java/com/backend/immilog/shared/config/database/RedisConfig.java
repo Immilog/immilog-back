@@ -3,7 +3,9 @@ package com.backend.immilog.shared.config.database;
 import com.backend.immilog.shared.config.properties.RedisProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -26,14 +28,9 @@ import java.time.Duration;
 public class RedisConfig {
 
     private final RedisProperties redisProperties;
-    private final ObjectMapper objectMapper;
 
-    public RedisConfig(
-            RedisProperties redisProperties,
-            ObjectMapper objectMapper
-    ) {
+    public RedisConfig(RedisProperties redisProperties) {
         this.redisProperties = redisProperties;
-        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -76,14 +73,18 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        
-        GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(objectMapper);
-        template.setValueSerializer(jsonSerializer);
+        template.setValueSerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(jsonSerializer);
+        template.setHashValueSerializer(new StringRedisSerializer());
         return template;
+    }
+    
+    @Bean(name = "eventObjectMapper")
+    public ObjectMapper eventObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper;
     }
 }

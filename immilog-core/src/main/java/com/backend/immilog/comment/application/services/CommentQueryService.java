@@ -112,4 +112,17 @@ public class CommentQueryService {
     public CommentResult getCommentByCommentId(String commentId){
         return commentRepository.getCommentById(commentId);
     }
+
+    public long getCommentCountByPostId(String postId) {
+        return commentRepository.findCommentsByPostId(postId).size();
+    }
+
+    public Map<String, Long> getCommentCountsByPostIds(List<String> postIds) {
+        return postIds.stream()
+                .distinct()
+                .collect(Collectors.toMap(
+                        postId -> postId,
+                        this::getCommentCountByPostId
+                ));
+    }
 }

@@ -1,5 +1,6 @@
 package com.backend.immilog.post.infrastructure.repositories;
 
+import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
@@ -71,5 +72,10 @@ public class PostDomainRepositoryImpl implements PostDomainRepository {
     @Override
     public List<Post> findPostsByIdList(List<String> postIdList) {
         return postRepositoryImpl.getPostsByPostIdList(postIdList);
+    }
+
+    @Override
+    public List<Post> findByBadge(Badge badge) {
+        return postRepositoryImpl.findByBadge(badge);
     }
 }

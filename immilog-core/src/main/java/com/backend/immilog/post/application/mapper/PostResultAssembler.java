@@ -163,6 +163,35 @@ public class PostResultAssembler {
         );
     }
 
+    public PostResult assembleCommentCount(
+            PostResult postResult,
+            long commentCount
+    ) {
+        return new PostResult(
+                postResult.postId(),
+                postResult.userId(),
+                postResult.userProfileUrl(),
+                postResult.userNickname(),
+                commentCount,
+                postResult.viewCount(),
+                postResult.likeCount(),
+                postResult.tags(),
+                postResult.attachments(),
+                postResult.likeUsers(),
+                postResult.bookmarkUsers(),
+                postResult.isPublic(),
+                postResult.country(),
+                postResult.region(),
+                postResult.category(),
+                postResult.status(),
+                postResult.createdAt(),
+                postResult.updatedAt(),
+                postResult.title(),
+                postResult.content(),
+                postResult.keyword()
+        );
+    }
+
 
     private static String extractKeyword(
             String text,

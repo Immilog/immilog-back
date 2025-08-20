@@ -31,6 +31,7 @@ public class PostEntity {
     @Column(name = "is_public")
     private String isPublic;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "badge")
     private Badge badge;
 

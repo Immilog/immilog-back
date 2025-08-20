@@ -1,5 +1,6 @@
 package com.backend.immilog.post.domain.repositories;
 
+import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
@@ -34,4 +35,6 @@ public interface PostDomainRepository {
     );
 
     List<Post> findPostsByIdList(List<String> postIdList);
+
+    List<Post> findByBadge(Badge badge);
 }

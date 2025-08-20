@@ -1,8 +1,10 @@
 package com.backend.immilog.chat.websocket;
 
 import com.backend.immilog.chat.application.service.ChatMessageService;
+import com.backend.immilog.chat.application.service.ChatReadStatusService;
 import com.backend.immilog.chat.application.service.ChatRoomService;
 import com.backend.immilog.chat.presentation.dto.ChatMessageDto;
+import com.backend.immilog.chat.presentation.dto.ChatReadStatusDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -19,17 +21,21 @@ public class ChatWebSocketHandler implements WebSocketHandler {
 
     private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomService;
+    private final ChatReadStatusService chatReadStatusService;
     private final ObjectMapper objectMapper;
 
     private final Map<String, Sinks.Many<ChatMessageDto>> chatRoomSinks = new ConcurrentHashMap<>();
+    private final Map<String, Sinks.Many<ChatReadStatusDto.ReadStatusUpdateEvent>> readStatusSinks = new ConcurrentHashMap<>();
 
     public ChatWebSocketHandler(
             ChatMessageService chatMessageService,
             ChatRoomService chatRoomService,
+            ChatReadStatusService chatReadStatusService,
             ObjectMapper objectMapper
     ) {
         this.chatMessageService = chatMessageService;
         this.chatRoomService = chatRoomService;
+        this.chatReadStatusService = chatReadStatusService;
         this.objectMapper = objectMapper;
     }
 
@@ -115,6 +121,25 @@ public class ChatWebSocketHandler implements WebSocketHandler {
                             .map(ChatMessageDto::from)
                             .doOnNext(msg -> chatRoomService.leaveChatRoom(chatRoomId, request.senderId()).subscribe());
 
+                case "READ_MESSAGE":
+                    // 메시지 읽음 처리
+                    if (request.content() != null) {
+                        chatReadStatusService.markMessageAsRead(chatRoomId, request.senderId(), request.content())
+                                .then(chatReadStatusService.getUnreadCount(chatRoomId, request.senderId()))
+                                .doOnNext(unreadCount -> {
+                                    // 읽음 상태 업데이트 이벤트 전파
+                                    var readStatusEvent = new ChatReadStatusDto.ReadStatusUpdateEvent(
+                                            chatRoomId,
+                                            request.senderId(),
+                                            request.content(),
+                                            unreadCount
+                                    );
+                                    broadcastReadStatusUpdate(chatRoomId, readStatusEvent);
+                                })
+                                .subscribe();
+                    }
+                    return Mono.empty();
+
                 default:
                     return Mono.empty();
             }
@@ -132,6 +157,16 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     }
 
     private void cleanupSession(String chatRoomId) {
+    }
+    
+    /**
+     * 채팅방의 모든 참여자에게 읽음 상태 업데이트 브로드캐스트
+     */
+    private void broadcastReadStatusUpdate(String chatRoomId, ChatReadStatusDto.ReadStatusUpdateEvent event) {
+        var readStatusSink = readStatusSinks.get(chatRoomId);
+        if (readStatusSink != null) {
+            readStatusSink.tryEmitNext(event);
+        }
     }
 
     public record ChatMessageRequest(

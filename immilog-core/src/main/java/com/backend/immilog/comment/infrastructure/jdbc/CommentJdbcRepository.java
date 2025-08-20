@@ -60,7 +60,7 @@ public class CommentJdbcRepository {
                 rs.getString("content"),
                 rs.getString("post_id"),
                 rs.getString("parent_id"),
-                ReferenceType.valueOf(rs.getString("reference_type")),
+                parseReferenceType(rs.getString("reference_type")),
                 rs.getInt("reply_count"),
                 0, // likeCount는 실시간 계산으로 변경됨
                 ContentStatus.valueOf(rs.getString("status")),
@@ -91,5 +91,35 @@ public class CommentJdbcRepository {
                 WHERE c.comment_id = ?
                 """;
         return jdbcTemplate.queryForObject(sql, this::mapToCommentResult, commentId);
+    }
+
+    private ReferenceType parseReferenceType(String referenceTypeString) {
+        System.out.println("DEBUG: parseReferenceType called with: '" + referenceTypeString + "' (length: " + 
+                          (referenceTypeString == null ? "null" : referenceTypeString.length()) + ")");
+        
+        if (referenceTypeString == null) {
+            System.out.println("DEBUG: referenceTypeString is null, returning POST");
+            return ReferenceType.POST;
+        }
+        
+        if (referenceTypeString.trim().isEmpty()) {
+            System.out.println("DEBUG: referenceTypeString is empty after trim, returning POST");
+            return ReferenceType.POST;
+        }
+        
+        // 특별한 경우들 체크
+        if (referenceTypeString.equals("") || referenceTypeString.equals(" ")) {
+            System.out.println("DEBUG: referenceTypeString is empty string or space, returning POST");
+            return ReferenceType.POST;
+        }
+        
+        try {
+            ReferenceType result = ReferenceType.valueOf(referenceTypeString.trim());
+            System.out.println("DEBUG: Successfully parsed ReferenceType: " + result);
+            return result;
+        } catch (IllegalArgumentException e) {
+            System.out.println("DEBUG: Failed to parse ReferenceType: '" + referenceTypeString + "', returning POST. Error: " + e.getMessage());
+            return ReferenceType.POST;
+        }
     }
 }

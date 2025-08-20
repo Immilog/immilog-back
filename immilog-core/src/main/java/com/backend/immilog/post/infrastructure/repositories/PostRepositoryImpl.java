@@ -1,5 +1,6 @@
 package com.backend.immilog.post.infrastructure.repositories;
 
+import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.backend.immilog.post.exception.PostErrorCode.POST_NOT_FOUND;
 
@@ -86,7 +88,18 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public List<Post> getPostsByPostIdList(List<String> postIdList) {
-        return postJpaRepository.findAllByIdIn(postIdList).stream()
+        return postJdbcRepository.getPostsByPostIdList(postIdList);
+    }
+    
+    @Override
+    public Optional<Post> findById(String postId) {
+        return postJpaRepository.findById(postId)
+                .map(PostEntity::toDomain);
+    }
+    
+    @Override
+    public List<Post> findByBadge(Badge badge) {
+        return postJpaRepository.findByBadge(badge).stream()
                 .map(PostEntity::toDomain)
                 .toList();
     }

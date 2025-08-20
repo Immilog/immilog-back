@@ -3,6 +3,7 @@ package com.backend.immilog.post.application.services;
 import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.domain.events.PostEvent;
+import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
@@ -16,6 +17,9 @@ import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
+import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,6 +46,8 @@ public class PostQueryService {
     private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
     private final EventResultStorageService eventResultStorageService;
+    private final InteractionUserQueryService interactionUserQueryService;
+    private final CommentQueryService commentQueryService;
 
     public PostQueryService(
             ObjectMapper objectMapper,
@@ -48,7 +55,9 @@ public class PostQueryService {
             DataRepository redisDataRepository,
             PostResourceQueryService postResourceQueryService,
             PostResultAssembler postResultAssembler,
-            EventResultStorageService eventResultStorageService
+            EventResultStorageService eventResultStorageService,
+            InteractionUserQueryService interactionUserQueryService,
+            CommentQueryService commentQueryService
     ) {
         this.objectMapper = objectMapper;
         this.postDomainRepository = postDomainRepository;
@@ -56,12 +65,18 @@ public class PostQueryService {
         this.postResourceQueryService = postResourceQueryService;
         this.postResultAssembler = postResultAssembler;
         this.eventResultStorageService = eventResultStorageService;
+        this.interactionUserQueryService = interactionUserQueryService;
+        this.commentQueryService = commentQueryService;
     }
 
     @Transactional(readOnly = true)
     public Post getPostById(String postId) {
         return postDomainRepository.findById(postId)
                 .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
+    }
+
+    public Optional<Post> getPostByIdOptional(String postId) {
+        return postDomainRepository.findById(postId);
     }
 
     @PerformanceMonitor
@@ -156,12 +171,24 @@ public class PostQueryService {
                 .boxed()
                 .collect(Collectors.toMap(resultIdList::get, i -> i, (existing, replacement) -> existing));
 
-        // 이벤트를 통해 인터랙션 데이터 요청
+        // 이벤트를 통해 인터랙션 데이터 요청 (CompletableFuture로 동기화)
         String requestId = eventResultStorageService.generateRequestId("interaction");
+        log.debug("Requesting interaction data for {} posts with requestId: {}", resultIdList.size(), requestId);
+        
+        // Future 등록
+        eventResultStorageService.registerEventProcessing(requestId);
+        
+        // 이벤트 발행
         DomainEvents.raise(new PostEvent.InteractionDataRequested(requestId, resultIdList, ContentType.POST.name()));
 
-        // Redis에서 이벤트 처리 결과 조회 (비동기 처리 대기 후)
-        var interactionUsers = getInteractionDataFromRedis(requestId);
+        // 이벤트 처리 완료 대기 (최대 2초)
+        var interactionUsers = eventResultStorageService.waitForInteractionData(requestId, java.time.Duration.ofSeconds(2));
+        log.debug("Retrieved {} interaction data items via event", interactionUsers.size());
+        
+        // 실시간 댓글 개수 조회
+        var commentCounts = commentQueryService.getCommentCountsByPostIds(resultIdList);
+        log.debug("Retrieved comment counts for {} posts", commentCounts.size());
+        
         var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
         return postResults.map(postResult -> {
@@ -195,9 +222,17 @@ public class PostQueryService {
                     .filter(interaction -> "LIKE".equals(interaction.interactionType()) &&
                             "ACTIVE".equals(interaction.interactionStatus())).count();
             
-            return postResultAssembler.assembleLikeCount(
+            // 댓글 수 실시간 적용
+            long commentCount = commentCounts.getOrDefault(postResult.postId(), 0L);
+            
+            var postResultWithLikeCount = postResultAssembler.assembleLikeCount(
                     postResultWithNewResources,
                     likeCount
+            );
+            
+            return postResultAssembler.assembleCommentCount(
+                    postResultWithLikeCount,
+                    commentCount
             );
         });
     }
@@ -228,16 +263,22 @@ public class PostQueryService {
         );
     }
 
-    // 임시 메서드 - 실제로는 이벤트 핸들러가 처리한 결과를 조회해야 함
-    private List<InteractionData> getInteractionDataFromRedis(String requestId) {
-        // 이벤트 처리 완료까지 잠시 대기 (실제로는 더 정교한 동기화 필요)
-        try {
-            Thread.sleep(100); // 100ms 대기
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.warn("Interrupted while waiting for event processing", e);
+
+    public List<Post> findByBadge(Badge badge) {
+        log.info("[POST QUERY] Finding posts with badge: {}", badge);
+
+        if (badge == null) {
+            log.warn("[POST QUERY] Badge is null, returning empty list");
+            return List.of();
         }
-        
-        return eventResultStorageService.getInteractionData(requestId);
+
+        var posts = postDomainRepository.findByBadge(badge);
+        if (posts.isEmpty()) {
+            log.info("[POST QUERY] No posts found with badge: {}", badge);
+        } else {
+            log.info("[POST QUERY] Found {} posts with badge: {}", posts.size(), badge);
+        }
+
+        return posts;
     }
 }

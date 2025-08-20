@@ -17,7 +17,8 @@ public record ChatRoomDto(
         LocalDateTime createdAt,
         int participantCount,
         boolean isActive,
-        LatestMessageDto latestMessage
+        LatestMessageDto latestMessage,
+        int unreadCount  // 안읽은 메시지 수
 ) {
     public static ChatRoomDto from(ChatRoom chatRoom) {
         return new ChatRoomDto(
@@ -29,7 +30,8 @@ public record ChatRoomDto(
                 chatRoom.createdAt(),
                 chatRoom.participantIds().size(),
                 chatRoom.isActive(),
-                null // 최근 메시지는 별도 로직에서 설정
+                null, // 최근 메시지는 별도 로직에서 설정
+                0 // 안읽은 수는 별도 로직에서 설정
         );
     }
     
@@ -43,7 +45,23 @@ public record ChatRoomDto(
                 chatRoom.createdAt(),
                 chatRoom.participantIds().size(),
                 chatRoom.isActive(),
-                latestMessage != null ? LatestMessageDto.from(latestMessage) : null
+                latestMessage != null ? LatestMessageDto.from(latestMessage) : null,
+                0 // 안읽은 수는 별도 로직에서 설정
+        );
+    }
+    
+    public static ChatRoomDto from(ChatRoom chatRoom, ChatMessage latestMessage, int unreadCount) {
+        return new ChatRoomDto(
+                chatRoom.id(),
+                chatRoom.name(),
+                chatRoom.countryId(),
+                chatRoom.participantIds(),
+                chatRoom.createdBy(),
+                chatRoom.createdAt(),
+                chatRoom.participantIds().size(),
+                chatRoom.isActive(),
+                latestMessage != null ? LatestMessageDto.from(latestMessage) : null,
+                unreadCount
         );
     }
     

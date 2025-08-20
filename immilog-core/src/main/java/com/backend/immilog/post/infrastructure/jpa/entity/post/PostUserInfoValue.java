@@ -12,7 +12,7 @@ public class PostUserInfoValue {
     @Column(name = "nickname")
     private String nickname;
 
-    @Column(name = "profile_image")
+    @Column(name = "image_url")
     private String profileImage;
 
     protected PostUserInfoValue() {}

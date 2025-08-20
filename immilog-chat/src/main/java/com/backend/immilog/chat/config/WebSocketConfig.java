@@ -1,6 +1,7 @@
 package com.backend.immilog.chat.config;
 
 import com.backend.immilog.chat.websocket.ChatWebSocketHandler;
+import com.backend.immilog.chat.websocket.UserNotificationWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.HandlerMapping;
@@ -15,9 +16,13 @@ import java.util.Map;
 public class WebSocketConfig {
 
     @Bean
-    public HandlerMapping webSocketMapping(ChatWebSocketHandler chatWebSocketHandler) {
+    public HandlerMapping webSocketMapping(
+            ChatWebSocketHandler chatWebSocketHandler,
+            UserNotificationWebSocketHandler userNotificationWebSocketHandler
+    ) {
         Map<String, WebSocketHandler> map = new HashMap<>();
         map.put("/ws/chat/**", chatWebSocketHandler);
+        map.put("/ws/user/*/notifications", userNotificationWebSocketHandler);
         
         SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
         mapping.setUrlMap(map);

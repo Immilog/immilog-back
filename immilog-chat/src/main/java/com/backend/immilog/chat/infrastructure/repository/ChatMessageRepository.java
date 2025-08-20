@@ -5,6 +5,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.LocalDateTime;
 
 @Repository
 public interface ChatMessageRepository extends ReactiveMongoRepository<ChatMessage, String> {
@@ -12,4 +15,14 @@ public interface ChatMessageRepository extends ReactiveMongoRepository<ChatMessa
     Flux<ChatMessage> findByChatRoomIdOrderBySentAtDesc(String chatRoomId, Pageable pageable);
     
     Flux<ChatMessage> findByChatRoomIdAndIsDeletedFalseOrderBySentAtDesc(String chatRoomId);
+    
+    /**
+     * 가장 최근 메시지 조회
+     */
+    Mono<ChatMessage> findFirstByChatRoomIdOrderBySentAtDesc(String chatRoomId);
+    
+    /**
+     * 특정 시간 이후의 메시지 수 조회
+     */
+    Mono<Long> countByChatRoomIdAndSentAtAfter(String chatRoomId, LocalDateTime sentAt);
 }

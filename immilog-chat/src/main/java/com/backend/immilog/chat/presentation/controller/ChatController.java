@@ -1,9 +1,11 @@
 package com.backend.immilog.chat.presentation.controller;
 
 import com.backend.immilog.chat.application.service.ChatMessageService;
+import com.backend.immilog.chat.application.service.ChatReadStatusService;
 import com.backend.immilog.chat.application.service.ChatRoomService;
 import com.backend.immilog.chat.application.service.ChatRoomStreamService;
 import com.backend.immilog.chat.presentation.dto.ChatMessageDto;
+import com.backend.immilog.chat.presentation.dto.ChatReadStatusDto;
 import com.backend.immilog.chat.presentation.dto.ChatRoomCreateRequest;
 import com.backend.immilog.chat.presentation.dto.ChatRoomDto;
 import org.springframework.http.MediaType;
@@ -19,15 +21,18 @@ public class ChatController {
     private final ChatRoomService chatRoomService;
     private final ChatMessageService chatMessageService;
     private final ChatRoomStreamService chatRoomStreamService;
+    private final ChatReadStatusService chatReadStatusService;
     
     public ChatController(
             ChatRoomService chatRoomService,
             ChatMessageService chatMessageService,
-            ChatRoomStreamService chatRoomStreamService
+            ChatRoomStreamService chatRoomStreamService,
+            ChatReadStatusService chatReadStatusService
     ) {
         this.chatRoomService = chatRoomService;
         this.chatMessageService = chatMessageService;
         this.chatRoomStreamService = chatRoomStreamService;
+        this.chatReadStatusService = chatReadStatusService;
     }
     
     @PostMapping("/rooms")
@@ -121,6 +126,50 @@ public class ChatController {
                 .map(ChatMessageDto::from)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+
+    
+    /**
+     * 채팅방의 모든 메시지를 읽음 처리
+     */
+    @PostMapping("/rooms/{chatRoomId}/read-all")
+    public Mono<ResponseEntity<Void>> markAllMessagesAsRead(
+            @PathVariable("chatRoomId") String chatRoomId,
+            @RequestParam("userId") String userId
+    ) {
+        return chatReadStatusService.markAllMessagesAsRead(chatRoomId, userId)
+                .then(Mono.just(ResponseEntity.ok().<Void>build()));
+    }
+    
+    /**
+     * 특정 채팅방의 안읽은 메시지 수 조회
+     */
+    @GetMapping("/rooms/{chatRoomId}/unread-count")
+    public Mono<ResponseEntity<ChatReadStatusDto.UnreadCountResponse>> getUnreadCount(
+            @PathVariable("chatRoomId") String chatRoomId,
+            @RequestParam("userId") String userId
+    ) {
+        return chatReadStatusService.getUnreadCount(chatRoomId, userId)
+                .map(unreadCount -> {
+                    var response = new ChatReadStatusDto.UnreadCountResponse(chatRoomId, unreadCount);
+                    return ResponseEntity.ok(response);
+                });
+    }
+    
+    /**
+     * 사용자의 모든 채팅방 안읽은 메시지 수 조회
+     */
+    @GetMapping("/users/{userId}/unread-counts")
+    public Mono<ResponseEntity<ChatReadStatusDto.AllUnreadCountsResponse>> getAllUnreadCounts(
+            @PathVariable("userId") String userId
+    ) {
+        return Mono.zip(
+                chatReadStatusService.getAllUnreadCounts(userId),
+                chatReadStatusService.getTotalUnreadCount(userId)
+        ).map(tuple -> {
+            var response = new ChatReadStatusDto.AllUnreadCountsResponse(tuple.getT1(), tuple.getT2());
+            return ResponseEntity.ok(response);
+        });
     }
     
 }

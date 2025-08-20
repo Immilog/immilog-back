@@ -17,11 +17,18 @@ public class ChatRoomService {
     
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatReadStatusService chatReadStatusService;
     private final ApplicationEventPublisher eventPublisher;
     
-    public ChatRoomService(ChatRoomRepository chatRoomRepository, ChatMessageRepository chatMessageRepository, ApplicationEventPublisher eventPublisher) {
+    public ChatRoomService(
+            ChatRoomRepository chatRoomRepository, 
+            ChatMessageRepository chatMessageRepository,
+            ChatReadStatusService chatReadStatusService,
+            ApplicationEventPublisher eventPublisher
+    ) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.chatReadStatusService = chatReadStatusService;
         this.eventPublisher = eventPublisher;
     }
     
@@ -74,7 +81,7 @@ public class ChatRoomService {
     
     public Flux<ChatRoomDto> getUserChatRoomsWithLatestMessage(String userId) {
         return getUserChatRooms(userId)
-                .flatMap(this::enrichWithLatestMessage);
+                .flatMap(chatRoom -> enrichWithLatestMessageAndUnreadCount(chatRoom, userId));
     }
     
     private Mono<ChatRoomDto> enrichWithLatestMessage(ChatRoom chatRoom) {
@@ -84,5 +91,20 @@ public class ChatRoomService {
                 .next()
                 .map(latestMessage -> ChatRoomDto.from(chatRoom, latestMessage))
                 .defaultIfEmpty(ChatRoomDto.from(chatRoom, null));
+    }
+    
+    private Mono<ChatRoomDto> enrichWithLatestMessageAndUnreadCount(ChatRoom chatRoom, String userId) {
+        var latestMessageMono = chatMessageRepository
+                .findByChatRoomIdAndIsDeletedFalseOrderBySentAtDesc(chatRoom.id())
+                .take(1)
+                .next()
+                .switchIfEmpty(Mono.empty());
+        
+        var unreadCountMono = chatReadStatusService.getUnreadCount(chatRoom.id(), userId);
+        
+        return Mono.zip(latestMessageMono, unreadCountMono)
+                .map(tuple -> ChatRoomDto.from(chatRoom, tuple.getT1(), tuple.getT2()))
+                .switchIfEmpty(unreadCountMono.map(unreadCount -> 
+                    ChatRoomDto.from(chatRoom, null, unreadCount)));
     }
 }
