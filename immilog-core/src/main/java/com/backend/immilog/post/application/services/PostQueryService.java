@@ -1,5 +1,6 @@
 package com.backend.immilog.post.application.services;
 
+import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.domain.events.PostEvent;
@@ -12,14 +13,10 @@ import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
 import com.backend.immilog.shared.domain.event.DomainEvents;
-import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
-import com.backend.immilog.interaction.domain.model.InteractionStatus;
-import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +43,6 @@ public class PostQueryService {
     private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
     private final EventResultStorageService eventResultStorageService;
-    private final InteractionUserQueryService interactionUserQueryService;
     private final CommentQueryService commentQueryService;
 
     public PostQueryService(
@@ -56,7 +52,6 @@ public class PostQueryService {
             PostResourceQueryService postResourceQueryService,
             PostResultAssembler postResultAssembler,
             EventResultStorageService eventResultStorageService,
-            InteractionUserQueryService interactionUserQueryService,
             CommentQueryService commentQueryService
     ) {
         this.objectMapper = objectMapper;
@@ -65,7 +60,6 @@ public class PostQueryService {
         this.postResourceQueryService = postResourceQueryService;
         this.postResultAssembler = postResultAssembler;
         this.eventResultStorageService = eventResultStorageService;
-        this.interactionUserQueryService = interactionUserQueryService;
         this.commentQueryService = commentQueryService;
     }
 
