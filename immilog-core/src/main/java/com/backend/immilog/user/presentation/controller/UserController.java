@@ -5,6 +5,7 @@ import com.backend.immilog.user.application.services.EmailService;
 import com.backend.immilog.user.application.usecase.FetchLocationUseCase;
 import com.backend.immilog.user.application.usecase.SignUpUserUseCase;
 import com.backend.immilog.user.application.usecase.UpdateProfileUseCase;
+import com.backend.immilog.user.application.usecase.UserFetchUseCase;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.presentation.payload.UserInformationPayload;
 import com.backend.immilog.user.presentation.payload.UserSignUpPayload;
@@ -26,17 +27,20 @@ public class UserController {
     private final UpdateProfileUseCase userUpdater;
     private final FetchLocationUseCase locationFetcher;
     private final EmailService emailSender;
+    private final UserFetchUseCase userFetcher;
 
     public UserController(
             SignUpUserUseCase userSignUpProcessor,
             UpdateProfileUseCase userUpdater,
             FetchLocationUseCase locationFetcher,
-            EmailService emailSender
+            EmailService emailSender,
+            UserFetchUseCase userFetcher
     ) {
         this.userSignUpProcessor = userSignUpProcessor;
         this.userUpdater = userUpdater;
         this.locationFetcher = locationFetcher;
         this.emailSender = emailSender;
+        this.userFetcher = userFetcher;
     }
 
     @PostMapping
@@ -91,5 +95,22 @@ public class UserController {
     ) {
         userUpdater.updateUserStatus(targetId, userId, requestedStatus);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{userId}")
+    @Operation(summary = "사용자 정보 조회", description = "특정 사용자의 정보를 조회합니다.")
+    public ResponseEntity<UserInformationPayload.UserInfoResponse> getUserInfo(
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId
+    ) {
+        var userResult = userFetcher.getUserById(userId);
+        var response = new UserInformationPayload.UserInfoResponse(
+                userResult.userId(),
+                userResult.email(),
+                userResult.nickname(), // userNickname
+                userResult.profileImage(), // userProfileUrl
+                userResult.region(),
+                userResult.countryId() // country
+        );
+        return ResponseEntity.ok(response);
     }
 }

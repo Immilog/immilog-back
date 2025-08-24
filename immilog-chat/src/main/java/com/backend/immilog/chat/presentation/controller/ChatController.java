@@ -7,6 +7,7 @@ import com.backend.immilog.chat.application.service.ChatRoomStreamService;
 import com.backend.immilog.chat.presentation.dto.ChatMessageDto;
 import com.backend.immilog.chat.presentation.dto.ChatReadStatusDto;
 import com.backend.immilog.chat.presentation.dto.ChatRoomCreateRequest;
+import com.backend.immilog.chat.presentation.dto.PrivateChatRoomCreateRequest;
 import com.backend.immilog.chat.presentation.dto.ChatRoomDto;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,17 @@ public class ChatController {
                 .map(ResponseEntity::ok);
     }
     
+    @PostMapping("/rooms/private")
+    public Mono<ResponseEntity<ChatRoomDto>> createPrivateChatRoom(
+            @RequestBody PrivateChatRoomCreateRequest request,
+            @RequestParam("createdBy") String createdBy
+    ) {
+        return chatRoomService
+                .createPrivateChatRoom(createdBy, request.targetUserId())
+                .map(ChatRoomDto::from)
+                .map(ResponseEntity::ok);
+    }
+    
     @GetMapping("/rooms/country/{countryId}")
     public Flux<ChatRoomDto> getChatRoomsByCountry(
             @PathVariable("countryId") String countryId,
@@ -74,6 +86,17 @@ public class ChatController {
         return chatRoomService.getUserChatRooms(userId).map(ChatRoomDto::from);
     }
     
+    @GetMapping("/rooms/private/user/{userId}")
+    public Flux<ChatRoomDto> getPrivateChatRooms(
+            @PathVariable("userId") String userId,
+            @RequestParam(value = "includeLatestMessage", defaultValue = "true") boolean includeLatestMessage
+    ) {
+        if (includeLatestMessage) {
+            return chatRoomService.getPrivateChatRoomsWithLatestMessage(userId);
+        }
+        return chatRoomService.getPrivateChatRooms(userId).map(ChatRoomDto::from);
+    }
+    
     @GetMapping(value = "/rooms/user/{userId}/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<ChatRoomDto> streamUserChatRooms(
             @PathVariable("userId") String userId
@@ -96,8 +119,7 @@ public class ChatController {
     public Mono<ResponseEntity<ChatRoomDto>> getChatRoom(
             @PathVariable("chatRoomId") String chatRoomId
     ) {
-        return chatRoomService.getChatRoom(chatRoomId)
-                .map(ChatRoomDto::from)
+        return chatRoomService.getChatRoomWithParticipants(chatRoomId)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -138,7 +160,7 @@ public class ChatController {
             @RequestParam("userId") String userId
     ) {
         return chatReadStatusService.markAllMessagesAsRead(chatRoomId, userId)
-                .then(Mono.just(ResponseEntity.ok().<Void>build()));
+                .then(Mono.just(ResponseEntity.ok().build()));
     }
     
     /**

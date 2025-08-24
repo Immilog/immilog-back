@@ -61,4 +61,22 @@ public record UserInformationPayload() {
             return new UserPasswordChangeCommand(existingPassword, newPassword);
         }
     }
+
+    @Schema(description = "사용자 정보 조회 응답 DTO")
+    public record UserInfoResponse(
+            @Schema(description = "사용자 ID", example = "QztYeFAly_Py2jPgmKcha")
+            String userId,
+            @Schema(description = "이메일", example = "user@example.com")
+            String email,
+            @Schema(description = "닉네임", example = "닉네임")
+            String userNickname,
+            @Schema(description = "프로필 이미지", example = "profile-image-url")
+            String userProfileUrl,
+            @Schema(description = "지역", example = "Seoul")
+            String region,
+            @Schema(description = "국가", example = "KR")
+            String country
+    ) {}
+
+
 }
