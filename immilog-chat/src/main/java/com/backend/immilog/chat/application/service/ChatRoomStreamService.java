@@ -51,19 +51,22 @@ public class ChatRoomStreamService {
     public void publishEvent(ChatRoomEvent event) {
         String countryId = event.chatRoom().countryId();
         
-        // 해당 국가 스트림에 이벤트 발행
-        Sinks.Many<ChatRoomEvent> countryStream = countryStreams.get(countryId);
-        if (countryStream != null) {
-            countryStream.tryEmitNext(event);
+        // 1:1 채팅방(countryId가 null)이 아닌 경우에만 국가 스트림에 발행
+        if (countryId != null) {
+            // 해당 국가 스트림에 이벤트 발행
+            Sinks.Many<ChatRoomEvent> countryStream = countryStreams.get(countryId);
+            if (countryStream != null) {
+                countryStream.tryEmitNext(event);
+            }
+            
+            // "ALL" 스트림에도 이벤트 발행
+            Sinks.Many<ChatRoomEvent> allStream = countryStreams.get("ALL");
+            if (allStream != null) {
+                allStream.tryEmitNext(event);
+            }
         }
         
-        // "ALL" 스트림에도 이벤트 발행
-        Sinks.Many<ChatRoomEvent> allStream = countryStreams.get("ALL");
-        if (allStream != null) {
-            allStream.tryEmitNext(event);
-        }
-        
-        // 사용자별 스트림에 이벤트 발행
+        // 사용자별 스트림에 이벤트 발행 (1:1 채팅방도 포함)
         publishToUserStreams(event);
     }
     
@@ -75,13 +78,13 @@ public class ChatRoomStreamService {
     private boolean shouldIncludeEvent(ChatRoomEvent event, String requestedCountryId) {
         String eventCountryId = event.chatRoom().countryId();
         
-        // "ALL" 요청이면 모든 이벤트 포함
+        // "ALL" 요청이면 모든 이벤트 포함 (1:1 채팅방 제외)
         if ("ALL".equals(requestedCountryId)) {
-            return true;
+            return eventCountryId != null;
         }
         
-        // 특정 국가 요청이면 해당 국가 이벤트만 포함
-        return eventCountryId.equals(requestedCountryId);
+        // 특정 국가 요청이면 해당 국가 이벤트만 포함 (null 체크 추가)
+        return eventCountryId != null && eventCountryId.equals(requestedCountryId);
     }
     
     private Sinks.Many<ChatRoomEvent> getOrCreateUserStream(String userId) {

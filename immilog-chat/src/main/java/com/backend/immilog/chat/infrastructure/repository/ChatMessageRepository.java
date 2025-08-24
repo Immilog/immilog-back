@@ -25,4 +25,9 @@ public interface ChatMessageRepository extends ReactiveMongoRepository<ChatMessa
      * 특정 시간 이후의 메시지 수 조회
      */
     Mono<Long> countByChatRoomIdAndSentAtAfter(String chatRoomId, LocalDateTime sentAt);
+    
+    /**
+     * 채팅방의 전체 메시지 수 조회
+     */
+    Mono<Long> countByChatRoomId(String chatRoomId);
 }
