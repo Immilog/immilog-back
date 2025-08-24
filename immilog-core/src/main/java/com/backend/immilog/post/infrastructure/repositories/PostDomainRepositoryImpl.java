@@ -24,7 +24,7 @@ public class PostDomainRepositoryImpl implements PostDomainRepository {
     @Override
     public Optional<Post> findById(String id) {
         try {
-            var post = postRepositoryImpl.getById(id);
+            var post = postRepositoryImpl.getPostDetail(id);
             return Optional.of(post);
         } catch (Exception e) {
             return Optional.empty();
