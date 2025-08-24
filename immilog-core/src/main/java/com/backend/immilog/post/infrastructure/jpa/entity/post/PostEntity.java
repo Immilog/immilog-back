@@ -65,9 +65,7 @@ public class PostEntity {
             LocalDateTime updatedAt
     ) {
         PostUserInfoValue postUserInfoValue = PostUserInfoValue.of(
-                postUserInfo.userId(),
-                postUserInfo.nickname(),
-                postUserInfo.profileImage()
+                postUserInfo.userId()
         );
         PostInfoValue postInfoValue = PostInfoValue.of(
                 postInfo.title(),

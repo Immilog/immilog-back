@@ -226,9 +226,7 @@ public class PostJdbcRepository {
         String id = rs.getString("post_id");
 
         PostUserInfoValue postUserInfo = new PostUserInfoValue(
-                rs.getString("user_id"),
-                rs.getString("nickname"),
-                rs.getString("image_url")
+                rs.getString("user_id")
         );
 
         PostInfoValue postInfo = new PostInfoValue(

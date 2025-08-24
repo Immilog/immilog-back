@@ -133,10 +133,8 @@ public interface PostUploadUseCase {
         ) {
             return Post.of(
                     user.getUserId().value(),
-                    user.getNickname(),
                     user.getCountryId(),
                     user.getRegion(),
-                    user.getImageUrl(),
                     postUploadCommand.title(),
                     postUploadCommand.content(),
                     postUploadCommand.category(),

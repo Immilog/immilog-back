@@ -41,17 +41,15 @@ public class Post {
 
     public static Post of(
             String userId,
-            String userNickname,
             String userCountryId,
             String userRegion,
-            String userImageUrl,
             String title,
             String content,
             Categories category,
             String isPublic
     ) {
         final var postInfo = PostInfo.of(title, content, userCountryId, userRegion);
-        final var postUserInfo = new PostUserInfo(userId, userNickname, userImageUrl);
+        final var postUserInfo = new PostUserInfo(userId);
         return new Post(
                 null,
                 postUserInfo,
@@ -190,11 +188,6 @@ public class Post {
 
 
     public ContentStatus status() {return this.postInfo.status();}
-
-    public String profileImage() {return this.postUserInfo.profileImage();}
-
-    public String nickname() {return this.postUserInfo.nickname();}
-
 
     public String id() {return id;}
 

@@ -17,6 +17,7 @@ import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import com.backend.immilog.shared.domain.model.UserData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -165,18 +166,32 @@ public class PostQueryService {
                 .boxed()
                 .collect(Collectors.toMap(resultIdList::get, i -> i, (existing, replacement) -> existing));
 
+        // 유저 정보 요청을 위해 고유한 userId 목록 추출
+        var userIds = postResults.getContent().stream()
+                .map(PostResult::userId)
+                .distinct()
+                .toList();
+        
+        // 이벤트를 통해 유저 데이터 요청
+        String userRequestId = eventResultStorageService.generateRequestId("user");
+        log.debug("Requesting user data for {} users with requestId: {}", userIds.size(), userRequestId);
+        eventResultStorageService.registerEventProcessing(userRequestId);
+        DomainEvents.raise(new PostEvent.UserDataRequested(userRequestId, userIds));
+        var userData = eventResultStorageService.waitForUserData(userRequestId, java.time.Duration.ofSeconds(2));
+        log.debug("Retrieved {} user data items via event", userData.size());
+        
         // 이벤트를 통해 인터랙션 데이터 요청 (CompletableFuture로 동기화)
-        String requestId = eventResultStorageService.generateRequestId("interaction");
-        log.debug("Requesting interaction data for {} posts with requestId: {}", resultIdList.size(), requestId);
+        String interactionRequestId = eventResultStorageService.generateRequestId("interaction");
+        log.debug("Requesting interaction data for {} posts with requestId: {}", resultIdList.size(), interactionRequestId);
         
         // Future 등록
-        eventResultStorageService.registerEventProcessing(requestId);
+        eventResultStorageService.registerEventProcessing(interactionRequestId);
         
         // 이벤트 발행
-        DomainEvents.raise(new PostEvent.InteractionDataRequested(requestId, resultIdList, ContentType.POST.name()));
+        DomainEvents.raise(new PostEvent.InteractionDataRequested(interactionRequestId, resultIdList, ContentType.POST.name()));
 
         // 이벤트 처리 완료 대기 (최대 2초)
-        var interactionUsers = eventResultStorageService.waitForInteractionData(requestId, java.time.Duration.ofSeconds(2));
+        var interactionUsers = eventResultStorageService.waitForInteractionData(interactionRequestId, java.time.Duration.ofSeconds(2));
         log.debug("Retrieved {} interaction data items via event", interactionUsers.size());
         
         // 실시간 댓글 개수 조회
@@ -186,6 +201,12 @@ public class PostQueryService {
         var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
         return postResults.map(postResult -> {
+            // 유저 데이터 찾기
+            var user = userData.stream()
+                    .filter(u -> u.userId().equals(postResult.userId()))
+                    .findFirst()
+                    .orElse(null);
+            
             var resources = postResources.stream()
                     .filter(postResource -> postResource.postId().equals(postResult.postId()))
                     .map(pr -> new Resource(
@@ -203,8 +224,12 @@ public class PostQueryService {
                     .sorted(Comparator.comparingInt(id -> orderMap.getOrDefault(id.postId(), Integer.MAX_VALUE)))
                     .toList();
 
-            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionData(
+            var postResultWithUserData = postResultAssembler.assembleUserData(
                     postResult,
+                    user
+            );
+            var postResultWithNewInteractionUsers = postResultAssembler.assembleInteractionData(
+                    postResultWithUserData,
                     interactionDataList
             );
             var postResultWithNewResources = postResultAssembler.assembleResources(
@@ -235,8 +260,8 @@ public class PostQueryService {
         return new PostResult(
                 post.id(),
                 post.userId(),
-                post.profileImage(),
-                post.nickname(),
+                null, // 유저 프로필 이미지는 이벤트로 조회하여 나중에 설정됨
+                null, // 유저 닉네임은 이벤트로 조회하여 나중에 설정됨
                 post.commentCount(),
                 post.viewCount(),
                 0L, // likeCount는 실시간 계산으로 변경됨

@@ -71,8 +71,8 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
         return new PostResult(
                 post.id(),
                 post.userId(),
-                post.profileImage(),
-                post.nickname(),
+                null, // 유저 프로필 이미지는 이벤트로 조회하여 나중에 설정됨
+                null, // 유저 닉네임은 이벤트로 조회하여 나중에 설정됨
                 post.commentCount(),
                 post.viewCount(),
                 0L,

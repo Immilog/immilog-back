@@ -86,4 +86,37 @@ public abstract class PostEvent implements DomainEvent {
             return contentType;
         }
     }
+
+    public static class UserDataRequested extends PostEvent {
+        private String requestId;
+        private List<String> userIds;
+        private LocalDateTime occurredAt;
+
+        public UserDataRequested() {
+            this.userIds = new ArrayList<>();
+            this.occurredAt = LocalDateTime.now();
+        }
+
+        public UserDataRequested(
+                String requestId,
+                List<String> userIds
+        ) {
+            this.requestId = requestId;
+            this.userIds = userIds;
+            this.occurredAt = LocalDateTime.now();
+        }
+
+        @Override
+        public LocalDateTime occurredAt() {
+            return occurredAt;
+        }
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public List<String> getUserIds() {
+            return userIds;
+        }
+    }
 }
