@@ -6,7 +6,6 @@ import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PopularPostRepository;
 import com.backend.immilog.post.infrastructure.jdbc.PostJdbcRepository;
 import com.backend.immilog.shared.infrastructure.DataRepository;
-import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Repository;
@@ -19,18 +18,15 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
     private final PostJdbcRepository postJdbcRepository;
     private final DataRepository redisDataRepository;
     private final ObjectMapper objectMapper;
-    private final UserQueryService userQueryService;
 
     public PopularPostRepositoryImpl(
             PostJdbcRepository postJdbcRepository,
             DataRepository redisDataRepository,
-            ObjectMapper objectMapper,
-            UserQueryService userQueryService
+            ObjectMapper objectMapper
     ) {
         this.postJdbcRepository = postJdbcRepository;
         this.redisDataRepository = redisDataRepository;
         this.objectMapper = objectMapper;
-        this.userQueryService = userQueryService;
     }
 
     @Override
@@ -72,12 +68,11 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
     }
 
     private PostResult convertToPostResult(Post post) {
-        var user = userQueryService.getUserById(post.userId());
         return new PostResult(
                 post.id(),
                 post.userId(),
-                user.getImageUrl(),
-                user.getNickname(),
+                null, // 유저 프로필 이미지는 이벤트로 조회하여 나중에 설정됨
+                null, // 유저 닉네임은 이벤트로 조회하여 나중에 설정됨
                 post.commentCount(),
                 post.viewCount(),
                 0L,

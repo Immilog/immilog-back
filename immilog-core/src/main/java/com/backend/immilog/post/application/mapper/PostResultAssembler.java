@@ -4,6 +4,7 @@ import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.domain.model.ResourceType;
+import com.backend.immilog.shared.domain.model.UserData;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -192,6 +193,37 @@ public class PostResultAssembler {
         );
     }
 
+    public PostResult assembleUserData(
+            PostResult postResult,
+            UserData userData
+    ) {
+        if (userData == null) {
+            return postResult;
+        }
+        return new PostResult(
+                postResult.postId(),
+                postResult.userId(),
+                userData.profileImageUrl(),
+                userData.nickname(),
+                postResult.commentCount(),
+                postResult.viewCount(),
+                postResult.likeCount(),
+                postResult.tags(),
+                postResult.attachments(),
+                postResult.likeUsers(),
+                postResult.bookmarkUsers(),
+                postResult.isPublic(),
+                postResult.country(),
+                postResult.region(),
+                postResult.category(),
+                postResult.status(),
+                postResult.createdAt(),
+                postResult.updatedAt(),
+                postResult.title(),
+                postResult.content(),
+                postResult.keyword()
+        );
+    }
 
     private static String extractKeyword(
             String text,

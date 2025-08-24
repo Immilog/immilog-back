@@ -1,6 +1,7 @@
 package com.backend.immilog.shared.infrastructure.event;
 
 import com.backend.immilog.shared.domain.model.InteractionData;
+import com.backend.immilog.shared.domain.model.UserData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,6 +20,7 @@ public class EventResultStorageService {
 
     private static final String INTERACTION_DATA_KEY_PREFIX = "event:interaction:";
     private static final String BOOKMARK_DATA_KEY_PREFIX = "event:bookmark:";
+    private static final String USER_DATA_KEY_PREFIX = "event:user:";
     private static final Duration TTL = Duration.ofMinutes(5); // 5분 TTL
 
     private final RedisTemplate<String, Object> eventRedisTemplate;
@@ -73,6 +75,25 @@ public class EventResultStorageService {
         }
     }
 
+    public void storeUserData(
+            String requestId,
+            List<UserData> userDataList
+    ) {
+        try {
+            String key = USER_DATA_KEY_PREFIX + requestId;
+            String jsonValue = objectMapper.writeValueAsString(userDataList);
+            eventRedisTemplate.opsForValue().set(key, jsonValue, TTL.toSeconds(), TimeUnit.SECONDS);
+            log.debug("Stored {} user data items with key: {}", userDataList.size(), key);
+            
+            // 이벤트 처리 완료 신호
+            completeEventProcessing(requestId);
+        } catch (Exception e) {
+            log.error("Failed to store user data for requestId: {}", requestId, e);
+            // 실패 시 예외로 완료 신호
+            failEventProcessing(requestId, e);
+        }
+    }
+
     public List<InteractionData> getInteractionData(String requestId) {
         try {
             String key = INTERACTION_DATA_KEY_PREFIX + requestId;
@@ -105,6 +126,24 @@ public class EventResultStorageService {
             return List.of();
         } catch (Exception e) {
             log.error("Failed to retrieve bookmark data for requestId: {}", requestId, e);
+            return List.of();
+        }
+    }
+
+    public List<UserData> getUserData(String requestId) {
+        try {
+            String key = USER_DATA_KEY_PREFIX + requestId;
+            Object result = eventRedisTemplate.opsForValue().get(key);
+            
+            if (result instanceof String jsonString) {
+                return objectMapper.readValue(jsonString, 
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
+            }
+            
+            log.warn("No user data found for requestId: {}", requestId);
+            return List.of();
+        } catch (Exception e) {
+            log.error("Failed to retrieve user data for requestId: {}", requestId, e);
             return List.of();
         }
     }
@@ -173,6 +212,22 @@ public class EventResultStorageService {
             return getBookmarkData(requestId);
         } catch (Exception e) {
             log.error("Failed to wait for bookmark data processing: {}", requestId, e);
+            return List.of();
+        }
+    }
+
+    /**
+     * 이벤트 처리 완료를 기다리고 유저 데이터를 조회합니다
+     */
+    public List<UserData> waitForUserData(String requestId, Duration timeout) {
+        try {
+            CompletableFuture<Void> future = pendingEvents.get(requestId);
+            if (future != null) {
+                future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            }
+            return getUserData(requestId);
+        } catch (Exception e) {
+            log.error("Failed to wait for user data processing: {}", requestId, e);
             return List.of();
         }
     }
