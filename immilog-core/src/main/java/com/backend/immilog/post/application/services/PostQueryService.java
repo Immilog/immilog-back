@@ -17,6 +17,7 @@ import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +45,7 @@ public class PostQueryService {
     private final PostResultAssembler postResultAssembler;
     private final EventResultStorageService eventResultStorageService;
     private final CommentQueryService commentQueryService;
+    private final UserQueryService userQueryService;
 
     public PostQueryService(
             ObjectMapper objectMapper,
@@ -52,7 +54,8 @@ public class PostQueryService {
             PostResourceQueryService postResourceQueryService,
             PostResultAssembler postResultAssembler,
             EventResultStorageService eventResultStorageService,
-            CommentQueryService commentQueryService
+            CommentQueryService commentQueryService,
+            UserQueryService userQueryService
     ) {
         this.objectMapper = objectMapper;
         this.postDomainRepository = postDomainRepository;
@@ -61,6 +64,7 @@ public class PostQueryService {
         this.postResultAssembler = postResultAssembler;
         this.eventResultStorageService = eventResultStorageService;
         this.commentQueryService = commentQueryService;
+        this.userQueryService = userQueryService;
     }
 
     @Transactional(readOnly = true)
@@ -232,11 +236,12 @@ public class PostQueryService {
     }
 
     private PostResult convertToPostResult(Post post) {
+        var user = userQueryService.getUserById(post.userId());
         return new PostResult(
                 post.id(),
                 post.userId(),
-                post.profileImage(),
-                post.nickname(),
+                user.getImageUrl(),
+                user.getNickname(),
                 post.commentCount(),
                 post.viewCount(),
                 0L, // likeCount는 실시간 계산으로 변경됨

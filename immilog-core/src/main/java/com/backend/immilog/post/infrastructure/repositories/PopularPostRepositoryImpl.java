@@ -6,6 +6,7 @@ import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PopularPostRepository;
 import com.backend.immilog.post.infrastructure.jdbc.PostJdbcRepository;
 import com.backend.immilog.shared.infrastructure.DataRepository;
+import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Repository;
@@ -18,15 +19,18 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
     private final PostJdbcRepository postJdbcRepository;
     private final DataRepository redisDataRepository;
     private final ObjectMapper objectMapper;
+    private final UserQueryService userQueryService;
 
     public PopularPostRepositoryImpl(
             PostJdbcRepository postJdbcRepository,
             DataRepository redisDataRepository,
-            ObjectMapper objectMapper
+            ObjectMapper objectMapper,
+            UserQueryService userQueryService
     ) {
         this.postJdbcRepository = postJdbcRepository;
         this.redisDataRepository = redisDataRepository;
         this.objectMapper = objectMapper;
+        this.userQueryService = userQueryService;
     }
 
     @Override
@@ -68,11 +72,12 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
     }
 
     private PostResult convertToPostResult(Post post) {
+        var user = userQueryService.getUserById(post.userId());
         return new PostResult(
                 post.id(),
                 post.userId(),
-                post.profileImage(),
-                post.nickname(),
+                user.getImageUrl(),
+                user.getNickname(),
                 post.commentCount(),
                 post.viewCount(),
                 0L,
