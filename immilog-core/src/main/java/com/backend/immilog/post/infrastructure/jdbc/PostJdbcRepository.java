@@ -43,7 +43,7 @@ public class PostJdbcRepository {
         conditions.add("p.is_public = ?");
         params.add(isPublic);
 
-        if (category != Categories.ALL) {
+        if (category != null && category != Categories.ALL) {
             conditions.add("p.category = ?");
             params.add(category.name());
         }
@@ -130,14 +130,16 @@ public class PostJdbcRepository {
             Pageable pageable
     ) {
         String sql = """
-                SELECT p.*, u.nickname, u.image_url
+                SELECT DISTINCT p.*, u.nickname, u.image_url
                 FROM post p
                 LEFT JOIN user u ON p.user_id = u.user_id
-                WHERE p.content LIKE ? OR p.title LIKE ?
+                LEFT JOIN content_resource cr ON p.post_id = cr.content_id AND cr.content_type = 'POST' AND cr.resource_type = 'TAG'
+                WHERE p.content LIKE ? OR p.title LIKE ? OR cr.content LIKE ?
                 LIMIT ? OFFSET ?
                 """;
 
         List<PostEntity> postEntities = jdbcClient.sql(sql)
+                .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .param(pageable.getPageSize())
@@ -146,13 +148,15 @@ public class PostJdbcRepository {
                 .list();
 
         String countSql = """
-                SELECT COUNT(*)
+                SELECT COUNT(DISTINCT p.post_id)
                 FROM post p
                 LEFT JOIN user u ON p.user_id = u.user_id
-                WHERE p.content LIKE ? OR p.title LIKE ?
+                LEFT JOIN content_resource cr ON p.post_id = cr.content_id AND cr.content_type = 'POST' AND cr.resource_type = 'TAG'
+                WHERE p.content LIKE ? OR p.title LIKE ? OR cr.content LIKE ?
                 """;
 
         int count = jdbcClient.sql(countSql)
+                .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .query(Integer.class)

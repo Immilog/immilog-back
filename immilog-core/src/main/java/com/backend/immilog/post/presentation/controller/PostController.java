@@ -143,10 +143,10 @@ public class PostController {
         return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
-    @GetMapping("/my")
-    @Operation(summary = "사용자 게시물 목록 조회", description = "특정 사용자의 게시물 목록을 조회합니다.")
-    public ResponseEntity<PostPageResponse> getUserPosts(
-            @CurrentUser String userId,
+    @GetMapping("/users/{userId}")
+    @Operation(summary = "특정 사용자 게시물 목록 조회", description = "특정 사용자의 게시물 목록을 조회합니다.")
+    public ResponseEntity<PostPageResponse> getPostsByUserId(
+            @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
         var postResults = postFetchUseCase.getUserPosts(userId, page);

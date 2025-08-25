@@ -22,8 +22,7 @@ public class PostResultAssembler {
         if (keyword == null) {
             return postResult;
         }
-        var updatedTags = new ArrayList<>(postResult.tags());
-        updatedTags.addAll(extractTags(updatedTags, keyword));
+        var updatedTags = extractTags(postResult.tags(), keyword);
         return new PostResult(
                 postResult.postId(),
                 postResult.userId(),
@@ -263,8 +262,9 @@ public class PostResultAssembler {
                     return list.stream().limit(keywordTags.isEmpty() ? 3 : 2).toList();
                 }));
 
-        return new ArrayList<>(keywordTags) {{
-            addAll(shuffledTags);
-        }};
+        var result = new ArrayList<String>();
+        result.addAll(keywordTags);
+        result.addAll(shuffledTags);
+        return result;
     }
 }
