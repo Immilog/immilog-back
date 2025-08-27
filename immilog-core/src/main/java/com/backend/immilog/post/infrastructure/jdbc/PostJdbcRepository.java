@@ -292,7 +292,7 @@ public class PostJdbcRepository {
         String column = switch (sortingMethod) {
             case CREATED_DATE -> "p.created_at";
             case COMMENT_COUNT -> "p.comment_count";
-            case LIKE_COUNT -> "p.like_count";
+            case LIKE_COUNT -> "(SELECT COUNT(*) FROM interaction_user iu WHERE iu.post_id = p.post_id AND iu.interaction_type = 'LIKE' AND iu.interaction_status = 'ACTIVE')";
             case VIEW_COUNT -> "p.view_count";
         };
         return "ORDER BY " + column + " DESC ";
