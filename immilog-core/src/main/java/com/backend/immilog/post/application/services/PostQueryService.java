@@ -274,6 +274,7 @@ public class PostQueryService {
                 post.region(),
                 post.category(),
                 post.status(),
+                post.badge(),
                 post.createdAt().toString(),
                 post.updatedAt().toString(),
                 post.title(),
