@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,5 +78,10 @@ public class PostDomainRepositoryImpl implements PostDomainRepository {
     @Override
     public List<Post> findByBadge(Badge badge) {
         return postRepositoryImpl.findByBadge(badge);
+    }
+
+    @Override
+    public List<Post> findPostsInPeriod(LocalDateTime from, LocalDateTime to) {
+        return postRepositoryImpl.findPostsInPeriod(from, to);
     }
 }

@@ -226,6 +226,33 @@ public class PostJdbcRepository {
         return postEntities.stream().map(PostEntity::toDomain).toList();
     }
 
+    /**
+     * 특정 기간 내에 생성된 게시물을 조회합니다.
+     * 주간 베스트 선정을 위해 사용됩니다.
+     * 
+     * @param from 시작 날짜
+     * @param to 종료 날짜
+     * @return 기간 내 게시물 리스트
+     */
+    public List<Post> findPostsInPeriod(LocalDateTime from, LocalDateTime to) {
+        String sql = """
+                SELECT p.*, u.nickname, u.image_url
+                FROM post p
+                LEFT JOIN user u ON p.user_id = u.user_id
+                WHERE p.created_at BETWEEN ? AND ?
+                  AND p.is_public = 'Y'
+                ORDER BY p.created_at DESC
+                """;
+
+        List<PostEntity> postEntities = jdbcClient.sql(sql)
+                .param(from)
+                .param(to)
+                .query(POST_ENTITY_ROW_MAPPER)
+                .list();
+
+        return postEntities.stream().map(PostEntity::toDomain).toList();
+    }
+
     private static final RowMapper<PostEntity> POST_ENTITY_ROW_MAPPER = (rs, rowNum) -> {
         String id = rs.getString("post_id");
 

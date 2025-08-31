@@ -123,13 +123,27 @@ public class PostBadgeService {
             var from = LocalDateTime.now().minusWeeks(1);
             var to = LocalDateTime.now();
 
-            // TODO: 주간 베스트를 계산하는 로직 구현 필요
-            // var weeklyBestResults = getWeeklyBestPosts(from, to);
-            // updateBadgesForPosts(weeklyBestResults, Badge.WEEKLY_BEST);
+            // 주간 베스트 게시물 계산 (조회수 + 댓글수 종합 점수)
+            var weeklyBestResults = getWeeklyBestPosts(from, to);
+            updateBadgesForPosts(weeklyBestResults, Badge.WEEKLY_BEST);
 
             log.info("[BADGE UPDATE] WEEKLY_BEST badge update completed");
         } catch (Exception e) {
             log.error("[BADGE UPDATE] Failed to update WEEKLY_BEST badges", e);
         }
+    }
+
+    /**
+     * 주간 베스트 게시물을 계산합니다.
+     * 점수 = (조회수 × 1.0) + (댓글수 × 3.0) + (좋아요수 × 2.0)
+     * 
+     * @param from 시작 날짜
+     * @param to 종료 날짜  
+     * @return 주간 베스트 게시물 리스트
+     */
+    private List<PostResult> getWeeklyBestPosts(LocalDateTime from, LocalDateTime to) {
+        log.info("[WEEKLY BEST] Calculating weekly best posts from {} to {}", from, to);
+        
+        return postQueryService.getWeeklyBestPosts(from, to);
     }
 }
