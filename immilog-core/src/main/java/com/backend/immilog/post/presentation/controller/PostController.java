@@ -127,21 +127,6 @@ public class PostController {
         return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
-    @GetMapping("/hot")
-    @Operation(summary = "인기 게시물 조회", description = "인기 게시물을 조회합니다.")
-    public ResponseEntity<PostListResponse> getHotPosts() {
-        var postResults = postFetchUseCase.getHotPosts();
-        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
-        return ResponseEntity.ok(PostListResponse.of(postList));
-    }
-
-    @GetMapping("/most-viewed")
-    @Operation(summary = "가장 많이 조회된 게시물 조회", description = "가장 많이 조회된 게시물을 조회합니다.")
-    public ResponseEntity<PostListResponse> getMostViewedPosts() {
-        var postResults = postFetchUseCase.getMostViewedPosts();
-        var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
-        return ResponseEntity.ok(PostListResponse.of(postList));
-    }
 
     @GetMapping("/users/{userId}")
     @Operation(summary = "특정 사용자 게시물 목록 조회", description = "특정 사용자의 게시물 목록을 조회합니다.")
