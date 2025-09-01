@@ -41,7 +41,6 @@ class RedisEventPublisherTest {
 
     @BeforeEach
     void setUp() {
-        when(eventRedisTemplate.opsForStream()).thenReturn(streamOperations);
         redisEventPublisher = new RedisEventPublisher(eventRedisTemplate, objectMapper);
     }
 
@@ -53,7 +52,7 @@ class RedisEventPublisherTest {
         String eventPayload = "{\"test\":\"data\"}";
         RecordId recordId = RecordId.of("1234567890-0");
 
-        when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
+        when(eventRedisTemplate.opsForStream()).thenReturn(streamOperations);
         when(objectMapper.writeValueAsString(any())).thenReturn("{\"eventMessage\":\"test\"}");
         when(streamOperations.add(eq(RedisEventConfig.DOMAIN_EVENT_STREAM), any(Map.class))).thenReturn(recordId);
 
@@ -79,7 +78,7 @@ class RedisEventPublisherTest {
         String eventPayload = "{\"transactionId\":\"tx-123\"}";
         RecordId recordId = RecordId.of("1234567890-1");
 
-        when(objectMapper.writeValueAsString(event)).thenReturn(eventPayload);
+        when(eventRedisTemplate.opsForStream()).thenReturn(streamOperations);
         when(objectMapper.writeValueAsString(any())).thenReturn("{\"eventMessage\":\"compensation\"}");
         when(streamOperations.add(eq(RedisEventConfig.COMPENSATION_EVENT_STREAM), any(Map.class))).thenReturn(recordId);
 
