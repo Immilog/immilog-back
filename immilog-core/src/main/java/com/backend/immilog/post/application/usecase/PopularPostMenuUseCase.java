@@ -49,10 +49,11 @@ public interface PopularPostMenuUseCase {
          */
         private List<PostResult> getWeeklyBestPosts() {
             try {
-                // WEEKLY_BEST 뱃지가 달린 게시물들 조회 (최대 5개)
+                // WEEKLY_BEST 뱃지가 달린 게시물들 조회 (최신순 5개)
                 var weeklyBestPosts = postQueryService.findByBadge(Badge.WEEKLY_BEST);
                 return postQueryService.getPostsByPostIdList(
                     weeklyBestPosts.stream()
+                        .sorted((a, b) -> b.createdAt().compareTo(a.createdAt())) // 최신순 정렬
                         .map(Post::id)
                         .limit(5) // 최대 5개로 제한
                         .toList()
@@ -65,14 +66,25 @@ public interface PopularPostMenuUseCase {
         }
 
         /**
-         * 핫 게시물 조회 (Redis 캐시에서 최대 5개)
+         * 핫 게시물 조회 (Redis 캐시 + 실시간 어셈블링)
          */
         private List<PostResult> getHotPosts() {
             try {
-                var hotPosts = postQueryService.getPostsFromRedis("hot_posts");
-                return hotPosts.stream()
+                // Redis에서 기본 데이터 조회
+                var hotPostsFromCache = postQueryService.getPostsFromRedis("hot_posts");
+                
+                if (hotPostsFromCache.isEmpty()) {
+                    return List.of();
+                }
+                
+                // 실시간 데이터 어셈블링을 위해 ID 추출하여 재조회 (최신순 5개)
+                var postIds = hotPostsFromCache.stream()
+                    .sorted((a, b) -> b.createdAt().compareTo(a.createdAt())) // 최신순 정렬
+                    .map(PostResult::postId)
                     .limit(5) // 최대 5개로 제한
                     .toList();
+                
+                return postQueryService.getPostsByPostIdList(postIds);
                 
             } catch (Exception e) {
                 log.error("[POPULAR MENU] Failed to fetch hot posts", e);
