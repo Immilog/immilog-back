@@ -110,26 +110,26 @@ class InteractionResultTest {
     }
 
     @Test
-    @DisplayName("JOB_BOARD 타입 InteractionResult 생성")
-    void createJobBoardInteractionResult() {
+    @DisplayName("COMMENT 타입 InteractionResult 생성")
+    void createCommentInteractionResult() {
         //given
-        InteractionUser jobBoardInteraction = new InteractionUser(
-                "jobBoardId",
+        InteractionUser commentInteraction = new InteractionUser(
+                "commentId",
                 "userId",
-                "jobBoardPostId",
-                ContentType.JOB_BOARD,
+                "commentPostId",
+                ContentType.COMMENT,
                 InteractionType.LIKE,
                 InteractionStatus.ACTIVE,
                 LocalDateTime.now()
         );
 
         //when
-        InteractionResult result = InteractionResult.from(jobBoardInteraction);
+        InteractionResult result = InteractionResult.from(commentInteraction);
 
         //then
-        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(result.contentType()).isEqualTo(ContentType.COMMENT);
         assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(result.postId()).isEqualTo("jobBoardPostId");
+        assertThat(result.postId()).isEqualTo("commentPostId");
     }
 
     @Test

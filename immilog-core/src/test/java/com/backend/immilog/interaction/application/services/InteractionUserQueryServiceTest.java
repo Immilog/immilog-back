@@ -70,13 +70,13 @@ class InteractionUserQueryServiceTest {
     }
 
     @Test
-    @DisplayName("JOB_BOARD 타입으로 인터랙션 조회")
-    void getInteractionUsersForJobBoardType() {
+    @DisplayName("COMMENT 타입으로 인터랙션 조회")
+    void getInteractionUsersForCommentType() {
         //given
-        List<String> postIdList = Arrays.asList("jobBoard1", "jobBoard2");
-        ContentType contentType = ContentType.JOB_BOARD;
+        List<String> postIdList = Arrays.asList("comment1", "comment2");
+        ContentType contentType = ContentType.COMMENT;
         InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
-        List<InteractionUser> expectedInteractions = createJobBoardInteractionList();
+        List<InteractionUser> expectedInteractions = createCommentInteractionList();
 
         when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus))
                 .thenReturn(expectedInteractions);
@@ -86,7 +86,7 @@ class InteractionUserQueryServiceTest {
 
         //then
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(result.get(0).contentType()).isEqualTo(ContentType.COMMENT);
         verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, contentType, interactionStatus);
     }
 
@@ -154,13 +154,13 @@ class InteractionUserQueryServiceTest {
     }
 
     @Test
-    @DisplayName("JOB_BOARD 타입 북마크 조회")
-    void getJobBoardBookmarkInteractions() {
+    @DisplayName("COMMENT 타입 북마크 조회")
+    void getCommentBookmarkInteractions() {
         //given
         String userId = "userId";
-        ContentType contentType = ContentType.JOB_BOARD;
+        ContentType contentType = ContentType.COMMENT;
         InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
-        List<InteractionUser> expectedBookmarks = createJobBoardBookmarkList();
+        List<InteractionUser> expectedBookmarks = createCommentBookmarkList();
 
         when(mockInteractionUserRepository.findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus))
                 .thenReturn(expectedBookmarks);
@@ -170,7 +170,7 @@ class InteractionUserQueryServiceTest {
 
         //then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(result.get(0).contentType()).isEqualTo(ContentType.COMMENT);
         assertThat(result.get(0).interactionType()).isEqualTo(InteractionType.BOOKMARK);
         verify(mockInteractionUserRepository).findBookmarksByUserIdAndContentTypeAndInteractionStatus(userId, contentType, interactionStatus);
     }
@@ -222,22 +222,22 @@ class InteractionUserQueryServiceTest {
         InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
         List<String> postIdList = Arrays.asList("post1", "post2");
         List<InteractionUser> postInteractions = createTestInteractionList();
-        List<InteractionUser> jobBoardInteractions = createJobBoardInteractionList();
+        List<InteractionUser> commentInteractions = createCommentInteractionList();
 
         when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.POST, interactionStatus))
                 .thenReturn(postInteractions);
-        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.JOB_BOARD, interactionStatus))
-                .thenReturn(jobBoardInteractions);
+        when(mockInteractionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.COMMENT, interactionStatus))
+                .thenReturn(commentInteractions);
 
         //when
         List<InteractionUser> postResults = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(postIdList, ContentType.POST, interactionStatus);
-        List<InteractionUser> jobBoardResults = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(postIdList, ContentType.JOB_BOARD, interactionStatus);
+        List<InteractionUser> commentResults = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(postIdList, ContentType.COMMENT, interactionStatus);
 
         //then
         assertThat(postResults).allMatch(interaction -> interaction.contentType() == ContentType.POST);
-        assertThat(jobBoardResults).allMatch(interaction -> interaction.contentType() == ContentType.JOB_BOARD);
+        assertThat(commentResults).allMatch(interaction -> interaction.contentType() == ContentType.COMMENT);
         verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.POST, interactionStatus);
-        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.JOB_BOARD, interactionStatus);
+        verify(mockInteractionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(postIdList, ContentType.COMMENT, interactionStatus);
     }
 
     private List<InteractionUser> createTestInteractionList() {
@@ -260,10 +260,10 @@ class InteractionUserQueryServiceTest {
         );
     }
 
-    private List<InteractionUser> createJobBoardInteractionList() {
+    private List<InteractionUser> createCommentInteractionList() {
         return Arrays.asList(
-                new InteractionUser("id1", "user1", "jobBoard1", ContentType.JOB_BOARD, InteractionType.LIKE, InteractionStatus.ACTIVE, LocalDateTime.now()),
-                new InteractionUser("id2", "user2", "jobBoard2", ContentType.JOB_BOARD, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now())
+                new InteractionUser("id1", "user1", "comment1", ContentType.COMMENT, InteractionType.LIKE, InteractionStatus.ACTIVE, LocalDateTime.now()),
+                new InteractionUser("id2", "user2", "comment2", ContentType.COMMENT, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now())
         );
     }
 
@@ -274,9 +274,9 @@ class InteractionUserQueryServiceTest {
         );
     }
 
-    private List<InteractionUser> createJobBoardBookmarkList() {
+    private List<InteractionUser> createCommentBookmarkList() {
         return Collections.singletonList(
-                new InteractionUser("id1", "userId", "jobBoard1", ContentType.JOB_BOARD, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now())
+                new InteractionUser("id1", "userId", "comment1", ContentType.COMMENT, InteractionType.BOOKMARK, InteractionStatus.ACTIVE, LocalDateTime.now())
         );
     }
 }

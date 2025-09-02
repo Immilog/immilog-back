@@ -35,18 +35,6 @@ class ReferenceTypeTest {
         assertThat(result).isEqualTo(ReferenceType.POST);
     }
 
-    @Test
-    @DisplayName("문자열로 ReferenceType 조회 - JOB_BOARD")
-    void getByStringJobBoard() {
-        //given
-        String referenceType = "JOB_BOARD";
-
-        //when
-        ReferenceType result = ReferenceType.getByString(referenceType);
-
-        //then
-        assertThat(result).isEqualTo(ReferenceType.JOB_BOARD);
-    }
 
     @Test
     @DisplayName("문자열로 ReferenceType 조회 - 소문자")
@@ -113,8 +101,7 @@ class ReferenceTypeTest {
         //given
         ReferenceType[] expectedValues = {
                 ReferenceType.COMMENT,
-                ReferenceType.POST,
-                ReferenceType.JOB_BOARD
+                ReferenceType.POST
         };
 
         //when
@@ -130,7 +117,6 @@ class ReferenceTypeTest {
         //when & then
         assertThat(ReferenceType.COMMENT.name()).isEqualTo("COMMENT");
         assertThat(ReferenceType.POST.name()).isEqualTo("POST");
-        assertThat(ReferenceType.JOB_BOARD.name()).isEqualTo("JOB_BOARD");
     }
 
     @Test
@@ -173,6 +159,5 @@ class ReferenceTypeTest {
         //when & then
         assertThat(values[0]).isEqualTo(ReferenceType.COMMENT);
         assertThat(values[1]).isEqualTo(ReferenceType.POST);
-        assertThat(values[2]).isEqualTo(ReferenceType.JOB_BOARD);
     }
 }

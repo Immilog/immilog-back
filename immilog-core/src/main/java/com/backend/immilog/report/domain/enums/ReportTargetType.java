@@ -4,8 +4,7 @@ public enum ReportTargetType {
     USER("사용자"),
     POST("게시글"),
     COMMENT("댓글"),
-    NOTICE("공지사항"),
-    JOB_BOARD("구인구직");
+    NOTICE("공지사항");
 
     private final String description;
 

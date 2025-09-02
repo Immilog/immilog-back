@@ -7,7 +7,6 @@ import java.util.Arrays;
 
 public enum ContentType {
     POST("posts"),
-    JOB_BOARD("jobboards"),
     COMMENT("comments");
 
     private final String contentType;

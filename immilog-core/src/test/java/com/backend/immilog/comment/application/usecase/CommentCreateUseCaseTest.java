@@ -134,33 +134,6 @@ class CommentCreateUseCaseTest {
         verify(mockDomainEventPublisher).publishEvents();
     }
 
-    @Test
-    @DisplayName("댓글 생성 - JOB_BOARD 타입")
-    void createCommentWithJobBoardType() {
-        //given
-        CommentCreateCommand command = new CommentCreateCommand(
-                "userId",
-                "jobBoardId",
-                "채용 게시판 댓글",
-                "parentId",
-                ReferenceType.JOB_BOARD
-        );
-        Comment savedComment = createTestCommentWithJobBoardType();
-        CommentResult expectedResult = createCommentResultFromCommand(command);
-        
-        when(mockCommentCommandService.createComment(any(Comment.class))).thenReturn(savedComment);
-        when(mockCommentQueryService.getCommentByCommentId(savedComment.id())).thenReturn(expectedResult);
-
-        //when
-        CommentResult result = commentCreator.createComment(command);
-
-        //then
-        assertThat(result.referenceType()).isEqualTo(ReferenceType.JOB_BOARD);
-        assertThat(result.content()).isEqualTo("채용 게시판 댓글");
-        verify(mockCommentCommandService).createComment(any(Comment.class));
-        verify(mockCommentQueryService).getCommentByCommentId(savedComment.id());
-        verify(mockDomainEventPublisher).publishEvents();
-    }
 
     @Test
     @DisplayName("댓글 생성 - 빈 내용")
@@ -358,9 +331,9 @@ class CommentCreateUseCaseTest {
             assertThat(result.referenceType()).isEqualTo(command.referenceType());
         }
         
-        verify(mockCommentCommandService, org.mockito.Mockito.times(3)).createComment(any(Comment.class));
-        verify(mockCommentQueryService, org.mockito.Mockito.times(3)).getCommentByCommentId(savedComment.id());
-        verify(mockDomainEventPublisher, org.mockito.Mockito.times(3)).publishEvents();
+        verify(mockCommentCommandService, org.mockito.Mockito.times(2)).createComment(any(Comment.class));
+        verify(mockCommentQueryService, org.mockito.Mockito.times(2)).getCommentByCommentId(savedComment.id());
+        verify(mockDomainEventPublisher, org.mockito.Mockito.times(2)).publishEvents();
     }
 
     private Comment createTestCommentWithId() {
@@ -419,19 +392,6 @@ class CommentCreateUseCaseTest {
         );
     }
 
-    private Comment createTestCommentWithJobBoardType() {
-        return new Comment(
-                "commentId",
-                "userId",
-                "채용 게시판 댓글",
-                CommentRelation.of("jobBoardId", null, ReferenceType.JOB_BOARD),
-                0,
-                ContentStatus.NORMAL,
-                new ArrayList<>(),
-                LocalDateTime.now(),
-                null
-        );
-    }
 
     private CommentResult createCommentResultFromCommand(CommentCreateCommand command) {
         return new CommentResult(

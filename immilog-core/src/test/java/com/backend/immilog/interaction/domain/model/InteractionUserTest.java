@@ -67,23 +67,6 @@ class InteractionUserTest {
         assertThat(interaction.postId()).isEqualTo(postId);
     }
 
-    @Test
-    @DisplayName("JOB_BOARD 타입 인터랙션 생성")
-    void createJobBoardInteraction() {
-        //given
-        String userId = "userId";
-        String postId = "jobBoardId";
-        ContentType contentType = ContentType.JOB_BOARD;
-        InteractionType interactionType = InteractionType.LIKE;
-
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
-
-        //then
-        assertThat(interaction.contentType()).isEqualTo(ContentType.JOB_BOARD);
-        assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(interaction.postId()).isEqualTo(postId);
-    }
 
     @Test
     @DisplayName("POST 타입 인터랙션 생성")
@@ -183,7 +166,7 @@ class InteractionUserTest {
         //given
         String userId = "userId";
         String postId = "";
-        ContentType contentType = ContentType.JOB_BOARD;
+        ContentType contentType = ContentType.COMMENT;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
@@ -192,7 +175,7 @@ class InteractionUserTest {
         //then
         assertThat(interaction.userId()).isEqualTo(userId);
         assertThat(interaction.postId()).isEmpty();
-        assertThat(interaction.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(interaction.contentType()).isEqualTo(ContentType.COMMENT);
         assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
     }
 
