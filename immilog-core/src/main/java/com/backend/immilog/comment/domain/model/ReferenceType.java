@@ -7,8 +7,7 @@ import java.util.Arrays;
 
 public enum ReferenceType {
     COMMENT,
-    POST,
-    JOB_BOARD;
+    POST;
 
     public static ReferenceType getByString(String referenceType) {
         return Arrays.stream(ReferenceType.values())

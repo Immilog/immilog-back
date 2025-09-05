@@ -106,16 +106,16 @@ class InteractionCreateUseCaseTest {
     }
 
     @Test
-    @DisplayName("JOB_BOARD 타입 인터랙션 생성")
-    void createJobBoardInteraction() {
+    @DisplayName("COMMENT 타입 인터랙션 생성")
+    void createCommentInteraction() {
         //given
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
-                "jobBoardId",
-                ContentType.JOB_BOARD,
+                "commentId",
+                ContentType.COMMENT,
                 InteractionType.LIKE
         );
-        InteractionUser savedInteraction = createJobBoardInteractionWithId();
+        InteractionUser savedInteraction = createCommentInteractionWithId();
         
         when(mockInteractionUserCommandService.toggleInteraction(any(InteractionUser.class)))
                 .thenReturn(savedInteraction);
@@ -124,9 +124,9 @@ class InteractionCreateUseCaseTest {
         InteractionResult result = interactionCreator.toggleInteraction(command);
 
         //then
-        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(result.contentType()).isEqualTo(ContentType.COMMENT);
         assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(result.postId()).isEqualTo("jobBoardId");
+        assertThat(result.postId()).isEqualTo("commentId");
         verify(mockInteractionUserCommandService).toggleInteraction(any(InteractionUser.class));
     }
 
@@ -244,7 +244,7 @@ class InteractionCreateUseCaseTest {
         InteractionCreateCommand command = new InteractionCreateCommand(
                 "userId",
                 "",
-                ContentType.JOB_BOARD,
+                ContentType.COMMENT,
                 InteractionType.LIKE
         );
         InteractionUser savedInteraction = createTestInteractionWithEmptyPostId();
@@ -258,7 +258,7 @@ class InteractionCreateUseCaseTest {
         //then
         assertThat(result.userId()).isEqualTo(command.userId());
         assertThat(result.postId()).isEmpty();
-        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(result.contentType()).isEqualTo(ContentType.COMMENT);
         verify(mockInteractionUserCommandService).toggleInteraction(any(InteractionUser.class));
     }
 
@@ -326,11 +326,11 @@ class InteractionCreateUseCaseTest {
     void toggleInteractionsWithAllPostTypes() {
         //given
         InteractionUser postInteraction = createTestInteractionWithId();
-        InteractionUser jobBoardInteraction = createJobBoardInteractionWithId();
+        InteractionUser commentInteraction = createCommentInteractionWithId();
         
         when(mockInteractionUserCommandService.toggleInteraction(any(InteractionUser.class)))
                 .thenReturn(postInteraction)
-                .thenReturn(jobBoardInteraction)
+                .thenReturn(commentInteraction)
                 .thenReturn(postInteraction);
 
         //when & then
@@ -344,7 +344,7 @@ class InteractionCreateUseCaseTest {
             
             InteractionResult result = interactionCreator.toggleInteraction(command);
             
-            assertThat(result.contentType()).isIn(ContentType.POST, ContentType.JOB_BOARD);
+            assertThat(result.contentType()).isIn(ContentType.POST, ContentType.COMMENT);
         }
         
         verify(mockInteractionUserCommandService, org.mockito.Mockito.times(ContentType.values().length))
@@ -409,12 +409,12 @@ class InteractionCreateUseCaseTest {
         );
     }
 
-    private InteractionUser createJobBoardInteractionWithId() {
+    private InteractionUser createCommentInteractionWithId() {
         return new InteractionUser(
-                "jobBoardInteractionId",
+                "commentInteractionId",
                 "userId",
-                "jobBoardId",
-                ContentType.JOB_BOARD,
+                "commentId",
+                ContentType.COMMENT,
                 InteractionType.LIKE,
                 InteractionStatus.ACTIVE,
                 LocalDateTime.now()
@@ -462,7 +462,7 @@ class InteractionCreateUseCaseTest {
                 "interactionId",
                 "userId",
                 "",
-                ContentType.JOB_BOARD,
+                ContentType.COMMENT,
                 InteractionType.LIKE,
                 InteractionStatus.ACTIVE,
                 LocalDateTime.now()

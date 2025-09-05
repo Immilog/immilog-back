@@ -81,23 +81,6 @@ class InteractionUserCommandServiceTest {
         verify(mockInteractionUserRepository).save(bookmarkInteraction);
     }
 
-    @Test
-    @DisplayName("JOB_BOARD 타입 인터랙션 생성")
-    void createJobBoardInteraction() {
-        //given
-        InteractionUser jobBoardInteraction = createTestJobBoardInteraction();
-        InteractionUser savedInteraction = createSavedJobBoardInteraction();
-
-        when(mockInteractionUserRepository.save(jobBoardInteraction)).thenReturn(savedInteraction);
-
-        //when
-        InteractionUser result = interactionUserCommandService.toggleInteraction(jobBoardInteraction);
-
-        //then
-        assertThat(result.contentType()).isEqualTo(ContentType.JOB_BOARD);
-        assertThat(result.id()).isNotNull();
-        verify(mockInteractionUserRepository).save(jobBoardInteraction);
-    }
 
     @Test
     @DisplayName("인터랙션 삭제 - 정상 케이스")
@@ -203,22 +186,22 @@ class InteractionUserCommandServiceTest {
     void toggleInteractionsWithDifferentPostTypes() {
         //given
         InteractionUser postInteraction = createTestInteraction();
-        InteractionUser jobBoardInteraction = createTestJobBoardInteraction();
+        InteractionUser commentInteraction = createTestCommentInteraction();
         InteractionUser savedPostInteraction = createTestInteractionWithId();
-        InteractionUser savedJobBoardInteraction = createSavedJobBoardInteraction();
+        InteractionUser savedCommentInteraction = createSavedCommentInteraction();
 
         when(mockInteractionUserRepository.save(postInteraction)).thenReturn(savedPostInteraction);
-        when(mockInteractionUserRepository.save(jobBoardInteraction)).thenReturn(savedJobBoardInteraction);
+        when(mockInteractionUserRepository.save(commentInteraction)).thenReturn(savedCommentInteraction);
 
         //when
         InteractionUser postResult = interactionUserCommandService.toggleInteraction(postInteraction);
-        InteractionUser jobBoardResult = interactionUserCommandService.toggleInteraction(jobBoardInteraction);
+        InteractionUser commentResult = interactionUserCommandService.toggleInteraction(commentInteraction);
 
         //then
         assertThat(postResult.contentType()).isEqualTo(ContentType.POST);
-        assertThat(jobBoardResult.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(commentResult.contentType()).isEqualTo(ContentType.COMMENT);
         verify(mockInteractionUserRepository).save(postInteraction);
-        verify(mockInteractionUserRepository).save(jobBoardInteraction);
+        verify(mockInteractionUserRepository).save(commentInteraction);
     }
 
     @Test
@@ -307,21 +290,21 @@ class InteractionUserCommandServiceTest {
         );
     }
 
-    private InteractionUser createTestJobBoardInteraction() {
+    private InteractionUser createTestCommentInteraction() {
         return InteractionUser.of(
                 "userId",
-                "jobBoardId",
-                ContentType.JOB_BOARD,
+                "commentId",
+                ContentType.COMMENT,
                 InteractionType.LIKE
         );
     }
 
-    private InteractionUser createSavedJobBoardInteraction() {
+    private InteractionUser createSavedCommentInteraction() {
         return new InteractionUser(
-                "jobBoardInteractionId",
+                "commentInteractionId",
                 "userId",
-                "jobBoardId",
-                ContentType.JOB_BOARD,
+                "commentId",
+                ContentType.COMMENT,
                 InteractionType.LIKE,
                 InteractionStatus.ACTIVE,
                 LocalDateTime.now()

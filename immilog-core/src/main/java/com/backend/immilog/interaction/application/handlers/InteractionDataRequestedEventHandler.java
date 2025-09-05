@@ -30,7 +30,7 @@ public class InteractionDataRequestedEventHandler implements DomainEventHandler<
 
     @Override
     public void handle(PostEvent.InteractionDataRequested event) {
-        log.debug("Processing InteractionDataRequested event for postIds: {}", event.getPostIds());
+        log.info("Processing InteractionDataRequested event for requestId: {}, postIds: {}", event.getRequestId(), event.getPostIds());
         
         try {
             // Interaction 도메인 서비스를 통해 데이터 조회
@@ -47,8 +47,10 @@ public class InteractionDataRequestedEventHandler implements DomainEventHandler<
             
             // Redis에 결과 저장
             eventResultStorageService.storeInteractionData(event.getRequestId(), interactionDataList);
-            log.debug("Successfully processed and stored {} interaction records with requestId: {}", 
-                    interactionDataList.size(), event.getRequestId());
+            log.info("Successfully processed and stored {} interaction records with requestId: {}: {} likes, {} bookmarks", 
+                    interactionDataList.size(), event.getRequestId(),
+                    interactionDataList.stream().filter(i -> "LIKE".equals(i.interactionType())).count(),
+                    interactionDataList.stream().filter(i -> "BOOKMARK".equals(i.interactionType())).count());
             
         } catch (Exception e) {
             log.error("Failed to process InteractionDataRequested event", e);

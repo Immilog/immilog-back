@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -174,15 +175,15 @@ public class PostQueryService {
         
         // 이벤트를 통해 유저 데이터 요청
         String userRequestId = eventResultStorageService.generateRequestId("user");
-        log.debug("Requesting user data for {} users with requestId: {}", userIds.size(), userRequestId);
+        log.info("Requesting user data for {} users with requestId: {}, userIds: {}", userIds.size(), userRequestId, userIds);
         eventResultStorageService.registerEventProcessing(userRequestId);
         DomainEvents.raise(new PostEvent.UserDataRequested(userRequestId, userIds));
         var userData = eventResultStorageService.waitForUserData(userRequestId, java.time.Duration.ofSeconds(2));
-        log.debug("Retrieved {} user data items via event", userData.size());
+        log.info("Retrieved {} user data items via event for requestId: {}", userData.size(), userRequestId);
         
         // 이벤트를 통해 인터랙션 데이터 요청 (CompletableFuture로 동기화)
         String interactionRequestId = eventResultStorageService.generateRequestId("interaction");
-        log.debug("Requesting interaction data for {} posts with requestId: {}", resultIdList.size(), interactionRequestId);
+        log.info("Requesting interaction data for {} posts with requestId: {}, postIds: {}", resultIdList.size(), interactionRequestId, resultIdList);
         
         // Future 등록
         eventResultStorageService.registerEventProcessing(interactionRequestId);
@@ -192,11 +193,11 @@ public class PostQueryService {
 
         // 이벤트 처리 완료 대기 (최대 2초)
         var interactionUsers = eventResultStorageService.waitForInteractionData(interactionRequestId, java.time.Duration.ofSeconds(2));
-        log.debug("Retrieved {} interaction data items via event", interactionUsers.size());
+        log.info("Retrieved {} interaction data items via event for requestId: {}", interactionUsers.size(), interactionRequestId);
         
         // 실시간 댓글 개수 조회
         var commentCounts = commentQueryService.getCommentCountsByPostIds(resultIdList);
-        log.debug("Retrieved comment counts for {} posts", commentCounts.size());
+        log.info("Retrieved comment counts for {} posts: {}", commentCounts.size(), commentCounts);
         
         var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
@@ -274,6 +275,7 @@ public class PostQueryService {
                 post.region(),
                 post.category(),
                 post.status(),
+                post.badge(),
                 post.createdAt().toString(),
                 post.updatedAt().toString(),
                 post.title(),
@@ -300,4 +302,64 @@ public class PostQueryService {
 
         return posts;
     }
+
+    /**
+     * 주간 베스트 게시물을 조회합니다.
+     * 점수 = (조회수 × 1.0) + (댓글수 × 3.0) + (좋아요수 × 2.0) 기준으로 정렬하여 상위 10개를 반환합니다.
+     * 
+     * @param from 시작 날짜
+     * @param to 종료 날짜
+     * @return 주간 베스트 게시물 리스트
+     */
+    public List<PostResult> getWeeklyBestPosts(LocalDateTime from, LocalDateTime to) {
+        log.info("[WEEKLY BEST] Querying weekly best posts from {} to {}", from, to);
+        
+        // 기간 내 모든 공개 게시물 조회 (조회수 또는 댓글수 최소 조건 충족)
+        var posts = postDomainRepository.findPostsInPeriod(from, to);
+        
+        // 게시물 ID 리스트 추출하여 실시간 데이터 어셈블링
+        var postIdList = posts.stream()
+                .filter(post -> "Y".equals(post.isPublic())) // 공개 게시물만
+                .filter(post -> 
+                    (post.viewCount() != null && post.viewCount() >= 10) ||  // 조회수 10회 이상 또는
+                    (post.commentCount() != null && post.commentCount() >= 2) // 댓글 2개 이상
+                )
+                .map(Post::id)
+                .toList();
+
+        // 실시간 데이터 어셈블링으로 좋아요 수 포함
+        var assembledPosts = this.assemblePostResult(postIdList, 
+            new PageImpl<>(posts.stream()
+                .filter(post -> postIdList.contains(post.id()))
+                .map(this::convertToPostResult)
+                .toList()));
+
+        var weeklyBestPosts = assembledPosts.getContent().stream()
+                .map(postResult -> {
+                    // 종합 점수 계산: (조회수 × 1.0) + (댓글수 × 3.0) + (좋아요수 × 2.0)
+                    double score = 0.0;
+                    if (postResult.viewCount() != null) {
+                        score += postResult.viewCount() * 1.0;
+                    }
+                    if (postResult.commentCount() != null) {
+                        score += postResult.commentCount() * 3.0;
+                    }
+                    if (postResult.likeCount() != null) {
+                        score += postResult.likeCount() * 2.0;
+                    }
+                    return new ScoredPostResult(postResult, score);
+                })
+                .sorted((a, b) -> Double.compare(b.score(), a.score())) // 점수 내림차순 정렬
+                .limit(10) // 상위 10개
+                .map(ScoredPostResult::postResult)
+                .toList();
+        
+        log.info("[WEEKLY BEST] Found {} weekly best posts", weeklyBestPosts.size());
+        return weeklyBestPosts;
+    }
+
+    /**
+     * 점수가 포함된 게시물 결과를 위한 내부 레코드
+     */
+    private record ScoredPostResult(PostResult postResult, double score) {}
 }

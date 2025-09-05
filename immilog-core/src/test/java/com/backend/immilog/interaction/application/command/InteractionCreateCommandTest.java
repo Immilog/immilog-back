@@ -67,19 +67,19 @@ class InteractionCreateCommandTest {
     }
 
     @Test
-    @DisplayName("JOB_BOARD 타입 InteractionCreateCommand 생성")
-    void createJobBoardInteractionCreateCommand() {
+    @DisplayName("COMMENT 타입 InteractionCreateCommand 생성")
+    void createCommentInteractionCreateCommand() {
         //given
         String userId = "userId";
-        String postId = "jobBoardId";
-        ContentType contentType = ContentType.JOB_BOARD;
+        String postId = "commentId";
+        ContentType contentType = ContentType.COMMENT;
         InteractionType interactionType = InteractionType.LIKE;
 
         //when
         InteractionCreateCommand command = new InteractionCreateCommand(userId, postId, contentType, interactionType);
 
         //then
-        assertThat(command.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(command.contentType()).isEqualTo(ContentType.COMMENT);
         assertThat(command.interactionType()).isEqualTo(InteractionType.LIKE);
         assertThat(command.postId()).isEqualTo(postId);
         assertThat(command.userId()).isEqualTo(userId);
@@ -250,10 +250,10 @@ class InteractionCreateCommandTest {
                 "user1", "post1", ContentType.POST, InteractionType.LIKE);
         InteractionCreateCommand bookmarkPostCommand = new InteractionCreateCommand(
                 "user2", "post2", ContentType.POST, InteractionType.BOOKMARK);
-        InteractionCreateCommand likeJobBoardCommand = new InteractionCreateCommand(
-                "user3", "job1", ContentType.JOB_BOARD, InteractionType.LIKE);
-        InteractionCreateCommand bookmarkJobBoardCommand = new InteractionCreateCommand(
-                "user4", "job2", ContentType.JOB_BOARD, InteractionType.BOOKMARK);
+        InteractionCreateCommand likeCommentCommand = new InteractionCreateCommand(
+                "user3", "comment1", ContentType.COMMENT, InteractionType.LIKE);
+        InteractionCreateCommand bookmarkCommentCommand = new InteractionCreateCommand(
+                "user4", "comment2", ContentType.COMMENT, InteractionType.BOOKMARK);
 
         assertThat(likePostCommand.interactionType()).isEqualTo(InteractionType.LIKE);
         assertThat(likePostCommand.contentType()).isEqualTo(ContentType.POST);
@@ -261,10 +261,10 @@ class InteractionCreateCommandTest {
         assertThat(bookmarkPostCommand.interactionType()).isEqualTo(InteractionType.BOOKMARK);
         assertThat(bookmarkPostCommand.contentType()).isEqualTo(ContentType.POST);
         
-        assertThat(likeJobBoardCommand.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(likeJobBoardCommand.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(likeCommentCommand.interactionType()).isEqualTo(InteractionType.LIKE);
+        assertThat(likeCommentCommand.contentType()).isEqualTo(ContentType.COMMENT);
         
-        assertThat(bookmarkJobBoardCommand.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        assertThat(bookmarkJobBoardCommand.contentType()).isEqualTo(ContentType.JOB_BOARD);
+        assertThat(bookmarkCommentCommand.interactionType()).isEqualTo(InteractionType.BOOKMARK);
+        assertThat(bookmarkCommentCommand.contentType()).isEqualTo(ContentType.COMMENT);
     }
 }

@@ -43,7 +43,7 @@ public class PostJdbcRepository {
         conditions.add("p.is_public = ?");
         params.add(isPublic);
 
-        if (category != Categories.ALL) {
+        if (category != null && category != Categories.ALL) {
             conditions.add("p.category = ?");
             params.add(category.name());
         }
@@ -130,14 +130,16 @@ public class PostJdbcRepository {
             Pageable pageable
     ) {
         String sql = """
-                SELECT p.*, u.nickname, u.image_url
+                SELECT DISTINCT p.*, u.nickname, u.image_url
                 FROM post p
                 LEFT JOIN user u ON p.user_id = u.user_id
-                WHERE p.content LIKE ? OR p.title LIKE ?
+                LEFT JOIN content_resource cr ON p.post_id = cr.content_id AND cr.content_type = 'POST' AND cr.resource_type = 'TAG'
+                WHERE p.content LIKE ? OR p.title LIKE ? OR cr.content LIKE ?
                 LIMIT ? OFFSET ?
                 """;
 
         List<PostEntity> postEntities = jdbcClient.sql(sql)
+                .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .param(pageable.getPageSize())
@@ -146,13 +148,15 @@ public class PostJdbcRepository {
                 .list();
 
         String countSql = """
-                SELECT COUNT(*)
+                SELECT COUNT(DISTINCT p.post_id)
                 FROM post p
                 LEFT JOIN user u ON p.user_id = u.user_id
-                WHERE p.content LIKE ? OR p.title LIKE ?
+                LEFT JOIN content_resource cr ON p.post_id = cr.content_id AND cr.content_type = 'POST' AND cr.resource_type = 'TAG'
+                WHERE p.content LIKE ? OR p.title LIKE ? OR cr.content LIKE ?
                 """;
 
         int count = jdbcClient.sql(countSql)
+                .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .param("%" + keyword + "%")
                 .query(Integer.class)
@@ -216,6 +220,51 @@ public class PostJdbcRepository {
 
         List<PostEntity> postEntities = jdbcClient.sql(sql)
                 .params(postIdList.toArray())
+                .query(POST_ENTITY_ROW_MAPPER)
+                .list();
+
+        return postEntities.stream().map(PostEntity::toDomain).toList();
+    }
+
+    /**
+     * 특정 기간 내에 생성된 게시물을 조회합니다.
+     * 주간 베스트 선정을 위해 사용됩니다.
+     * 
+     * @param from 시작 날짜
+     * @param to 종료 날짜
+     * @return 기간 내 게시물 리스트
+     */
+    public List<Post> findPostsInPeriod(LocalDateTime from, LocalDateTime to) {
+        String sql = """
+                SELECT p.*, u.nickname, u.image_url
+                FROM post p
+                LEFT JOIN user u ON p.user_id = u.user_id
+                WHERE p.created_at BETWEEN ? AND ?
+                  AND p.is_public = 'Y'
+                ORDER BY p.created_at DESC
+                """;
+
+        List<PostEntity> postEntities = jdbcClient.sql(sql)
+                .param(from)
+                .param(to)
+                .query(POST_ENTITY_ROW_MAPPER)
+                .list();
+
+        return postEntities.stream().map(PostEntity::toDomain).toList();
+    }
+    
+    public List<Post> getAllPosts() {
+        String sql = """
+            SELECT p.post_id, p.user_id, p.title, p.content, p.view_count, p.region,
+                   p.status, p.country_id, p.category, p.is_public, p.badge, 
+                   p.comment_count, p.created_at, p.updated_at
+            FROM post p
+            WHERE p.status = 'ACTIVE'
+            ORDER BY p.created_at DESC
+            LIMIT 1000
+            """;
+
+        List<PostEntity> postEntities = jdbcClient.sql(sql)
                 .query(POST_ENTITY_ROW_MAPPER)
                 .list();
 
@@ -288,7 +337,7 @@ public class PostJdbcRepository {
         String column = switch (sortingMethod) {
             case CREATED_DATE -> "p.created_at";
             case COMMENT_COUNT -> "p.comment_count";
-            case LIKE_COUNT -> "p.like_count";
+            case LIKE_COUNT -> "(SELECT COUNT(*) FROM interaction_user iu WHERE iu.post_id = p.post_id AND iu.interaction_type = 'LIKE' AND iu.interaction_status = 'ACTIVE')";
             case VIEW_COUNT -> "p.view_count";
         };
         return "ORDER BY " + column + " DESC ";

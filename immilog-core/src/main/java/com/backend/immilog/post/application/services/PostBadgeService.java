@@ -24,24 +24,15 @@ public class PostBadgeService {
     }
 
     @Transactional
-    public void updatePostBadges(
-            List<PostResult> hotPosts,
-            List<PostResult> mostViewedPosts
-    ) {
-        log.info("[BADGE UPDATE] Starting badge update for {} hot posts and {} most viewed posts",
-                hotPosts.size(), mostViewedPosts.size());
+    public void updatePostBadges(List<PostResult> hotPosts) {
+        log.info("[BADGE UPDATE] Starting badge update for {} hot posts", hotPosts.size());
 
         try {
             // 기존 뱃지가 없는 HOT 게시물만 업데이트
             var newHotPosts = filterPostsWithoutBadge(hotPosts);
             updateBadgesForPosts(newHotPosts, Badge.HOT);
 
-            // 기존 뱃지가 없는 MOST_VIEWED 게시물만 업데이트
-            var newMostViewedPosts = filterPostsWithoutBadge(mostViewedPosts);
-            updateBadgesForPosts(newMostViewedPosts, Badge.MOST_VIEWED);
-
-            log.info("[BADGE UPDATE] Successfully updated {} new HOT badges and {} new MOST_VIEWED badges",
-                    newHotPosts.size(), newMostViewedPosts.size());
+            log.info("[BADGE UPDATE] Successfully updated {} new HOT badges", newHotPosts.size());
         } catch (Exception e) {
             log.error("[BADGE UPDATE] Failed to update badges", e);
             throw e;
@@ -68,18 +59,11 @@ public class PostBadgeService {
     }
 
     private void clearExistingBadges() {
-        log.info("[BADGE UPDATE] Clearing existing HOT and MOST_VIEWED badges");
+        log.info("[BADGE UPDATE] Clearing existing HOT badges");
 
         // HOT 뱃지 제거
         var hotPosts = postQueryService.findByBadge(Badge.HOT);
         hotPosts.forEach(post -> {
-            var updatedPost = post.updateBadge(null);
-            postCommandService.save(updatedPost);
-        });
-
-        // MOST_VIEWED 뱃지 제거
-        var mostViewedPosts = postQueryService.findByBadge(Badge.MOST_VIEWED);
-        mostViewedPosts.forEach(post -> {
             var updatedPost = post.updateBadge(null);
             postCommandService.save(updatedPost);
         });
@@ -123,13 +107,27 @@ public class PostBadgeService {
             var from = LocalDateTime.now().minusWeeks(1);
             var to = LocalDateTime.now();
 
-            // TODO: 주간 베스트를 계산하는 로직 구현 필요
-            // var weeklyBestResults = getWeeklyBestPosts(from, to);
-            // updateBadgesForPosts(weeklyBestResults, Badge.WEEKLY_BEST);
+            // 주간 베스트 게시물 계산 (조회수 + 댓글수 종합 점수)
+            var weeklyBestResults = getWeeklyBestPosts(from, to);
+            updateBadgesForPosts(weeklyBestResults, Badge.WEEKLY_BEST);
 
             log.info("[BADGE UPDATE] WEEKLY_BEST badge update completed");
         } catch (Exception e) {
             log.error("[BADGE UPDATE] Failed to update WEEKLY_BEST badges", e);
         }
+    }
+
+    /**
+     * 주간 베스트 게시물을 계산합니다.
+     * 점수 = (조회수 × 1.0) + (댓글수 × 3.0) + (좋아요수 × 2.0)
+     * 
+     * @param from 시작 날짜
+     * @param to 종료 날짜  
+     * @return 주간 베스트 게시물 리스트
+     */
+    private List<PostResult> getWeeklyBestPosts(LocalDateTime from, LocalDateTime to) {
+        log.info("[WEEKLY BEST] Calculating weekly best posts from {} to {}", from, to);
+        
+        return postQueryService.getWeeklyBestPosts(from, to);
     }
 }

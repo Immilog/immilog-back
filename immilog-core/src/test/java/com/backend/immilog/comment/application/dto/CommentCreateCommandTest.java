@@ -44,22 +44,6 @@ class CommentCreateCommandTest {
         assertThat(command.content()).isEqualTo(content);
     }
 
-    @Test
-    @DisplayName("CommentCreateCommand 생성 - JOB_BOARD 타입")
-    void createCommentCreateCommandWithJobBoardType() {
-        //given
-        String userId = "userId";
-        String postId = "jobBoardId";
-        String content = "채용 댓글";
-        ReferenceType referenceType = ReferenceType.JOB_BOARD;
-
-        //when
-        CommentCreateCommand command = new CommentCreateCommand(userId, postId, content, null, referenceType);
-
-        //then
-        assertThat(command.referenceType()).isEqualTo(ReferenceType.JOB_BOARD);
-        assertThat(command.postId()).isEqualTo(postId);
-    }
 
     @Test
     @DisplayName("CommentCreateCommand 생성 - null 필드들")

@@ -55,7 +55,11 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
             LocalDateTime to
     ) {
         var posts = postJdbcRepository.getPopularPosts(from, to, SortingMethods.VIEW_COUNT);
-        return posts.stream().map(this::convertToPostResult).toList();
+        return posts.stream()
+                .filter(post -> post.viewCount() != null && post.viewCount() >= 50) // 최소 조회수 50회 이상
+                .map(this::convertToPostResult)
+                .limit(5) // 최대 5개까지
+                .toList();
     }
 
     @Override
@@ -64,7 +68,11 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
             LocalDateTime to
     ) {
         var posts = postJdbcRepository.getPopularPosts(from, to, SortingMethods.COMMENT_COUNT);
-        return posts.stream().map(this::convertToPostResult).toList();
+        return posts.stream()
+                .filter(post -> post.commentCount() != null && post.commentCount() >= 5) // 최소 댓글 5개 이상
+                .map(this::convertToPostResult)
+                .limit(5) // 최대 5개까지
+                .toList();
     }
 
     private PostResult convertToPostResult(Post post) {
@@ -85,6 +93,7 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
                 post.region(),
                 post.category(),
                 post.status(),
+                post.badge(),
                 post.createdAt().toString(),
                 post.updatedAt().toString(),
                 post.title(),

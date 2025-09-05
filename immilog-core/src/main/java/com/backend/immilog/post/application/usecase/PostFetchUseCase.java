@@ -46,9 +46,6 @@ public interface PostFetchUseCase {
             Integer page
     );
 
-    List<PostResult> getMostViewedPosts();
-
-    List<PostResult> getHotPosts();
 
     @Slf4j
     @Service
@@ -128,13 +125,6 @@ public interface PostFetchUseCase {
             return postQueryService.getPostsByUserId(userId, pageable);
         }
 
-        public List<PostResult> getMostViewedPosts() {
-            return postQueryService.getPostsFromRedis("most_viewed_posts");
-        }
-
-        public List<PostResult> getHotPosts() {
-            return postQueryService.getPostsFromRedis("hot_posts");
-        }
 
     }
 }

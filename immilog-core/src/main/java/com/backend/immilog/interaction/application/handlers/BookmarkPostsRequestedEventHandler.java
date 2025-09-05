@@ -27,7 +27,7 @@ public class BookmarkPostsRequestedEventHandler implements DomainEventHandler<Po
 
     @Override
     public void handle(PostEvent.BookmarkPostsRequested event) {
-        log.debug("Processing BookmarkPostsRequested event for userId: {}", event.getUserId());
+        log.info("Processing BookmarkPostsRequested event for requestId: {}, userId: {}", event.getRequestId(), event.getUserId());
         
         try {
             // Interaction 도메인 서비스를 통해 북마크 데이터 조회
@@ -43,7 +43,7 @@ public class BookmarkPostsRequestedEventHandler implements DomainEventHandler<Po
             
             // Redis에 결과 저장
             eventResultStorageService.storeBookmarkData(event.getRequestId(), postIds);
-            log.debug("Successfully processed and stored {} bookmark records with requestId: {}", postIds.size(), event.getRequestId());
+            log.info("Successfully processed and stored {} bookmark records with requestId: {}, postIds: {}", postIds.size(), event.getRequestId(), postIds);
             
         } catch (Exception e) {
             log.error("Failed to process BookmarkPostsRequested event", e);

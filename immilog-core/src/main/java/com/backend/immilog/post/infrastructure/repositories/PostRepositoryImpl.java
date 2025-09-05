@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,5 +103,10 @@ public class PostRepositoryImpl implements PostRepository {
         return postJpaRepository.findByBadge(badge).stream()
                 .map(PostEntity::toDomain)
                 .toList();
+    }
+    
+    @Override
+    public List<Post> findPostsInPeriod(LocalDateTime from, LocalDateTime to) {
+        return postJdbcRepository.findPostsInPeriod(from, to);
     }
 }

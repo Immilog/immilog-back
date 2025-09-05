@@ -1,5 +1,6 @@
 package com.backend.immilog.post.presentation.payload;
 
+import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.shared.enums.ContentStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -23,6 +24,7 @@ public record PostInformation(
         @Schema(description = "지역", example = "Seoul") String region,
         @Schema(description = "카테고리", example = "TECH") Categories category,
         @Schema(description = "콘텐츠 상태", example = "ACTIVE") ContentStatus status,
+        @Schema(description = "뱃지", example = "HOT") Badge badge,
         @Schema(description = "생성 날짜", example = "2023-10-01T12:00:00") String createdAt,
         @Schema(description = "수정 날짜", example = "2023-10-02T12:00:00") String updatedAt,
         @Schema(description = "게시글 제목", example = "My First Post") String title,

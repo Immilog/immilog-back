@@ -26,7 +26,7 @@ public class UserDataRequestedEventHandler implements DomainEventHandler<PostEve
 
     @Override
     public void handle(PostEvent.UserDataRequested event) {
-        log.debug("Processing UserDataRequested event for userIds: {}", event.getUserIds());
+        log.info("Processing UserDataRequested event for requestId: {}, userIds: {}", event.getRequestId(), event.getUserIds());
         
         try {
             // User 도메인 서비스를 통해 데이터 조회
@@ -48,7 +48,7 @@ public class UserDataRequestedEventHandler implements DomainEventHandler<PostEve
             
             // Redis에 결과 저장
             eventResultStorageService.storeUserData(event.getRequestId(), userDataList);
-            log.debug("Successfully processed and stored {} user data records with requestId: {}", 
+            log.info("Successfully processed and stored {} user data records with requestId: {}", 
                     userDataList.size(), event.getRequestId());
             
         } catch (Exception e) {

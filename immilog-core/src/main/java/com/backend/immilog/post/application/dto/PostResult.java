@@ -1,5 +1,6 @@
 package com.backend.immilog.post.application.dto;
 
+import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.presentation.payload.PostInformation;
 import com.backend.immilog.shared.enums.ContentStatus;
@@ -23,6 +24,7 @@ public record PostResult(
         String region,
         Categories category,
         ContentStatus status,
+        Badge badge,
         String createdAt,
         String updatedAt,
         String title,
@@ -48,6 +50,7 @@ public record PostResult(
                 this.region,
                 this.category,
                 this.status,
+                this.badge,
                 this.createdAt,
                 this.updatedAt,
                 this.title,

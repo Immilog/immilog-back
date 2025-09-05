@@ -54,8 +54,8 @@ public interface PopularPostFetchUseCase {
                     postCommandService.saveHotPosts(hotPosts, expiration);
                 }
                 
-                // 뱃지 업데이트
-                postBadgeService.updatePostBadges(hotPosts, mostViewedPosts);
+                // HOT 뱃지 업데이트 (MOST_VIEWED 뱃지는 제거됨)
+                postBadgeService.updatePostBadges(hotPosts);
                 
             } catch (Exception e) {
                 log.error("[POPULAR POST AGGREGATION FAILED] Failed to save popular posts", e);
