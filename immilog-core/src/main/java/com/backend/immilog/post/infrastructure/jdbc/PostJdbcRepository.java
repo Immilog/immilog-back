@@ -252,6 +252,24 @@ public class PostJdbcRepository {
 
         return postEntities.stream().map(PostEntity::toDomain).toList();
     }
+    
+    public List<Post> getAllPosts() {
+        String sql = """
+            SELECT p.post_id, p.user_id, p.title, p.content, p.view_count, p.region,
+                   p.status, p.country_id, p.category, p.is_public, p.badge, 
+                   p.comment_count, p.created_at, p.updated_at
+            FROM post p
+            WHERE p.status = 'ACTIVE'
+            ORDER BY p.created_at DESC
+            LIMIT 1000
+            """;
+
+        List<PostEntity> postEntities = jdbcClient.sql(sql)
+                .query(POST_ENTITY_ROW_MAPPER)
+                .list();
+
+        return postEntities.stream().map(PostEntity::toDomain).toList();
+    }
 
     private static final RowMapper<PostEntity> POST_ENTITY_ROW_MAPPER = (rs, rowNum) -> {
         String id = rs.getString("post_id");

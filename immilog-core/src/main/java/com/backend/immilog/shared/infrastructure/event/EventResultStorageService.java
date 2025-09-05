@@ -231,4 +231,42 @@ public class EventResultStorageService {
             return List.of();
         }
     }
+    
+    // 일반적인 결과 저장 메소드 (다양한 타입 지원)
+    public <T> void storeResult(String key, T result) {
+        try {
+            log.info("Storing result for key: {}, type: {}", key, result.getClass().getSimpleName());
+            eventRedisTemplate.opsForValue().set(key, result, TTL);
+            
+            // 대기 중인 Future가 있다면 완료 처리
+            var future = pendingEvents.remove(key);
+            if (future != null) {
+                future.complete(null);
+            }
+        } catch (Exception e) {
+            log.error("Failed to store result for key: {}", key, e);
+            
+            // 실패한 경우 Future를 예외적으로 완료
+            var future = pendingEvents.remove(key);
+            if (future != null) {
+                future.completeExceptionally(e);
+            }
+        }
+    }
+    
+    // 일반적인 결과 조회 메소드 (타입 안전성 보장)
+    public <T> T getResult(String key, Class<T> type) {
+        try {
+            Object result = eventRedisTemplate.opsForValue().get(key);
+            if (result != null && type.isAssignableFrom(result.getClass())) {
+                log.info("Retrieved result for key: {}, type: {}", key, type.getSimpleName());
+                return type.cast(result);
+            }
+            log.warn("No result found for key: {} or type mismatch", key);
+            return null;
+        } catch (Exception e) {
+            log.error("Failed to get result for key: {}", key, e);
+            return null;
+        }
+    }
 }

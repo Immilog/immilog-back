@@ -1,7 +1,7 @@
 package com.backend.immilog.user.application.handlers;
 
-import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
+import com.backend.immilog.shared.domain.event.UserDataRequestedEvent;
 import com.backend.immilog.shared.domain.model.UserData;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import com.backend.immilog.user.application.services.query.UserQueryService;
@@ -12,12 +12,12 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class UserDataRequestedEventHandler implements DomainEventHandler<PostEvent.UserDataRequested> {
+public class UserDataRequestedSharedEventHandler implements DomainEventHandler<UserDataRequestedEvent> {
 
     private final UserQueryService userQueryService;
     private final EventResultStorageService eventResultStorageService;
 
-    public UserDataRequestedEventHandler(
+    public UserDataRequestedSharedEventHandler(
             UserQueryService userQueryService,
             EventResultStorageService eventResultStorageService) {
         this.userQueryService = userQueryService;
@@ -25,11 +25,11 @@ public class UserDataRequestedEventHandler implements DomainEventHandler<PostEve
     }
 
     @Override
-    public void handle(PostEvent.UserDataRequested event) {
-        log.info("Processing UserDataRequested event for requestId: {}, userIds: {}", event.getRequestId(), event.getUserIds());
+    public void handle(UserDataRequestedEvent event) {
+        log.debug("Processing shared UserDataRequestedEvent for userIds: {} from domain: {}", 
+                event.getUserIds(), event.getRequestingDomain());
         
         try {
-            // User 도메인 서비스를 통해 데이터 조회
             List<UserData> userDataList = event.getUserIds().stream()
                     .map(userId -> {
                         try {
@@ -46,19 +46,17 @@ public class UserDataRequestedEventHandler implements DomainEventHandler<PostEve
                     })
                     .toList();
             
-            // Redis에 결과 저장
             eventResultStorageService.storeUserData(event.getRequestId(), userDataList);
-            log.info("Successfully processed and stored {} user data records with requestId: {}", 
-                    userDataList.size(), event.getRequestId());
+            log.debug("Successfully processed and stored {} user data records with requestId: {} from domain: {}", 
+                    userDataList.size(), event.getRequestId(), event.getRequestingDomain());
             
         } catch (Exception e) {
-            log.error("Failed to process UserDataRequested event", e);
+            log.error("Failed to process shared UserDataRequestedEvent from domain: {}", event.getRequestingDomain(), e);
         }
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public Class<PostEvent.UserDataRequested> getEventType() {
-        return PostEvent.UserDataRequested.class;
+    public Class<UserDataRequestedEvent> getEventType() {
+        return UserDataRequestedEvent.class;
     }
 }

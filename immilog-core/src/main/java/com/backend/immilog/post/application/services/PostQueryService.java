@@ -175,15 +175,15 @@ public class PostQueryService {
         
         // 이벤트를 통해 유저 데이터 요청
         String userRequestId = eventResultStorageService.generateRequestId("user");
-        log.debug("Requesting user data for {} users with requestId: {}", userIds.size(), userRequestId);
+        log.info("Requesting user data for {} users with requestId: {}, userIds: {}", userIds.size(), userRequestId, userIds);
         eventResultStorageService.registerEventProcessing(userRequestId);
         DomainEvents.raise(new PostEvent.UserDataRequested(userRequestId, userIds));
         var userData = eventResultStorageService.waitForUserData(userRequestId, java.time.Duration.ofSeconds(2));
-        log.debug("Retrieved {} user data items via event", userData.size());
+        log.info("Retrieved {} user data items via event for requestId: {}", userData.size(), userRequestId);
         
         // 이벤트를 통해 인터랙션 데이터 요청 (CompletableFuture로 동기화)
         String interactionRequestId = eventResultStorageService.generateRequestId("interaction");
-        log.debug("Requesting interaction data for {} posts with requestId: {}", resultIdList.size(), interactionRequestId);
+        log.info("Requesting interaction data for {} posts with requestId: {}, postIds: {}", resultIdList.size(), interactionRequestId, resultIdList);
         
         // Future 등록
         eventResultStorageService.registerEventProcessing(interactionRequestId);
@@ -193,11 +193,11 @@ public class PostQueryService {
 
         // 이벤트 처리 완료 대기 (최대 2초)
         var interactionUsers = eventResultStorageService.waitForInteractionData(interactionRequestId, java.time.Duration.ofSeconds(2));
-        log.debug("Retrieved {} interaction data items via event", interactionUsers.size());
+        log.info("Retrieved {} interaction data items via event for requestId: {}", interactionUsers.size(), interactionRequestId);
         
         // 실시간 댓글 개수 조회
         var commentCounts = commentQueryService.getCommentCountsByPostIds(resultIdList);
-        log.debug("Retrieved comment counts for {} posts", commentCounts.size());
+        log.info("Retrieved comment counts for {} posts: {}", commentCounts.size(), commentCounts);
         
         var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 

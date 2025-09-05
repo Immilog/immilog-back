@@ -48,4 +48,14 @@ public class DomainEventPublisher {
             throw new RuntimeException("Failed to publish compensation event", e);
         }
     }
+    
+    public void publishDomainEvent(DomainEvent event) {
+        try {
+            log.debug("Publishing domain event: {}", event.getClass().getSimpleName());
+            eventPublisher.publishDomainEvent(event);
+        } catch (Exception e) {
+            log.error("Failed to publish domain event: {}", event.getClass().getSimpleName(), e);
+            throw new RuntimeException("Failed to publish domain event", e);
+        }
+    }
 }

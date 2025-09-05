@@ -21,6 +21,8 @@ public final class DomainEventTypes {
     public static final String COMMENT_CREATED = "comment.created";
     public static final String COMMENT_UPDATED = "comment.updated";
     public static final String COMMENT_DELETED = "comment.deleted";
+    public static final String COMMENT_DATA_REQUESTED = "comment.data.requested";
+    public static final String COMMENT_DATA_RESPONSE = "comment.data.response";
     
     public static final String INTERACTION_CREATED = "interaction.created";
     public static final String INTERACTION_UPDATED = "interaction.updated";
