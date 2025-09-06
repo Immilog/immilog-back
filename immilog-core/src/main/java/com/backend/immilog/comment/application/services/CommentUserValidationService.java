@@ -38,28 +38,26 @@ public class CommentUserValidationService {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
+                var processingFuture = eventResultStorage.registerEventProcessing(requestId);
+                
                 eventPublisher.publishDomainEvent(requestEvent);
 
-                for (int i = 0; i < validationTimeout.toSeconds(); i++) {
-                    try {
-                        String responseKey = "user_validation_" + requestId;
-                        Object response = eventResultStorage.getResult(responseKey, UserValidationResponseEvent.class);
-
-                        if (response instanceof UserValidationResponseEvent validationResponse) {
-                            log.debug("Received user validation response for requestId: {}, isValid: {}", requestId, validationResponse.isValid());
-                            return validationResponse.isValid();
-                        }
-
-                        Thread.sleep(1000);
-
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Comment user validation interrupted", e);
-                    }
+                try {
+                    processingFuture.get(validationTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                } catch (Exception e) {
+                    log.warn("Event processing timeout or failed for requestId: {}", requestId, e);
                 }
+                
+                var responseKey = "user_validation_" + requestId;
+                var response = eventResultStorage.getResult(responseKey, UserValidationResponseEvent.class);
 
-                log.warn("Comment user validation timeout for userId: {}, requestId: {}", userId, requestId);
-                throw new RuntimeException("Comment user validation timeout");
+                if (response instanceof UserValidationResponseEvent validationResponse) {
+                    log.info("Received user validation response for requestId: {}, isValid: {}", requestId, validationResponse.isValid());
+                    return validationResponse.isValid();
+                } else {
+                    log.warn("No valid user validation response found for requestId: {}", requestId);
+                    return false;
+                }
 
             } catch (Exception e) {
                 log.error("Error during comment user validation for userId: {}", userId, e);

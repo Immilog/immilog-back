@@ -2,10 +2,10 @@ package com.backend.immilog.post.presentation.controller;
 
 import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.backend.immilog.post.application.dto.PostResult;
-import com.backend.immilog.post.application.usecase.PostDeleteUseCase;
-import com.backend.immilog.post.application.usecase.PostFetchUseCase;
-import com.backend.immilog.post.application.usecase.PostUpdateUseCase;
-import com.backend.immilog.post.application.usecase.PostUploadUseCase;
+import com.backend.immilog.post.application.usecase.DeletePostUseCase;
+import com.backend.immilog.post.application.usecase.FetchPostUseCase;
+import com.backend.immilog.post.application.usecase.UpdatePostUseCase;
+import com.backend.immilog.post.application.usecase.UploadPostUseCase;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.presentation.payload.*;
@@ -26,23 +26,23 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @RequestMapping("/api/v1/posts")
 @RestController
 public class PostController {
-    private final PostUploadUseCase postUploadUseCase;
-    private final PostUpdateUseCase postUpdateUseCase;
-    private final PostDeleteUseCase postDeleteUseCase;
-    private final PostFetchUseCase postFetchUseCase;
+    private final UploadPostUseCase uploadPostUseCase;
+    private final UpdatePostUseCase updatePostUseCase;
+    private final DeletePostUseCase deletePostUseCase;
+    private final FetchPostUseCase fetchPostUseCase;
     private final CommentQueryService commentQueryService;
 
     public PostController(
-            PostUploadUseCase postUploadUseCase,
-            PostUpdateUseCase postUpdateUseCase,
-            PostDeleteUseCase postDeleteUseCase,
-            PostFetchUseCase postFetchUseCase,
+            UploadPostUseCase uploadPostUseCase,
+            UpdatePostUseCase updatePostUseCase,
+            DeletePostUseCase deletePostUseCase,
+            FetchPostUseCase fetchPostUseCase,
             CommentQueryService commentQueryService
     ) {
-        this.postUploadUseCase = postUploadUseCase;
-        this.postUpdateUseCase = postUpdateUseCase;
-        this.postDeleteUseCase = postDeleteUseCase;
-        this.postFetchUseCase = postFetchUseCase;
+        this.uploadPostUseCase = uploadPostUseCase;
+        this.updatePostUseCase = updatePostUseCase;
+        this.deletePostUseCase = deletePostUseCase;
+        this.fetchPostUseCase = fetchPostUseCase;
         this.commentQueryService = commentQueryService;
     }
 
@@ -52,7 +52,7 @@ public class PostController {
             @CurrentUser String userId,
             @Valid @RequestBody PostUploadRequest postUploadRequest
     ) {
-        postUploadUseCase.uploadPost(userId, postUploadRequest.toCommand());
+        uploadPostUseCase.uploadPost(userId, postUploadRequest.toCommand());
         return ResponseEntity.status(CREATED).build();
     }
 
@@ -63,7 +63,7 @@ public class PostController {
             @CurrentUser String userId,
             @Valid @RequestBody PostUpdateRequest postUpdateRequest
     ) {
-        postUpdateUseCase.updatePost(userId, postId, postUpdateRequest.toCommand());
+        updatePostUseCase.updatePost(userId, postId, postUpdateRequest.toCommand());
         return ResponseEntity.status(NO_CONTENT).build();
     }
 
@@ -73,7 +73,7 @@ public class PostController {
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId,
             @CurrentUser String userId
     ) {
-        postDeleteUseCase.deletePost(userId, postId);
+        deletePostUseCase.deletePost(userId, postId);
         return ResponseEntity.status(NO_CONTENT).build();
     }
 
@@ -82,7 +82,7 @@ public class PostController {
     public ResponseEntity<Void> increaseViewCount(
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId
     ) {
-        postUpdateUseCase.increaseViewCount(postId);
+        updatePostUseCase.increaseViewCount(postId);
         return ResponseEntity.status(CREATED).build();
     }
 
@@ -98,9 +98,9 @@ public class PostController {
     ) {
         Page<PostResult> posts;
         if (keyword != null) {
-            posts = postFetchUseCase.searchKeyword(keyword, page);
+            posts = fetchPostUseCase.searchKeyword(keyword, page);
         } else {
-            posts = postFetchUseCase.getPosts(countryId, sort, isPublic, category, page);
+            posts = fetchPostUseCase.getPosts(countryId, sort, isPublic, category, page);
         }
         var pagedPosts = posts.map(PostResult::toInfraDTO);
         return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
@@ -111,7 +111,7 @@ public class PostController {
     public ResponseEntity<PostDetailResponse> getPost(
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId
     ) {
-        var post = postFetchUseCase.getPostDetail(postId);
+        var post = fetchPostUseCase.getPostDetail(postId);
         var comments = commentQueryService.getHierarchicalCommentsByPostId(postId);
         return ResponseEntity.ok(PostDetailResponse.successWithHierarchicalComments(post, comments));
     }
@@ -122,7 +122,7 @@ public class PostController {
             @CurrentUser String userId,
             @Parameter(description = "포스팅 타입") @RequestParam(value = "contentType", defaultValue = "POST") ContentType contentType
     ) {
-        var postResults = postFetchUseCase.getBookmarkedPosts(userId, contentType);
+        var postResults = fetchPostUseCase.getBookmarkedPosts(userId, contentType);
         var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
         return ResponseEntity.ok(PostListResponse.of(postList));
     }
@@ -134,7 +134,7 @@ public class PostController {
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
-        var postResults = postFetchUseCase.getUserPosts(userId, page);
+        var postResults = fetchPostUseCase.getUserPosts(userId, page);
         var pagedPosts = postResults.map(PostResult::toInfraDTO);
         return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
     }

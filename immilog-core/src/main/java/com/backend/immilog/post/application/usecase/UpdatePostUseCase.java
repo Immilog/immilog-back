@@ -1,5 +1,6 @@
 package com.backend.immilog.post.application.usecase;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.post.application.dto.PostUpdateCommand;
 import com.backend.immilog.post.application.services.BulkCommandService;
 import com.backend.immilog.post.application.services.PostCommandService;
@@ -17,9 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-
-public interface PostUpdateUseCase {
+public interface UpdatePostUseCase {
     void updatePost(
             String userId,
             String postId,
@@ -30,13 +29,13 @@ public interface PostUpdateUseCase {
 
     @Slf4j
     @Service
-    class PostUpdater implements PostUpdateUseCase {
+    class UpdaterPost implements UpdatePostUseCase {
         private final PostQueryService postQueryService;
         private final PostCommandService postCommandService;
         private final PostResourceCommandService postResourceCommandService;
         private final BulkCommandService bulkCommandService;
 
-        public PostUpdater(
+        public UpdaterPost(
                 PostQueryService postQueryService,
                 PostCommandService postCommandService,
                 PostResourceCommandService postResourceCommandService,

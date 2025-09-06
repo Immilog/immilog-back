@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -23,9 +24,11 @@ public class UserValidationService {
     private final DomainEventPublisher eventPublisher;
     private final EventResultStorageService eventResultStorage;
     private final Duration validationTimeout = Duration.ofSeconds(5);
-    
-    public UserValidationService(DomainEventPublisher eventPublisher, 
-                               EventResultStorageService eventResultStorage) {
+
+    public UserValidationService(
+            DomainEventPublisher eventPublisher,
+            EventResultStorageService eventResultStorage
+    ) {
         this.eventPublisher = eventPublisher;
         this.eventResultStorage = eventResultStorage;
     }
@@ -39,38 +42,33 @@ public class UserValidationService {
         String requestId = UUID.randomUUID().toString();
         
         log.debug("Requesting user validation for userId: {} with requestId: {}", userId, requestId);
-        
-        // 사용자 검증 요청 이벤트 발행
-        UserValidationRequestedEvent requestEvent = new UserValidationRequestedEvent(
+
+        var requestEvent = new UserValidationRequestedEvent(
                 requestId, userId, "post"
         );
         
         return CompletableFuture.supplyAsync(() -> {
             try {
+                var processingFuture = eventResultStorage.registerEventProcessing(requestId);
                 eventPublisher.publishDomainEvent(requestEvent);
-                
-                // 응답 대기 (폴링 방식)
-                for (int i = 0; i < validationTimeout.toSeconds(); i++) {
-                    try {
-                        String responseKey = "user_validation_" + requestId;
-                        Object response = eventResultStorage.getResult(responseKey, UserValidationResponseEvent.class);
-                        
-                        if (response instanceof UserValidationResponseEvent validationResponse) {
-                            log.debug("Received user validation response for requestId: {}, isValid: {}", 
-                                    requestId, validationResponse.isValid());
-                            return validationResponse.isValid();
-                        }
-                        
-                        Thread.sleep(1000); // 1초 대기
-                        
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("User validation interrupted", e);
-                    }
+
+                try {
+                    processingFuture.get(validationTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                } catch (Exception e) {
+                    log.warn("Event processing timeout or failed for requestId: {}", requestId, e);
                 }
-                
-                log.warn("User validation timeout for userId: {}, requestId: {}", userId, requestId);
-                throw new RuntimeException("User validation timeout");
+
+                var responseKey = "user_validation_" + requestId;
+                var response = eventResultStorage.getResult(responseKey, UserValidationResponseEvent.class);
+
+                if (response instanceof UserValidationResponseEvent validationResponse) {
+                    log.info("Received user validation response for requestId: {}, isValid: {}",
+                            requestId, validationResponse.isValid());
+                    return validationResponse.isValid();
+                } else {
+                    log.warn("No valid user validation response found for requestId: {}", requestId);
+                    return false; // 검증 실패 시 false 반환
+                }
                 
             } catch (Exception e) {
                 log.error("Error during user validation for userId: {}", userId, e);

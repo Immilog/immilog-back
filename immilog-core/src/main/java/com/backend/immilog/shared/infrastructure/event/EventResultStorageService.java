@@ -1,5 +1,6 @@
 package com.backend.immilog.shared.infrastructure.event;
 
+import com.backend.immilog.shared.domain.model.CommentData;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.UserData;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,10 +43,10 @@ public class EventResultStorageService {
             List<InteractionData> interactionDataList
     ) {
         try {
-            String key = INTERACTION_DATA_KEY_PREFIX + requestId;
-            String jsonValue = objectMapper.writeValueAsString(interactionDataList);
+            var key = INTERACTION_DATA_KEY_PREFIX + requestId;
+            var jsonValue = objectMapper.writeValueAsString(interactionDataList);
             eventRedisTemplate.opsForValue().set(key, jsonValue, TTL.toSeconds(), TimeUnit.SECONDS);
-            log.debug("Stored {} interaction data items with key: {}", interactionDataList.size(), key);
+            log.info("Stored {} interaction data items with key: {}", interactionDataList.size(), key);
             
             // 이벤트 처리 완료 신호
             completeEventProcessing(requestId);
@@ -61,10 +62,10 @@ public class EventResultStorageService {
             List<String> postIds
     ) {
         try {
-            String key = BOOKMARK_DATA_KEY_PREFIX + requestId;
-            String jsonValue = objectMapper.writeValueAsString(postIds);
+            var key = BOOKMARK_DATA_KEY_PREFIX + requestId;
+            var jsonValue = objectMapper.writeValueAsString(postIds);
             eventRedisTemplate.opsForValue().set(key, jsonValue, TTL.toSeconds(), TimeUnit.SECONDS);
-            log.debug("Stored {} bookmark post IDs with key: {}", postIds.size(), key);
+            log.info("Stored {} bookmark post IDs with key: {}", postIds.size(), key);
             
             // 이벤트 처리 완료 신호
             completeEventProcessing(requestId);
@@ -80,10 +81,10 @@ public class EventResultStorageService {
             List<UserData> userDataList
     ) {
         try {
-            String key = USER_DATA_KEY_PREFIX + requestId;
-            String jsonValue = objectMapper.writeValueAsString(userDataList);
+            var key = USER_DATA_KEY_PREFIX + requestId;
+            var jsonValue = objectMapper.writeValueAsString(userDataList);
             eventRedisTemplate.opsForValue().set(key, jsonValue, TTL.toSeconds(), TimeUnit.SECONDS);
-            log.debug("Stored {} user data items with key: {}", userDataList.size(), key);
+            log.info("Stored {} user data items with key: {}", userDataList.size(), key);
             
             // 이벤트 처리 완료 신호
             completeEventProcessing(requestId);
@@ -114,12 +115,14 @@ public class EventResultStorageService {
 
     public List<String> getBookmarkData(String requestId) {
         try {
-            String key = BOOKMARK_DATA_KEY_PREFIX + requestId;
-            Object result = eventRedisTemplate.opsForValue().get(key);
+            var key = BOOKMARK_DATA_KEY_PREFIX + requestId;
+            var result = eventRedisTemplate.opsForValue().get(key);
             
             if (result instanceof String jsonString) {
-                return objectMapper.readValue(jsonString, 
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, String.class));
+                return objectMapper.readValue(
+                        jsonString,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                );
             }
             
             log.warn("No bookmark data found for requestId: {}", requestId);
@@ -132,12 +135,14 @@ public class EventResultStorageService {
 
     public List<UserData> getUserData(String requestId) {
         try {
-            String key = USER_DATA_KEY_PREFIX + requestId;
-            Object result = eventRedisTemplate.opsForValue().get(key);
+            var key = USER_DATA_KEY_PREFIX + requestId;
+            var result = eventRedisTemplate.opsForValue().get(key);
             
             if (result instanceof String jsonString) {
-                return objectMapper.readValue(jsonString, 
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, UserData.class));
+                return objectMapper.readValue(
+                        jsonString,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, UserData.class)
+                );
             }
             
             log.warn("No user data found for requestId: {}", requestId);
@@ -156,9 +161,9 @@ public class EventResultStorageService {
      * 이벤트 처리 대기용 Future를 등록합니다
      */
     public CompletableFuture<Void> registerEventProcessing(String requestId) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        var future = new CompletableFuture<Void>();
         pendingEvents.put(requestId, future);
-        log.debug("Registered event processing future for requestId: {}", requestId);
+        log.info("Registered event processing future for requestId: {}", requestId);
         return future;
     }
 
@@ -166,10 +171,10 @@ public class EventResultStorageService {
      * 이벤트 처리 완료 신호를 보냅니다
      */
     private void completeEventProcessing(String requestId) {
-        CompletableFuture<Void> future = pendingEvents.remove(requestId);
+        var future = pendingEvents.remove(requestId);
         if (future != null && !future.isDone()) {
             future.complete(null);
-            log.debug("Completed event processing for requestId: {}", requestId);
+            log.info("Completed event processing for requestId: {}", requestId);
         }
     }
 
@@ -177,10 +182,10 @@ public class EventResultStorageService {
      * 이벤트 처리 실패 신호를 보냅니다
      */
     private void failEventProcessing(String requestId, Exception e) {
-        CompletableFuture<Void> future = pendingEvents.remove(requestId);
+        var future = pendingEvents.remove(requestId);
         if (future != null && !future.isDone()) {
             future.completeExceptionally(e);
-            log.debug("Failed event processing for requestId: {}", requestId);
+            log.info("Failed event processing for requestId: {}", requestId);
         }
     }
 
@@ -189,7 +194,7 @@ public class EventResultStorageService {
      */
     public List<InteractionData> waitForInteractionData(String requestId, Duration timeout) {
         try {
-            CompletableFuture<Void> future = pendingEvents.get(requestId);
+            var future = pendingEvents.get(requestId);
             if (future != null) {
                 future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
             }
@@ -205,7 +210,7 @@ public class EventResultStorageService {
      */
     public List<String> waitForBookmarkData(String requestId, Duration timeout) {
         try {
-            CompletableFuture<Void> future = pendingEvents.get(requestId);
+            var future = pendingEvents.get(requestId);
             if (future != null) {
                 future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
             }
@@ -221,7 +226,7 @@ public class EventResultStorageService {
      */
     public List<UserData> waitForUserData(String requestId, Duration timeout) {
         try {
-            CompletableFuture<Void> future = pendingEvents.get(requestId);
+            var future = pendingEvents.get(requestId);
             if (future != null) {
                 future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
             }
@@ -236,31 +241,89 @@ public class EventResultStorageService {
     public <T> void storeResult(String key, T result) {
         try {
             log.info("Storing result for key: {}, type: {}", key, result.getClass().getSimpleName());
-            eventRedisTemplate.opsForValue().set(key, result, TTL);
             
-            // 대기 중인 Future가 있다면 완료 처리
-            var future = pendingEvents.remove(key);
+            var jsonValue = objectMapper.writeValueAsString(result);
+            eventRedisTemplate.opsForValue().set(key, jsonValue, TTL.toSeconds(), TimeUnit.SECONDS);
+            
+            log.info("Successfully stored result for key: {}", key);
+            
+            // 키에서 requestId 추출 (comment_data_, interaction_data_, user_validation_ 등의 접두사 제거)
+            String requestId = extractRequestIdFromKey(key);
+            var future = pendingEvents.remove(requestId);
             if (future != null) {
                 future.complete(null);
+                log.info("Completed event processing future for requestId: {}", requestId);
+            } else {
+                log.warn("No pending future found for requestId: {} (key: {})", requestId, key);
             }
         } catch (Exception e) {
             log.error("Failed to store result for key: {}", key, e);
             
             // 실패한 경우 Future를 예외적으로 완료
-            var future = pendingEvents.remove(key);
+            String requestId = extractRequestIdFromKey(key);
+            var future = pendingEvents.remove(requestId);
             if (future != null) {
                 future.completeExceptionally(e);
+                log.info("Failed event processing future for requestId: {}", requestId);
             }
         }
+    }
+    
+    /**
+     * 응답 키에서 requestId를 추출합니다
+     */
+    private String extractRequestIdFromKey(String key) {
+        if (key.startsWith("comment_data_")) {
+            return key.substring("comment_data_".length());
+        } else if (key.startsWith("interaction_data_")) {
+            return key.substring("interaction_data_".length());
+        } else if (key.startsWith("user_validation_")) {
+            return key.substring("user_validation_".length());
+        } else if (key.startsWith(INTERACTION_DATA_KEY_PREFIX)) {
+            return key.substring(INTERACTION_DATA_KEY_PREFIX.length());
+        } else if (key.startsWith(BOOKMARK_DATA_KEY_PREFIX)) {
+            return key.substring(BOOKMARK_DATA_KEY_PREFIX.length());
+        } else if (key.startsWith(USER_DATA_KEY_PREFIX)) {
+            return key.substring(USER_DATA_KEY_PREFIX.length());
+        }
+        
+        // 접두사가 없으면 키 자체가 requestId일 가능성이 있음
+        return key;
     }
     
     // 일반적인 결과 조회 메소드 (타입 안전성 보장)
     public <T> T getResult(String key, Class<T> type) {
         try {
-            Object result = eventRedisTemplate.opsForValue().get(key);
-            if (result != null && type.isAssignableFrom(result.getClass())) {
-                log.info("Retrieved result for key: {}, type: {}", key, type.getSimpleName());
-                return type.cast(result);
+            var result = eventRedisTemplate.opsForValue().get(key);
+            if (result != null) {
+                if (result instanceof String jsonString) {
+                    if (type == Object.class) {
+                        try {
+                            return (T) objectMapper.readValue(
+                                    jsonString,
+                                    objectMapper.getTypeFactory().constructCollectionType(List.class, CommentData.class)
+                            );
+                        } catch (Exception e) {
+                            log.warn("Failed to deserialize as List<CommentData>, trying as generic List for key: {}", key);
+                            try {
+                                return (T) objectMapper.readValue(
+                                        jsonString,
+                                        objectMapper.getTypeFactory().constructCollectionType(List.class, Object.class)
+                                );
+                            } catch (Exception e2) {
+                                log.warn("Failed to deserialize as List<Object>, trying as generic object for key: {}", key);
+                                return (T) objectMapper.readValue(jsonString, Object.class);
+                            }
+                        }
+                    } else {
+                        T deserializedResult = objectMapper.readValue(jsonString, type);
+                        log.info("Retrieved and deserialized result for key: {}, type: {}", key, type.getSimpleName());
+                        return deserializedResult;
+                    }
+                } else if (type.isAssignableFrom(result.getClass())) {
+                    log.info("Retrieved result for key: {}, type: {}", key, type.getSimpleName());
+                    return type.cast(result);
+                }
             }
             log.warn("No result found for key: {} or type mismatch", key);
             return null;

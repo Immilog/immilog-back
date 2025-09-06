@@ -1,13 +1,12 @@
 package com.backend.immilog.post.application.usecase;
 
 import com.backend.immilog.post.application.services.PostCommandService;
-import com.backend.immilog.post.application.services.PostQueryService;
 import com.backend.immilog.post.application.services.PostResourceCommandService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-public interface PostDeleteUseCase {
+public interface DeletePostUseCase {
     void deletePost(
             String userId,
             String postId
@@ -15,18 +14,15 @@ public interface PostDeleteUseCase {
 
     @Slf4j
     @Service
-    class PostDeleter implements PostDeleteUseCase {
+    class DeleterPost implements DeletePostUseCase {
         private final PostCommandService postCommandService;
-        private final PostQueryService postQueryService;
         private final PostResourceCommandService postResourceCommandService;
 
-        public PostDeleter(
+        public DeleterPost(
                 PostCommandService postCommandService,
-                PostQueryService postQueryService,
                 PostResourceCommandService postResourceCommandService
         ) {
             this.postCommandService = postCommandService;
-            this.postQueryService = postQueryService;
             this.postResourceCommandService = postResourceCommandService;
         }
 

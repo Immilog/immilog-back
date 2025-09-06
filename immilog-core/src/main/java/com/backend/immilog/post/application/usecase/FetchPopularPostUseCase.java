@@ -8,17 +8,17 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
-public interface PopularPostFetchUseCase {
+public interface FetchPopularPostUseCase {
     void aggregatePopularPosts();
 
     @Slf4j
     @Service
-    class PopularPostFetcher implements PopularPostFetchUseCase {
+    class FetcherPopularPost implements FetchPopularPostUseCase {
         private final PostCommandService postCommandService;
         private final PopularPostRepository popularPostRepository;
         private final PostBadgeService postBadgeService;
 
-        public PopularPostFetcher(
+        public FetcherPopularPost(
                 PostCommandService postCommandService,
                 PopularPostRepository popularPostRepository,
                 PostBadgeService postBadgeService

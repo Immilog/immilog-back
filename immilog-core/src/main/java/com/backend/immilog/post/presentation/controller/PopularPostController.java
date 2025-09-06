@@ -1,7 +1,7 @@
 package com.backend.immilog.post.presentation.controller;
 
 import com.backend.immilog.post.application.dto.PopularPostMenuResponse;
-import com.backend.immilog.post.application.usecase.PopularPostMenuUseCase;
+import com.backend.immilog.post.application.usecase.PostPopularUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/posts")
 @RestController
 public class PopularPostController {
-    
-    private final PopularPostMenuUseCase popularPostMenuUseCase;
 
-    public PopularPostController(PopularPostMenuUseCase popularPostMenuUseCase) {
-        this.popularPostMenuUseCase = popularPostMenuUseCase;
+    private final PostPopularUseCase postPopularUseCase;
+
+    public PopularPostController(PostPopularUseCase postPopularUseCase) {
+        this.postPopularUseCase = postPopularUseCase;
     }
 
     @GetMapping("/popular")
@@ -26,7 +26,7 @@ public class PopularPostController {
         description = "HOT 게시물 5개와 주간베스트 게시물 5개를 통합 조회합니다."
     )
     public ResponseEntity<PopularPostMenuResponse> getPopularPostMenu() {
-        var response = popularPostMenuUseCase.getPopularPostMenu();
+        var response = postPopularUseCase.getPopularPostMenu();
         return ResponseEntity.ok(response);
     }
 }

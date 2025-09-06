@@ -2,6 +2,7 @@ package com.backend.immilog.post.application.usecase;
 
 import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
+import com.backend.immilog.post.application.services.PostInteractionDataService;
 import com.backend.immilog.post.application.services.PostQueryService;
 import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.post.domain.model.post.Categories;
@@ -9,8 +10,6 @@ import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
-import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,7 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 
-public interface PostFetchUseCase {
+public interface FetchPostUseCase {
     Page<PostResult> getPosts(
             String countryId,
             SortingMethods sortingMethod,
@@ -49,22 +48,22 @@ public interface PostFetchUseCase {
 
     @Slf4j
     @Service
-    class PostFetcher implements PostFetchUseCase {
+    class FetcherPost implements FetchPostUseCase {
         private final PostQueryService postQueryService;
         private final PostResultAssembler postResultAssembler;
         private final EventResultStorageService eventResultStorageService;
-        private final InteractionUserQueryService interactionUserQueryService;
+        private final PostInteractionDataService postInteractionDataService;
 
-        public PostFetcher(
+        public FetcherPost(
                 PostQueryService postQueryService,
                 PostResultAssembler postResultAssembler,
                 EventResultStorageService eventResultStorageService,
-                InteractionUserQueryService interactionUserQueryService
+                PostInteractionDataService postInteractionDataService
         ) {
             this.postQueryService = postQueryService;
             this.postResultAssembler = postResultAssembler;
             this.eventResultStorageService = eventResultStorageService;
-            this.interactionUserQueryService = interactionUserQueryService;
+            this.postInteractionDataService = postInteractionDataService;
         }
 
         public Page<PostResult> getPosts(
