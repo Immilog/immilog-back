@@ -14,6 +14,7 @@ import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -39,10 +40,10 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
     @Override
     public void onMessage(MapRecord<String, String, String> record) {
         try {
-            String streamName = record.getStream();
-            String consumerGroup = determineConsumerGroup(streamName);
-            
-            log.debug("Received message from stream: {}, recordId: {}", streamName, record.getId());
+            var streamName = record.getStream();
+            var consumerGroup = determineConsumerGroup(streamName);
+
+            log.info("Received message from stream: {}, recordId: {}", streamName, record.getId());
 
             // 이벤트 처리
             processEventMessage(record);
@@ -51,27 +52,25 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
             acknowledgeMessage(record, consumerGroup);
             
         } catch (Exception e) {
-            log.error("Failed to process stream message: streamName={}, recordId={}", 
-                    record.getStream(), record.getId(), e);
-            // 예외 발생 시 ACK하지 않으므로 재처리됨
+            log.error("Failed to process stream message: streamName={}, recordId={}", record.getStream(), record.getId(), e);
         }
     }
 
     private void processEventMessage(MapRecord<String, String, String> record) {
         try {
-            Map<String, String> fields = record.getValue();
-            String eventJson = fields.get("event");
-            String messageId = fields.get("messageId");
+            var fields = record.getValue();
+            var eventJson = fields.get("event");
+            var messageId = fields.get("messageId");
             
             if (eventJson == null) {
                 log.warn("No event field found in stream record: {}", record.getId());
                 return;
             }
 
-            log.debug("Processing event JSON: {}", eventJson);
-            log.debug("Event JSON type: {}", eventJson.getClass().getName());
-            log.debug("Event JSON length: {}", eventJson.length());
-            log.debug("First 100 chars: {}", eventJson.length() > 100 ? eventJson.substring(0, 100) + "..." : eventJson);
+            log.info("Processing event JSON: {}", eventJson);
+            log.info("Event JSON type: {}", eventJson.getClass().getName());
+            log.info("Event JSON length: {}", eventJson.length());
+            log.info("First 100 chars: {}", eventJson.length() > 100 ? eventJson.substring(0, 100) + "..." : eventJson);
             
             // JSON 문자열이 이스케이프된 상태인지 확인
             if (eventJson.startsWith("\"") && eventJson.endsWith("\"")) {
@@ -79,7 +78,7 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
                 // 이스케이프된 JSON 문자열을 언이스케이프
                 try {
                     eventJson = objectMapper.readValue(eventJson, String.class);
-                    log.debug("Unescaped JSON: {}", eventJson);
+                    log.info("Unescaped JSON: {}", eventJson);
                 } catch (Exception e) {
                     log.error("Failed to unescape JSON", e);
                 }
@@ -102,7 +101,7 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
     private void processEventMessage(RedisEventMessage eventMessage, boolean isCompensation) {
         try {
             // 이벤트 타입으로 클래스 로드
-            Class<?> eventClass = Class.forName(eventMessage.eventType());
+            var eventClass = Class.forName(eventMessage.eventType());
 
             if (!DomainEvent.class.isAssignableFrom(eventClass)) {
                 log.warn("Event class {} is not a DomainEvent", eventClass.getName());
@@ -110,26 +109,25 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
             }
 
             // JSON에서 이벤트 객체로 역직렬화
-            DomainEvent event = (DomainEvent) objectMapper.readValue(eventMessage.payload(), eventClass);
+            var event = (DomainEvent) objectMapper.readValue(eventMessage.payload(), eventClass);
 
             // 캐시된 핸들러 조회
-            DomainEventHandler<DomainEvent> handler = 
-                (DomainEventHandler<DomainEvent>) handlerCache.get(event.getClass());
+            var handler = (DomainEventHandler<DomainEvent>) handlerCache.get(event.getClass());
 
             if (handler != null) {
-                log.debug("Processing {} event: {} with messageId: {}",
+                log.info("Processing {} event: {} with messageId: {}",
                         isCompensation ? "compensation" : "domain",
                         event.getClass().getSimpleName(),
                         eventMessage.messageId());
 
                 handler.handle(event);
 
-                log.debug("Successfully processed {} event: {} with messageId: {}",
+                log.info("Successfully processed {} event: {} with messageId: {}",
                         isCompensation ? "compensation" : "domain",
                         event.getClass().getSimpleName(),
                         eventMessage.messageId());
             } else {
-                log.debug("No handler found for event type: {}", event.getClass().getName());
+                log.warn("No handler found for event type: {}", event.getClass().getName());
             }
 
         } catch (Exception e) {
@@ -141,14 +139,11 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
 
     private void acknowledgeMessage(MapRecord<String, String, String> record, String consumerGroup) {
         try {
-            String streamName = record.getStream();
-            eventRedisTemplate.opsForStream().acknowledge(streamName, consumerGroup, record.getId());
-            
-            log.debug("Acknowledged message: stream={}, group={}, recordId={}", 
-                    streamName, consumerGroup, record.getId());
+            var streamName = record.getStream();
+            eventRedisTemplate.opsForStream().acknowledge(Objects.requireNonNull(streamName), consumerGroup, record.getId());
+            log.info("Acknowledged message: stream={}, group={}, recordId={}", streamName, consumerGroup, record.getId());
         } catch (Exception e) {
-            log.error("Failed to acknowledge message: stream={}, group={}, recordId={}", 
-                    record.getStream(), consumerGroup, record.getId(), e);
+            log.error("Failed to acknowledge message: stream={}, group={}, recordId={}", record.getStream(), consumerGroup, record.getId(), e);
         }
     }
 
@@ -164,13 +159,13 @@ public class RedisStreamsPushEventListener implements StreamListener<String, Map
 
     @SuppressWarnings("unchecked")
     private void initializeHandlers() {
-        Map<String, DomainEventHandler> handlers = applicationContext.getBeansOfType(DomainEventHandler.class);
+        var handlers = applicationContext.getBeansOfType(DomainEventHandler.class);
 
-        for (DomainEventHandler handler : handlers.values()) {
-            Class<? extends DomainEvent> eventType = handler.getEventType();
+        for (var handler : handlers.values()) {
+            var eventType = handler.getEventType();
             handlerCache.put(eventType, handler);
-            
-            log.debug("Registered event handler: {} for event type: {}",
+
+            log.info("Registered event handler: {} for event type: {},",
                     handler.getClass().getSimpleName(),
                     eventType.getName());
         }

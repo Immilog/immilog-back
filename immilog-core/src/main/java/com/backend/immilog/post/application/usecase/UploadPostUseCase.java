@@ -4,11 +4,10 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.post.application.dto.PostUploadCommand;
 import com.backend.immilog.post.application.services.BulkCommandService;
 import com.backend.immilog.post.application.services.PostCommandService;
+import com.backend.immilog.post.application.services.UserValidationService;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.resource.ContentResource;
 import com.backend.immilog.post.exception.PostException;
-import com.backend.immilog.user.application.services.query.UserQueryService;
-import com.backend.immilog.user.domain.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,7 @@ import static com.backend.immilog.post.domain.model.resource.ResourceType.TAG;
 import static com.backend.immilog.post.exception.PostErrorCode.FAILED_TO_SAVE_POST;
 import static com.backend.immilog.shared.enums.ContentType.POST;
 
-public interface PostUploadUseCase {
+public interface UploadPostUseCase {
     void uploadPost(
             String userId,
             PostUploadCommand postUploadCommand
@@ -31,18 +30,18 @@ public interface PostUploadUseCase {
 
     @Slf4j
     @Service
-    class PostUploader implements PostUploadUseCase {
+    class UploaderPost implements UploadPostUseCase {
         private final PostCommandService postCommandService;
-        private final UserQueryService userQueryService;
+        private final UserValidationService userValidationService;
         private final BulkCommandService bulkInsertRepository;
 
-        public PostUploader(
+        public UploaderPost(
                 PostCommandService postCommandService,
-                UserQueryService userQueryService,
+                UserValidationService userValidationService,
                 BulkCommandService bulkInsertRepository
         ) {
             this.postCommandService = postCommandService;
-            this.userQueryService = userQueryService;
+            this.userValidationService = userValidationService;
             this.bulkInsertRepository = bulkInsertRepository;
         }
 
@@ -52,8 +51,13 @@ public interface PostUploadUseCase {
                 String userId,
                 PostUploadCommand postUploadCommand
         ) {
-            final var user = userQueryService.getUserById(userId);
-            final var newPost = createPost(postUploadCommand, user);
+            // 이벤트 기반으로 사용자 검증 및 데이터 조회
+            if (!userValidationService.validateUser(userId)) {
+                throw new PostException(com.backend.immilog.post.exception.PostErrorCode.INVALID_USER);
+            }
+
+            // UserData는 null로 설정하고, 추후 Post 저장 후 이벤트로 보완
+            final var newPost = createPost(postUploadCommand, userId);
             final var savedPost = postCommandService.save(newPost);
             this.insertAllPostResources(postUploadCommand, savedPost.id());
         }
@@ -129,12 +133,12 @@ public interface PostUploadUseCase {
 
         private static Post createPost(
                 PostUploadCommand postUploadCommand,
-                User user
+                String userId
         ) {
             return Post.of(
-                    user.getUserId().value(),
-                    user.getCountryId(),
-                    user.getRegion(),
+                    userId,
+                    null, // countryId - 추후 이벤트로 보완 예정
+                    null, // region - 추후 이벤트로 보완 예정
                     postUploadCommand.title(),
                     postUploadCommand.content(),
                     postUploadCommand.category(),

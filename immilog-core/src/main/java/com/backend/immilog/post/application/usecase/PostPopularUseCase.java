@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface PopularPostMenuUseCase {
+public interface PostPopularUseCase {
     PopularPostMenuResponse getPopularPostMenu();
 
     @Slf4j
     @Service
-    class PopularPostMenuFetcher implements PopularPostMenuUseCase {
+    class PostPopularFetcher implements PostPopularUseCase {
         private final PostQueryService postQueryService;
 
-        public PopularPostMenuFetcher(PostQueryService postQueryService) {
+        public PostPopularFetcher(PostQueryService postQueryService) {
             this.postQueryService = postQueryService;
         }
 

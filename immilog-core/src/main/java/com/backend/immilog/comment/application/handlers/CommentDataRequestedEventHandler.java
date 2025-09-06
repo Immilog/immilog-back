@@ -26,7 +26,7 @@ public class CommentDataRequestedEventHandler implements DomainEventHandler<Comm
 
     @Override
     public void handle(CommentDataRequestedEvent event) {
-        log.debug("Processing CommentDataRequestedEvent for postIds: {} from domain: {}", 
+        log.info("Processing CommentDataRequestedEvent for postIds: {} from domain: {}",
                 event.getPostIds(), event.getRequestingDomain());
         
         try {
@@ -51,8 +51,8 @@ public class CommentDataRequestedEventHandler implements DomainEventHandler<Comm
             
             String responseKey = "comment_data_" + event.getRequestId();
             eventResultStorageService.storeResult(responseKey, commentDataList);
-            
-            log.debug("Successfully processed and stored {} comment data records with requestId: {} from domain: {}", 
+
+            log.info("Successfully processed and stored {} comment data records with requestId: {} from domain: {}",
                     commentDataList.size(), event.getRequestId(), event.getRequestingDomain());
             
         } catch (Exception e) {

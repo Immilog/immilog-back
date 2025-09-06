@@ -2,7 +2,7 @@ package com.backend.immilog.post.presentation.controller;
 
 import com.backend.immilog.post.application.dto.EnrichedPopularPostMenuResponse;
 import com.backend.immilog.post.application.dto.PostResult;
-import com.backend.immilog.post.application.usecase.PopularPostMenuUseCase;
+import com.backend.immilog.post.application.usecase.PostPopularUseCase;
 import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.shared.application.gateway.ApiGatewayService;
 import com.backend.immilog.shared.application.gateway.DataEnrichmentRequest;
@@ -32,14 +32,14 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class EnrichedPopularPostController {
 
-    private final PopularPostMenuUseCase popularPostMenuUseCase;
+    private final PostPopularUseCase postPopularUseCase;
     private final ApiGatewayService apiGatewayService;
 
     public EnrichedPopularPostController(
-            PopularPostMenuUseCase popularPostMenuUseCase,
+            PostPopularUseCase postPopularUseCase,
             ApiGatewayService apiGatewayService
     ) {
-        this.popularPostMenuUseCase = popularPostMenuUseCase;
+        this.postPopularUseCase = postPopularUseCase;
         this.apiGatewayService = apiGatewayService;
     }
 
@@ -59,7 +59,7 @@ public class EnrichedPopularPostController {
 
         try {
             // 1. 기본 인기글 데이터 조회
-            var baseResponse = popularPostMenuUseCase.getPopularPostMenu();
+            var baseResponse = postPopularUseCase.getPopularPostMenu();
 
             // 2. 데이터 조합 요청 설정
             var enrichmentRequest = DataEnrichmentRequest.builder()
@@ -105,7 +105,7 @@ public class EnrichedPopularPostController {
             log.error("Error getting enriched popular post menu", e);
 
             // 에러 발생시 fallback으로 기본 응답 반환
-            var baseResponse = popularPostMenuUseCase.getPopularPostMenu();
+            var baseResponse = postPopularUseCase.getPopularPostMenu();
             var fallbackResponse = EnrichedPopularPostMenuResponse.fallback(
                     baseResponse.hot(),
                     baseResponse.weeklyBest(),
@@ -128,7 +128,7 @@ public class EnrichedPopularPostController {
     ) {
 
         try {
-            var baseResponse = popularPostMenuUseCase.getPopularPostMenu();
+            var baseResponse = postPopularUseCase.getPopularPostMenu();
             var request = buildEnrichmentRequest(currentUser, includeUserData, includeInteractionData);
 
             var enrichedPosts = enrichPostResults(baseResponse.hot(), request).get(3, TimeUnit.SECONDS);
@@ -153,7 +153,7 @@ public class EnrichedPopularPostController {
     ) {
 
         try {
-            var baseResponse = popularPostMenuUseCase.getPopularPostMenu();
+            var baseResponse = postPopularUseCase.getPopularPostMenu();
             var request = buildEnrichmentRequest(currentUser, includeUserData, includeInteractionData);
 
             var enrichedPosts = enrichPostResults(baseResponse.weeklyBest(), request).get(3, TimeUnit.SECONDS);

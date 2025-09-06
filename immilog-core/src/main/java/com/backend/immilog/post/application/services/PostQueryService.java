@@ -1,6 +1,5 @@
 package com.backend.immilog.post.application.services;
 
-import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.backend.immilog.post.application.dto.PostResult;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
 import com.backend.immilog.post.domain.events.PostEvent;
@@ -17,7 +16,6 @@ import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.DataRepository;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
-import com.backend.immilog.shared.domain.model.UserData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -45,7 +43,7 @@ public class PostQueryService {
     private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
     private final EventResultStorageService eventResultStorageService;
-    private final CommentQueryService commentQueryService;
+    private final PostCommentDataService postCommentDataService;
 
     public PostQueryService(
             ObjectMapper objectMapper,
@@ -54,7 +52,7 @@ public class PostQueryService {
             PostResourceQueryService postResourceQueryService,
             PostResultAssembler postResultAssembler,
             EventResultStorageService eventResultStorageService,
-            CommentQueryService commentQueryService
+            PostCommentDataService postCommentDataService
     ) {
         this.objectMapper = objectMapper;
         this.postDomainRepository = postDomainRepository;
@@ -62,7 +60,7 @@ public class PostQueryService {
         this.postResourceQueryService = postResourceQueryService;
         this.postResultAssembler = postResultAssembler;
         this.eventResultStorageService = eventResultStorageService;
-        this.commentQueryService = commentQueryService;
+        this.postCommentDataService = postCommentDataService;
     }
 
     @Transactional(readOnly = true)
@@ -196,8 +194,9 @@ public class PostQueryService {
         log.info("Retrieved {} interaction data items via event for requestId: {}", interactionUsers.size(), interactionRequestId);
         
         // 실시간 댓글 개수 조회
-        var commentCounts = commentQueryService.getCommentCountsByPostIds(resultIdList);
-        log.info("Retrieved comment counts for {} posts: {}", commentCounts.size(), commentCounts);
+        // 이벤트 기반으로 댓글 데이터 요청
+        var commentData = postCommentDataService.getCommentData(resultIdList);
+        log.info("Retrieved comment data for {} posts via events", commentData.size());
         
         var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
 
@@ -241,9 +240,11 @@ public class PostQueryService {
             long likeCount = interactionDataList.stream()
                     .filter(interaction -> "LIKE".equals(interaction.interactionType()) &&
                             "ACTIVE".equals(interaction.interactionStatus())).count();
-            
-            // 댓글 수 실시간 적용
-            long commentCount = commentCounts.getOrDefault(postResult.postId(), 0L);
+
+            // 댓글 수 실시간 적용 (이벤트 기반)
+            long commentCount = commentData.stream()
+                    .filter(comment -> comment.postId().equals(postResult.postId()))
+                    .count();
             
             var postResultWithLikeCount = postResultAssembler.assembleLikeCount(
                     postResultWithNewResources,

@@ -1,16 +1,23 @@
 package com.backend.immilog.shared.domain.event;
 
+import lombok.Getter;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
 public abstract class StandardDomainEvent implements DomainEvent {
-    
-    private final String eventId;
-    private final String eventType;
-    private final String aggregateId;
-    private final LocalDateTime occurredAt;
-    private final String userId;
+
+    @Getter
+    private String eventId;
+    private String eventType;
+    private String aggregateId;
+    private LocalDateTime occurredAt;
+    private String userId;
+
+    protected StandardDomainEvent() {
+    }
     
     protected StandardDomainEvent(String eventType, String aggregateId) {
         this(eventType, aggregateId, null);
@@ -22,22 +29,6 @@ public abstract class StandardDomainEvent implements DomainEvent {
         this.aggregateId = Objects.requireNonNull(aggregateId, "Aggregate ID cannot be null");
         this.userId = userId;
         this.occurredAt = LocalDateTime.now();
-    }
-    
-    public String getEventId() {
-        return eventId;
-    }
-    
-    public String getEventType() {
-        return eventType;
-    }
-    
-    public String getAggregateId() {
-        return aggregateId;
-    }
-    
-    public String getUserId() {
-        return userId;
     }
     
     @Override

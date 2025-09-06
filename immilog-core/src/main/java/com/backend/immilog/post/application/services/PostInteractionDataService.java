@@ -39,31 +39,28 @@ public class PostInteractionDataService {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
+                var processingFuture = eventResultStorage.registerEventProcessing(requestId);
+                
                 eventPublisher.publishDomainEvent(requestEvent);
 
-                for (int i = 0; i < requestTimeout.toSeconds(); i++) {
-                    try {
-                        String responseKey = "interaction_data_" + requestId;
-                        @SuppressWarnings("unchecked")
-                        List<InteractionData> response = (List<InteractionData>) eventResultStorage.getResult(
-                                responseKey, List.class);
-
-                        if (response != null && !response.isEmpty()) {
-                            log.debug("Received interaction data response for requestId: {}, count: {}", 
-                                    requestId, response.size());
-                            return response;
-                        }
-
-                        Thread.sleep(1000);
-
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Interaction data request interrupted", e);
-                    }
+                try {
+                    processingFuture.get(requestTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                } catch (Exception e) {
+                    log.warn("Event processing timeout or failed for requestId: {}", requestId, e);
                 }
 
-                log.warn("Interaction data request timeout for postIds: {}, requestId: {}", postIds, requestId);
-                return List.of();
+                var responseKey = "interaction_data_" + requestId;
+                @SuppressWarnings("unchecked")
+                var response = (List<InteractionData>) eventResultStorage.getResult(responseKey, List.class);
+
+                if (response != null && !response.isEmpty()) {
+                    log.info("Received interaction data response for requestId: {}, count: {}", 
+                            requestId, response.size());
+                    return response;
+                } else {
+                    log.warn("No valid interaction data found for requestId: {}", requestId);
+                    return List.of();
+                }
 
             } catch (Exception e) {
                 log.error("Error during interaction data request for postIds: {}", postIds, e);

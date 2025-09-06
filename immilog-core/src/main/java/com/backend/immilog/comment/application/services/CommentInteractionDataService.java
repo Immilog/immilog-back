@@ -41,31 +41,28 @@ public class CommentInteractionDataService {
 
         return CompletableFuture.supplyAsync(() -> {
             try {
+                var processingFuture = eventResultStorage.registerEventProcessing(requestId);
+                
                 eventPublisher.publishDomainEvent(requestEvent);
 
-                for (int i = 0; i < requestTimeout.toSeconds(); i++) {
-                    try {
-                        String responseKey = "interaction_data_" + requestId;
-                        @SuppressWarnings("unchecked")
-                        List<InteractionData> response = (List<InteractionData>) eventResultStorage.getResult(
-                                responseKey, List.class);
-
-                        if (response != null) {
-                            log.debug("Received comment interaction data response for requestId: {}, count: {}", 
-                                    requestId, response.size());
-                            return response;
-                        }
-
-                        Thread.sleep(1000);
-
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Comment interaction data request interrupted", e);
-                    }
+                try {
+                    processingFuture.get(requestTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                } catch (Exception e) {
+                    log.warn("Event processing timeout or failed for requestId: {}", requestId, e);
                 }
+                
+                var responseKey = "interaction_data_" + requestId;
+                @SuppressWarnings("unchecked")
+                var response = (List<InteractionData>) eventResultStorage.getResult(responseKey, List.class);
 
-                log.warn("Comment interaction data request timeout for commentIds: {}, requestId: {}", commentIds, requestId);
-                return List.of();
+                if (response != null) {
+                    log.info("Received comment interaction data response for requestId: {}, count: {}", 
+                            requestId, response.size());
+                    return response;
+                } else {
+                    log.warn("No valid comment interaction data found for requestId: {}", requestId);
+                    return List.of();
+                }
 
             } catch (Exception e) {
                 log.error("Error during comment interaction data request for commentIds: {}", commentIds, e);

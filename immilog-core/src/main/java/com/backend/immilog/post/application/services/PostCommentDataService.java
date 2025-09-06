@@ -20,7 +20,7 @@ public class PostCommentDataService {
 
     private final DomainEventPublisher eventPublisher;
     private final EventResultStorageService eventResultStorage;
-    private final Duration requestTimeout = Duration.ofSeconds(3);
+    private final Duration requestTimeout = Duration.ofSeconds(5);
 
     public PostCommentDataService(
             DomainEventPublisher eventPublisher,
@@ -33,37 +33,40 @@ public class PostCommentDataService {
     public CompletableFuture<List<CommentData>> getCommentDataAsync(List<String> postIds) {
         var requestId = UUID.randomUUID().toString();
 
-        log.debug("Requesting comment data for postIds: {} with requestId: {}", postIds, requestId);
+        log.info("Requesting comment data for postIds: {} with requestId: {}", postIds, requestId);
 
         var requestEvent = new CommentDataRequestedEvent(requestId, postIds, "post");
 
         return CompletableFuture.supplyAsync(() -> {
             try {
+                var processingFuture = eventResultStorage.registerEventProcessing(requestId);
+                
                 eventPublisher.publishDomainEvent(requestEvent);
 
-                for (int i = 0; i < requestTimeout.toSeconds(); i++) {
-                    try {
-                        String responseKey = "comment_data_" + requestId;
-                        @SuppressWarnings("unchecked")
-                        List<CommentData> response = (List<CommentData>) eventResultStorage.getResult(
-                                responseKey, List.class);
-
-                        if (response != null && !response.isEmpty()) {
-                            log.debug("Received comment data response for requestId: {}, count: {}", 
-                                    requestId, response.size());
-                            return response;
-                        }
-
-                        Thread.sleep(1000);
-
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Comment data request interrupted", e);
-                    }
+                try {
+                    processingFuture.get(requestTimeout.toMillis(), TimeUnit.MILLISECONDS);
+                    log.info("Event processing completed within timeout for requestId: {}", requestId);
+                } catch (java.util.concurrent.TimeoutException e) {
+                    log.info("Event processing timeout reached for requestId: {}, checking results anyway", requestId);
+                } catch (Exception e) {
+                    log.warn("Event processing failed for requestId: {}", requestId, e);
                 }
+                
+                String responseKey = "comment_data_" + requestId;
+                var result = eventResultStorage.getResult(responseKey, Object.class);
 
-                log.warn("Comment data request timeout for postIds: {}, requestId: {}", postIds, requestId);
-                return List.of();
+                log.info("Checking event result for responseKey: {}, result type: {}", 
+                        responseKey, result != null ? result.getClass().getSimpleName() : "null");
+
+                if (result instanceof List<?> list) {
+                    @SuppressWarnings("unchecked")
+                    var response = (List<CommentData>) list;
+                    log.info("Received comment data response for requestId: {}, count: {}", requestId, response.size());
+                    return response;
+                } else {
+                    log.warn("No valid event result found for responseKey: {}", responseKey);
+                    return List.of();
+                }
 
             } catch (Exception e) {
                 log.error("Error during comment data request for postIds: {}", postIds, e);
