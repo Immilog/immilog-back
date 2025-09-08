@@ -1,6 +1,8 @@
 package com.backend.immilog.shared.domain.event;
 
 import com.backend.immilog.shared.domain.model.UserData;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static com.backend.immilog.shared.domain.event.DomainEventTypes.USER_DATA_RESPONSE;
 
@@ -15,12 +17,27 @@ public class UserValidationResponseEvent extends StandardDomainEvent {
     private final UserData userData;
     private final String errorMessage;
     
-    public UserValidationResponseEvent(String requestId, String userId, boolean isValid, UserData userData) {
-        this(requestId, userId, isValid, userData, null);
+    public UserValidationResponseEvent() {
+        super();
+        this.requestId = null;
+        this.isValid = false;
+        this.userData = null;
+        this.errorMessage = null;
     }
     
-    public UserValidationResponseEvent(String requestId, String userId, boolean isValid, UserData userData, String errorMessage) {
-        super(USER_DATA_RESPONSE, userId);
+    public UserValidationResponseEvent(String requestId, String userId, boolean isValid, UserData userData) {
+        this(requestId, userId, userId, isValid, userData, null);
+    }
+    
+    @JsonCreator
+    public UserValidationResponseEvent(
+            @JsonProperty("requestId") String requestId, 
+            @JsonProperty("aggregateId") String aggregateId,
+            @JsonProperty("userId") String userId, 
+            @JsonProperty("valid") boolean isValid, 
+            @JsonProperty("userData") UserData userData, 
+            @JsonProperty("errorMessage") String errorMessage) {
+        super(USER_DATA_RESPONSE, aggregateId);
         this.requestId = requestId;
         this.isValid = isValid;
         this.userData = userData;
