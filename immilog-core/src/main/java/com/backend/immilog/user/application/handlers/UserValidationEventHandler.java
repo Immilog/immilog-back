@@ -52,6 +52,7 @@ public class UserValidationEventHandler implements DomainEventHandler<UserValida
                 response = new UserValidationResponseEvent(
                         event.getRequestId(), 
                         userId, 
+                        userId, 
                         false, 
                         null, 
                         "User not found or invalid"
@@ -72,6 +73,7 @@ public class UserValidationEventHandler implements DomainEventHandler<UserValida
             
             UserValidationResponseEvent errorResponse = new UserValidationResponseEvent(
                     event.getRequestId(), 
+                    event.getTargetUserId(), 
                     event.getTargetUserId(), 
                     false, 
                     null, 
