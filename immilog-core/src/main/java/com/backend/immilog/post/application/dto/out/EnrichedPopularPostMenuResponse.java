@@ -1,16 +1,14 @@
-package com.backend.immilog.post.application.dto;
+package com.backend.immilog.post.application.dto.out;
 
 import com.backend.immilog.shared.application.gateway.EnrichedResult;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * API Gateway를 통해 조합된 인기글 메뉴 응답
- * 기존 응답에 추가적인 메타데이터와 조합된 데이터 포함
- */
+@Getter
 public class EnrichedPopularPostMenuResponse {
-    
+
     private final List<EnrichedResult<PostResult>> hotPosts;
     private final List<EnrichedResult<PostResult>> weeklyBest;
     private final int totalHotPosts;
@@ -37,7 +35,6 @@ public class EnrichedPopularPostMenuResponse {
         return new Builder();
     }
     
-    // Static factory methods for common scenarios
     public static EnrichedPopularPostMenuResponse success(
             List<EnrichedResult<PostResult>> hotPosts, 
             List<EnrichedResult<PostResult>> weeklyBest) {
@@ -72,18 +69,7 @@ public class EnrichedPopularPostMenuResponse {
                 .fallbackUsed(true)
                 .build();
     }
-    
-    // Getters
-    public List<EnrichedResult<PostResult>> getHotPosts() { return hotPosts; }
-    public List<EnrichedResult<PostResult>> getWeeklyBest() { return weeklyBest; }
-    public int getTotalHotPosts() { return totalHotPosts; }
-    public int getTotalWeeklyBest() { return totalWeeklyBest; }
-    public boolean isEnrichmentIncluded() { return enrichmentIncluded; }
-    public String getCurrentUserId() { return currentUserId; }
-    public LocalDateTime getResponseTime() { return responseTime; }
-    public String getError() { return error; }
-    public boolean isFallbackUsed() { return fallbackUsed; }
-    
+
     // Status methods
     public boolean hasError() {
         return error != null;
@@ -101,7 +87,6 @@ public class EnrichedPopularPostMenuResponse {
         return totalHotPosts + totalWeeklyBest;
     }
     
-    // Analytics methods
     public long getAverageEnrichmentTime() {
         var allResults = List.<EnrichedResult<PostResult>>of();
         allResults.addAll(hotPosts);

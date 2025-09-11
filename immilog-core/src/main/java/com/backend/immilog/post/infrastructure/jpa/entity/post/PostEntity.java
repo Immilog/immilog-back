@@ -88,13 +88,13 @@ public class PostEntity {
 
     public static PostEntity from(Post post) {
         return new PostEntity(
-                post.id(),
+                post.id().value(),
                 post.postUserInfo(),
                 post.postInfo(),
                 post.category(),
-                post.isPublic(),
+                post.isPublicValue(),
                 post.badge(),
-                post.commentCount(),
+                post.commentCountValue(),
                 post.createdAt(),
                 post.updatedAt()
         );
@@ -102,13 +102,13 @@ public class PostEntity {
 
     public Post toDomain() {
         return new Post(
-                this.id,
+                new PostId(this.id),
                 this.postUserInfo == null ? null : this.postUserInfo.toDomain(),
                 this.postInfo == null ? null : this.postInfo.toDomain(),
                 this.category,
-                this.isPublic,
+                PublicStatus.fromValue(this.isPublic),
                 this.badge,
-                this.commentCount,
+                new CommentCount(this.commentCount),
                 this.createdAt,
                 this.updatedAt
         );

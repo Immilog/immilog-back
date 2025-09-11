@@ -7,24 +7,24 @@ import com.backend.immilog.shared.enums.ContentStatus;
 import java.time.LocalDateTime;
 
 public class Post {
-    private final String id;
+    private final PostId id;
     private final PostUserInfo postUserInfo;
     private PostInfo postInfo;
     private final Categories category;
-    private String isPublic;
+    private PublicStatus publicStatus;
     private Badge badge;
-    private Long commentCount;
+    private CommentCount commentCount;
     private final LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Post(
-            String id,
+            PostId id,
             PostUserInfo postUserInfo,
             PostInfo postInfo,
             Categories category,
-            String isPublic,
+            PublicStatus publicStatus,
             Badge badge,
-            Long commentCount,
+            CommentCount commentCount,
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {
@@ -32,7 +32,7 @@ public class Post {
         this.postUserInfo = postUserInfo;
         this.postInfo = postInfo;
         this.category = category;
-        this.isPublic = isPublic;
+        this.publicStatus = publicStatus;
         this.badge = badge;
         this.commentCount = commentCount;
         this.createdAt = createdAt;
@@ -46,18 +46,18 @@ public class Post {
             String title,
             String content,
             Categories category,
-            String isPublic
+            Boolean isPublic
     ) {
         final var postInfo = PostInfo.of(title, content, userCountryId, userRegion);
         final var postUserInfo = new PostUserInfo(userId);
         return new Post(
-                null,
+                PostId.generate(),
                 postUserInfo,
                 postInfo,
                 category,
-                isPublic,
+                PublicStatus.fromBoolean(isPublic),
                 null,
-                0L,
+                CommentCount.zero(),
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
@@ -67,7 +67,7 @@ public class Post {
         if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
-        this.commentCount++;
+        this.commentCount = this.commentCount.increment();
         return this;
     }
 
@@ -75,24 +75,22 @@ public class Post {
         if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
-        if (this.commentCount > 0) {
-            this.commentCount--;
-        }
+        this.commentCount = this.commentCount.decrement();
         return this;
     }
 
-    public Post updateIsPublic(Boolean isPublic) {
+    public Post updatePublicStatus(Boolean isPublic) {
         if (isPublic == null) {
             throw new PostException(PostErrorCode.INVALID_PUBLIC_STATUS);
         }
         if (this.status().equals(ContentStatus.DELETED)) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
-        var value = isPublic ? "Y" : "N";
-        if (this.isPublic.equals(value)) {
+        var newStatus = PublicStatus.fromBoolean(isPublic);
+        if (this.publicStatus.equals(newStatus)) {
             return this;
         }
-        this.isPublic = value;
+        this.publicStatus = newStatus;
         this.updatedAt = LocalDateTime.now();
         return this;
     }
@@ -104,14 +102,7 @@ public class Post {
         if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
-        this.postInfo = new PostInfo(
-                this.postInfo.title(),
-                newContent,
-                this.postInfo.viewCount(),
-                this.postInfo.region(),
-                this.postInfo.status(),
-                this.postInfo.countryId()
-        );
+        this.postInfo = this.postInfo.withContent(newContent);
         this.updatedAt = LocalDateTime.now();
         return this;
     }
@@ -123,14 +114,7 @@ public class Post {
         if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
-        this.postInfo = new PostInfo(
-                title,
-                this.postInfo.content(),
-                this.postInfo.viewCount(),
-                this.postInfo.region(),
-                this.postInfo.status(),
-                this.postInfo.countryId()
-        );
+        this.postInfo = this.postInfo.withTitle(title);
         this.updatedAt = LocalDateTime.now();
         return this;
     }
@@ -139,14 +123,7 @@ public class Post {
         if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
-        this.postInfo = new PostInfo(
-                this.postInfo.title(),
-                this.postInfo.content(),
-                this.postInfo.viewCount(),
-                this.postInfo.region(),
-                ContentStatus.DELETED,
-                this.postInfo.countryId()
-        );
+        this.postInfo = this.postInfo.withStatus(ContentStatus.DELETED);
         this.updatedAt = LocalDateTime.now();
         return this;
     }
@@ -157,14 +134,7 @@ public class Post {
         if (this.postInfo.status() == ContentStatus.DELETED) {
             throw new PostException(PostErrorCode.POST_ALREADY_DELETED);
         }
-        this.postInfo = new PostInfo(
-                this.postInfo.title(),
-                this.postInfo.content(),
-                this.postInfo.viewCount() + 1,
-                this.postInfo.region(),
-                this.postInfo.status(),
-                this.postInfo.countryId()
-        );
+        this.postInfo = this.postInfo.withViewCount(this.postInfo.viewCount() + 1);
         return this;
     }
 
@@ -189,7 +159,7 @@ public class Post {
 
     public ContentStatus status() {return this.postInfo.status();}
 
-    public String id() {return id;}
+    public PostId id() {return id;}
 
     public PostUserInfo postUserInfo() {return postUserInfo;}
 
@@ -197,11 +167,17 @@ public class Post {
 
     public Categories category() {return category;}
 
-    public String isPublic() {return isPublic;}
+    public PublicStatus publicStatus() {return publicStatus;}
+
+    public boolean isPublic() {return publicStatus.isPublic();}
+
+    public String isPublicValue() {return publicStatus.getValue();}
 
     public Badge badge() {return badge;}
 
-    public Long commentCount() {return commentCount;}
+    public CommentCount commentCount() {return commentCount;}
+
+    public Long commentCountValue() {return commentCount.value();}
 
     public LocalDateTime createdAt() {return createdAt;}
 

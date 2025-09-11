@@ -1,13 +1,16 @@
-package com.backend.immilog.post.application.services;
+package com.backend.immilog.post.application.services.query;
 
-import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.dto.out.PostResult;
 import com.backend.immilog.post.application.mapper.PostResultAssembler;
+import com.backend.immilog.post.application.mapper.PostResultConverter;
+import com.backend.immilog.post.application.services.PostCommentDataService;
 import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PostDomainRepository;
+import com.backend.immilog.post.domain.service.PostScoreCalculator;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.aop.annotation.PerformanceMonitor;
@@ -19,6 +22,7 @@ import com.backend.immilog.shared.infrastructure.event.EventResultStorageService
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -36,6 +39,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PostQueryService {
     private final ObjectMapper objectMapper;
     private final PostDomainRepository postDomainRepository;
@@ -44,24 +48,8 @@ public class PostQueryService {
     private final PostResultAssembler postResultAssembler;
     private final EventResultStorageService eventResultStorageService;
     private final PostCommentDataService postCommentDataService;
-
-    public PostQueryService(
-            ObjectMapper objectMapper,
-            PostDomainRepository postDomainRepository,
-            DataRepository redisDataRepository,
-            PostResourceQueryService postResourceQueryService,
-            PostResultAssembler postResultAssembler,
-            EventResultStorageService eventResultStorageService,
-            PostCommentDataService postCommentDataService
-    ) {
-        this.objectMapper = objectMapper;
-        this.postDomainRepository = postDomainRepository;
-        this.redisDataRepository = redisDataRepository;
-        this.postResourceQueryService = postResourceQueryService;
-        this.postResultAssembler = postResultAssembler;
-        this.eventResultStorageService = eventResultStorageService;
-        this.postCommentDataService = postCommentDataService;
-    }
+    private final PostResultConverter postResultConverter;
+    private final PostScoreCalculator postScoreCalculator;
 
     @Transactional(readOnly = true)
     public Post getPostById(String postId) {
@@ -89,8 +77,8 @@ public class PostQueryService {
                 category,
                 pageable
         );
-        var postIdList = posts.stream().map(Post::id).toList();
-        var postResults = posts.map(this::convertToPostResult);
+        var postIdList = posts.stream().map(post -> post.id().value()).toList();
+        var postResults = posts.map(postResultConverter::convertToPostResult);
         return this.assemblePostResult(postIdList, postResults);
     }
 
@@ -100,8 +88,8 @@ public class PostQueryService {
             Pageable pageable
     ) {
         var posts = postDomainRepository.findPostsByKeyword(keyword, pageable);
-        var postIdList = posts.stream().map(Post::id).toList();
-        var postResults = posts.map(this::convertToPostResult);
+        var postIdList = posts.stream().map(post -> post.id().value()).toList();
+        var postResults = posts.map(postResultConverter::convertToPostResult);
         var updatedPostResultsPage = new PageImpl<>(
                 postResults.getContent().stream()
                         .map(post -> postResultAssembler.assembleKeywords(post, keyword))
@@ -116,7 +104,7 @@ public class PostQueryService {
     public PostResult getPostDetail(String postId) {
         var post = postDomainRepository.findById(postId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
         var posts = new PageImpl<>(List.of(post));
-        var postResult = posts.map(this::convertToPostResult);
+        var postResult = posts.map(postResultConverter::convertToPostResult);
         return this.assemblePostResult(List.of(postId), postResult).getContent().getFirst();
     }
 
@@ -126,9 +114,9 @@ public class PostQueryService {
             Pageable pageable
     ) {
         var posts = postDomainRepository.findPostsByUserId(userId, pageable);
-        var postResults = posts.map(this::convertToPostResult);
+        var postResults = posts.map(postResultConverter::convertToPostResult);
         return this.assemblePostResult(
-                posts.stream().map(Post::id).toList(),
+                posts.stream().map(post -> post.id().value()).toList(),
                 postResults
         );
     }
@@ -152,7 +140,7 @@ public class PostQueryService {
     public List<PostResult> getPostsByPostIdList(List<String> postIdList) {
         var postResults = postDomainRepository.findPostsByIdList(postIdList)
                 .stream()
-                .map(this::convertToPostResult)
+                .map(postResultConverter::convertToPostResult)
                 .toList();
         return this.assemblePostResult(postIdList, new PageImpl<>(postResults)).toList();
     }
@@ -258,32 +246,6 @@ public class PostQueryService {
         });
     }
 
-    private PostResult convertToPostResult(Post post) {
-        return new PostResult(
-                post.id(),
-                post.userId(),
-                null, // 유저 프로필 이미지는 이벤트로 조회하여 나중에 설정됨
-                null, // 유저 닉네임은 이벤트로 조회하여 나중에 설정됨
-                post.commentCount(),
-                post.viewCount(),
-                0L, // likeCount는 실시간 계산으로 변경됨
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                new ArrayList<>(),
-                post.isPublic(),
-                post.countryId(),
-                post.region(),
-                post.category(),
-                post.status(),
-                post.badge(),
-                post.createdAt().toString(),
-                post.updatedAt().toString(),
-                post.title(),
-                post.content(),
-                null
-        );
-    }
 
 
     public List<Post> findByBadge(Badge badge) {
@@ -320,36 +282,24 @@ public class PostQueryService {
         
         // 게시물 ID 리스트 추출하여 실시간 데이터 어셈블링
         var postIdList = posts.stream()
-                .filter(post -> "Y".equals(post.isPublic())) // 공개 게시물만
+                .filter(post -> "Y".equals(post.isPublicValue())) // 공개 게시물만
                 .filter(post -> 
                     (post.viewCount() != null && post.viewCount() >= 10) ||  // 조회수 10회 이상 또는
-                    (post.commentCount() != null && post.commentCount() >= 2) // 댓글 2개 이상
+                            (post.commentCount() != null && post.commentCountValue() >= 2) // 댓글 2개 이상
                 )
-                .map(Post::id)
+                .map(post -> post.id().value())
                 .toList();
 
         // 실시간 데이터 어셈블링으로 좋아요 수 포함
-        var assembledPosts = this.assemblePostResult(postIdList, 
+        var assembledPosts = this.assemblePostResult(
+                postIdList,
             new PageImpl<>(posts.stream()
-                .filter(post -> postIdList.contains(post.id()))
-                .map(this::convertToPostResult)
+                    .filter(post -> postIdList.contains(post.id().value()))
+                    .map(postResultConverter::convertToPostResult)
                 .toList()));
 
         var weeklyBestPosts = assembledPosts.getContent().stream()
-                .map(postResult -> {
-                    // 종합 점수 계산: (조회수 × 1.0) + (댓글수 × 3.0) + (좋아요수 × 2.0)
-                    double score = 0.0;
-                    if (postResult.viewCount() != null) {
-                        score += postResult.viewCount() * 1.0;
-                    }
-                    if (postResult.commentCount() != null) {
-                        score += postResult.commentCount() * 3.0;
-                    }
-                    if (postResult.likeCount() != null) {
-                        score += postResult.likeCount() * 2.0;
-                    }
-                    return new ScoredPostResult(postResult, score);
-                })
+                .map(postResult -> new ScoredPostResult(postResult, postScoreCalculator.calculate(postResult)))
                 .sorted((a, b) -> Double.compare(b.score(), a.score())) // 점수 내림차순 정렬
                 .limit(10) // 상위 10개
                 .map(ScoredPostResult::postResult)
@@ -357,6 +307,54 @@ public class PostQueryService {
         
         log.info("[WEEKLY BEST] Found {} weekly best posts", weeklyBestPosts.size());
         return weeklyBestPosts;
+    }
+
+    /**
+     * 사용자가 북마크한 게시물을 조회합니다.
+     * 
+     * @param userId 사용자 ID
+     * @param contentType 콘텐츠 타입
+     * @return 북마크한 게시물 리스트
+     */
+    @PerformanceMonitor
+    @Transactional(readOnly = true)
+    public List<PostResult> getBookmarkedPosts(String userId, ContentType contentType) {
+        log.info("[BOOKMARK POSTS] Querying bookmarked posts for user: {}, contentType: {}", userId, contentType);
+        
+        // 이벤트를 통해 북마크 데이터 요청
+        String bookmarkRequestId = eventResultStorageService.generateRequestId("bookmark");
+        log.info("Requesting bookmark data for user {} with requestId: {}", userId, bookmarkRequestId);
+        
+        eventResultStorageService.registerEventProcessing(bookmarkRequestId);
+        DomainEvents.raise(new PostEvent.BookmarkPostsRequested(bookmarkRequestId, userId, contentType.name()));
+        
+        // 이벤트 처리 완료 대기 (최대 2초)
+        var bookmarkedPostIds = eventResultStorageService.waitForBookmarkData(bookmarkRequestId, java.time.Duration.ofSeconds(2));
+        log.info("Retrieved {} bookmarked post IDs via event for requestId: {}", bookmarkedPostIds.size(), bookmarkRequestId);
+        
+        if (bookmarkedPostIds.isEmpty()) {
+            log.info("[BOOKMARK POSTS] No bookmarked posts found for user: {}", userId);
+            return List.of();
+        }
+        
+        // 북마크된 게시물 ID로 실제 게시물 조회
+        var bookmarkedPosts = postDomainRepository.findPostsByIdList(bookmarkedPostIds);
+        
+        if (bookmarkedPosts.isEmpty()) {
+            log.warn("[BOOKMARK POSTS] No posts found for bookmarked IDs: {}", bookmarkedPostIds);
+            return List.of();
+        }
+        
+        // PostResult로 변환
+        var postResults = bookmarkedPosts.stream()
+                .map(postResultConverter::convertToPostResult)
+                .toList();
+        
+        // 실시간 데이터 어셈블링 (좋아요, 댓글 등)
+        var assembledResults = this.assemblePostResult(bookmarkedPostIds, new PageImpl<>(postResults));
+        
+        log.info("[BOOKMARK POSTS] Successfully retrieved {} bookmarked posts for user: {}", assembledResults.getContent().size(), userId);
+        return assembledResults.getContent();
     }
 
     /**

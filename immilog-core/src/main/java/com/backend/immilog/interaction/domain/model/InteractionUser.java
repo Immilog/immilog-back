@@ -29,6 +29,22 @@ public record InteractionUser(
                 LocalDateTime.now()
         );
     }
+    
+    public static InteractionUser createBookmark(
+            String userId,
+            String postId,
+            ContentType contentType
+    ) {
+        return of(userId, postId, contentType, InteractionType.BOOKMARK);
+    }
+    
+    public static InteractionUser createLike(
+            String userId,
+            String postId,
+            ContentType contentType
+    ) {
+        return of(userId, postId, contentType, InteractionType.LIKE);
+    }
 
     public InteractionUser toggleStatus() {
         return new InteractionUser(

@@ -1,13 +1,14 @@
 package com.backend.immilog.post.application.usecase;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.backend.immilog.post.application.dto.PostUploadCommand;
-import com.backend.immilog.post.application.services.BulkCommandService;
-import com.backend.immilog.post.application.services.PostCommandService;
+import com.backend.immilog.post.application.dto.in.PostUploadCommand;
 import com.backend.immilog.post.application.services.UserValidationService;
+import com.backend.immilog.post.application.services.command.BulkCommandService;
+import com.backend.immilog.post.application.services.command.PostCommandService;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.resource.ContentResource;
 import com.backend.immilog.post.exception.PostException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,20 +31,11 @@ public interface UploadPostUseCase {
 
     @Slf4j
     @Service
+    @RequiredArgsConstructor
     class UploaderPost implements UploadPostUseCase {
         private final PostCommandService postCommandService;
         private final UserValidationService userValidationService;
         private final BulkCommandService bulkInsertRepository;
-
-        public UploaderPost(
-                PostCommandService postCommandService,
-                UserValidationService userValidationService,
-                BulkCommandService bulkInsertRepository
-        ) {
-            this.postCommandService = postCommandService;
-            this.userValidationService = userValidationService;
-            this.bulkInsertRepository = bulkInsertRepository;
-        }
 
         @Override
         @Transactional
@@ -51,15 +43,13 @@ public interface UploadPostUseCase {
                 String userId,
                 PostUploadCommand postUploadCommand
         ) {
-            // 이벤트 기반으로 사용자 검증 및 데이터 조회
             if (!userValidationService.validateUser(userId)) {
                 throw new PostException(com.backend.immilog.post.exception.PostErrorCode.INVALID_USER);
             }
 
-            // UserData는 null로 설정하고, 추후 Post 저장 후 이벤트로 보완
             final var newPost = createPost(postUploadCommand, userId);
             final var savedPost = postCommandService.save(newPost);
-            this.insertAllPostResources(postUploadCommand, savedPost.id());
+            this.insertAllPostResources(postUploadCommand, savedPost.id().value());
         }
 
         private void insertAllPostResources(
@@ -137,12 +127,12 @@ public interface UploadPostUseCase {
         ) {
             return Post.of(
                     userId,
-                    null, // countryId - 추후 이벤트로 보완 예정
-                    null, // region - 추후 이벤트로 보완 예정
+                    null,
+                    null,
                     postUploadCommand.title(),
                     postUploadCommand.content(),
                     postUploadCommand.category(),
-                    postUploadCommand.isPublic() ? "Y" : "N"
+                    postUploadCommand.isPublic()
             );
         }
     }

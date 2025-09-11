@@ -1,12 +1,14 @@
 package com.backend.immilog.interaction.application.services;
 
 import com.backend.immilog.interaction.domain.model.InteractionStatus;
+import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.shared.enums.ContentType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class InteractionUserQueryService {
@@ -36,6 +38,19 @@ public class InteractionUserQueryService {
                 userId,
                 contentType,
                 interactionStatus
+        );
+    }
+    
+    public Optional<InteractionUser> findBookmarkInteraction(
+            String userId,
+            String postId,
+            ContentType contentType
+    ) {
+        return interactionUserRepository.findByUserIdAndPostIdAndContentTypeAndInteractionType(
+                userId,
+                postId,
+                contentType,
+                InteractionType.BOOKMARK
         );
     }
 

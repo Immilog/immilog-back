@@ -1,4 +1,4 @@
-package com.backend.immilog.post.application.dto;
+package com.backend.immilog.post.application.dto.out;
 
 import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;

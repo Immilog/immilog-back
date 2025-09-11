@@ -1,4 +1,4 @@
-package com.backend.immilog.post.application.services;
+package com.backend.immilog.post.application.services.command;
 
 import com.backend.immilog.post.domain.model.resource.ResourceType;
 import com.backend.immilog.post.domain.repositories.ContentResourceRepository;

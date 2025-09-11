@@ -39,12 +39,5 @@ public interface PostDomainRepository {
 
     List<Post> findByBadge(Badge badge);
     
-    /**
-     * 특정 기간 내에 생성된 게시물을 조회합니다.
-     * 
-     * @param from 시작 날짜
-     * @param to 종료 날짜
-     * @return 기간 내 게시물 리스트
-     */
     List<Post> findPostsInPeriod(LocalDateTime from, LocalDateTime to);
 }

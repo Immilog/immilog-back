@@ -38,7 +38,12 @@ public class InteractionUserRepositoryImpl implements InteractionUserRepository 
             ContentType contentType,
             InteractionStatus interactionStatus
     ) {
-        return interactionUserJpaRepository.findByUserIdAndContentType(userId, contentType)
+        return interactionUserJpaRepository.findByUserIdAndContentTypeAndInteractionTypeAndInteractionStatus(
+                        userId,
+                        contentType,
+                        InteractionType.BOOKMARK,
+                        interactionStatus
+                )
                 .stream()
                 .map(InteractionUserEntity::toDomain)
                 .toList();
@@ -73,6 +78,22 @@ public class InteractionUserRepositoryImpl implements InteractionUserRepository 
                         interactionType,
                         contentType,
                         postId
+                )
+                .map(InteractionUserEntity::toDomain);
+    }
+
+    @Override
+    public Optional<InteractionUser> findByUserIdAndPostIdAndContentTypeAndInteractionType(
+            String userId,
+            String postId,
+            ContentType contentType,
+            InteractionType interactionType
+    ) {
+        return interactionUserJpaRepository.findByUserIdAndPostIdAndContentTypeAndInteractionType(
+                        userId,
+                        postId,
+                        contentType,
+                        interactionType
                 )
                 .map(InteractionUserEntity::toDomain);
     }

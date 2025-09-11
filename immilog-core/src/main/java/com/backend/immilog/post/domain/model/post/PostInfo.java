@@ -25,4 +25,20 @@ public record PostInfo(
                 countryId
         );
     }
+
+    public PostInfo withTitle(String newTitle) {
+        return new PostInfo(newTitle, content, viewCount, region, status, countryId);
+    }
+
+    public PostInfo withContent(String newContent) {
+        return new PostInfo(title, newContent, viewCount, region, status, countryId);
+    }
+
+    public PostInfo withViewCount(Long newViewCount) {
+        return new PostInfo(title, content, newViewCount, region, status, countryId);
+    }
+
+    public PostInfo withStatus(ContentStatus newStatus) {
+        return new PostInfo(title, content, viewCount, region, newStatus, countryId);
+    }
 }

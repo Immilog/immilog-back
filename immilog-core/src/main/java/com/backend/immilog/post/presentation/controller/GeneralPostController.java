@@ -1,21 +1,24 @@
 package com.backend.immilog.post.presentation.controller;
 
 import com.backend.immilog.comment.application.services.CommentQueryService;
-import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.dto.out.PostResult;
+import com.backend.immilog.post.application.services.query.PostQueryService;
+import com.backend.immilog.post.application.usecase.BookmarkPostUseCase;
 import com.backend.immilog.post.application.usecase.DeletePostUseCase;
-import com.backend.immilog.post.application.usecase.FetchPostUseCase;
 import com.backend.immilog.post.application.usecase.UpdatePostUseCase;
 import com.backend.immilog.post.application.usecase.UploadPostUseCase;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.presentation.payload.*;
-import com.backend.immilog.shared.annotation.CurrentUser;
 import com.backend.immilog.shared.enums.ContentType;
+import com.backend.immilog.shared.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,26 +28,14 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @Tag(name = "Post API", description = "게시물 관련 API")
 @RequestMapping("/api/v1/posts")
 @RestController
-public class PostController {
+@RequiredArgsConstructor
+public class GeneralPostController {
     private final UploadPostUseCase uploadPostUseCase;
     private final UpdatePostUseCase updatePostUseCase;
     private final DeletePostUseCase deletePostUseCase;
-    private final FetchPostUseCase fetchPostUseCase;
+    private final BookmarkPostUseCase bookmarkPostUseCase;
+    private final PostQueryService postQueryService;
     private final CommentQueryService commentQueryService;
-
-    public PostController(
-            UploadPostUseCase uploadPostUseCase,
-            UpdatePostUseCase updatePostUseCase,
-            DeletePostUseCase deletePostUseCase,
-            FetchPostUseCase fetchPostUseCase,
-            CommentQueryService commentQueryService
-    ) {
-        this.uploadPostUseCase = uploadPostUseCase;
-        this.updatePostUseCase = updatePostUseCase;
-        this.deletePostUseCase = deletePostUseCase;
-        this.fetchPostUseCase = fetchPostUseCase;
-        this.commentQueryService = commentQueryService;
-    }
 
     @PostMapping
     @Operation(summary = "게시물 작성", description = "게시물을 작성합니다.")
@@ -97,10 +88,11 @@ public class PostController {
             @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
         Page<PostResult> posts;
+        var pageable = PageRequest.of(page, 10);
         if (keyword != null) {
-            posts = fetchPostUseCase.searchKeyword(keyword, page);
+            posts = postQueryService.getPostsByKeyword(keyword, pageable);
         } else {
-            posts = fetchPostUseCase.getPosts(countryId, sort, isPublic, category, page);
+            posts = postQueryService.getPosts(countryId, sort, isPublic, category, pageable);
         }
         var pagedPosts = posts.map(PostResult::toInfraDTO);
         return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
@@ -111,7 +103,7 @@ public class PostController {
     public ResponseEntity<PostDetailResponse> getPost(
             @Parameter(description = "게시물 고유번호") @PathVariable("postId") String postId
     ) {
-        var post = fetchPostUseCase.getPostDetail(postId);
+        var post = postQueryService.getPostDetail(postId);
         var comments = commentQueryService.getHierarchicalCommentsByPostId(postId);
         return ResponseEntity.ok(PostDetailResponse.successWithHierarchicalComments(post, comments));
     }
@@ -122,11 +114,21 @@ public class PostController {
             @CurrentUser String userId,
             @Parameter(description = "포스팅 타입") @RequestParam(value = "contentType", defaultValue = "POST") ContentType contentType
     ) {
-        var postResults = fetchPostUseCase.getBookmarkedPosts(userId, contentType);
+        var postResults = postQueryService.getBookmarkedPosts(userId, contentType);
         var postList = postResults.stream().map(PostResult::toInfraDTO).toList();
         return ResponseEntity.ok(PostListResponse.of(postList));
     }
 
+
+    @PostMapping("/{postId}/bookmark")
+    @Operation(summary = "게시물 북마크 토글", description = "게시물을 북마크에 추가하거나 제거합니다.")
+    public ResponseEntity<BookmarkToggleResponse> toggleBookmark(
+            @CurrentUser String userId,
+            @Parameter(description = "게시물 ID") @PathVariable("postId") String postId
+    ) {
+        boolean isBookmarked = bookmarkPostUseCase.toggleBookmark(userId, postId);
+        return ResponseEntity.ok(new BookmarkToggleResponse(isBookmarked));
+    }
 
     @GetMapping("/users/{userId}")
     @Operation(summary = "특정 사용자 게시물 목록 조회", description = "특정 사용자의 게시물 목록을 조회합니다.")
@@ -134,7 +136,7 @@ public class PostController {
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "페이지") @RequestParam(value = "page", defaultValue = "0") Integer page
     ) {
-        var postResults = fetchPostUseCase.getUserPosts(userId, page);
+        var postResults = postQueryService.getPostsByUserId(userId, PageRequest.of(page, 10));
         var pagedPosts = postResults.map(PostResult::toInfraDTO);
         return ResponseEntity.ok(PostPageResponse.of(pagedPosts));
     }

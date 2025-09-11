@@ -4,6 +4,7 @@ import com.backend.immilog.shared.application.event.DomainEventPublisher;
 import com.backend.immilog.shared.domain.event.CommentDataRequestedEvent;
 import com.backend.immilog.shared.domain.model.CommentData;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,19 +17,12 @@ import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class PostCommentDataService {
 
     private final DomainEventPublisher eventPublisher;
     private final EventResultStorageService eventResultStorage;
     private final Duration requestTimeout = Duration.ofSeconds(5);
-
-    public PostCommentDataService(
-            DomainEventPublisher eventPublisher,
-            EventResultStorageService eventResultStorage
-    ) {
-        this.eventPublisher = eventPublisher;
-        this.eventResultStorage = eventResultStorage;
-    }
 
     public CompletableFuture<List<CommentData>> getCommentDataAsync(List<String> postIds) {
         var requestId = UUID.randomUUID().toString();
