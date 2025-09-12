@@ -3,10 +3,11 @@ package com.backend.immilog.post.application.usecase;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.post.application.dto.in.PostUpdateCommand;
 import com.backend.immilog.post.application.services.command.BulkCommandService;
-import com.backend.immilog.post.application.services.command.PostCommandService;
-import com.backend.immilog.post.application.services.command.PostResourceCommandService;
-import com.backend.immilog.post.application.services.query.PostQueryService;
+import com.backend.immilog.post.domain.repositories.ContentResourceRepository;
+import com.backend.immilog.post.domain.service.PostDomainService;
+import com.backend.immilog.post.domain.repositories.PostDomainRepository;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
+import com.backend.immilog.post.domain.model.post.PostId;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.aop.annotation.DistributedLock;
@@ -32,9 +33,8 @@ public interface UpdatePostUseCase {
     @Service
     @RequiredArgsConstructor
     class UpdaterPost implements UpdatePostUseCase {
-        private final PostQueryService postQueryService;
-        private final PostCommandService postCommandService;
-        private final PostResourceCommandService postResourceCommandService;
+        private final PostDomainService postDomainService;
+        private final ContentResourceRepository contentResourceRepository;
         private final BulkCommandService bulkCommandService;
 
         @Transactional
@@ -43,15 +43,15 @@ public interface UpdatePostUseCase {
                 String postId,
                 PostUpdateCommand command
         ) {
-            postCommandService.updatePost(
-                    postId,
+            postDomainService.updatePostContent(
+                    PostId.of(postId),
                     userId,
                     command.title(),
                     command.content()
             );
             if (command.isPublic() != null) {
-                postCommandService.updatePostVisibility(
-                        postId,
+                postDomainService.updatePostVisibility(
+                        PostId.of(postId),
                         userId,
                         command.isPublic()
                 );
@@ -73,9 +73,7 @@ public interface UpdatePostUseCase {
         @Async
         @DistributedLock(key = "'viewPost:'", identifier = "#p0.toString()", expireTime = 5)
         public void increaseViewCount(String postId) {
-            var post = postQueryService.getPostById(postId);
-            var updatedPost = post.increaseViewCount();
-            postCommandService.save(updatedPost);
+            postDomainService.incrementViewCount(PostId.of(postId));
         }
 
         private void updateResource(
@@ -94,7 +92,7 @@ public interface UpdatePostUseCase {
                 ResourceType resourceType
         ) {
             if (deleteResources != null && !deleteResources.isEmpty()) {
-                postResourceCommandService.deleteAllEntities(
+                contentResourceRepository.deleteAllEntities(
                         postId,
                         ContentType.POST,
                         resourceType,

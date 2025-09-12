@@ -4,7 +4,7 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.backend.immilog.post.application.dto.in.PostUploadCommand;
 import com.backend.immilog.post.application.services.UserValidationService;
 import com.backend.immilog.post.application.services.command.BulkCommandService;
-import com.backend.immilog.post.application.services.command.PostCommandService;
+import com.backend.immilog.post.domain.service.PostDomainService;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.resource.ContentResource;
 import com.backend.immilog.post.exception.PostException;
@@ -33,7 +33,7 @@ public interface UploadPostUseCase {
     @Service
     @RequiredArgsConstructor
     class UploaderPost implements UploadPostUseCase {
-        private final PostCommandService postCommandService;
+        private final PostDomainService postDomainService;
         private final UserValidationService userValidationService;
         private final BulkCommandService bulkInsertRepository;
 
@@ -48,7 +48,7 @@ public interface UploadPostUseCase {
             }
 
             final var newPost = createPost(postUploadCommand, userId);
-            final var savedPost = postCommandService.save(newPost);
+            final var savedPost = postDomainService.createPost(newPost);
             this.insertAllPostResources(postUploadCommand, savedPost.id().value());
         }
 

@@ -9,6 +9,7 @@ import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
+import com.backend.immilog.post.domain.repositories.ContentResourceRepository;
 import com.backend.immilog.post.domain.repositories.PostDomainRepository;
 import com.backend.immilog.post.domain.service.PostScoreCalculator;
 import com.backend.immilog.post.exception.PostErrorCode;
@@ -40,11 +41,12 @@ import java.util.stream.IntStream;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+
 public class PostQueryService {
     private final ObjectMapper objectMapper;
     private final PostDomainRepository postDomainRepository;
+    private final ContentResourceRepository contentResourceRepository;
     private final DataRepository redisDataRepository;
-    private final PostResourceQueryService postResourceQueryService;
     private final PostResultAssembler postResultAssembler;
     private final EventResultStorageService eventResultStorageService;
     private final PostCommentDataService postCommentDataService;
@@ -185,8 +187,8 @@ public class PostQueryService {
         // 이벤트 기반으로 댓글 데이터 요청
         var commentData = postCommentDataService.getCommentData(resultIdList);
         log.info("Retrieved comment data for {} posts via events", commentData.size());
-        
-        var postResources = postResourceQueryService.getResourcesByPostIdList(resultIdList, ContentType.POST);
+
+        var postResources = contentResourceRepository.findAllByContentIdList(resultIdList, ContentType.POST);
 
         return postResults.map(postResult -> {
             // 유저 데이터 찾기

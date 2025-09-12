@@ -1,7 +1,7 @@
 package com.backend.immilog.post.application.event;
 
-import com.backend.immilog.post.application.services.command.PostCommandService;
-import com.backend.immilog.post.application.services.query.PostQueryService;
+import com.backend.immilog.post.domain.service.PostDomainService;
+import com.backend.immilog.post.domain.model.post.PostId;
 import com.backend.immilog.post.domain.events.PostCompensationEvent;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PostCompensationEventHandler implements DomainEventHandler<PostCompensationEvent.CommentCountIncreaseCompensation> {
 
-    private final PostQueryService postQueryService;
-    private final PostCommandService postCommandService;
+    private final PostDomainService postDomainService;
 
     @Override
     public void handle(PostCompensationEvent.CommentCountIncreaseCompensation event) {
@@ -25,9 +24,7 @@ public class PostCompensationEventHandler implements DomainEventHandler<PostComp
         );
 
         try {
-            var post = postQueryService.getPostById(event.getPostId());
-            var compensatedPost = post.decreaseCommentCount();
-            postCommandService.save(compensatedPost);
+            postDomainService.decrementCommentCount(PostId.of(event.getPostId()));
 
             log.info(
                     "Successfully processed compensation event for transaction: {} - Comment count rolled back for post: {}",

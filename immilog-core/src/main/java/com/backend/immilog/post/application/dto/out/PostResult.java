@@ -4,9 +4,11 @@ import com.backend.immilog.post.domain.model.post.Badge;
 import com.backend.immilog.post.domain.model.post.Categories;
 import com.backend.immilog.post.presentation.payload.PostInformation;
 import com.backend.immilog.shared.enums.ContentStatus;
+import lombok.Builder;
 
 import java.util.List;
 
+@Builder
 public record PostResult(
         String postId,
         String userId,

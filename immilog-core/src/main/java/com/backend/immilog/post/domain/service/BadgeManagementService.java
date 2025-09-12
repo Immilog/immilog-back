@@ -1,7 +1,7 @@
 package com.backend.immilog.post.domain.service;
 
 import com.backend.immilog.post.application.dto.out.PostResult;
-import com.backend.immilog.post.application.services.command.PostCommandService;
+import com.backend.immilog.post.domain.repositories.PostDomainRepository;
 import com.backend.immilog.post.application.services.query.PostQueryService;
 import com.backend.immilog.post.domain.model.post.Badge;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class BadgeManagementService {
-    private final PostCommandService postCommandService;
+    private final PostDomainRepository postDomainRepository;
     private final PostQueryService postQueryService;
 
     public void clearBadge(Badge badge) {
@@ -23,7 +23,7 @@ public class BadgeManagementService {
         var posts = postQueryService.findByBadge(badge);
         posts.forEach(post -> {
             var updatedPost = post.updateBadge(null);
-            postCommandService.save(updatedPost);
+            postDomainRepository.save(updatedPost);
         });
     }
 
@@ -38,7 +38,7 @@ public class BadgeManagementService {
                 var post = postQueryService.getPostByIdOptional(postResult.postId());
                 if (post.isPresent()) {
                     var updatedPost = post.get().updateBadge(badge);
-                    postCommandService.save(updatedPost);
+                    postDomainRepository.save(updatedPost);
                     log.debug("[BADGE APPLY] Updated post {} with badge {}", postResult.postId(), badge);
                 } else {
                     log.warn("[BADGE APPLY] Post not found: {}", postResult.postId());
