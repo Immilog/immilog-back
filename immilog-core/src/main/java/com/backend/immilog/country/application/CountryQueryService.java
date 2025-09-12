@@ -1,7 +1,7 @@
-package com.backend.immilog.country.application.services;
+package com.backend.immilog.country.application;
 
-import com.backend.immilog.country.domain.model.Country;
-import com.backend.immilog.country.domain.repositories.CountryRepository;
+import com.backend.immilog.country.domain.Country;
+import com.backend.immilog.country.domain.CountryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

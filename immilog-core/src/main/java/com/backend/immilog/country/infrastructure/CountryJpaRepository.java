@@ -1,6 +1,6 @@
-package com.backend.immilog.country.infrastructure.jpa;
+package com.backend.immilog.country.infrastructure;
 
-import com.backend.immilog.country.domain.model.CountryStatus;
+import com.backend.immilog.country.domain.CountryStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

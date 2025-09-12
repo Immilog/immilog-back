@@ -1,10 +1,8 @@
-package com.backend.immilog.country.infrastructure.repositories;
+package com.backend.immilog.country.infrastructure;
 
-import com.backend.immilog.country.domain.model.Country;
-import com.backend.immilog.country.domain.model.CountryStatus;
-import com.backend.immilog.country.domain.repositories.CountryRepository;
-import com.backend.immilog.country.infrastructure.jpa.CountryEntity;
-import com.backend.immilog.country.infrastructure.jpa.CountryJpaRepository;
+import com.backend.immilog.country.domain.Country;
+import com.backend.immilog.country.domain.CountryRepository;
+import com.backend.immilog.country.domain.CountryStatus;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

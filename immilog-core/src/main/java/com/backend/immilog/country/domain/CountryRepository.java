@@ -1,6 +1,4 @@
-package com.backend.immilog.country.domain.repositories;
-
-import com.backend.immilog.country.domain.model.Country;
+package com.backend.immilog.country.domain;
 
 import java.util.List;
 import java.util.Optional;

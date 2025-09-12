@@ -1,7 +1,6 @@
-package com.backend.immilog.country.presentation.controller;
+package com.backend.immilog.country.presentation;
 
-import com.backend.immilog.country.application.services.CountryQueryService;
-import com.backend.immilog.country.presentation.payload.CountryResponse;
+import com.backend.immilog.country.application.CountryQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

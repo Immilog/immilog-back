@@ -1,7 +1,7 @@
-package com.backend.immilog.country.presentation.payload;
+package com.backend.immilog.country.presentation;
 
-import com.backend.immilog.country.domain.model.Country;
-import com.backend.immilog.country.domain.model.CountryStatus;
+import com.backend.immilog.country.domain.Country;
+import com.backend.immilog.country.domain.CountryStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +17,7 @@ public record CountryResponse(
 ) {
     public static CountryResponse from(Country country) {
         return new CountryResponse(
-                country.id(),
+                country.id().value(),
                 country.nameKo(),
                 country.nameEn(),
                 country.continent(),
@@ -28,8 +28,6 @@ public record CountryResponse(
     }
 
     public static List<CountryResponse> fromList(List<Country> countries) {
-        return countries.stream()
-                .map(CountryResponse::from)
-                .toList();
+        return countries.stream().map(CountryResponse::from).toList();
     }
 }
