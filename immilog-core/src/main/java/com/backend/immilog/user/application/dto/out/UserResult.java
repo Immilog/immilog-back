@@ -1,4 +1,4 @@
-package com.backend.immilog.user.application.dto;
+package com.backend.immilog.user.application.dto.out;
 
 import com.backend.immilog.user.domain.model.User;
 

@@ -4,36 +4,28 @@ import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import com.backend.immilog.shared.domain.model.UserData;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
-import com.backend.immilog.user.application.services.query.UserQueryService;
+import com.backend.immilog.user.domain.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class UserDataRequestedEventHandler implements DomainEventHandler<PostEvent.UserDataRequested> {
 
-    private final UserQueryService userQueryService;
+    private final UserRepository userRepository;
     private final EventResultStorageService eventResultStorageService;
-
-    public UserDataRequestedEventHandler(
-            UserQueryService userQueryService,
-            EventResultStorageService eventResultStorageService) {
-        this.userQueryService = userQueryService;
-        this.eventResultStorageService = eventResultStorageService;
-    }
 
     @Override
     public void handle(PostEvent.UserDataRequested event) {
         log.info("Processing UserDataRequested event for requestId: {}, userIds: {}", event.getRequestId(), event.getUserIds());
         
         try {
-            // User 도메인 서비스를 통해 데이터 조회
-            List<UserData> userDataList = event.getUserIds().stream()
+            var userDataList = event.getUserIds().stream()
                     .map(userId -> {
                         try {
-                            var user = userQueryService.getUserById(userId);
+                            var user = userRepository.findById(userId);
                             return new UserData(
                                     user.getUserId().value(),
                                     user.getNickname(),
@@ -46,10 +38,8 @@ public class UserDataRequestedEventHandler implements DomainEventHandler<PostEve
                     })
                     .toList();
             
-            // Redis에 결과 저장
             eventResultStorageService.storeUserData(event.getRequestId(), userDataList);
-            log.info("Successfully processed and stored {} user data records with requestId: {}", 
-                    userDataList.size(), event.getRequestId());
+            log.info("Successfully processed and stored {} user data records with requestId: {}", userDataList.size(), event.getRequestId());
             
         } catch (Exception e) {
             log.error("Failed to process UserDataRequested event", e);

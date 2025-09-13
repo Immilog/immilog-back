@@ -1,7 +1,7 @@
 package com.backend.immilog.user.presentation.payload;
 
-import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
-import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
+import com.backend.immilog.user.application.dto.in.UserInfoUpdateCommand;
+import com.backend.immilog.user.application.dto.in.UserPasswordChangeCommand;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

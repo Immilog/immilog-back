@@ -1,4 +1,4 @@
-package com.backend.immilog.user.application.result;
+package com.backend.immilog.user.application.dto.out;
 
 import com.backend.immilog.user.domain.model.User;
 import com.backend.immilog.user.presentation.payload.UserSignInPayload;
