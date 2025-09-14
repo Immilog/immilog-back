@@ -3,19 +3,23 @@ package com.backend.immilog.interaction.application.services;
 import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
+import com.backend.immilog.interaction.domain.service.InteractionDomainService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class InteractionUserCommandService {
     private final InteractionUserRepository interactionUserRepository;
-
-    public InteractionUserCommandService(InteractionUserRepository interactionUserRepository) {
-        this.interactionUserRepository = interactionUserRepository;
-    }
+    private final InteractionDomainService interactionDomainService;
 
     @Transactional
     public InteractionUser toggleInteraction(InteractionUser interactionUser) {
+        interactionDomainService.validateInteractionRules(interactionUser);
+        interactionDomainService.validateUserPermissions(interactionUser.userId(), interactionUser.postId());
+        interactionDomainService.validatePostExists(interactionUser.postId(), interactionUser.contentType());
+        
         return interactionUserRepository
                 .findByUserIdAndInteractionTypeAndContentTypeAndPostId(
                         interactionUser.userId(),
@@ -34,6 +38,11 @@ public class InteractionUserCommandService {
     
     @Transactional
     public InteractionUser createInteraction(InteractionUser interactionUser) {
+        interactionDomainService.validateInteractionRules(interactionUser);
+        interactionDomainService.validateUserPermissions(interactionUser.userId(), interactionUser.postId());
+        interactionDomainService.validatePostExists(interactionUser.postId(), interactionUser.contentType());
+        interactionDomainService.validateInteractionLimits(interactionUser.userId(), interactionUser.interactionType());
+        
         return interactionUserRepository.save(interactionUser);
     }
     

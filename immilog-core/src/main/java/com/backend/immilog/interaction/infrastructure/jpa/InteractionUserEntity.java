@@ -6,6 +6,7 @@ import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.shared.enums.ContentType;
 import jakarta.persistence.*;
+import lombok.Builder;
 import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
@@ -48,6 +49,7 @@ public class InteractionUserEntity {
 
     protected InteractionUserEntity() {}
 
+    @Builder
     public InteractionUserEntity(
             String interactionUserId,
             String userId,
@@ -67,26 +69,26 @@ public class InteractionUserEntity {
     }
 
     public static InteractionUserEntity from(InteractionUser interactionUser) {
-        return new InteractionUserEntity(
-                interactionUser.id(),
-                interactionUser.userId(),
-                interactionUser.postId(),
-                interactionUser.contentType(),
-                interactionUser.interactionType(),
-                interactionUser.interactionStatus(),
-                interactionUser.createdAt()
-        );
+        return InteractionUserEntity.builder()
+                .interactionUserId(interactionUser.id())
+                .userId(interactionUser.userId())
+                .postId(interactionUser.postId())
+                .contentType(interactionUser.contentType())
+                .interactionType(interactionUser.interactionType())
+                .interactionStatus(interactionUser.interactionStatus())
+                .createdAt(interactionUser.createdAt())
+                .build();
     }
 
     public InteractionUser toDomain() {
-        return new InteractionUser(
-                this.interactionUserId,
-                this.userId,
-                this.postId,
-                this.contentType,
-                this.interactionType,
-                this.interactionStatus,
-                this.createdAt
-        );
+        return InteractionUser.builder()
+                .id(this.interactionUserId)
+                .userId(this.userId)
+                .postId(this.postId)
+                .contentType(this.contentType)
+                .interactionType(this.interactionType)
+                .interactionStatus(this.interactionStatus)
+                .createdAt(this.createdAt)
+                .build();
     }
 }

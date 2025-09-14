@@ -1,4 +1,4 @@
-package com.backend.immilog.interaction.application.result;
+package com.backend.immilog.interaction.application.dto.out;
 
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;

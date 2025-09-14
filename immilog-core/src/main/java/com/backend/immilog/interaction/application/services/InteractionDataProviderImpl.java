@@ -2,9 +2,11 @@ package com.backend.immilog.interaction.application.services;
 
 import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
+import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.service.InteractionDataProvider;
 import com.backend.immilog.shared.enums.ContentType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -12,18 +14,15 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class InteractionDataProviderImpl implements InteractionDataProvider {
 
-    private final InteractionUserQueryService interactionUserQueryService;
-
-    public InteractionDataProviderImpl(InteractionUserQueryService interactionUserQueryService) {
-        this.interactionUserQueryService = interactionUserQueryService;
-    }
+    private final InteractionUserRepository interactionUserRepository;
 
     @Override
     public InteractionData getInteractionData(String contentId, ContentType contentType) {
         try {
-            var interactions = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(
+            var interactions = interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     List.of(contentId),
                     contentType,
                     InteractionStatus.ACTIVE
@@ -34,23 +33,23 @@ public class InteractionDataProviderImpl implements InteractionDataProvider {
                     .findFirst()
                     .orElse(null);
 
-            return likeInteraction != null 
-                    ? new InteractionData(
-                            likeInteraction.id(), 
-                            likeInteraction.postId(), 
-                            likeInteraction.userId(),
-                            likeInteraction.interactionStatus().name(),
-                            likeInteraction.interactionType().name(),
-                            contentType.name()
-                      )
-                    : new InteractionData(
-                            null, 
-                            contentId, 
-                            null,
-                            "INACTIVE",
-                            "NONE",
-                            contentType.name()
-                      );
+            return likeInteraction != null
+                    ? InteractionData.builder()
+                    .id(likeInteraction.id())
+                    .postId(likeInteraction.postId())
+                    .userId(likeInteraction.userId())
+                    .interactionStatus(likeInteraction.interactionStatus().name())
+                    .interactionType(likeInteraction.interactionType().name())
+                    .contentType(contentType.name())
+                    .build()
+                    : InteractionData.builder()
+                    .id(null)
+                    .postId(contentId)
+                    .userId(null)
+                    .interactionStatus("INACTIVE")
+                    .interactionType("NONE")
+                    .contentType(contentType.name())
+                    .build();
         } catch (Exception e) {
             log.warn("Failed to get interaction data for contentId: {}", contentId, e);
             return new InteractionData(null, contentId, null, "INACTIVE", "NONE", contentType.name());
@@ -67,7 +66,7 @@ public class InteractionDataProviderImpl implements InteractionDataProvider {
     @Override
     public InteractionData getUserInteractionData(String userId, String contentId, ContentType contentType) {
         try {
-            var interactions = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(
+            var interactions = interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     List.of(contentId),
                     contentType,
                     InteractionStatus.ACTIVE
@@ -79,22 +78,22 @@ public class InteractionDataProviderImpl implements InteractionDataProvider {
                     .orElse(null);
 
             return userInteraction != null
-                    ? new InteractionData(
-                            userInteraction.id(),
-                            userInteraction.postId(),
-                            userInteraction.userId(),
-                            userInteraction.interactionStatus().name(),
-                            userInteraction.interactionType().name(),
-                            contentType.name()
-                      )
-                    : new InteractionData(
-                            null,
-                            contentId,
-                            userId,
-                            "INACTIVE",
-                            "NONE",
-                            contentType.name()
-                      );
+                    ? InteractionData.builder()
+                    .id(userInteraction.id())
+                    .postId(userInteraction.postId())
+                    .userId(userInteraction.userId())
+                    .interactionStatus(userInteraction.interactionStatus().name())
+                    .interactionType(userInteraction.interactionType().name())
+                    .contentType(contentType.name())
+                    .build()
+                    : InteractionData.builder()
+                    .id(null)
+                    .postId(contentId)
+                    .userId(userId)
+                    .interactionStatus("INACTIVE")
+                    .interactionType("NONE")
+                    .contentType(contentType.name())
+                    .build();
         } catch (Exception e) {
             log.warn("Failed to get user interaction data for userId: {}, contentId: {}", userId, contentId, e);
             return new InteractionData(null, contentId, userId, "INACTIVE", "NONE", contentType.name());

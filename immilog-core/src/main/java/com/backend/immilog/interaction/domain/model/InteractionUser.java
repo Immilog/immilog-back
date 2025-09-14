@@ -1,9 +1,11 @@
 package com.backend.immilog.interaction.domain.model;
 
 import com.backend.immilog.shared.enums.ContentType;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 
+@Builder
 public record InteractionUser(
         String id,
         String userId,
@@ -19,15 +21,14 @@ public record InteractionUser(
             ContentType contentType,
             InteractionType interactionType
     ) {
-        return new InteractionUser(
-                null,
-                userId,
-                postId,
-                contentType,
-                interactionType,
-                InteractionStatus.ACTIVE,
-                LocalDateTime.now()
-        );
+        return InteractionUser.builder()
+                .userId(userId)
+                .postId(postId)
+                .contentType(contentType)
+                .interactionType(interactionType)
+                .interactionStatus(InteractionStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
     
     public static InteractionUser createBookmark(
@@ -47,14 +48,14 @@ public record InteractionUser(
     }
 
     public InteractionUser toggleStatus() {
-        return new InteractionUser(
-                this.id,
-                this.userId,
-                this.postId,
-                this.contentType,
-                this.interactionType,
-                this.interactionStatus.isActive() ? InteractionStatus.INACTIVE : InteractionStatus.ACTIVE,
-                LocalDateTime.now()
-        );
+        return InteractionUser.builder()
+                .id(this.id)
+                .userId(this.userId)
+                .postId(this.postId)
+                .contentType(this.contentType)
+                .interactionType(this.interactionType)
+                .interactionStatus(this.interactionStatus.isActive() ? InteractionStatus.INACTIVE : InteractionStatus.ACTIVE)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

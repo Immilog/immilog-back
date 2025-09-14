@@ -1,30 +1,23 @@
 package com.backend.immilog.interaction.application.handlers;
 
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
 import com.backend.immilog.interaction.domain.model.InteractionStatus;
+import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import com.backend.immilog.shared.domain.event.InteractionDataRequestedEvent;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InteractionDataRequestedSharedEventHandler implements DomainEventHandler<InteractionDataRequestedEvent> {
 
-    private final InteractionUserQueryService interactionUserQueryService;
+    private final InteractionUserRepository interactionUserRepository;
     private final EventResultStorageService eventResultStorageService;
-
-    public InteractionDataRequestedSharedEventHandler(
-            InteractionUserQueryService interactionUserQueryService,
-            EventResultStorageService eventResultStorageService) {
-        this.interactionUserQueryService = interactionUserQueryService;
-        this.eventResultStorageService = eventResultStorageService;
-    }
 
     @Override
     public void handle(InteractionDataRequestedEvent event) {
@@ -33,14 +26,14 @@ public class InteractionDataRequestedSharedEventHandler implements DomainEventHa
         
         try {
             ContentType contentType = ContentType.valueOf(event.getContentType().toUpperCase());
-            
-            var interactions = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(
+
+            var interactions = interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     event.getContentIds(),
                     contentType,
                     InteractionStatus.ACTIVE
             );
-            
-            List<InteractionData> interactionDataList = interactions.stream()
+
+            var interactionDataList = interactions.stream()
                     .map(interaction -> new InteractionData(
                             interaction.id(),
                             interaction.postId(),
