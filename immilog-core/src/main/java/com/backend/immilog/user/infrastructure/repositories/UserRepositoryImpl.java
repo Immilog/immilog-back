@@ -3,6 +3,8 @@ package com.backend.immilog.user.infrastructure.repositories;
 import com.backend.immilog.user.domain.model.User;
 import com.backend.immilog.user.domain.model.UserId;
 import com.backend.immilog.user.domain.repositories.UserRepository;
+import com.backend.immilog.user.exception.UserErrorCode;
+import com.backend.immilog.user.exception.UserException;
 import com.backend.immilog.user.infrastructure.jpa.UserJpaEntity;
 import com.backend.immilog.user.infrastructure.jpa.UserJpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,8 +21,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return jpaRepository.findByAuth_Email(email).map(UserJpaEntity::toDomain);
+    public User findByEmail(String email) {
+        return jpaRepository.findByAuth_Email(email)
+                .map(UserJpaEntity::toDomain)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
     }
 
     @Override
@@ -29,13 +34,17 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findById(UserId userId) {
-        return jpaRepository.findById(userId.value()).map(UserJpaEntity::toDomain);
+    public User findById(UserId userId) {
+        return jpaRepository.findById(userId.value())
+                .map(UserJpaEntity::toDomain)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
     @Override
-    public Optional<User> findById(String userId) {
-        return jpaRepository.findById(userId).map(UserJpaEntity::toDomain);
+    public User findById(String userId) {
+        return jpaRepository.findById(userId)
+                .map(UserJpaEntity::toDomain)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
     @Override

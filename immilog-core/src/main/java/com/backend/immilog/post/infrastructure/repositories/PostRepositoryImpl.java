@@ -75,14 +75,6 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Post getById(String postId) {
-        return postJpaRepository
-                .findById(postId)
-                .map(PostEntity::toDomain)
-                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_FOUND));
-    }
-
-    @Override
     public Post save(Post post) {
         return postJpaRepository.save(PostEntity.from(post)).toDomain();
     }

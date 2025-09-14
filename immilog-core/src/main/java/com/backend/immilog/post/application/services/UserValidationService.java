@@ -4,6 +4,7 @@ import com.backend.immilog.shared.application.event.DomainEventPublisher;
 import com.backend.immilog.shared.domain.event.UserValidationRequestedEvent;
 import com.backend.immilog.shared.domain.event.UserValidationResponseEvent;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -13,31 +14,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-/**
- * Post 도메인에서 사용자 검증을 위한 Event-driven 서비스
- * 직접적인 User 도메인 의존성을 제거하고 이벤트 기반으로 검증 수행
- */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserValidationService {
     
     private final DomainEventPublisher eventPublisher;
     private final EventResultStorageService eventResultStorage;
     private final Duration validationTimeout = Duration.ofSeconds(5);
-
-    public UserValidationService(
-            DomainEventPublisher eventPublisher,
-            EventResultStorageService eventResultStorage
-    ) {
-        this.eventPublisher = eventPublisher;
-        this.eventResultStorage = eventResultStorage;
-    }
     
-    /**
-     * 사용자 유효성을 Event-driven 방식으로 검증
-     * @param userId 검증할 사용자 ID
-     * @return 검증 결과 (비동기)
-     */
     public CompletableFuture<Boolean> validateUserAsync(String userId) {
         String requestId = UUID.randomUUID().toString();
         
@@ -77,11 +62,6 @@ public class UserValidationService {
         });
     }
     
-    /**
-     * 동기식 사용자 검증 (내부적으로 비동기 호출 후 대기)
-     * @param userId 검증할 사용자 ID
-     * @return 검증 결과
-     */
     public boolean validateUser(String userId) {
         try {
             return validateUserAsync(userId).get(validationTimeout.toSeconds(), 

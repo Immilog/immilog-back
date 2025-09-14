@@ -1,6 +1,6 @@
 package com.backend.immilog.post.presentation.payload;
 
-import com.backend.immilog.post.application.dto.PostUploadCommand;
+import com.backend.immilog.post.application.dto.in.PostUploadCommand;
 import com.backend.immilog.post.domain.model.post.Categories;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

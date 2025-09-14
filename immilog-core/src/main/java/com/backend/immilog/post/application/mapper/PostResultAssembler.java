@@ -1,6 +1,6 @@
 package com.backend.immilog.post.application.mapper;
 
-import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.dto.out.PostResult;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.domain.model.Resource;
 import com.backend.immilog.shared.domain.model.ResourceType;

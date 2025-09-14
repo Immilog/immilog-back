@@ -1,12 +1,13 @@
 package com.backend.immilog.post.application.event;
 
 import com.backend.immilog.comment.domain.event.CommentCreatedEvent;
-import com.backend.immilog.post.application.services.PostCommandService;
-import com.backend.immilog.post.application.services.PostQueryService;
+import com.backend.immilog.post.domain.service.PostDomainService;
+import com.backend.immilog.post.domain.model.post.PostId;
 import com.backend.immilog.post.domain.events.PostCompensationEvent;
 import com.backend.immilog.shared.config.properties.EventProperties;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import com.backend.immilog.shared.domain.event.DomainEvents;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,21 +15,11 @@ import java.util.UUID;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CommentCreatedEventHandler implements DomainEventHandler<CommentCreatedEvent> {
 
-    private final PostQueryService postQueryService;
-    private final PostCommandService postCommandService;
+    private final PostDomainService postDomainService;
     private final EventProperties eventProperties;
-
-    public CommentCreatedEventHandler(
-            PostQueryService postQueryService,
-            PostCommandService postCommandService,
-            EventProperties eventProperties
-    ) {
-        this.postQueryService = postQueryService;
-        this.postCommandService = postCommandService;
-        this.eventProperties = eventProperties;
-    }
 
     @Override
     public void handle(CommentCreatedEvent event) {
@@ -45,9 +36,7 @@ public class CommentCreatedEventHandler implements DomainEventHandler<CommentCre
                 throw new RuntimeException("Simulated failure for testing compensation events");
             }
                 
-            var post = postQueryService.getPostById(event.getPostId());
-            var updatedPost = post.increaseCommentCount();
-            postCommandService.save(updatedPost);
+            postDomainService.incrementCommentCount(PostId.of(event.getPostId()));
 
             log.debug(
                     "Successfully increased comment count for post: {} in transaction: {}",

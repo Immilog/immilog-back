@@ -6,10 +6,10 @@ import com.backend.immilog.comment.presentation.payload.CommentResponse;
 import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
-import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
-import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.post.domain.events.PostEvent;
+import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.domain.model.UserData;
+import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +25,11 @@ public class CommentQueryService {
     private final InteractionUserRepository interactionUserRepository;
     private final EventResultStorageService eventResultStorageService;
 
-    public CommentQueryService(CommentRepository commentRepository, 
-                             InteractionUserRepository interactionUserRepository,
-                             EventResultStorageService eventResultStorageService) {
+    public CommentQueryService(
+            CommentRepository commentRepository,
+            InteractionUserRepository interactionUserRepository,
+            EventResultStorageService eventResultStorageService
+    ) {
         this.commentRepository = commentRepository;
         this.interactionUserRepository = interactionUserRepository;
         this.eventResultStorageService = eventResultStorageService;

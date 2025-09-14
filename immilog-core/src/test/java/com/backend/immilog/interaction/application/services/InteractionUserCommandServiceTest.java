@@ -4,310 +4,406 @@ import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
+import com.backend.immilog.interaction.domain.service.InteractionDomainService;
+import com.backend.immilog.interaction.exception.InteractionErrorCode;
+import com.backend.immilog.interaction.exception.InteractionException;
 import com.backend.immilog.shared.enums.ContentType;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class InteractionUserCommandServiceTest {
 
     private final InteractionUserRepository mockInteractionUserRepository = mock(InteractionUserRepository.class);
+    private final InteractionDomainService mockInteractionDomainService = mock(InteractionDomainService.class);
+    private final InteractionUserCommandService interactionUserCommandService = new InteractionUserCommandService(
+            mockInteractionUserRepository,
+            mockInteractionDomainService
+    );
 
-    private InteractionUserCommandService interactionUserCommandService;
+    @Nested
+    @DisplayName("상호작용 토글 테스트")
+    class ToggleInteractionTest {
 
-    @BeforeEach
-    void setUp() {
-        Mockito.reset(mockInteractionUserRepository);
-        interactionUserCommandService = new InteractionUserCommandService(mockInteractionUserRepository);
+        @Test
+        @DisplayName("기존 상호작용이 없을 때 새로 생성한다")
+        void createNewInteractionWhenNotExists() {
+            InteractionUser newInteraction = InteractionUser.createLike("user123", "post456", ContentType.POST);
+            InteractionUser savedInteraction = InteractionUser.builder()
+                    .id("interaction123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            when(mockInteractionUserRepository.findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+                    "user123", InteractionType.LIKE, ContentType.POST, "post456"
+            )).thenReturn(Optional.empty());
+            when(mockInteractionUserRepository.save(newInteraction)).thenReturn(savedInteraction);
+
+            InteractionUser result = interactionUserCommandService.toggleInteraction(newInteraction);
+
+            assertThat(result).isEqualTo(savedInteraction);
+            verify(mockInteractionDomainService).validateInteractionRules(newInteraction);
+            verify(mockInteractionDomainService).validateUserPermissions("user123", "post456");
+            verify(mockInteractionDomainService).validatePostExists("post456", ContentType.POST);
+            verify(mockInteractionUserRepository).findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+                    "user123", InteractionType.LIKE, ContentType.POST, "post456"
+            );
+            verify(mockInteractionUserRepository).save(newInteraction);
+        }
+
+        @Test
+        @DisplayName("기존 상호작용이 있을 때 상태를 토글한다")
+        void toggleExistingInteractionStatus() {
+            InteractionUser newInteraction = InteractionUser.createLike("user123", "post456", ContentType.POST);
+            InteractionUser existingInteraction = InteractionUser.builder()
+                    .id("interaction123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            InteractionUser toggledInteraction = existingInteraction.toggleStatus();
+            InteractionUser savedInteraction = InteractionUser.builder()
+                    .id("interaction123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.INACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            when(mockInteractionUserRepository.findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+                    "user123", InteractionType.LIKE, ContentType.POST, "post456"
+            )).thenReturn(Optional.of(existingInteraction));
+            when(mockInteractionUserRepository.save(any(InteractionUser.class))).thenReturn(savedInteraction);
+
+            InteractionUser result = interactionUserCommandService.toggleInteraction(newInteraction);
+
+            assertThat(result).isEqualTo(savedInteraction);
+            verify(mockInteractionDomainService).validateInteractionRules(newInteraction);
+            verify(mockInteractionDomainService).validateUserPermissions("user123", "post456");
+            verify(mockInteractionDomainService).validatePostExists("post456", ContentType.POST);
+            verify(mockInteractionUserRepository).findByUserIdAndInteractionTypeAndContentTypeAndPostId(
+                    "user123", InteractionType.LIKE, ContentType.POST, "post456"
+            );
+            verify(mockInteractionUserRepository).save(any(InteractionUser.class));
+        }
+
+        @Test
+        @DisplayName("도메인 서비스 검증 실패 시 예외가 발생한다")
+        void throwsExceptionWhenDomainValidationFails() {
+            InteractionUser invalidInteraction = InteractionUser.createLike("", "post456", ContentType.POST);
+
+            doThrow(new InteractionException(InteractionErrorCode.INTERACTION_CREATE_FAILED))
+                    .when(mockInteractionDomainService).validateInteractionRules(invalidInteraction);
+
+            assertThatThrownBy(() -> interactionUserCommandService.toggleInteraction(invalidInteraction))
+                    .isInstanceOf(InteractionException.class)
+                    .hasMessage(InteractionErrorCode.INTERACTION_CREATE_FAILED.getMessage());
+
+            verify(mockInteractionDomainService).validateInteractionRules(invalidInteraction);
+            verifyNoInteractions(mockInteractionUserRepository);
+        }
     }
 
-    @Test
-    @DisplayName("인터랙션 생성 - 정상 케이스")
-    void toggleInteractionSuccessfully() {
-        //given
-        InteractionUser interaction = createTestInteraction();
-        InteractionUser savedInteraction = createTestInteractionWithId();
+    @Nested
+    @DisplayName("상호작용 삭제 테스트")
+    class DeleteInteractionTest {
 
-        when(mockInteractionUserRepository.save(interaction)).thenReturn(savedInteraction);
+        @Test
+        @DisplayName("상호작용을 삭제할 수 있다")
+        void deleteInteractionSuccessfully() {
+            String interactionId = "interaction123";
 
-        //when
-        InteractionUser result = interactionUserCommandService.toggleInteraction(interaction);
+            interactionUserCommandService.deleteInteraction(interactionId);
 
-        //then
-        assertThat(result).isEqualTo(savedInteraction);
-        assertThat(result.id()).isNotNull();
-        verify(mockInteractionUserRepository).save(interaction);
+            verify(mockInteractionUserRepository).deleteById(interactionId);
+        }
+
+        @Test
+        @DisplayName("null ID로 상호작용 삭제를 시도할 수 있다")
+        void deleteInteractionWithNullId() {
+            String interactionId = null;
+
+            interactionUserCommandService.deleteInteraction(interactionId);
+
+            verify(mockInteractionUserRepository).deleteById(interactionId);
+        }
     }
 
-    @Test
-    @DisplayName("좋아요 인터랙션 생성")
-    void createLikeInteraction() {
-        //given
-        InteractionUser likeInteraction = createTestLikeInteraction();
-        InteractionUser savedInteraction = createSavedLikeInteraction();
+    @Nested
+    @DisplayName("상호작용 생성 테스트")
+    class CreateInteractionTest {
 
-        when(mockInteractionUserRepository.save(likeInteraction)).thenReturn(savedInteraction);
+        @Test
+        @DisplayName("새로운 상호작용을 생성할 수 있다")
+        void createInteractionSuccessfully() {
+            InteractionUser newInteraction = InteractionUser.createBookmark("user123", "post456", ContentType.POST);
+            InteractionUser savedInteraction = InteractionUser.builder()
+                    .id("interaction123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.BOOKMARK)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
-        //when
-        InteractionUser result = interactionUserCommandService.toggleInteraction(likeInteraction);
+            when(mockInteractionUserRepository.save(newInteraction)).thenReturn(savedInteraction);
 
-        //then
-        assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(result.id()).isNotNull();
-        verify(mockInteractionUserRepository).save(likeInteraction);
+            InteractionUser result = interactionUserCommandService.createInteraction(newInteraction);
+
+            assertThat(result).isEqualTo(savedInteraction);
+            verify(mockInteractionDomainService).validateInteractionRules(newInteraction);
+            verify(mockInteractionDomainService).validateUserPermissions("user123", "post456");
+            verify(mockInteractionDomainService).validatePostExists("post456", ContentType.POST);
+            verify(mockInteractionDomainService).validateInteractionLimits("user123", InteractionType.BOOKMARK);
+            verify(mockInteractionUserRepository).save(newInteraction);
+        }
+
+        @Test
+        @DisplayName("도메인 서비스 검증 실패 시 예외가 발생한다")
+        void throwsExceptionWhenCreateValidationFails() {
+            InteractionUser invalidInteraction = InteractionUser.createBookmark(null, "post456", ContentType.POST);
+
+            doThrow(new InteractionException(InteractionErrorCode.INTERACTION_CREATE_FAILED))
+                    .when(mockInteractionDomainService).validateInteractionRules(invalidInteraction);
+
+            assertThatThrownBy(() -> interactionUserCommandService.createInteraction(invalidInteraction))
+                    .isInstanceOf(InteractionException.class)
+                    .hasMessage(InteractionErrorCode.INTERACTION_CREATE_FAILED.getMessage());
+
+            verify(mockInteractionDomainService).validateInteractionRules(invalidInteraction);
+            verifyNoInteractions(mockInteractionUserRepository);
+        }
     }
 
-    @Test
-    @DisplayName("북마크 인터랙션 생성")
-    void createBookmarkInteraction() {
-        //given
-        InteractionUser bookmarkInteraction = createTestBookmarkInteraction();
-        InteractionUser savedInteraction = createSavedBookmarkInteraction();
+    @Nested
+    @DisplayName("상호작용 활성화 테스트")
+    class ActivateInteractionTest {
 
-        when(mockInteractionUserRepository.save(bookmarkInteraction)).thenReturn(savedInteraction);
+        @Test
+        @DisplayName("비활성 상호작용을 활성화할 수 있다")
+        void activateInactiveInteraction() {
+            String interactionId = "interaction123";
+            InteractionUser inactiveInteraction = InteractionUser.builder()
+                    .id(interactionId)
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.INACTIVE)
+                    .createdAt(LocalDateTime.now().minusDays(1))
+                    .build();
 
-        //when
-        InteractionUser result = interactionUserCommandService.toggleInteraction(bookmarkInteraction);
+            InteractionUser activatedInteraction = InteractionUser.builder()
+                    .id(interactionId)
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
-        //then
-        assertThat(result.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        assertThat(result.id()).isNotNull();
-        verify(mockInteractionUserRepository).save(bookmarkInteraction);
+            when(mockInteractionUserRepository.findById(interactionId)).thenReturn(Optional.of(inactiveInteraction));
+            when(mockInteractionUserRepository.save(any(InteractionUser.class))).thenReturn(activatedInteraction);
+
+            InteractionUser result = interactionUserCommandService.activateInteraction(interactionId);
+
+            assertThat(result).isEqualTo(activatedInteraction);
+            verify(mockInteractionUserRepository).findById(interactionId);
+            verify(mockInteractionUserRepository).save(any(InteractionUser.class));
+        }
+
+        @Test
+        @DisplayName("이미 활성화된 상호작용은 그대로 반환한다")
+        void returnActiveInteractionAsIs() {
+            String interactionId = "interaction123";
+            InteractionUser activeInteraction = InteractionUser.builder()
+                    .id(interactionId)
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            when(mockInteractionUserRepository.findById(interactionId)).thenReturn(Optional.of(activeInteraction));
+
+            InteractionUser result = interactionUserCommandService.activateInteraction(interactionId);
+
+            assertThat(result).isEqualTo(activeInteraction);
+            verify(mockInteractionUserRepository).findById(interactionId);
+            verify(mockInteractionUserRepository, never()).save(any(InteractionUser.class));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 상호작용 활성화 시 예외가 발생한다")
+        void throwsExceptionWhenActivatingNonExistentInteraction() {
+            String interactionId = "nonexistent";
+
+            when(mockInteractionUserRepository.findById(interactionId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> interactionUserCommandService.activateInteraction(interactionId))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Interaction not found: " + interactionId);
+
+            verify(mockInteractionUserRepository).findById(interactionId);
+            verify(mockInteractionUserRepository, never()).save(any(InteractionUser.class));
+        }
     }
 
+    @Nested
+    @DisplayName("상호작용 비활성화 테스트")
+    class DeactivateInteractionTest {
 
-    @Test
-    @DisplayName("인터랙션 삭제 - 정상 케이스")
-    void deleteInteractionSuccessfully() {
-        //given
-        String interactionId = "interactionId";
+        @Test
+        @DisplayName("활성 상호작용을 비활성화할 수 있다")
+        void deactivateActiveInteraction() {
+            String interactionId = "interaction123";
+            InteractionUser activeInteraction = InteractionUser.builder()
+                    .id(interactionId)
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now().minusDays(1))
+                    .build();
 
-        //when
-        interactionUserCommandService.deleteInteraction(interactionId);
+            InteractionUser deactivatedInteraction = InteractionUser.builder()
+                    .id(interactionId)
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.INACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
-        //then
-        verify(mockInteractionUserRepository).deleteById(interactionId);
+            when(mockInteractionUserRepository.findById(interactionId)).thenReturn(Optional.of(activeInteraction));
+            when(mockInteractionUserRepository.save(any(InteractionUser.class))).thenReturn(deactivatedInteraction);
+
+            InteractionUser result = interactionUserCommandService.deactivateInteraction(interactionId);
+
+            assertThat(result).isEqualTo(deactivatedInteraction);
+            verify(mockInteractionUserRepository).findById(interactionId);
+            verify(mockInteractionUserRepository).save(any(InteractionUser.class));
+        }
+
+        @Test
+        @DisplayName("이미 비활성화된 상호작용은 그대로 반환한다")
+        void returnInactiveInteractionAsIs() {
+            String interactionId = "interaction123";
+            InteractionUser inactiveInteraction = InteractionUser.builder()
+                    .id(interactionId)
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.INACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            when(mockInteractionUserRepository.findById(interactionId)).thenReturn(Optional.of(inactiveInteraction));
+
+            InteractionUser result = interactionUserCommandService.deactivateInteraction(interactionId);
+
+            assertThat(result).isEqualTo(inactiveInteraction);
+            verify(mockInteractionUserRepository).findById(interactionId);
+            verify(mockInteractionUserRepository, never()).save(any(InteractionUser.class));
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 상호작용 비활성화 시 예외가 발생한다")
+        void throwsExceptionWhenDeactivatingNonExistentInteraction() {
+            String interactionId = "nonexistent";
+
+            when(mockInteractionUserRepository.findById(interactionId)).thenReturn(Optional.empty());
+
+            assertThatThrownBy(() -> interactionUserCommandService.deactivateInteraction(interactionId))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Interaction not found: " + interactionId);
+
+            verify(mockInteractionUserRepository).findById(interactionId);
+            verify(mockInteractionUserRepository, never()).save(any(InteractionUser.class));
+        }
     }
 
-    @Test
-    @DisplayName("null ID로 인터랙션 삭제")
-    void deleteInteractionWithNullId() {
-        //given
-        String interactionId = null;
+    @Nested
+    @DisplayName("서비스 통합 테스트")
+    class ServiceIntegrationTest {
 
-        //when
-        interactionUserCommandService.deleteInteraction(interactionId);
+        @Test
+        @DisplayName("다양한 타입의 상호작용을 처리할 수 있다")
+        void handleVariousInteractionTypes() {
+            InteractionType[] types = {InteractionType.LIKE, InteractionType.BOOKMARK};
+            
+            for (InteractionType type : types) {
+                InteractionUser interaction = InteractionUser.of("user123", "post456", ContentType.POST, type);
+                InteractionUser savedInteraction = InteractionUser.builder()
+                        .id("interaction123")
+                        .userId("user123")
+                        .postId("post456")
+                        .contentType(ContentType.POST)
+                        .interactionType(type)
+                        .interactionStatus(InteractionStatus.ACTIVE)
+                        .createdAt(LocalDateTime.now())
+                        .build();
 
-        //then
-        verify(mockInteractionUserRepository).deleteById(interactionId);
-    }
+                when(mockInteractionUserRepository.save(interaction)).thenReturn(savedInteraction);
 
-    @Test
-    @DisplayName("빈 문자열 ID로 인터랙션 삭제")
-    void deleteInteractionWithEmptyId() {
-        //given
-        String interactionId = "";
+                InteractionUser result = interactionUserCommandService.createInteraction(interaction);
 
-        //when
-        interactionUserCommandService.deleteInteraction(interactionId);
+                assertThat(result.interactionType()).isEqualTo(type);
+                verify(mockInteractionDomainService).validateInteractionRules(interaction);
+                verify(mockInteractionUserRepository).save(interaction);
+            }
+        }
 
-        //then
-        verify(mockInteractionUserRepository).deleteById(interactionId);
-    }
+        @Test
+        @DisplayName("다양한 콘텐츠 타입의 상호작용을 처리할 수 있다")
+        void handleVariousContentTypes() {
+            ContentType[] contentTypes = {ContentType.POST, ContentType.COMMENT};
+            
+            for (ContentType contentType : contentTypes) {
+                InteractionUser interaction = InteractionUser.of("user123", "post456", contentType, InteractionType.LIKE);
+                InteractionUser savedInteraction = InteractionUser.builder()
+                        .id("interaction123")
+                        .userId("user123")
+                        .postId("post456")
+                        .contentType(contentType)
+                        .interactionType(InteractionType.LIKE)
+                        .interactionStatus(InteractionStatus.ACTIVE)
+                        .createdAt(LocalDateTime.now())
+                        .build();
 
-    @Test
-    @DisplayName("여러 인터랙션 연속 생성")
-    void createMultipleInteractionsSequentially() {
-        //given
-        InteractionUser interaction1 = createTestInteraction();
-        InteractionUser interaction2 = createTestLikeInteraction();
-        InteractionUser savedInteraction1 = createTestInteractionWithId();
-        InteractionUser savedInteraction2 = createSavedLikeInteraction();
+                when(mockInteractionUserRepository.save(interaction)).thenReturn(savedInteraction);
 
-        when(mockInteractionUserRepository.save(interaction1)).thenReturn(savedInteraction1);
-        when(mockInteractionUserRepository.save(interaction2)).thenReturn(savedInteraction2);
+                InteractionUser result = interactionUserCommandService.createInteraction(interaction);
 
-        //when
-        InteractionUser result1 = interactionUserCommandService.toggleInteraction(interaction1);
-        InteractionUser result2 = interactionUserCommandService.toggleInteraction(interaction2);
-
-        //then
-        verify(mockInteractionUserRepository).save(interaction1);
-        verify(mockInteractionUserRepository).save(interaction2);
-    }
-
-    @Test
-    @DisplayName("여러 인터랙션 연속 삭제")
-    void deleteMultipleInteractionsSequentially() {
-        //given
-        String interactionId1 = "interactionId1";
-        String interactionId2 = "interactionId2";
-        String interactionId3 = "interactionId3";
-
-        //when
-        interactionUserCommandService.deleteInteraction(interactionId1);
-        interactionUserCommandService.deleteInteraction(interactionId2);
-        interactionUserCommandService.deleteInteraction(interactionId3);
-
-        //then
-        verify(mockInteractionUserRepository).deleteById(interactionId1);
-        verify(mockInteractionUserRepository).deleteById(interactionId2);
-        verify(mockInteractionUserRepository).deleteById(interactionId3);
-    }
-
-    @Test
-    @DisplayName("생성과 삭제 혼합 작업")
-    void mixedCreateAndDeleteOperations() {
-        //given
-        InteractionUser interactionToCreate = createTestInteraction();
-        InteractionUser savedInteraction = createTestInteractionWithId();
-        String interactionIdToDelete = "deleteInteractionId";
-
-        when(mockInteractionUserRepository.save(interactionToCreate)).thenReturn(savedInteraction);
-
-        //when
-        InteractionUser createResult = interactionUserCommandService.toggleInteraction(interactionToCreate);
-        interactionUserCommandService.deleteInteraction(interactionIdToDelete);
-
-        //then
-        assertThat(createResult).isEqualTo(savedInteraction);
-        verify(mockInteractionUserRepository).save(interactionToCreate);
-        verify(mockInteractionUserRepository).deleteById(interactionIdToDelete);
-    }
-
-    @Test
-    @DisplayName("다양한 PostType으로 인터랙션 생성")
-    void toggleInteractionsWithDifferentPostTypes() {
-        //given
-        InteractionUser postInteraction = createTestInteraction();
-        InteractionUser commentInteraction = createTestCommentInteraction();
-        InteractionUser savedPostInteraction = createTestInteractionWithId();
-        InteractionUser savedCommentInteraction = createSavedCommentInteraction();
-
-        when(mockInteractionUserRepository.save(postInteraction)).thenReturn(savedPostInteraction);
-        when(mockInteractionUserRepository.save(commentInteraction)).thenReturn(savedCommentInteraction);
-
-        //when
-        InteractionUser postResult = interactionUserCommandService.toggleInteraction(postInteraction);
-        InteractionUser commentResult = interactionUserCommandService.toggleInteraction(commentInteraction);
-
-        //then
-        assertThat(postResult.contentType()).isEqualTo(ContentType.POST);
-        assertThat(commentResult.contentType()).isEqualTo(ContentType.COMMENT);
-        verify(mockInteractionUserRepository).save(postInteraction);
-        verify(mockInteractionUserRepository).save(commentInteraction);
-    }
-
-    @Test
-    @DisplayName("모든 InteractionType으로 인터랙션 생성")
-    void toggleInteractionsWithAllTypes() {
-        //given
-        InteractionUser likeInteraction = createTestLikeInteraction();
-        InteractionUser bookmarkInteraction = createTestBookmarkInteraction();
-        InteractionUser savedLikeInteraction = createSavedLikeInteraction();
-        InteractionUser savedBookmarkInteraction = createSavedBookmarkInteraction();
-
-        when(mockInteractionUserRepository.save(likeInteraction)).thenReturn(savedLikeInteraction);
-        when(mockInteractionUserRepository.save(bookmarkInteraction)).thenReturn(savedBookmarkInteraction);
-
-        //when
-        InteractionUser likeResult = interactionUserCommandService.toggleInteraction(likeInteraction);
-        InteractionUser bookmarkResult = interactionUserCommandService.toggleInteraction(bookmarkInteraction);
-
-        //then
-        assertThat(likeResult.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(bookmarkResult.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        verify(mockInteractionUserRepository).save(likeInteraction);
-        verify(mockInteractionUserRepository).save(bookmarkInteraction);
-    }
-
-    private InteractionUser createTestInteraction() {
-        return InteractionUser.of(
-                "userId",
-                "postId",
-                ContentType.POST,
-                InteractionType.LIKE
-        );
-    }
-
-    private InteractionUser createTestInteractionWithId() {
-        return new InteractionUser(
-                "interactionId",
-                "userId",
-                "postId",
-                ContentType.POST,
-                InteractionType.LIKE,
-                InteractionStatus.ACTIVE,
-                LocalDateTime.now()
-        );
-    }
-
-    private InteractionUser createTestLikeInteraction() {
-        return InteractionUser.of(
-                "likeUserId",
-                "likePostId",
-                ContentType.POST,
-                InteractionType.LIKE
-        );
-    }
-
-    private InteractionUser createSavedLikeInteraction() {
-        return new InteractionUser(
-                "likeInteractionId2",
-                "userId2",
-                "postId",
-                ContentType.POST,
-                InteractionType.LIKE,
-                InteractionStatus.ACTIVE,
-                LocalDateTime.now()
-        );
-    }
-
-    private InteractionUser createTestBookmarkInteraction() {
-        return InteractionUser.of(
-                "userId",
-                "postId",
-                ContentType.POST,
-                InteractionType.BOOKMARK
-        );
-    }
-
-    private InteractionUser createSavedBookmarkInteraction() {
-        return new InteractionUser(
-                "bookmarkInteractionId",
-                "userId",
-                "postId",
-                ContentType.POST,
-                InteractionType.BOOKMARK,
-                InteractionStatus.ACTIVE,
-                LocalDateTime.now()
-        );
-    }
-
-    private InteractionUser createTestCommentInteraction() {
-        return InteractionUser.of(
-                "userId",
-                "commentId",
-                ContentType.COMMENT,
-                InteractionType.LIKE
-        );
-    }
-
-    private InteractionUser createSavedCommentInteraction() {
-        return new InteractionUser(
-                "commentInteractionId",
-                "userId",
-                "commentId",
-                ContentType.COMMENT,
-                InteractionType.LIKE,
-                InteractionStatus.ACTIVE,
-                LocalDateTime.now()
-        );
+                assertThat(result.contentType()).isEqualTo(contentType);
+                verify(mockInteractionDomainService).validatePostExists("post456", contentType);
+                verify(mockInteractionUserRepository).save(interaction);
+            }
+        }
     }
 }

@@ -4,25 +4,18 @@ import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import com.backend.immilog.shared.domain.event.UserDataRequestedEvent;
 import com.backend.immilog.shared.domain.model.UserData;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
-import com.backend.immilog.user.application.services.query.UserQueryService;
+import com.backend.immilog.user.domain.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class UserDataRequestedSharedEventHandler implements DomainEventHandler<UserDataRequestedEvent> {
 
-    private final UserQueryService userQueryService;
+    private final UserRepository userRepository;
     private final EventResultStorageService eventResultStorageService;
-
-    public UserDataRequestedSharedEventHandler(
-            UserQueryService userQueryService,
-            EventResultStorageService eventResultStorageService) {
-        this.userQueryService = userQueryService;
-        this.eventResultStorageService = eventResultStorageService;
-    }
 
     @Override
     public void handle(UserDataRequestedEvent event) {
@@ -30,18 +23,14 @@ public class UserDataRequestedSharedEventHandler implements DomainEventHandler<U
                 event.getUserIds(), event.getRequestingDomain());
         
         try {
-            List<UserData> userDataList = event.getUserIds().stream()
+            var userDataList = event.getUserIds().stream()
                     .map(userId -> {
                         try {
-                            var user = userQueryService.getUserById(userId);
-                            return new UserData(
-                                    user.getUserId().value(),
-                                    user.getNickname(),
-                                    user.getImageUrl()
-                            );
+                            var user = userRepository.findById(userId);
+                            return new UserData(user.getUserId().value(), user.getNickname(), user.getImageUrl(), user.getCountryId(), user.getRegion());
                         } catch (Exception e) {
                             log.warn("Failed to get user data for userId: {}", userId, e);
-                            return new UserData(userId, "Unknown", null);
+                            return new UserData(userId, "Unknown", null, null, null);
                         }
                     })
                     .toList();

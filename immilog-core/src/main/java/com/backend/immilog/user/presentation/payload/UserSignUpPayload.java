@@ -1,6 +1,6 @@
 package com.backend.immilog.user.presentation.payload;
 
-import com.backend.immilog.user.application.command.UserSignUpCommand;
+import com.backend.immilog.user.application.dto.in.UserSignUpCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

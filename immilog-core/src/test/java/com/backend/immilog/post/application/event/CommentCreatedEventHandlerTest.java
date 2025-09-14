@@ -1,152 +1,245 @@
 package com.backend.immilog.post.application.event;
 
 import com.backend.immilog.comment.domain.event.CommentCreatedEvent;
-import com.backend.immilog.post.application.services.PostCommandService;
-import com.backend.immilog.post.application.services.PostQueryService;
-import com.backend.immilog.post.domain.model.post.Post;
+import com.backend.immilog.post.domain.service.PostDomainService;
+import com.backend.immilog.post.domain.model.post.PostId;
+import com.backend.immilog.post.domain.events.PostCompensationEvent;
+import com.backend.immilog.post.exception.PostErrorCode;
+import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.config.properties.EventProperties;
 import com.backend.immilog.shared.domain.event.DomainEvents;
-import com.backend.immilog.shared.infrastructure.event.RedisEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationContext;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("CommentCreatedEventHandler 테스트")
+@DisplayName("CommentCreatedEventHandler")
 class CommentCreatedEventHandlerTest {
 
-    @Mock private PostQueryService postQueryService;
+    @Mock
+    private PostDomainService postDomainService;
 
-    @Mock private PostCommandService postCommandService;
+    @Mock
+    private EventProperties eventProperties;
 
-    @Mock private EventProperties eventProperties;
+    @InjectMocks
+    private CommentCreatedEventHandler commentCreatedEventHandler;
 
-    @Mock private Post mockPost;
-
-    @Mock private Post updatedPost;
-
-    @Mock private ApplicationContext applicationContext;
-
-    @Mock private RedisEventPublisher redisEventPublisher;
-
-    private CommentCreatedEventHandler eventHandler;
+    private CommentCreatedEvent testEvent;
 
     @BeforeEach
     void setUp() {
-        eventHandler = new CommentCreatedEventHandler(postQueryService, postCommandService, eventProperties);
+        testEvent = new CommentCreatedEvent("comment123", "post123", "user123");
     }
 
-    @Test
-    @DisplayName("댓글 생성 이벤트 처리 성공 - 게시글 댓글 수 증가")
-    void handleCommentCreatedEvent_Success() {
-        // given
-        CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
+    @Nested
+    @DisplayName("이벤트 처리 성공")
+    class SuccessfulEventHandling {
 
-        when(eventProperties.simulateFailure()).thenReturn(false);
-        when(postQueryService.getPostById("post1")).thenReturn(mockPost);
-        when(mockPost.increaseCommentCount()).thenReturn(updatedPost);
+        @Test
+        @DisplayName("댓글 생성 이벤트 처리 성공")
+        void handleCommentCreatedEventSuccess() {
+            when(eventProperties.simulateFailure()).thenReturn(false);
 
-        // when
-        eventHandler.handle(event);
+            commentCreatedEventHandler.handle(testEvent);
 
-        // then
-        verify(postQueryService).getPostById("post1");
-        verify(mockPost).increaseCommentCount();
-        verify(postCommandService).save(updatedPost);
-        verify(eventProperties, never()).enableCompensation();
-    }
+            verify(postDomainService).incrementCommentCount(PostId.of("post123"));
+        }
 
-    @Test
-    @DisplayName("댓글 생성 이벤트 처리 실패 - 보상 이벤트 발행")
-    void handleCommentCreatedEvent_FailureWithCompensation() {
-        // given
-        CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
+        @Test
+        @DisplayName("댓글 수 증가 검증")
+        void verifyCommentCountIncrease() {
+            when(eventProperties.simulateFailure()).thenReturn(false);
 
-        when(eventProperties.simulateFailure()).thenReturn(false);
-        when(eventProperties.enableCompensation()).thenReturn(true);
-        when(postQueryService.getPostById("post1")).thenThrow(new RuntimeException("Database error"));
+            commentCreatedEventHandler.handle(testEvent);
 
-        try (MockedStatic<DomainEvents> domainEventsMock = mockStatic(DomainEvents.class)) {
-            // when
-            eventHandler.handle(event);
+            verify(postDomainService).incrementCommentCount(PostId.of("post123"));
+        }
 
-            // then
-            verify(postQueryService).getPostById("post1");
-            verify(postCommandService, never()).save(any());
-            verify(eventProperties).enableCompensation();
+        @Test
+        @DisplayName("시뮬레이션 실패 비활성화 시 정상 처리")
+        void handleEventWithSimulationDisabled() {
+            when(eventProperties.simulateFailure()).thenReturn(false);
 
-            domainEventsMock.verify(() -> DomainEvents.raiseCompensationEvent(any()), times(1));
+            assertThatNoException().isThrownBy(() -> commentCreatedEventHandler.handle(testEvent));
+
+            verify(postDomainService).incrementCommentCount(PostId.of("post123"));
         }
     }
 
-    @Test
-    @DisplayName("실패 시뮬레이션 활성화 - 보상 이벤트 발행")
-    void handleCommentCreatedEvent_SimulatedFailure() {
-        // given
-        CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
+    @Nested
+    @DisplayName("시뮬레이션 실패 처리")
+    class SimulatedFailureHandling {
 
-        when(eventProperties.simulateFailure()).thenReturn(true);
-        when(eventProperties.failureRate()).thenReturn(1.0);
-        when(eventProperties.enableCompensation()).thenReturn(true);
+        @Test
+        @DisplayName("시뮬레이션 실패 활성화 시 보상 이벤트 발행")
+        void handleEventWithSimulatedFailure() {
+            try (MockedStatic<DomainEvents> mockedDomainEvents = mockStatic(DomainEvents.class)) {
+                when(eventProperties.simulateFailure()).thenReturn(true);
+                when(eventProperties.failureRate()).thenReturn(1.0);
+                when(eventProperties.enableCompensation()).thenReturn(true);
 
-        try (MockedStatic<DomainEvents> domainEventsMock = mockStatic(DomainEvents.class)) {
-            // when
-            eventHandler.handle(event);
+                commentCreatedEventHandler.handle(testEvent);
 
-            // then
-            verify(postQueryService, never()).getPostById(any());
-            verify(eventProperties).enableCompensation();
+                var eventCaptor = ArgumentCaptor.forClass(PostCompensationEvent.CommentCountIncreaseCompensation.class);
+                mockedDomainEvents.verify(() -> DomainEvents.raiseCompensationEvent(eventCaptor.capture()));
 
-            domainEventsMock.verify(() -> DomainEvents.raiseCompensationEvent(any()), times(1));
+                PostCompensationEvent.CommentCountIncreaseCompensation capturedEvent = eventCaptor.getValue();
+                assertThat(capturedEvent.getPostId()).isEqualTo("post123");
+                assertThat(capturedEvent.getTransactionId()).isNotNull();
+            }
+        }
+
+        @Test
+        @DisplayName("보상 비활성화 시 보상 이벤트 발행하지 않음")
+        void handleEventWithCompensationDisabled() {
+            try (MockedStatic<DomainEvents> mockedDomainEvents = mockStatic(DomainEvents.class)) {
+                when(eventProperties.simulateFailure()).thenReturn(true);
+                when(eventProperties.failureRate()).thenReturn(1.0);
+                when(eventProperties.enableCompensation()).thenReturn(false);
+
+                commentCreatedEventHandler.handle(testEvent);
+
+                mockedDomainEvents.verify(() -> DomainEvents.raiseCompensationEvent(any()), never());
+            }
+        }
+
+        @Test
+        @DisplayName("실패율 0일 때 정상 처리")
+        void handleEventWithZeroFailureRate() {
+            when(eventProperties.simulateFailure()).thenReturn(true);
+            when(eventProperties.failureRate()).thenReturn(0.0);
+
+            commentCreatedEventHandler.handle(testEvent);
+
+            verify(postDomainService).incrementCommentCount(PostId.of("post123"));
         }
     }
 
-    @Test
-    @DisplayName("보상 이벤트 비활성화 - 보상 이벤트 발행하지 않음")
-    void handleCommentCreatedEvent_CompensationDisabled() {
-        // given
-        CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
+    @Nested
+    @DisplayName("실제 예외 처리")
+    class ActualExceptionHandling {
 
-        when(eventProperties.simulateFailure()).thenReturn(false);
-        when(eventProperties.enableCompensation()).thenReturn(false);
-        when(postQueryService.getPostById("post1")).thenThrow(new RuntimeException("Database error"));
+        @Test
+        @DisplayName("포스트 도메인 서비스 실패 시 보상 이벤트 발행")
+        void handlePostDomainServiceException() {
+            try (MockedStatic<DomainEvents> mockedDomainEvents = mockStatic(DomainEvents.class)) {
+                PostException postException = new PostException(PostErrorCode.POST_NOT_FOUND);
+                
+                when(eventProperties.simulateFailure()).thenReturn(false);
+                when(eventProperties.enableCompensation()).thenReturn(true);
+                doThrow(postException).when(postDomainService).incrementCommentCount(PostId.of("post123"));
 
-        try (MockedStatic<DomainEvents> domainEventsMock = mockStatic(DomainEvents.class)) {
-            // when
-            eventHandler.handle(event);
+                commentCreatedEventHandler.handle(testEvent);
 
-            // then
-            verify(eventProperties).enableCompensation();
+                ArgumentCaptor<PostCompensationEvent.CommentCountIncreaseCompensation> eventCaptor = 
+                        ArgumentCaptor.forClass(PostCompensationEvent.CommentCountIncreaseCompensation.class);
+                mockedDomainEvents.verify(() -> DomainEvents.raiseCompensationEvent(eventCaptor.capture()));
 
-            // 보상 이벤트가 발행되지 않았는지 검증
-            domainEventsMock.verify(() -> DomainEvents.raiseCompensationEvent(any()), never());
+                PostCompensationEvent.CommentCountIncreaseCompensation capturedEvent = eventCaptor.getValue();
+                assertThat(capturedEvent.getPostId()).isEqualTo("post123");
+            }
+        }
+
+        @Test
+        @DisplayName("런타임 예외 발생 시 보상 이벤트 발행")
+        void handleRuntimeException() {
+            try (MockedStatic<DomainEvents> mockedDomainEvents = mockStatic(DomainEvents.class)) {
+                RuntimeException runtimeException = new RuntimeException("Unexpected error");
+                
+                when(eventProperties.simulateFailure()).thenReturn(false);
+                when(eventProperties.enableCompensation()).thenReturn(true);
+                doThrow(runtimeException).when(postDomainService).incrementCommentCount(PostId.of("post123"));
+
+                commentCreatedEventHandler.handle(testEvent);
+
+                mockedDomainEvents.verify(() -> DomainEvents.raiseCompensationEvent(any(PostCompensationEvent.CommentCountIncreaseCompensation.class)));
+            }
+        }
+
+        @Test
+        @DisplayName("예외 발생 시 보상 비활성화되어 있으면 보상 이벤트 발행하지 않음")
+        void handleExceptionWithCompensationDisabled() {
+            try (MockedStatic<DomainEvents> mockedDomainEvents = mockStatic(DomainEvents.class)) {
+                PostException postException = new PostException(PostErrorCode.POST_NOT_FOUND);
+                
+                when(eventProperties.simulateFailure()).thenReturn(false);
+                when(eventProperties.enableCompensation()).thenReturn(false);
+                doThrow(postException).when(postDomainService).incrementCommentCount(PostId.of("post123"));
+
+                commentCreatedEventHandler.handle(testEvent);
+
+                mockedDomainEvents.verify(() -> DomainEvents.raiseCompensationEvent(any()), never());
+            }
         }
     }
 
-    @Test
-    @DisplayName("실패 시뮬레이션 비활성화 - 낮은 실패율로도 실패하지 않음")
-    void handleCommentCreatedEvent_SimulationDisabled() {
-        // given
-        CommentCreatedEvent event = new CommentCreatedEvent("comment1", "post1", "user1");
+    @Nested
+    @DisplayName("이벤트 타입 검증")
+    class EventTypeValidation {
 
-        when(eventProperties.simulateFailure()).thenReturn(false);
-        when(postQueryService.getPostById("post1")).thenReturn(mockPost);
-        when(mockPost.increaseCommentCount()).thenReturn(updatedPost);
+        @Test
+        @DisplayName("올바른 이벤트 타입 반환")
+        void getCorrectEventType() {
+            Class<CommentCreatedEvent> eventType = commentCreatedEventHandler.getEventType();
+            
+            assertThat(eventType).isEqualTo(CommentCreatedEvent.class);
+        }
+    }
 
-        // when
-        eventHandler.handle(event);
+    @Nested
+    @DisplayName("다양한 시나리오")
+    class VariousScenarios {
 
-        // then
-        verify(postQueryService).getPostById("post1");
-        verify(mockPost).increaseCommentCount();
-        verify(postCommandService).save(updatedPost);
+        @Test
+        @DisplayName("null 댓글 ID로 이벤트 처리")
+        void handleEventWithNullCommentId() {
+            CommentCreatedEvent nullCommentEvent = new CommentCreatedEvent(null, "post123", "user123");
+            
+            when(eventProperties.simulateFailure()).thenReturn(false);
+
+            commentCreatedEventHandler.handle(nullCommentEvent);
+
+            verify(postDomainService).incrementCommentCount(PostId.of("post123"));
+        }
+
+        @Test
+        @DisplayName("여러 연속 이벤트 처리")
+        void handleMultipleConsecutiveEvents() {
+            when(eventProperties.simulateFailure()).thenReturn(false);
+
+            for (int i = 0; i < 3; i++) {
+                CommentCreatedEvent event = new CommentCreatedEvent("comment" + i, "post123", "user123");
+                commentCreatedEventHandler.handle(event);
+            }
+
+            verify(postDomainService, times(3)).incrementCommentCount(PostId.of("post123"));
+        }
+
+        @Test
+        @DisplayName("서로 다른 게시물 ID로 이벤트 처리")
+        void handleEventForDifferentPostIds() {
+            CommentCreatedEvent event1 = new CommentCreatedEvent("comment1", "post123", "user123");
+            CommentCreatedEvent event2 = new CommentCreatedEvent("comment2", "post456", "user456");
+            
+            when(eventProperties.simulateFailure()).thenReturn(false);
+
+            commentCreatedEventHandler.handle(event1);
+            commentCreatedEventHandler.handle(event2);
+
+            verify(postDomainService).incrementCommentCount(PostId.of("post123"));
+            verify(postDomainService).incrementCommentCount(PostId.of("post456"));
+        }
     }
 }

@@ -22,6 +22,7 @@ public class EventResultStorageService {
     private static final String INTERACTION_DATA_KEY_PREFIX = "event:interaction:";
     private static final String BOOKMARK_DATA_KEY_PREFIX = "event:bookmark:";
     private static final String USER_DATA_KEY_PREFIX = "event:user:";
+    private static final String COMMENT_DATA_KEY_PREFIX = "event:comment:";
     private static final Duration TTL = Duration.ofMinutes(5); // 5분 TTL
 
     private final RedisTemplate<String, Object> eventRedisTemplate;
@@ -237,6 +238,56 @@ public class EventResultStorageService {
         }
     }
     
+    public void storeCommentData(
+            String requestId,
+            List<CommentData> commentDataList
+    ) {
+        try {
+            var key = COMMENT_DATA_KEY_PREFIX + requestId;
+            var jsonValue = objectMapper.writeValueAsString(commentDataList);
+            eventRedisTemplate.opsForValue().set(key, jsonValue, TTL.toSeconds(), TimeUnit.SECONDS);
+            log.info("Stored {} comment data items with key: {}", commentDataList.size(), key);
+            
+            completeEventProcessing(requestId);
+        } catch (Exception e) {
+            log.error("Failed to store comment data for requestId: {}", requestId, e);
+            failEventProcessing(requestId, e);
+        }
+    }
+    
+    public List<CommentData> getCommentData(String requestId) {
+        try {
+            var key = COMMENT_DATA_KEY_PREFIX + requestId;
+            var result = eventRedisTemplate.opsForValue().get(key);
+            
+            if (result instanceof String jsonString) {
+                return objectMapper.readValue(
+                        jsonString,
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, CommentData.class)
+                );
+            }
+            
+            log.warn("No comment data found for requestId: {}", requestId);
+            return List.of();
+        } catch (Exception e) {
+            log.error("Failed to retrieve comment data for requestId: {}", requestId, e);
+            return List.of();
+        }
+    }
+    
+    public List<CommentData> waitForCommentData(String requestId, Duration timeout) {
+        try {
+            var future = pendingEvents.get(requestId);
+            if (future != null) {
+                future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
+            }
+            return getCommentData(requestId);
+        } catch (Exception e) {
+            log.error("Failed to wait for comment data processing: {}", requestId, e);
+            return List.of();
+        }
+    }
+    
     // 일반적인 결과 저장 메소드 (다양한 타입 지원)
     public <T> void storeResult(String key, T result) {
         try {
@@ -285,6 +336,8 @@ public class EventResultStorageService {
             return key.substring(BOOKMARK_DATA_KEY_PREFIX.length());
         } else if (key.startsWith(USER_DATA_KEY_PREFIX)) {
             return key.substring(USER_DATA_KEY_PREFIX.length());
+        } else if (key.startsWith(COMMENT_DATA_KEY_PREFIX)) {
+            return key.substring(COMMENT_DATA_KEY_PREFIX.length());
         }
         
         // 접두사가 없으면 키 자체가 requestId일 가능성이 있음

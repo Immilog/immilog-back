@@ -1,6 +1,6 @@
 package com.backend.immilog.post.infrastructure.repositories;
 
-import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.dto.out.PostResult;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.post.SortingMethods;
 import com.backend.immilog.post.domain.repositories.PopularPostRepository;
@@ -69,7 +69,7 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
     ) {
         var posts = postJdbcRepository.getPopularPosts(from, to, SortingMethods.COMMENT_COUNT);
         return posts.stream()
-                .filter(post -> post.commentCount() != null && post.commentCount() >= 5) // 최소 댓글 5개 이상
+                .filter(post -> post.commentCount() != null && post.commentCountValue() >= 5) // 최소 댓글 5개 이상
                 .map(this::convertToPostResult)
                 .limit(5) // 최대 5개까지
                 .toList();
@@ -77,18 +77,18 @@ public class PopularPostRepositoryImpl implements PopularPostRepository {
 
     private PostResult convertToPostResult(Post post) {
         return new PostResult(
-                post.id(),
+                post.id().value(),
                 post.userId(),
                 null, // 유저 프로필 이미지는 이벤트로 조회하여 나중에 설정됨
                 null, // 유저 닉네임은 이벤트로 조회하여 나중에 설정됨
-                post.commentCount(),
+                post.commentCountValue(),
                 post.viewCount(),
                 0L,
                 null,
                 null,
                 null,
                 null,
-                post.isPublic(),
+                post.isPublicValue(),
                 post.countryId(),
                 post.region(),
                 post.category(),

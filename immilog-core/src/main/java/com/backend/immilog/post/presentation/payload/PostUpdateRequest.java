@@ -1,6 +1,6 @@
 package com.backend.immilog.post.presentation.payload;
 
-import com.backend.immilog.post.application.dto.PostUpdateCommand;
+import com.backend.immilog.post.application.dto.in.PostUpdateCommand;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;

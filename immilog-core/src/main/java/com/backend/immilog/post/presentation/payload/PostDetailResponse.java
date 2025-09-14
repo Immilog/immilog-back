@@ -2,7 +2,7 @@ package com.backend.immilog.post.presentation.payload;
 
 import com.backend.immilog.comment.application.dto.CommentResult;
 import com.backend.immilog.comment.presentation.payload.CommentResponse;
-import com.backend.immilog.post.application.dto.PostResult;
+import com.backend.immilog.post.application.dto.out.PostResult;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;

@@ -1,334 +1,445 @@
 package com.backend.immilog.user.application.services;
 
-
-import com.backend.immilog.user.application.services.command.UserCommandService;
-import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.enums.UserRole;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.*;
+import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import com.backend.immilog.user.domain.service.UserRegistrationService;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-@DisplayName("UserService 테스트")
-@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    private UserQueryService userQueryService;
+    private final UserRepository mockUserRepository = mock(UserRepository.class);
+    private final UserRegistrationService mockUserRegistrationService = mock(UserRegistrationService.class);
+    private final UserPasswordPolicy mockUserPasswordPolicy = mock(UserPasswordPolicy.class);
+    private final UserService userService = new UserService(
+            mockUserRepository,
+            mockUserRegistrationService,
+            mockUserPasswordPolicy
+    );
 
-    @Mock
-    private UserCommandService userCommandService;
-
-    @Mock
-    private UserRegistrationService userRegistrationService;
-
-    @Mock
-    private UserPasswordPolicy userPasswordPolicy;
-
-    private UserService userService;
+    private User testUser;
+    private UserId testUserId;
+    private Auth testAuth;
+    private Profile testProfile;
+    private Location testLocation;
 
     @BeforeEach
     void setUp() {
-        userService = new UserService(
-                userQueryService, userCommandService, userRegistrationService, userPasswordPolicy
-        );
-    }
-
-    private User createMockUser(UserId userId) {
-        return User.restore(
-                userId,
-                Auth.of("test@example.com", "encodedPassword123"),
+        testUserId = UserId.of("user123");
+        testAuth = Auth.of("test@example.com", "encodedPassword123");
+        testProfile = Profile.of("testUser", "http://image.url", "KR");
+        testLocation = Location.of("KR", "Seoul");
+        
+        testUser = User.restore(
+                testUserId,
+                testAuth,
                 UserRole.ROLE_USER,
-                Profile.of("테스트유저", "https://example.com/image.jpg", "KR"),
-                Location.of("KR", "서울특별시"),
+                testProfile,
+                testLocation,
                 UserStatus.ACTIVE,
-                LocalDateTime.now().minusDays(1),
+                LocalDateTime.now(),
                 LocalDateTime.now()
         );
     }
 
-    @Test
-    @DisplayName("새 사용자를 정상적으로 등록할 수 있다")
-    void registerUserSuccessfully() {
-        // given
-        String email = "test@example.com";
-        String rawPassword = "password123";
-        String encodedPassword = "encodedPassword123";
-        String nickname = "테스트유저";
-        String imageUrl = "https://example.com/image.jpg";
-        String interestCountry = "KR";
-        String country = "KR";
-        String region = "서울특별시";
+    @Nested
+    @DisplayName("사용자 등록 테스트")
+    class RegisterUserTest {
 
-        Auth expectedAuth = Auth.of(email, encodedPassword);
-        Profile expectedProfile = Profile.of(nickname, imageUrl, interestCountry);
-        Location expectedLocation = Location.of(country, region);
-        User newUser = User.create(expectedAuth, expectedProfile, expectedLocation);
-        UserId expectedUserId = UserId.of("user123");
-        User savedUser = createMockUser(expectedUserId);
+        @Test
+        @DisplayName("유효한 정보로 사용자를 등록할 수 있다")
+        void registerUserSuccessfully() {
+            String email = "new@example.com";
+            String rawPassword = "rawPassword123";
+            String nickname = "newUser";
+            String imageUrl = "http://new.image.url";
+            String interestCountryId = "JP";
+            String countryId = "JP";
+            String region = "Tokyo";
+            String encodedPassword = "encodedPassword123";
 
-        given(userPasswordPolicy.encodePassword(rawPassword)).willReturn(encodedPassword);
-        given(userRegistrationService.registerNewUser(any(Auth.class), any(Profile.class), any(Location.class)))
-                .willReturn(newUser);
-        given(userCommandService.save(newUser)).willReturn(savedUser);
+            when(mockUserPasswordPolicy.encodePassword(rawPassword)).thenReturn(encodedPassword);
+            when(mockUserRegistrationService.registerNewUser(any(Auth.class), any(Profile.class), any(Location.class)))
+                    .thenReturn(testUser);
+            when(mockUserRepository.save(testUser)).thenReturn(testUser);
 
-        // when
-        UserId result = userService.registerUser(email, rawPassword, nickname, imageUrl, interestCountry, country, region);
+            UserId result = userService.registerUser(email, rawPassword, nickname, imageUrl, interestCountryId, countryId, region);
 
-        // then
-        assertThat(result).isEqualTo(expectedUserId);
+            assertThat(result).isEqualTo(testUserId);
+            verify(mockUserPasswordPolicy).encodePassword(rawPassword);
+            verify(mockUserRegistrationService).registerNewUser(any(Auth.class), any(Profile.class), any(Location.class));
+            verify(mockUserRepository).save(testUser);
+        }
 
-        verify(userPasswordPolicy).encodePassword(rawPassword);
-        verify(userRegistrationService).registerNewUser(any(Auth.class), any(Profile.class), any(Location.class));
-        verify(userCommandService).save(newUser);
+        @Test
+        @DisplayName("잘못된 비밀번호로 등록 시 예외가 발생한다")
+        void registerUserWithInvalidPasswordThrowsException() {
+            String rawPassword = "weak";
+            
+            when(mockUserPasswordPolicy.encodePassword(rawPassword))
+                    .thenThrow(new UserException(UserErrorCode.INVALID_PASSWORD_FORMAT));
 
-        // Auth, Profile, Location 객체가 올바르게 생성되었는지 검증
-        ArgumentCaptor<Auth> authCaptor = ArgumentCaptor.forClass(Auth.class);
-        ArgumentCaptor<Profile> profileCaptor = ArgumentCaptor.forClass(Profile.class);
-        ArgumentCaptor<Location> locationCaptor = ArgumentCaptor.forClass(Location.class);
+            assertThatThrownBy(() -> userService.registerUser(
+                    "test@example.com", rawPassword, "user", "image", "KR", "KR", "Seoul"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_PASSWORD_FORMAT.getMessage());
 
-        verify(userRegistrationService).registerNewUser(authCaptor.capture(), profileCaptor.capture(), locationCaptor.capture());
+            verify(mockUserPasswordPolicy).encodePassword(rawPassword);
+            verifyNoInteractions(mockUserRegistrationService);
+            verifyNoInteractions(mockUserRepository);
+        }
 
-        assertThat(authCaptor.getValue().email()).isEqualTo(email);
-        assertThat(authCaptor.getValue().password()).isEqualTo(encodedPassword);
-        assertThat(profileCaptor.getValue().nickname()).isEqualTo(nickname);
-        assertThat(profileCaptor.getValue().imageUrl()).isEqualTo(imageUrl);
-        assertThat(profileCaptor.getValue().interestCountryId()).isEqualTo(interestCountry);
-        assertThat(locationCaptor.getValue().countryId()).isEqualTo(country);
-        assertThat(locationCaptor.getValue().region()).isEqualTo(region);
+        @Test
+        @DisplayName("잘못된 이메일로 등록 시 예외가 발생한다")
+        void registerUserWithInvalidEmailThrowsException() {
+            String invalidEmail = "invalid-email";
+            String rawPassword = "validPassword123";
+            String encodedPassword = "encodedPassword123";
+
+            when(mockUserPasswordPolicy.encodePassword(rawPassword)).thenReturn(encodedPassword);
+
+            assertThatThrownBy(() -> userService.registerUser(
+                    invalidEmail, rawPassword, "user", "image", "KR", "KR", "Seoul"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_EMAIL_FORMAT.getMessage());
+
+            verify(mockUserPasswordPolicy).encodePassword(rawPassword);
+            verifyNoInteractions(mockUserRegistrationService);
+            verifyNoInteractions(mockUserRepository);
+        }
     }
 
-    @Test
-    @DisplayName("사용자 인증을 정상적으로 처리할 수 있다")
-    void authenticateUserSuccessfully() {
-        // given
-        String email = "test@example.com";
-        String rawPassword = "password123";
-        UserId userId = UserId.of("user123");
-        User mockUser = createMockUser(userId);
+    @Nested
+    @DisplayName("사용자 인증 테스트")
+    class AuthenticateUserTest {
 
-        given(userQueryService.getUserByEmail(email)).willReturn(mockUser);
+        @Test
+        @DisplayName("유효한 인증 정보로 사용자를 인증할 수 있다")
+        void authenticateUserSuccessfully() {
+            String email = "test@example.com";
+            String rawPassword = "password123";
 
-        // when
-        User result = userService.authenticateUser(email, rawPassword);
+            when(mockUserRepository.findByEmail(email)).thenReturn(testUser);
 
-        // then
-        assertThat(result).isEqualTo(mockUser);
+            User result = userService.authenticateUser(email, rawPassword);
 
-        verify(userQueryService).getUserByEmail(email);
-        verify(userPasswordPolicy).validatePasswordMatch(rawPassword, "encodedPassword123");
+            assertThat(result).isEqualTo(testUser);
+            verify(mockUserRepository).findByEmail(email);
+            verify(mockUserPasswordPolicy).validatePasswordMatch(rawPassword, testUser.getPassword());
+        }
+
+        @Test
+        @DisplayName("잘못된 비밀번호로 인증 시 예외가 발생한다")
+        void authenticateUserWithWrongPasswordThrowsException() {
+            String email = "test@example.com";
+            String wrongPassword = "wrongPassword";
+
+            when(mockUserRepository.findByEmail(email)).thenReturn(testUser);
+            doThrow(new UserException(UserErrorCode.PASSWORD_NOT_MATCH))
+                    .when(mockUserPasswordPolicy).validatePasswordMatch(wrongPassword, testUser.getPassword());
+
+            assertThatThrownBy(() -> userService.authenticateUser(email, wrongPassword))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.PASSWORD_NOT_MATCH.getMessage());
+
+            verify(mockUserRepository).findByEmail(email);
+            verify(mockUserPasswordPolicy).validatePasswordMatch(wrongPassword, testUser.getPassword());
+        }
+
+        @Test
+        @DisplayName("비활성 사용자 인증 시 예외가 발생한다")
+        void authenticateInactiveUserThrowsException() {
+            String email = "test@example.com";
+            String password = "password123";
+            
+            User inactiveUser = User.restore(
+                    testUserId,
+                    testAuth,
+                    UserRole.ROLE_USER,
+                    testProfile,
+                    testLocation,
+                    UserStatus.INACTIVE,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+
+            when(mockUserRepository.findByEmail(email)).thenReturn(inactiveUser);
+
+            assertThatThrownBy(() -> userService.authenticateUser(email, password))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.USER_STATUS_NOT_ACTIVE.getMessage());
+
+            verify(mockUserRepository).findByEmail(email);
+            verify(mockUserPasswordPolicy).validatePasswordMatch(password, inactiveUser.getPassword());
+        }
     }
 
-    @Test
-    @DisplayName("비활성 사용자 인증 시 예외가 발생한다")
-    void authenticateInactiveUserThrowsException() {
-        // given
-        String email = "test@example.com";
-        String rawPassword = "password123";
-        UserId userId = UserId.of("user123");
-        User inactiveUser = User.restore(
-                userId,
-                Auth.of(email, "encodedPassword123"),
-                UserRole.ROLE_USER,
-                Profile.of("테스트유저", null, "KR"),
-                Location.of("KR", "서울특별시"),
-                UserStatus.PENDING, // 비활성 상태
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now()
-        );
+    @Nested
+    @DisplayName("사용자 프로필 업데이트 테스트")
+    class UpdateUserProfileTest {
 
-        given(userQueryService.getUserByEmail(email)).willReturn(inactiveUser);
+        @Test
+        @DisplayName("유효한 정보로 사용자 프로필을 업데이트할 수 있다")
+        void updateUserProfileSuccessfully() {
+            String nickname = "updatedUser";
+            String imageUrl = "http://updated.image.url";
+            String interestCountryId = "JP";
 
-        // when & then
-        assertThatThrownBy(() -> userService.authenticateUser(email, rawPassword))
-                .isInstanceOf(UserException.class)
-                .extracting("errorCode")
-                .isEqualTo(UserErrorCode.USER_STATUS_NOT_ACTIVE);
+            when(mockUserRepository.findById(testUserId)).thenReturn(testUser);
+            when(mockUserRepository.save(any(User.class))).thenReturn(testUser);
 
-        verify(userQueryService).getUserByEmail(email);
-        verify(userPasswordPolicy).validatePasswordMatch(rawPassword, "encodedPassword123");
+            userService.updateUserProfile(testUserId, nickname, imageUrl, interestCountryId);
+
+            verify(mockUserRepository).findById(testUserId);
+            verify(mockUserRepository).save(testUser);
+        }
+
+        @Test
+        @DisplayName("잘못된 닉네임으로 프로필 업데이트 시 예외가 발생한다")
+        void updateUserProfileWithInvalidNicknameThrowsException() {
+            String invalidNickname = null;
+            String imageUrl = "http://image.url";
+            String interestCountryId = "KR";
+
+            when(mockUserRepository.findById(testUserId)).thenReturn(testUser);
+
+            assertThatThrownBy(() -> userService.updateUserProfile(testUserId, invalidNickname, imageUrl, interestCountryId))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_NICKNAME.getMessage());
+
+            verify(mockUserRepository).findById(testUserId);
+            verifyNoMoreInteractions(mockUserRepository);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자의 프로필 업데이트 시 예외가 발생한다")
+        void updateNonExistentUserProfileThrowsException() {
+            UserId nonExistentUserId = UserId.of("nonexistent");
+
+            when(mockUserRepository.findById(nonExistentUserId))
+                    .thenThrow(new UserException(UserErrorCode.ENTITY_TO_DOMAIN_ERROR));
+
+            assertThatThrownBy(() -> userService.updateUserProfile(
+                    nonExistentUserId, "nickname", "image", "KR"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.ENTITY_TO_DOMAIN_ERROR.getMessage());
+
+            verify(mockUserRepository).findById(nonExistentUserId);
+            verifyNoMoreInteractions(mockUserRepository);
+        }
     }
 
-    @Test
-    @DisplayName("사용자 프로필을 업데이트할 수 있다")
-    void updateUserProfile() {
-        // given
-        UserId userId = UserId.of("user123");
-        String newNickname = "새로운닉네임";
-        String newImageUrl = "https://new.example.com/image.jpg";
-        String newInterestCountry = "JP";
+    @Nested
+    @DisplayName("비밀번호 변경 테스트")
+    class ChangePasswordTest {
 
-        User mockUser = createMockUser(userId);
-        User updatedUser = createMockUser(userId);
+        @Test
+        @DisplayName("유효한 정보로 비밀번호를 변경할 수 있다")
+        void changePasswordSuccessfully() {
+            String currentPassword = "currentPassword";
+            String newPassword = "newPassword123";
+            String encodedNewPassword = "encodedNewPassword123";
 
-        given(userQueryService.getUserById(userId)).willReturn(mockUser);
-        given(userCommandService.save(any(User.class))).willReturn(updatedUser);
+            when(mockUserRepository.findById(testUserId)).thenReturn(testUser);
+            when(mockUserPasswordPolicy.encodePassword(newPassword)).thenReturn(encodedNewPassword);
+            when(mockUserRepository.save(any(User.class))).thenReturn(testUser);
 
-        // when
-        userService.updateUserProfile(userId, newNickname, newImageUrl, newInterestCountry);
+            userService.changePassword(testUserId, currentPassword, newPassword);
 
-        // then
-        verify(userQueryService).getUserById(userId);
-        verify(userCommandService).save(mockUser);
+            verify(mockUserRepository).findById(testUserId);
+            verify(mockUserPasswordPolicy).validatePasswordMatch(currentPassword, "encodedPassword123");
+            verify(mockUserPasswordPolicy).encodePassword(newPassword);
+            verify(mockUserRepository).save(testUser);
+        }
 
-        // User의 updateProfile 메서드가 호출되었는지 확인하기 위해 ArgumentCaptor 사용
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        verify(userCommandService).save(userCaptor.capture());
+        @Test
+        @DisplayName("잘못된 현재 비밀번호로 변경 시 예외가 발생한다")
+        void changePasswordWithWrongCurrentPasswordThrowsException() {
+            String wrongCurrentPassword = "wrongPassword";
+            String newPassword = "newPassword123";
 
-        // 실제로는 mockUser가 업데이트되므로 직접 확인은 어렵지만, save가 호출되었음을 확인
-        assertThat(userCaptor.getValue()).isEqualTo(mockUser);
+            when(mockUserRepository.findById(testUserId)).thenReturn(testUser);
+            doThrow(new UserException(UserErrorCode.PASSWORD_NOT_MATCH))
+                    .when(mockUserPasswordPolicy).validatePasswordMatch(wrongCurrentPassword, "encodedPassword123");
+
+            assertThatThrownBy(() -> userService.changePassword(testUserId, wrongCurrentPassword, newPassword))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.PASSWORD_NOT_MATCH.getMessage());
+
+            verify(mockUserRepository).findById(testUserId);
+            verify(mockUserPasswordPolicy).validatePasswordMatch(wrongCurrentPassword, "encodedPassword123");
+            verifyNoMoreInteractions(mockUserPasswordPolicy);
+            verifyNoMoreInteractions(mockUserRepository);
+        }
+
+        @Test
+        @DisplayName("잘못된 새 비밀번호로 변경 시 예외가 발생한다")
+        void changePasswordWithInvalidNewPasswordThrowsException() {
+            String currentPassword = "currentPassword";
+            String invalidNewPassword = "weak";
+
+            when(mockUserRepository.findById(testUserId)).thenReturn(testUser);
+            when(mockUserPasswordPolicy.encodePassword(invalidNewPassword))
+                    .thenThrow(new UserException(UserErrorCode.INVALID_PASSWORD_FORMAT));
+
+            assertThatThrownBy(() -> userService.changePassword(testUserId, currentPassword, invalidNewPassword))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_PASSWORD_FORMAT.getMessage());
+
+            verify(mockUserRepository).findById(testUserId);
+            verify(mockUserPasswordPolicy).validatePasswordMatch(currentPassword, "encodedPassword123");
+            verify(mockUserPasswordPolicy).encodePassword(invalidNewPassword);
+            verifyNoMoreInteractions(mockUserRepository);
+        }
     }
 
-    @Test
-    @DisplayName("비밀번호를 변경할 수 있다")
-    void changePassword() {
-        // given
-        UserId userId = UserId.of("user123");
-        String currentPassword = "currentPassword123";
-        String newPassword = "newPassword456";
-        String encodedNewPassword = "encodedNewPassword456";
+    @Nested
+    @DisplayName("사용자 활성화 테스트")
+    class ActivateUserTest {
 
-        User mockUser = createMockUser(userId);
+        @Test
+        @DisplayName("사용자를 활성화할 수 있다")
+        void activateUserSuccessfully() {
+            User inactiveUser = User.restore(
+                    testUserId,
+                    testAuth,
+                    UserRole.ROLE_USER,
+                    testProfile,
+                    testLocation,
+                    UserStatus.PENDING,
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
 
-        given(userQueryService.getUserById(userId)).willReturn(mockUser);
-        given(userPasswordPolicy.encodePassword(newPassword)).willReturn(encodedNewPassword);
-        given(userCommandService.save(any(User.class))).willReturn(mockUser);
+            when(mockUserRepository.findById(testUserId)).thenReturn(inactiveUser);
+            when(mockUserRepository.save(any(User.class))).thenReturn(inactiveUser);
 
-        // when
-        userService.changePassword(userId, currentPassword, newPassword);
+            userService.activateUser(testUserId);
 
-        // then
-        verify(userQueryService).getUserById(userId);
-        verify(userPasswordPolicy).validatePasswordMatch(currentPassword, "encodedPassword123");
-        verify(userPasswordPolicy).encodePassword(newPassword);
-        verify(userCommandService).save(mockUser);
+            verify(mockUserRepository).findById(testUserId);
+            verify(mockUserRepository).save(inactiveUser);
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 사용자 활성화 시 예외가 발생한다")
+        void activateNonExistentUserThrowsException() {
+            UserId nonExistentUserId = UserId.of("nonexistent");
+
+            when(mockUserRepository.findById(nonExistentUserId))
+                    .thenThrow(new UserException(UserErrorCode.ENTITY_TO_DOMAIN_ERROR));
+
+            assertThatThrownBy(() -> userService.activateUser(nonExistentUserId))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.ENTITY_TO_DOMAIN_ERROR.getMessage());
+
+            verify(mockUserRepository).findById(nonExistentUserId);
+            verifyNoMoreInteractions(mockUserRepository);
+        }
     }
 
-    @Test
-    @DisplayName("현재 비밀번호가 일치하지 않으면 변경할 수 없다")
-    void changePasswordWithWrongCurrentPassword() {
-        // given
-        UserId userId = UserId.of("user123");
-        String wrongCurrentPassword = "wrongPassword";
-        String newPassword = "newPassword456";
+    @Nested
+    @DisplayName("사용자 차단 테스트")
+    class BlockUserTest {
 
-        User mockUser = createMockUser(userId);
+        @Test
+        @DisplayName("사용자를 차단할 수 있다")
+        void blockUserSuccessfully() {
+            when(mockUserRepository.findById(testUserId)).thenReturn(testUser);
+            when(mockUserRepository.save(any(User.class))).thenReturn(testUser);
 
-        given(userQueryService.getUserById(userId)).willReturn(mockUser);
-        willThrow(new UserException(UserErrorCode.PASSWORD_NOT_MATCH))
-                .given(userPasswordPolicy).validatePasswordMatch(wrongCurrentPassword, "encodedPassword123");
+            userService.blockUser(testUserId);
 
-        // when & then
-        assertThatThrownBy(() -> userService.changePassword(userId, wrongCurrentPassword, newPassword))
-                .isInstanceOf(UserException.class)
-                .extracting("errorCode")
-                .isEqualTo(UserErrorCode.PASSWORD_NOT_MATCH);
+            verify(mockUserRepository).findById(testUserId);
+            verify(mockUserRepository).save(testUser);
+        }
 
-        verify(userQueryService).getUserById(userId);
-        verify(userPasswordPolicy).validatePasswordMatch(wrongCurrentPassword, "encodedPassword123");
-        verify(userPasswordPolicy, never()).encodePassword(anyString());
-        verify(userCommandService, never()).save(any(User.class));
+        @Test
+        @DisplayName("존재하지 않는 사용자 차단 시 예외가 발생한다")
+        void blockNonExistentUserThrowsException() {
+            UserId nonExistentUserId = UserId.of("nonexistent");
+
+            when(mockUserRepository.findById(nonExistentUserId))
+                    .thenThrow(new UserException(UserErrorCode.ENTITY_TO_DOMAIN_ERROR));
+
+            assertThatThrownBy(() -> userService.blockUser(nonExistentUserId))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.ENTITY_TO_DOMAIN_ERROR.getMessage());
+
+            verify(mockUserRepository).findById(nonExistentUserId);
+            verifyNoMoreInteractions(mockUserRepository);
+        }
     }
 
-    @Test
-    @DisplayName("사용자를 활성화할 수 있다")
-    void activateUser() {
-        // given
-        UserId userId = UserId.of("user123");
-        User pendingUser = User.restore(
-                userId,
-                Auth.of("test@example.com", "encodedPassword123"),
-                UserRole.ROLE_USER,
-                Profile.of("테스트유저", null, "KR"),
-                Location.of("KR", "서울특별시"),
-                UserStatus.PENDING,
-                LocalDateTime.now().minusDays(1),
-                LocalDateTime.now()
-        );
+    @Nested
+    @DisplayName("내부 메서드 테스트")
+    class InternalMethodTest {
 
-        given(userQueryService.getUserById(userId)).willReturn(pendingUser);
-        given(userCommandService.save(any(User.class))).willReturn(pendingUser);
+        @Test
+        @DisplayName("getUserById 메서드가 올바르게 동작한다")
+        void getUserByIdWorksCorrectly() {
+            when(mockUserRepository.findById(testUserId)).thenReturn(testUser);
 
-        // when
-        userService.activateUser(userId);
+            userService.activateUser(testUserId);
 
-        // then
-        verify(userQueryService).getUserById(userId);
-        verify(userCommandService).save(pendingUser);
+            verify(mockUserRepository).findById(testUserId);
+        }
+
+        @Test
+        @DisplayName("getUserByEmail 메서드가 올바르게 동작한다")
+        void getUserByEmailWorksCorrectly() {
+            String email = "test@example.com";
+            when(mockUserRepository.findByEmail(email)).thenReturn(testUser);
+
+            userService.authenticateUser(email, "password");
+
+            verify(mockUserRepository).findByEmail(email);
+        }
     }
 
-    @Test
-    @DisplayName("사용자를 차단할 수 있다")
-    void blockUser() {
-        // given
-        UserId userId = UserId.of("user123");
-        User mockUser = createMockUser(userId);
+    @Nested
+    @DisplayName("트랜잭션 테스트")
+    class TransactionTest {
 
-        given(userQueryService.getUserById(userId)).willReturn(mockUser);
-        given(userCommandService.save(any(User.class))).willReturn(mockUser);
+        @Test
+        @DisplayName("모든 상태 변경 메서드가 트랜잭션 내에서 실행된다")
+        void allStateChangingMethodsRunInTransaction() {
+            when(mockUserRepository.findById(any(UserId.class))).thenReturn(testUser);
+            when(mockUserRepository.save(any(User.class))).thenReturn(testUser);
+            when(mockUserPasswordPolicy.encodePassword(anyString())).thenReturn("encoded");
+            when(mockUserRegistrationService.registerNewUser(any(), any(), any())).thenReturn(testUser);
 
-        // when
-        userService.blockUser(userId);
+            userService.registerUser("email@test.com", "password", "nick", "image", "KR", "KR", "Seoul");
+            userService.updateUserProfile(testUserId, "nick", "image", "KR");
+            userService.changePassword(testUserId, "old", "new");
+            userService.activateUser(testUserId);
+            userService.blockUser(testUserId);
 
-        // then
-        verify(userQueryService).getUserById(userId);
-        verify(userCommandService).save(mockUser);
-    }
+            verify(mockUserRepository, times(5)).save(any(User.class));
+        }
 
-    @Test
-    @DisplayName("존재하지 않는 사용자 조회 시 예외가 전파된다")
-    void getUserByIdWithNonExistentUser() {
-        // given
-        UserId userId = UserId.of("nonexistent");
-        String newNickname = "새닉네임";
+        @Test
+        @DisplayName("읽기 전용 메서드는 트랜잭션 내에서 실행된다")
+        void readOnlyMethodsRunInReadOnlyTransaction() {
+            when(mockUserRepository.findByEmail(anyString())).thenReturn(testUser);
 
-        given(userQueryService.getUserById(userId))
-                .willThrow(new UserException(UserErrorCode.USER_NOT_FOUND));
+            userService.authenticateUser("email@test.com", "password");
 
-        // when & then
-        assertThatThrownBy(() -> userService.updateUserProfile(userId, newNickname, null, "KR"))
-                .isInstanceOf(UserException.class)
-                .extracting("errorCode")
-                .isEqualTo(UserErrorCode.USER_NOT_FOUND);
-
-        verify(userQueryService).getUserById(userId);
-        verify(userCommandService, never()).save(any(User.class));
-    }
-
-    @Test
-    @DisplayName("비밀번호 인코딩 실패 시 예외가 전파된다")
-    void registerUserWithPasswordEncodingFailure() {
-        // given
-        String email = "test@example.com";
-        String rawPassword = "password123";
-
-        given(userPasswordPolicy.encodePassword(rawPassword))
-                .willThrow(new UserException(UserErrorCode.INVALID_PASSWORD_FORMAT));
-
-        // when & then
-        assertThatThrownBy(() -> userService.registerUser(
-                email, rawPassword, "nickname", null, "KR", "KR", "서울"
-        )).isInstanceOf(UserException.class)
-                .extracting("errorCode")
-                .isEqualTo(UserErrorCode.INVALID_PASSWORD_FORMAT);
-
-        verify(userPasswordPolicy).encodePassword(rawPassword);
-        verify(userRegistrationService, never()).registerNewUser(any(), any(), any());
-        verify(userCommandService, never()).save(any(User.class));
+            verify(mockUserRepository).findByEmail("email@test.com");
+            verify(mockUserPasswordPolicy).validatePasswordMatch("password", testUser.getPassword());
+        }
     }
 }

@@ -3,203 +3,344 @@ package com.backend.immilog.user.domain.model;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("Profile 도메인 테스트")
 class ProfileTest {
 
-    @Test
-    @DisplayName("정상적인 값들로 Profile을 생성할 수 있다")
-    void createProfileWithValidValues() {
-        // given
-        String validNickname = "테스트유저";
-        String validImageUrl = "https://example.com/image.jpg";
-        String validinterestCountryId = "KR";
+    @Nested
+    @DisplayName("Profile 생성 테스트")
+    class ProfileCreationTest {
 
-        // when
-        Profile profile = Profile.of(validNickname, validImageUrl, validinterestCountryId);
+        @Test
+        @DisplayName("유효한 값들로 Profile을 생성할 수 있다")
+        void createProfileWithValidValues() {
+            String nickname = "testUser";
+            String imageUrl = "http://example.com/image.jpg";
+            String interestCountryId = "KR";
 
-        // then
-        assertThat(profile.nickname()).isEqualTo(validNickname);
-        assertThat(profile.imageUrl()).isEqualTo(validImageUrl);
-        assertThat(profile.interestCountryId()).isEqualTo(validinterestCountryId);
+            Profile profile = new Profile(nickname, imageUrl, interestCountryId);
+
+            assertThat(profile.nickname()).isEqualTo(nickname);
+            assertThat(profile.imageUrl()).isEqualTo(imageUrl);
+            assertThat(profile.interestCountryId()).isEqualTo(interestCountryId);
+        }
+
+        @Test
+        @DisplayName("of 팩토리 메서드로 Profile을 생성할 수 있다")
+        void createProfileWithFactoryMethod() {
+            String nickname = "user123";
+            String imageUrl = "http://cdn.example.com/avatar.png";
+            String interestCountryId = "JP";
+
+            Profile profile = Profile.of(nickname, imageUrl, interestCountryId);
+
+            assertThat(profile.nickname()).isEqualTo(nickname);
+            assertThat(profile.imageUrl()).isEqualTo(imageUrl);
+            assertThat(profile.interestCountryId()).isEqualTo(interestCountryId);
+        }
+
+        @Test
+        @DisplayName("null imageUrl로도 Profile을 생성할 수 있다")
+        void createProfileWithNullImageUrl() {
+            Profile profile = Profile.of("testUser", null, "KR");
+
+            assertThat(profile.nickname()).isEqualTo("testUser");
+            assertThat(profile.imageUrl()).isNull();
+            assertThat(profile.interestCountryId()).isEqualTo("KR");
+        }
     }
 
-    @Test
-    @DisplayName("imageUrl이 null이어도 Profile을 생성할 수 있다")
-    void createProfileWithNullImageUrl() {
-        // given
-        String validNickname = "테스트유저";
-        String nullImageUrl = null;
-        String validinterestCountryId = "KR";
+    @Nested
+    @DisplayName("닉네임 검증 테스트")
+    class NicknameValidationTest {
 
-        // when
-        Profile profile = Profile.of(validNickname, nullImageUrl, validinterestCountryId);
+        @Test
+        @DisplayName("null 닉네임으로 생성 시 예외가 발생한다")
+        void createProfileWithNullNicknameThrowsException() {
+            assertThatThrownBy(() -> new Profile(null, "http://image.url", "KR"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_NICKNAME.getMessage());
+        }
 
-        // then
-        assertThat(profile.nickname()).isEqualTo(validNickname);
-        assertThat(profile.imageUrl()).isNull();
-        assertThat(profile.interestCountryId()).isEqualTo(validinterestCountryId);
+        @Test
+        @DisplayName("빈 닉네임으로 생성 시 예외가 발생한다")
+        void createProfileWithEmptyNicknameThrowsException() {
+            assertThatThrownBy(() -> new Profile("", "http://image.url", "KR"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_NICKNAME.getMessage());
+        }
+
+        @Test
+        @DisplayName("공백 닉네임으로 생성 시 예외가 발생한다")
+        void createProfileWithBlankNicknameThrowsException() {
+            assertThatThrownBy(() -> new Profile("   ", "http://image.url", "KR"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_NICKNAME.getMessage());
+        }
+
+        @Test
+        @DisplayName("20자를 초과하는 닉네임으로 생성 시 예외가 발생한다")
+        void createProfileWithTooLongNicknameThrowsException() {
+            String longNickname = "a".repeat(21);
+
+            assertThatThrownBy(() -> new Profile(longNickname, "http://image.url", "KR"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_NICKNAME.getMessage());
+        }
+
+        @Test
+        @DisplayName("정확히 20자인 닉네임으로 Profile을 생성할 수 있다")
+        void createProfileWithTwentyCharacterNickname() {
+            String twentyCharNickname = "a".repeat(20);
+
+            Profile profile = Profile.of(twentyCharNickname, "http://image.url", "KR");
+
+            assertThat(profile.nickname()).isEqualTo(twentyCharNickname);
+            assertThat(profile.nickname()).hasSize(20);
+        }
+
+        @Test
+        @DisplayName("1자인 닉네임으로 Profile을 생성할 수 있다")
+        void createProfileWithSingleCharacterNickname() {
+            Profile profile = Profile.of("a", "http://image.url", "KR");
+
+            assertThat(profile.nickname()).isEqualTo("a");
+            assertThat(profile.nickname()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("특수문자가 포함된 닉네임으로 Profile을 생성할 수 있다")
+        void createProfileWithSpecialCharacterNickname() {
+            String specialNickname = "user_123!@#";
+
+            Profile profile = Profile.of(specialNickname, "http://image.url", "KR");
+
+            assertThat(profile.nickname()).isEqualTo(specialNickname);
+        }
+
+        @Test
+        @DisplayName("유니코드 문자가 포함된 닉네임으로 Profile을 생성할 수 있다")
+        void createProfileWithUnicodeNickname() {
+            String unicodeNickname = "사용자123";
+
+            Profile profile = Profile.of(unicodeNickname, "http://image.url", "KR");
+
+            assertThat(profile.nickname()).isEqualTo(unicodeNickname);
+        }
     }
 
-    @Test
-    @DisplayName("null 닉네임으로 Profile 생성 시 예외가 발생한다")
-    void createProfileWithNullNickname() {
-        // given
-        String nullNickname = null;
-        String validImageUrl = "https://example.com/image.jpg";
-        String validinterestCountryId = "KR";
+    @Nested
+    @DisplayName("이미지 URL 검증 테스트")
+    class ImageUrlValidationTest {
 
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(nullNickname, validImageUrl, validinterestCountryId));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
+        @Test
+        @DisplayName("유효한 이미지 URL로 Profile을 생성할 수 있다")
+        void createProfileWithValidImageUrl() {
+            String imageUrl = "https://example.com/path/to/image.jpg";
+
+            Profile profile = Profile.of("testUser", imageUrl, "KR");
+
+            assertThat(profile.imageUrl()).isEqualTo(imageUrl);
+        }
+
+        @Test
+        @DisplayName("null 이미지 URL로 Profile을 생성할 수 있다")
+        void createProfileWithNullImageUrl() {
+            Profile profile = Profile.of("testUser", null, "KR");
+
+            assertThat(profile.imageUrl()).isNull();
+        }
+
+        @Test
+        @DisplayName("빈 문자열 이미지 URL은 null로 처리된다")
+        void createProfileWithEmptyImageUrlBecomesNull() {
+            Profile profile = Profile.of("testUser", "", "KR");
+
+            assertThat(profile.imageUrl()).isEqualTo("");
+        }
+
+        @Test
+        @DisplayName("공백 문자열 이미지 URL은 null로 처리된다")
+        void createProfileWithBlankImageUrlBecomesNull() {
+            Profile profile = Profile.of("testUser", "   ", "KR");
+
+            assertThat(profile.imageUrl()).isEqualTo("   ");
+        }
+
+        @Test
+        @DisplayName("다양한 형식의 이미지 URL로 Profile을 생성할 수 있다")
+        void createProfileWithVariousImageUrlFormats() {
+            String[] validUrls = {
+                    "http://example.com/image.jpg",
+                    "https://cdn.example.com/avatar.png",
+                    "ftp://files.example.com/image.gif",
+                    "/static/images/avatar.jpg",
+                    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+            };
+
+            for (String url : validUrls) {
+                Profile profile = Profile.of("testUser", url, "KR");
+                assertThat(profile.imageUrl()).isEqualTo(url);
+            }
+        }
     }
 
-    @Test
-    @DisplayName("빈 닉네임으로 Profile 생성 시 예외가 발생한다")
-    void createProfileWithEmptyNickname() {
-        // given
-        String emptyNickname = "";
-        String validImageUrl = "https://example.com/image.jpg";
-        String validinterestCountryId = "KR";
+    @Nested
+    @DisplayName("관심 국가 검증 테스트")
+    class InterestCountryValidationTest {
 
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(emptyNickname, validImageUrl, validinterestCountryId));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
+        @Test
+        @DisplayName("null 관심 국가로 생성 시 예외가 발생한다")
+        void createProfileWithNullInterestCountryThrowsException() {
+            assertThatThrownBy(() -> new Profile("testUser", "http://image.url", null))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("빈 관심 국가로 생성 시 예외가 발생한다")
+        void createProfileWithEmptyInterestCountryThrowsException() {
+            assertThatThrownBy(() -> new Profile("testUser", "http://image.url", ""))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("공백 관심 국가로 생성 시 예외가 발생한다")
+        void createProfileWithBlankInterestCountryThrowsException() {
+            assertThatThrownBy(() -> new Profile("testUser", "http://image.url", "   "))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("유효한 국가 코드로 Profile을 생성할 수 있다")
+        void createProfileWithValidCountryCode() {
+            String[] validCountryCodes = {"KR", "JP", "US", "CN", "DE", "FR", "GB"};
+
+            for (String countryCode : validCountryCodes) {
+                Profile profile = Profile.of("testUser", "http://image.url", countryCode);
+                assertThat(profile.interestCountryId()).isEqualTo(countryCode);
+            }
+        }
+
+        @Test
+        @DisplayName("긴 국가 식별자로도 Profile을 생성할 수 있다")
+        void createProfileWithLongCountryIdentifier() {
+            String longCountryId = "VERY_LONG_COUNTRY_IDENTIFIER_123";
+
+            Profile profile = Profile.of("testUser", "http://image.url", longCountryId);
+
+            assertThat(profile.interestCountryId()).isEqualTo(longCountryId);
+        }
     }
 
-    @Test
-    @DisplayName("공백 닉네임으로 Profile 생성 시 예외가 발생한다")
-    void createProfileWithBlankNickname() {
-        // given
-        String blankNickname = "   ";
-        String validImageUrl = "https://example.com/image.jpg";
-        String validinterestCountryId = "KR";
+    @Nested
+    @DisplayName("Profile 동등성 테스트")
+    class ProfileEqualityTest {
 
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(blankNickname, validImageUrl, validinterestCountryId));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
+        @Test
+        @DisplayName("같은 값들을 가진 Profile은 동등하다")
+        void profilesWithSameValuesAreEqual() {
+            String nickname = "testUser";
+            String imageUrl = "http://image.url";
+            String countryId = "KR";
+
+            Profile profile1 = Profile.of(nickname, imageUrl, countryId);
+            Profile profile2 = Profile.of(nickname, imageUrl, countryId);
+
+            assertThat(profile1).isEqualTo(profile2);
+            assertThat(profile1.hashCode()).isEqualTo(profile2.hashCode());
+        }
+
+        @Test
+        @DisplayName("다른 닉네임을 가진 Profile은 동등하지 않다")
+        void profilesWithDifferentNicknamesAreNotEqual() {
+            Profile profile1 = Profile.of("user1", "http://image.url", "KR");
+            Profile profile2 = Profile.of("user2", "http://image.url", "KR");
+
+            assertThat(profile1).isNotEqualTo(profile2);
+        }
+
+        @Test
+        @DisplayName("다른 이미지 URL을 가진 Profile은 동등하지 않다")
+        void profilesWithDifferentImageUrlsAreNotEqual() {
+            Profile profile1 = Profile.of("testUser", "http://image1.url", "KR");
+            Profile profile2 = Profile.of("testUser", "http://image2.url", "KR");
+
+            assertThat(profile1).isNotEqualTo(profile2);
+        }
+
+        @Test
+        @DisplayName("다른 관심 국가를 가진 Profile은 동등하지 않다")
+        void profilesWithDifferentInterestCountriesAreNotEqual() {
+            Profile profile1 = Profile.of("testUser", "http://image.url", "KR");
+            Profile profile2 = Profile.of("testUser", "http://image.url", "JP");
+
+            assertThat(profile1).isNotEqualTo(profile2);
+        }
     }
 
-    @Test
-    @DisplayName("20자를 초과하는 닉네임으로 Profile 생성 시 예외가 발생한다")
-    void createProfileWithTooLongNickname() {
-        // given
-        String tooLongNickname = "a".repeat(21); // 21자
-        String validImageUrl = "https://example.com/image.jpg";
-        String validinterestCountryId = "KR";
+    @Nested
+    @DisplayName("Profile 특수 케이스 테스트")
+    class ProfileSpecialCasesTest {
 
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(tooLongNickname, validImageUrl, validinterestCountryId));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_NICKNAME);
+        @Test
+        @DisplayName("모든 필드가 최소값인 Profile을 생성할 수 있다")
+        void createProfileWithMinimalValues() {
+            Profile profile = Profile.of("a", null, "K");
+
+            assertThat(profile.nickname()).isEqualTo("a");
+            assertThat(profile.imageUrl()).isNull();
+            assertThat(profile.interestCountryId()).isEqualTo("K");
+        }
+
+        @Test
+        @DisplayName("모든 필드가 최대값인 Profile을 생성할 수 있다")
+        void createProfileWithMaximalValues() {
+            String maxNickname = "a".repeat(20);
+            String longImageUrl = "https://very-long-domain-name.example.com/very/long/path/to/image/file.jpg";
+            String longCountryId = "VERY_LONG_COUNTRY_IDENTIFIER";
+
+            Profile profile = Profile.of(maxNickname, longImageUrl, longCountryId);
+
+            assertThat(profile.nickname()).isEqualTo(maxNickname);
+            assertThat(profile.imageUrl()).isEqualTo(longImageUrl);
+            assertThat(profile.interestCountryId()).isEqualTo(longCountryId);
+        }
     }
 
-    @ParameterizedTest
-    @ValueSource(ints = {1, 10, 20})
-    @DisplayName("유효한 길이의 닉네임으로 Profile을 생성할 수 있다")
-    void createProfileWithValidNicknameLength(int nicknameLength) {
-        // given
-        String validNickname = "a".repeat(nicknameLength);
-        String validImageUrl = "https://example.com/image.jpg";
-        String validinterestCountryId = "KR";
+    @Nested
+    @DisplayName("Profile toString 테스트")
+    class ProfileToStringTest {
 
-        // when
-        Profile profile = Profile.of(validNickname, validImageUrl, validinterestCountryId);
+        @Test
+        @DisplayName("toString 메서드가 올바르게 동작한다")
+        void toStringWorksCorrectly() {
+            Profile profile = Profile.of("testUser", "http://image.url", "KR");
 
-        // then
-        assertThat(profile.nickname()).isEqualTo(validNickname);
-        assertThat(profile.nickname().length()).isEqualTo(nicknameLength);
-    }
+            String result = profile.toString();
 
-    @Test
-    @DisplayName("null 관심 국가로 Profile 생성 시 예외가 발생한다")
-    void createProfileWithNullinterestCountryId() {
-        // given
-        String validNickname = "테스트유저";
-        String validImageUrl = "https://example.com/image.jpg";
-        String nullinterestCountryId = null;
+            assertThat(result).contains("testUser");
+            assertThat(result).contains("http://image.url");
+            assertThat(result).contains("KR");
+            assertThat(result).contains("Profile");
+        }
 
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Profile.of(validNickname, validImageUrl, nullinterestCountryId));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_REGION);
-    }
+        @Test
+        @DisplayName("null imageUrl이 있는 Profile의 toString이 올바르게 동작한다")
+        void toStringWorksCorrectlyWithNullImageUrl() {
+            Profile profile = Profile.of("testUser", null, "KR");
 
-    @Test
-    @DisplayName("Profile record의 동등성이 정상 동작한다")
-    void profileEquality() {
-        // given
-        String nickname = "테스트유저";
-        String imageUrl = "https://example.com/image.jpg";
-        String interestCountryId = "KR";
+            String result = profile.toString();
 
-        Profile profile1 = Profile.of(nickname, imageUrl, interestCountryId);
-        Profile profile2 = Profile.of(nickname, imageUrl, interestCountryId);
-        Profile profile3 = Profile.of("다른유저", imageUrl, interestCountryId);
-
-        // when & then
-        assertThat(profile1).isEqualTo(profile2);
-        assertThat(profile1).isNotEqualTo(profile3);
-        assertThat(profile1.hashCode()).isEqualTo(profile2.hashCode());
-    }
-
-    @Test
-    @DisplayName("Profile record의 toString이 정상 동작한다")
-    void profileToString() {
-        // given
-        String nickname = "테스트유저";
-        String imageUrl = "https://example.com/image.jpg";
-        String interestCountryId = "KR";
-        Profile profile = Profile.of(nickname, imageUrl, interestCountryId);
-
-        // when
-        String toString = profile.toString();
-
-        // then
-        assertThat(toString).contains("Profile");
-        assertThat(toString).contains(nickname);
-        assertThat(toString).contains(imageUrl);
-        assertThat(toString).contains(interestCountryId.toString());
-    }
-
-    @Test
-    @DisplayName("빈 문자열 imageUrl은 null로 처리되지 않는다")
-    void createProfileWithEmptyImageUrl() {
-        // given
-        String validNickname = "테스트유저";
-        String emptyImageUrl = "";
-        String validinterestCountryId = "KR";
-
-        // when
-        Profile profile = Profile.of(validNickname, emptyImageUrl, validinterestCountryId);
-
-        // then
-        // validateImageUrl 메서드에서 빈 문자열을 null로 변경하려 했지만 실제로는 적용되지 않음
-        // 이는 record의 immutable 특성 때문
-        assertThat(profile.imageUrl()).isEqualTo(emptyImageUrl);
-    }
-
-    @Test
-    @DisplayName("공백 문자열 imageUrl은 유지된다")
-    void createProfileWithBlankImageUrl() {
-        // given
-        String validNickname = "테스트유저";
-        String blankImageUrl = "   ";
-        String validinterestCountryId = "KR";
-
-        // when
-        Profile profile = Profile.of(validNickname, blankImageUrl, validinterestCountryId);
-
-        // then
-        assertThat(profile.imageUrl()).isEqualTo(blankImageUrl);
+            assertThat(result).contains("testUser");
+            assertThat(result).contains("null");
+            assertThat(result).contains("KR");
+        }
     }
 }

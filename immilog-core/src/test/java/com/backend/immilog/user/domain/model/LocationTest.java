@@ -3,195 +3,332 @@ package com.backend.immilog.user.domain.model;
 import com.backend.immilog.user.exception.UserErrorCode;
 import com.backend.immilog.user.exception.UserException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@DisplayName("Location 도메인 테스트")
 class LocationTest {
 
-    @Test
-    @DisplayName("정상적인 국가와 지역으로 Location을 생성할 수 있다")
-    void createLocationWithValidStringAndRegion() {
-        // given
-        String validString = "KR";
-        String validRegion = "서울특별시";
+    @Nested
+    @DisplayName("Location 생성 테스트")
+    class LocationCreationTest {
 
-        // when
-        Location location = Location.of(validString, validRegion);
+        @Test
+        @DisplayName("유효한 값들로 Location을 생성할 수 있다")
+        void createLocationWithValidValues() {
+            String countryId = "KR";
+            String region = "Seoul";
 
-        // then
-        assertThat(location.countryId()).isEqualTo(validString);
-        assertThat(location.region()).isEqualTo(validRegion);
-    }
+            Location location = new Location(countryId, region);
 
-    @Test
-    @DisplayName("null 국가로 Location 생성 시 예외가 발생한다")
-    void createLocationWithNullString() {
-        // given
-        String nullString = null;
-        String validRegion = "서울특별시";
-
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Location.of(nullString, validRegion));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_REGION);
-    }
-
-    @Test
-    @DisplayName("null 지역으로 Location 생성 시 예외가 발생한다")
-    void createLocationWithNullRegion() {
-        // given
-        String validString = "KR";
-        String nullRegion = null;
-
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Location.of(validString, nullRegion));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_REGION);
-    }
-
-    @Test
-    @DisplayName("빈 지역으로 Location 생성 시 예외가 발생한다")
-    void createLocationWithEmptyRegion() {
-        // given
-        String validString = "KR";
-        String emptyRegion = "";
-
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Location.of(validString, emptyRegion));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_REGION);
-    }
-
-    @Test
-    @DisplayName("공백 지역으로 Location 생성 시 예외가 발생한다")
-    void createLocationWithBlankRegion() {
-        // given
-        String validString = "KR";
-        String blankRegion = "   ";
-
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Location.of(validString, blankRegion));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_REGION);
-    }
-
-    @Test
-    @DisplayName("100자를 초과하는 지역으로 Location 생성 시 예외가 발생한다")
-    void createLocationWithTooLongRegion() {
-        // given
-        String validString = "KR";
-        String tooLongRegion = "a".repeat(101); // 101자
-
-        // when & then
-        UserException exception = assertThrows(UserException.class,
-                () -> Location.of(validString, tooLongRegion));
-        assertThat(exception.getErrorCode()).isEqualTo(UserErrorCode.INVALID_REGION);
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {1, 50, 100})
-    @DisplayName("유효한 길이의 지역으로 Location을 생성할 수 있다")
-    void createLocationWithValidRegionLength(int regionLength) {
-        // given
-        String validString = "KR";
-        String validRegion = "a".repeat(regionLength);
-
-        // when
-        Location location = Location.of(validString, validRegion);
-
-        // then
-        assertThat(location.countryId()).isEqualTo(validString);
-        assertThat(location.region()).isEqualTo(validRegion);
-        assertThat(location.region().length()).isEqualTo(regionLength);
-    }
-
-    @Test
-    @DisplayName("모든 String enum 값으로 Location을 생성할 수 있다")
-    void createLocationWithAllStringValues() {
-        // given
-        String validRegion = "테스트지역";
-
-        // when & then
-        String[] countries = {"KR", "JP", "MY", "BN", "US", "CA", "AU", "NZ", "GB", "SG"};
-        for (String country : countries) {
-            Location location = Location.of(country, validRegion);
-            assertThat(location.countryId()).isEqualTo(country);
-            assertThat(location.region()).isEqualTo(validRegion);
+            assertThat(location.countryId()).isEqualTo(countryId);
+            assertThat(location.region()).isEqualTo(region);
         }
-    }
 
-    @Test
-    @DisplayName("다양한 실제 지역명으로 Location을 생성할 수 있다")
-    void createLocationWithRealRegionNames() {
-        // given
-        String korea = "KR";
-        String[] realRegions = {
-                "서울특별시", "부산광역시", "대구광역시", "인천광역시", "광주광역시",
-                "대전광역시", "울산광역시", "세종특별자치시", "경기도", "강원도",
-                "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도", "제주특별자치도"
-        };
+        @Test
+        @DisplayName("of 팩토리 메서드로 Location을 생성할 수 있다")
+        void createLocationWithFactoryMethod() {
+            String countryId = "JP";
+            String region = "Tokyo";
 
-        // when & then
-        for (String region : realRegions) {
-            Location location = Location.of(korea, region);
-            assertThat(location.countryId()).isEqualTo(korea);
+            Location location = Location.of(countryId, region);
+
+            assertThat(location.countryId()).isEqualTo(countryId);
             assertThat(location.region()).isEqualTo(region);
         }
     }
 
-    @Test
-    @DisplayName("Location record의 동등성이 정상 동작한다")
-    void locationEquality() {
-        // given
-        String country = "KR";
-        String region = "서울특별시";
+    @Nested
+    @DisplayName("국가 ID 검증 테스트")
+    class CountryIdValidationTest {
 
-        Location location1 = Location.of(country, region);
-        Location location2 = Location.of(country, region);
-        Location location3 = Location.of("JP", region);
-        Location location4 = Location.of(country, "부산광역시");
+        @Test
+        @DisplayName("null 국가 ID로 생성 시 예외가 발생한다")
+        void createLocationWithNullCountryIdThrowsException() {
+            assertThatThrownBy(() -> new Location(null, "Seoul"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
 
-        // when & then
-        assertThat(location1).isEqualTo(location2);
-        assertThat(location1).isNotEqualTo(location3);
-        assertThat(location1).isNotEqualTo(location4);
-        assertThat(location1.hashCode()).isEqualTo(location2.hashCode());
+        @Test
+        @DisplayName("빈 국가 ID로 생성 시 예외가 발생한다")
+        void createLocationWithEmptyCountryIdThrowsException() {
+            assertThatThrownBy(() -> new Location("", "Seoul"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("공백 국가 ID로 생성 시 예외가 발생한다")
+        void createLocationWithBlankCountryIdThrowsException() {
+            assertThatThrownBy(() -> new Location("   ", "Seoul"))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("유효한 국가 코드들로 Location을 생성할 수 있다")
+        void createLocationWithValidCountryCodes() {
+            String[] validCountryCodes = {"KR", "JP", "US", "CN", "DE", "FR", "GB", "CA", "AU"};
+
+            for (String countryCode : validCountryCodes) {
+                Location location = Location.of(countryCode, "TestRegion");
+                assertThat(location.countryId()).isEqualTo(countryCode);
+            }
+        }
+
+        @Test
+        @DisplayName("1자인 국가 ID로 Location을 생성할 수 있다")
+        void createLocationWithSingleCharacterCountryId() {
+            Location location = Location.of("K", "Seoul");
+
+            assertThat(location.countryId()).isEqualTo("K");
+            assertThat(location.countryId()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("긴 국가 식별자로도 Location을 생성할 수 있다")
+        void createLocationWithLongCountryIdentifier() {
+            String longCountryId = "VERY_LONG_COUNTRY_IDENTIFIER_123";
+
+            Location location = Location.of(longCountryId, "Seoul");
+
+            assertThat(location.countryId()).isEqualTo(longCountryId);
+        }
+
+        @Test
+        @DisplayName("특수문자가 포함된 국가 ID로도 Location을 생성할 수 있다")
+        void createLocationWithSpecialCharacterCountryId() {
+            String specialCountryId = "KR-123_@";
+
+            Location location = Location.of(specialCountryId, "Seoul");
+
+            assertThat(location.countryId()).isEqualTo(specialCountryId);
+        }
     }
 
-    @Test
-    @DisplayName("Location record의 toString이 정상 동작한다")
-    void locationToString() {
-        // given
-        String country = "KR";
-        String region = "서울특별시";
-        Location location = Location.of(country, region);
+    @Nested
+    @DisplayName("지역 검증 테스트")
+    class RegionValidationTest {
 
-        // when
-        String toString = location.toString();
+        @Test
+        @DisplayName("null 지역으로 생성 시 예외가 발생한다")
+        void createLocationWithNullRegionThrowsException() {
+            assertThatThrownBy(() -> new Location("KR", null))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
 
-        // then
-        assertThat(toString).contains("Location");
-        assertThat(toString).contains(country);
-        assertThat(toString).contains(region);
+        @Test
+        @DisplayName("빈 지역으로 생성 시 예외가 발생한다")
+        void createLocationWithEmptyRegionThrowsException() {
+            assertThatThrownBy(() -> new Location("KR", ""))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("공백 지역으로 생성 시 예외가 발생한다")
+        void createLocationWithBlankRegionThrowsException() {
+            assertThatThrownBy(() -> new Location("KR", "   "))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("100자를 초과하는 지역으로 생성 시 예외가 발생한다")
+        void createLocationWithTooLongRegionThrowsException() {
+            String longRegion = "a".repeat(101);
+
+            assertThatThrownBy(() -> new Location("KR", longRegion))
+                    .isInstanceOf(UserException.class)
+                    .hasMessage(UserErrorCode.INVALID_REGION.getMessage());
+        }
+
+        @Test
+        @DisplayName("정확히 100자인 지역으로 Location을 생성할 수 있다")
+        void createLocationWithHundredCharacterRegion() {
+            String hundredCharRegion = "a".repeat(100);
+
+            Location location = Location.of("KR", hundredCharRegion);
+
+            assertThat(location.region()).isEqualTo(hundredCharRegion);
+            assertThat(location.region()).hasSize(100);
+        }
+
+        @Test
+        @DisplayName("1자인 지역으로 Location을 생성할 수 있다")
+        void createLocationWithSingleCharacterRegion() {
+            Location location = Location.of("KR", "S");
+
+            assertThat(location.region()).isEqualTo("S");
+            assertThat(location.region()).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("다양한 형식의 지역명으로 Location을 생성할 수 있다")
+        void createLocationWithVariousRegionFormats() {
+            String[] validRegions = {
+                    "Seoul",
+                    "서울특별시",
+                    "New York City",
+                    "São Paulo",
+                    "北京市",
+                    "Москва",
+                    "القاهرة",
+                    "Region-123",
+                    "Test_Region_456"
+            };
+
+            for (String region : validRegions) {
+                Location location = Location.of("TEST", region);
+                assertThat(location.region()).isEqualTo(region);
+            }
+        }
+
+        @Test
+        @DisplayName("특수문자가 포함된 지역명으로 Location을 생성할 수 있다")
+        void createLocationWithSpecialCharacterRegion() {
+            String specialRegion = "Seoul-City_123!@#$%^&*()";
+
+            Location location = Location.of("KR", specialRegion);
+
+            assertThat(location.region()).isEqualTo(specialRegion);
+        }
+
+        @Test
+        @DisplayName("유니코드 문자가 포함된 지역명으로 Location을 생성할 수 있다")
+        void createLocationWithUnicodeRegion() {
+            String unicodeRegion = "서울特別市🏙️";
+
+            Location location = Location.of("KR", unicodeRegion);
+
+            assertThat(location.region()).isEqualTo(unicodeRegion);
+        }
     }
 
-    @Test
-    @DisplayName("다국가의 지역으로 Location을 생성할 수 있다")
-    void createLocationWithInternationalRegions() {
-        // given & when & then
-        Location malaysia = Location.of("MY", "쿠알라룸푸르");
-        Location singapore = Location.of("SG", "센트럴");
-        Location japan = Location.of("JP", "도쿄");
-        Location china = Location.of("CN", "베이징");
+    @Nested
+    @DisplayName("Location 동등성 테스트")
+    class LocationEqualityTest {
 
-        assertThat(malaysia.region()).isEqualTo("쿠알라룸푸르");
-        assertThat(singapore.region()).isEqualTo("센트럴");
-        assertThat(japan.region()).isEqualTo("도쿄");
-        assertThat(china.region()).isEqualTo("베이징");
+        @Test
+        @DisplayName("같은 국가 ID와 지역을 가진 Location은 동등하다")
+        void locationsWithSameValuesAreEqual() {
+            String countryId = "KR";
+            String region = "Seoul";
+
+            Location location1 = Location.of(countryId, region);
+            Location location2 = Location.of(countryId, region);
+
+            assertThat(location1).isEqualTo(location2);
+            assertThat(location1.hashCode()).isEqualTo(location2.hashCode());
+        }
+
+        @Test
+        @DisplayName("다른 국가 ID를 가진 Location은 동등하지 않다")
+        void locationsWithDifferentCountryIdsAreNotEqual() {
+            Location location1 = Location.of("KR", "Seoul");
+            Location location2 = Location.of("JP", "Seoul");
+
+            assertThat(location1).isNotEqualTo(location2);
+        }
+
+        @Test
+        @DisplayName("다른 지역을 가진 Location은 동등하지 않다")
+        void locationsWithDifferentRegionsAreNotEqual() {
+            Location location1 = Location.of("KR", "Seoul");
+            Location location2 = Location.of("KR", "Busan");
+
+            assertThat(location1).isNotEqualTo(location2);
+        }
+
+        @Test
+        @DisplayName("대소문자가 다른 Location은 동등하지 않다")
+        void locationsWithDifferentCasesAreNotEqual() {
+            Location location1 = Location.of("kr", "seoul");
+            Location location2 = Location.of("KR", "Seoul");
+
+            assertThat(location1).isNotEqualTo(location2);
+        }
+    }
+
+    @Nested
+    @DisplayName("Location 특수 케이스 테스트")
+    class LocationSpecialCasesTest {
+
+        @Test
+        @DisplayName("모든 필드가 최소값인 Location을 생성할 수 있다")
+        void createLocationWithMinimalValues() {
+            Location location = Location.of("K", "S");
+
+            assertThat(location.countryId()).isEqualTo("K");
+            assertThat(location.region()).isEqualTo("S");
+        }
+
+        @Test
+        @DisplayName("모든 필드가 최대값인 Location을 생성할 수 있다")
+        void createLocationWithMaximalValues() {
+            String longCountryId = "VERY_LONG_COUNTRY_ID";
+            String maxRegion = "a".repeat(100);
+
+            Location location = Location.of(longCountryId, maxRegion);
+
+            assertThat(location.countryId()).isEqualTo(longCountryId);
+            assertThat(location.region()).isEqualTo(maxRegion);
+            assertThat(location.region()).hasSize(100);
+        }
+
+        @Test
+        @DisplayName("실제 지역 데이터로 Location을 생성할 수 있다")
+        void createLocationWithRealWorldData() {
+            String[][] realWorldData = {
+                    {"KR", "서울특별시"},
+                    {"JP", "東京都"},
+                    {"US", "New York"},
+                    {"CN", "北京市"},
+                    {"DE", "Berlin"},
+                    {"FR", "Paris"},
+                    {"GB", "London"},
+                    {"RU", "Москва"},
+                    {"EG", "القاهرة"},
+                    {"BR", "São Paulo"}
+            };
+
+            for (String[] data : realWorldData) {
+                Location location = Location.of(data[0], data[1]);
+                assertThat(location.countryId()).isEqualTo(data[0]);
+                assertThat(location.region()).isEqualTo(data[1]);
+            }
+        }
+    }
+
+    @Nested
+    @DisplayName("Location toString 테스트")
+    class LocationToStringTest {
+
+        @Test
+        @DisplayName("toString 메서드가 올바르게 동작한다")
+        void toStringWorksCorrectly() {
+            Location location = Location.of("KR", "Seoul");
+
+            String result = location.toString();
+
+            assertThat(result).contains("KR");
+            assertThat(result).contains("Seoul");
+            assertThat(result).contains("Location");
+        }
+
+        @Test
+        @DisplayName("특수문자가 포함된 Location의 toString이 올바르게 동작한다")
+        void toStringWorksCorrectlyWithSpecialCharacters() {
+            Location location = Location.of("KR-123", "Seoul_City!@#");
+
+            String result = location.toString();
+
+            assertThat(result).contains("KR-123");
+            assertThat(result).contains("Seoul_City!@#");
+        }
     }
 }

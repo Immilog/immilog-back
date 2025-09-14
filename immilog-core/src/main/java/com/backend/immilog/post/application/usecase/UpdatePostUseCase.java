@@ -1,16 +1,18 @@
 package com.backend.immilog.post.application.usecase;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import com.backend.immilog.post.application.dto.PostUpdateCommand;
-import com.backend.immilog.post.application.services.BulkCommandService;
-import com.backend.immilog.post.application.services.PostCommandService;
-import com.backend.immilog.post.application.services.PostQueryService;
-import com.backend.immilog.post.application.services.PostResourceCommandService;
+import com.backend.immilog.post.application.dto.in.PostUpdateCommand;
+import com.backend.immilog.post.application.services.command.BulkCommandService;
+import com.backend.immilog.post.domain.repositories.ContentResourceRepository;
+import com.backend.immilog.post.domain.service.PostDomainService;
+import com.backend.immilog.post.domain.repositories.PostDomainRepository;
 import com.backend.immilog.post.domain.model.resource.ResourceType;
+import com.backend.immilog.post.domain.model.post.PostId;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
 import com.backend.immilog.shared.aop.annotation.DistributedLock;
 import com.backend.immilog.shared.enums.ContentType;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -29,23 +31,11 @@ public interface UpdatePostUseCase {
 
     @Slf4j
     @Service
+    @RequiredArgsConstructor
     class UpdaterPost implements UpdatePostUseCase {
-        private final PostQueryService postQueryService;
-        private final PostCommandService postCommandService;
-        private final PostResourceCommandService postResourceCommandService;
+        private final PostDomainService postDomainService;
+        private final ContentResourceRepository contentResourceRepository;
         private final BulkCommandService bulkCommandService;
-
-        public UpdaterPost(
-                PostQueryService postQueryService,
-                PostCommandService postCommandService,
-                PostResourceCommandService postResourceCommandService,
-                BulkCommandService bulkCommandService
-        ) {
-            this.postQueryService = postQueryService;
-            this.postCommandService = postCommandService;
-            this.postResourceCommandService = postResourceCommandService;
-            this.bulkCommandService = bulkCommandService;
-        }
 
         @Transactional
         public void updatePost(
@@ -53,15 +43,15 @@ public interface UpdatePostUseCase {
                 String postId,
                 PostUpdateCommand command
         ) {
-            postCommandService.updatePost(
-                    postId,
+            postDomainService.updatePostContent(
+                    PostId.of(postId),
                     userId,
                     command.title(),
                     command.content()
             );
             if (command.isPublic() != null) {
-                postCommandService.updatePostVisibility(
-                        postId,
+                postDomainService.updatePostVisibility(
+                        PostId.of(postId),
                         userId,
                         command.isPublic()
                 );
@@ -83,9 +73,7 @@ public interface UpdatePostUseCase {
         @Async
         @DistributedLock(key = "'viewPost:'", identifier = "#p0.toString()", expireTime = 5)
         public void increaseViewCount(String postId) {
-            var post = postQueryService.getPostById(postId);
-            var updatedPost = post.increaseViewCount();
-            postCommandService.save(updatedPost);
+            postDomainService.incrementViewCount(PostId.of(postId));
         }
 
         private void updateResource(
@@ -104,7 +92,7 @@ public interface UpdatePostUseCase {
                 ResourceType resourceType
         ) {
             if (deleteResources != null && !deleteResources.isEmpty()) {
-                postResourceCommandService.deleteAllEntities(
+                contentResourceRepository.deleteAllEntities(
                         postId,
                         ContentType.POST,
                         resourceType,

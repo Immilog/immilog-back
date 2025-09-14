@@ -1,8 +1,7 @@
 package com.backend.immilog.user.application.services;
 
-import com.backend.immilog.user.application.services.command.UserCommandService;
-import com.backend.immilog.user.application.services.query.UserQueryService;
 import com.backend.immilog.user.domain.model.*;
+import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
 import com.backend.immilog.user.domain.service.UserRegistrationService;
 import org.springframework.stereotype.Service;
@@ -12,19 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
 
-    private final UserQueryService userQueryService;
-    private final UserCommandService userCommandService;
+    private final UserRepository userRepository;
     private final UserRegistrationService userRegistrationService;
     private final UserPasswordPolicy userPasswordPolicy;
 
     public UserService(
-            UserQueryService userQueryService,
-            UserCommandService userCommandService,
+            UserRepository userRepository,
             UserRegistrationService userRegistrationService,
             UserPasswordPolicy userPasswordPolicy
     ) {
-        this.userQueryService = userQueryService;
-        this.userCommandService = userCommandService;
+        this.userRepository = userRepository;
         this.userRegistrationService = userRegistrationService;
         this.userPasswordPolicy = userPasswordPolicy;
     }
@@ -50,7 +46,7 @@ public class UserService {
         var newUser = userRegistrationService.registerNewUser(auth, profile, location);
 
         // 4. 저장
-        var savedUser = userCommandService.save(newUser);
+        var savedUser = userRepository.save(newUser);
 
         return savedUser.getUserId();
     }
@@ -60,7 +56,7 @@ public class UserService {
             String email,
             String rawPassword
     ) {
-        var user = userQueryService.getUserByEmail(email);
+        var user = userRepository.findByEmail(email);
         userPasswordPolicy.validatePasswordMatch(rawPassword, user.getPassword());
         user.validateActiveStatus();
         return user;
@@ -77,7 +73,7 @@ public class UserService {
         var newProfile = Profile.of(nickname, imageUrl, interestCountryId);
         user.updateProfile(newProfile);
 
-        userCommandService.save(user);
+        userRepository.save(user);
     }
 
     public void changePassword(
@@ -91,27 +87,26 @@ public class UserService {
 
         String encodedNewPassword = userPasswordPolicy.encodePassword(newPassword);
         user.changePassword(encodedNewPassword);
-
-        userCommandService.save(user);
+        userRepository.save(user);
     }
 
     public void activateUser(UserId userId) {
         User user = getUserById(userId);
         user.activate();
-        userCommandService.save(user);
+        userRepository.save(user);
     }
 
     public void blockUser(UserId userId) {
         User user = getUserById(userId);
         user.block();
-        userCommandService.save(user);
+        userRepository.save(user);
     }
 
     private User getUserById(UserId userId) {
-        return userQueryService.getUserById(userId);
+        return userRepository.findById(userId);
     }
 
     private User getUserByEmail(String email) {
-        return userQueryService.getUserByEmail(email);
+        return userRepository.findByEmail(email);
     }
 }

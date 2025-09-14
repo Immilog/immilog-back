@@ -33,6 +33,13 @@ public interface InteractionUserRepository {
             ContentType contentType,
             String postId
     );
+    
+    Optional<InteractionUser> findByUserIdAndPostIdAndContentTypeAndInteractionType(
+            String userId,
+            String postId,
+            ContentType contentType,
+            InteractionType interactionType
+    );
 
     Long countByPostIdAndInteractionTypeAndInteractionStatus(
             String postId,

@@ -1,6 +1,6 @@
 package com.backend.immilog.user.application.usecase;
 
-import com.backend.immilog.user.application.result.LocationResult;
+import com.backend.immilog.user.application.dto.out.LocationResult;
 import com.backend.immilog.user.infrastructure.gateway.GeocodeGateway;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

@@ -1,32 +1,24 @@
 package com.backend.immilog.interaction.application.handlers;
 
-import com.backend.immilog.interaction.application.services.InteractionUserQueryService;
 import com.backend.immilog.interaction.domain.model.InteractionStatus;
-import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
+import com.backend.immilog.interaction.domain.repositories.InteractionUserRepository;
 import com.backend.immilog.post.domain.events.PostEvent;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.enums.ContentType;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class InteractionDataRequestedEventHandler implements DomainEventHandler<PostEvent.InteractionDataRequested> {
 
-    private final InteractionUserQueryService interactionUserQueryService;
+    private final InteractionUserRepository interactionUserRepository;
     private final EventResultStorageService eventResultStorageService;
-
-    public InteractionDataRequestedEventHandler(
-            InteractionUserQueryService interactionUserQueryService,
-            EventResultStorageService eventResultStorageService) {
-        this.interactionUserQueryService = interactionUserQueryService;
-        this.eventResultStorageService = eventResultStorageService;
-    }
 
     @Override
     public void handle(PostEvent.InteractionDataRequested event) {
@@ -34,18 +26,16 @@ public class InteractionDataRequestedEventHandler implements DomainEventHandler<
         
         try {
             // Interaction 도메인 서비스를 통해 데이터 조회
-            var interactionUsers = interactionUserQueryService.getInteractionUsersByPostIdListAndActive(
+            var interactionUsers = interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     event.getPostIds(),
                     ContentType.valueOf(event.getContentType()),
-                            InteractionStatus.ACTIVE
+                    InteractionStatus.ACTIVE
             );
-            
-            // InteractionUser를 InteractionData로 변환
-            List<InteractionData> interactionDataList = interactionUsers.stream()
+
+            var interactionDataList = interactionUsers.stream()
                     .map(this::convertToInteractionData)
                     .toList();
-            
-            // Redis에 결과 저장
+
             eventResultStorageService.storeInteractionData(event.getRequestId(), interactionDataList);
             log.info("Successfully processed and stored {} interaction records with requestId: {}: {} likes, {} bookmarks", 
                     interactionDataList.size(), event.getRequestId(),

@@ -2,241 +2,265 @@ package com.backend.immilog.interaction.domain.model;
 
 import com.backend.immilog.shared.enums.ContentType;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class InteractionUserTest {
 
-    @Test
-    @DisplayName("인터랙션 생성 - 정상 케이스")
-    void createInteractionSuccessfully() {
-        //given
-        String userId = "userId";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.LIKE;
+    @Nested
+    @DisplayName("InteractionUser 생성 테스트")
+    class InteractionUserCreationTest {
 
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
+        @Test
+        @DisplayName("of 메서드로 InteractionUser를 생성할 수 있다")
+        void createInteractionUserWithOfMethod() {
+            String userId = "user123";
+            String postId = "post456";
+            ContentType contentType = ContentType.POST;
+            InteractionType interactionType = InteractionType.LIKE;
 
-        //then
-        assertThat(interaction.userId()).isEqualTo(userId);
-        assertThat(interaction.postId()).isEqualTo(postId);
-        assertThat(interaction.contentType()).isEqualTo(contentType);
-        assertThat(interaction.interactionType()).isEqualTo(interactionType);
-        assertThat(interaction.id()).isNull();
-        assertThat(interaction.createdAt()).isNotNull();
-    }
+            InteractionUser result = InteractionUser.of(userId, postId, contentType, interactionType);
 
-    @Test
-    @DisplayName("좋아요 인터랙션 생성")
-    void createLikeInteraction() {
-        //given
-        String userId = "userId";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.LIKE;
+            assertThat(result.userId()).isEqualTo(userId);
+            assertThat(result.postId()).isEqualTo(postId);
+            assertThat(result.contentType()).isEqualTo(contentType);
+            assertThat(result.interactionType()).isEqualTo(interactionType);
+            assertThat(result.interactionStatus()).isEqualTo(InteractionStatus.ACTIVE);
+            assertThat(result.createdAt()).isNotNull();
+            assertThat(result.id()).isNull();
+        }
 
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
+        @Test
+        @DisplayName("createBookmark 메서드로 북마크 InteractionUser를 생성할 수 있다")
+        void createBookmarkInteractionUser() {
+            String userId = "user123";
+            String postId = "post456";
+            ContentType contentType = ContentType.POST;
 
-        //then
-        assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
-        assertThat(interaction.userId()).isEqualTo(userId);
-        assertThat(interaction.postId()).isEqualTo(postId);
-    }
+            InteractionUser result = InteractionUser.createBookmark(userId, postId, contentType);
 
-    @Test
-    @DisplayName("북마크 인터랙션 생성")
-    void createBookmarkInteraction() {
-        //given
-        String userId = "userId";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.BOOKMARK;
+            assertThat(result.userId()).isEqualTo(userId);
+            assertThat(result.postId()).isEqualTo(postId);
+            assertThat(result.contentType()).isEqualTo(contentType);
+            assertThat(result.interactionType()).isEqualTo(InteractionType.BOOKMARK);
+            assertThat(result.interactionStatus()).isEqualTo(InteractionStatus.ACTIVE);
+            assertThat(result.createdAt()).isNotNull();
+        }
 
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
+        @Test
+        @DisplayName("createLike 메서드로 좋아요 InteractionUser를 생성할 수 있다")
+        void createLikeInteractionUser() {
+            String userId = "user123";
+            String postId = "post456";
+            ContentType contentType = ContentType.POST;
 
-        //then
-        assertThat(interaction.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        assertThat(interaction.userId()).isEqualTo(userId);
-        assertThat(interaction.postId()).isEqualTo(postId);
-    }
+            InteractionUser result = InteractionUser.createLike(userId, postId, contentType);
 
-
-    @Test
-    @DisplayName("POST 타입 인터랙션 생성")
-    void createPostInteraction() {
-        //given
-        String userId = "userId";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.BOOKMARK;
-
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
-
-        //then
-        assertThat(interaction.contentType()).isEqualTo(ContentType.POST);
-        assertThat(interaction.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-        assertThat(interaction.userId()).isEqualTo(userId);
-    }
-
-    @Test
-    @DisplayName("인터랙션 생성 시 생성 시간 설정")
-    void createInteractionWithCreatedAt() {
-        //given
-        String userId = "userId";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.LIKE;
-        LocalDateTime beforeCreation = LocalDateTime.now();
-
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
-
-        //then
-        assertThat(interaction.createdAt()).isAfter(beforeCreation.minusSeconds(1));
-        assertThat(interaction.createdAt()).isBefore(LocalDateTime.now().plusSeconds(1));
-    }
-
-    @Test
-    @DisplayName("null 사용자 ID로 인터랙션 생성")
-    void createInteractionWithNullUserId() {
-        //given
-        String userId = null;
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.LIKE;
-
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
-
-        //then
-        assertThat(interaction.userId()).isNull();
-        assertThat(interaction.postId()).isEqualTo(postId);
-        assertThat(interaction.contentType()).isEqualTo(contentType);
-        assertThat(interaction.interactionType()).isEqualTo(interactionType);
-    }
-
-    @Test
-    @DisplayName("null 게시물 ID로 인터랙션 생성")
-    void createInteractionWithNullPostId() {
-        //given
-        String userId = "userId";
-        String postId = null;
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.LIKE;
-
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
-
-        //then
-        assertThat(interaction.userId()).isEqualTo(userId);
-        assertThat(interaction.postId()).isNull();
-        assertThat(interaction.contentType()).isEqualTo(contentType);
-        assertThat(interaction.interactionType()).isEqualTo(interactionType);
-    }
-
-    @Test
-    @DisplayName("빈 문자열 사용자 ID로 인터랙션 생성")
-    void createInteractionWithEmptyUserId() {
-        //given
-        String userId = "";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.BOOKMARK;
-
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
-
-        //then
-        assertThat(interaction.userId()).isEmpty();
-        assertThat(interaction.postId()).isEqualTo(postId);
-        assertThat(interaction.interactionType()).isEqualTo(InteractionType.BOOKMARK);
-    }
-
-    @Test
-    @DisplayName("빈 문자열 게시물 ID로 인터랙션 생성")
-    void createInteractionWithEmptyPostId() {
-        //given
-        String userId = "userId";
-        String postId = "";
-        ContentType contentType = ContentType.COMMENT;
-        InteractionType interactionType = InteractionType.LIKE;
-
-        //when
-        InteractionUser interaction = InteractionUser.of(userId, postId, contentType, interactionType);
-
-        //then
-        assertThat(interaction.userId()).isEqualTo(userId);
-        assertThat(interaction.postId()).isEmpty();
-        assertThat(interaction.contentType()).isEqualTo(ContentType.COMMENT);
-        assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
-    }
-
-    @Test
-    @DisplayName("다양한 사용자와 게시물로 인터랙션 생성")
-    void createInteractionsWithDifferentUsersAndPosts() {
-        //given
-        String[] userIds = {"user1", "user2", "user3"};
-        String[] postIds = {"post1", "post2", "post3"};
-
-        //when & then
-        for (int i = 0; i < userIds.length; i++) {
-            InteractionUser interaction = InteractionUser.of(
-                    userIds[i], 
-                    postIds[i], 
-                    ContentType.POST,
-                    InteractionType.LIKE
-            );
-            
-            assertThat(interaction.userId()).isEqualTo(userIds[i]);
-            assertThat(interaction.postId()).isEqualTo(postIds[i]);
-            assertThat(interaction.interactionType()).isEqualTo(InteractionType.LIKE);
+            assertThat(result.userId()).isEqualTo(userId);
+            assertThat(result.postId()).isEqualTo(postId);
+            assertThat(result.contentType()).isEqualTo(contentType);
+            assertThat(result.interactionType()).isEqualTo(InteractionType.LIKE);
+            assertThat(result.interactionStatus()).isEqualTo(InteractionStatus.ACTIVE);
+            assertThat(result.createdAt()).isNotNull();
         }
     }
 
-    @Test
-    @DisplayName("레코드 불변성 검증")
-    void verifyRecordImmutability() {
-        //given
-        String userId = "userId";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
-        InteractionType interactionType = InteractionType.LIKE;
+    @Nested
+    @DisplayName("InteractionUser 상태 변경 테스트")
+    class InteractionUserToggleTest {
 
-        //when
-        InteractionUser interaction1 = InteractionUser.of(userId, postId, contentType, interactionType);
-        InteractionUser interaction2 = InteractionUser.of(userId, postId, contentType, interactionType);
+        @Test
+        @DisplayName("ACTIVE 상태를 INACTIVE로 토글할 수 있다")
+        void toggleActiveToInactive() {
+            InteractionUser activeInteraction = InteractionUser.builder()
+                    .id("id123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
-        //then
-        assertThat(interaction1.userId()).isEqualTo(interaction2.userId());
-        assertThat(interaction1.postId()).isEqualTo(interaction2.postId());
-        assertThat(interaction1.contentType()).isEqualTo(interaction2.contentType());
-        assertThat(interaction1.interactionType()).isEqualTo(interaction2.interactionType());
-        assertThat(interaction1).isNotSameAs(interaction2);
+            InteractionUser result = activeInteraction.toggleStatus();
+
+            assertThat(result.interactionStatus()).isEqualTo(InteractionStatus.INACTIVE);
+            assertThat(result.id()).isEqualTo(activeInteraction.id());
+            assertThat(result.userId()).isEqualTo(activeInteraction.userId());
+            assertThat(result.postId()).isEqualTo(activeInteraction.postId());
+            assertThat(result.contentType()).isEqualTo(activeInteraction.contentType());
+            assertThat(result.interactionType()).isEqualTo(activeInteraction.interactionType());
+            assertThat(result.createdAt()).isAfter(activeInteraction.createdAt());
+        }
+
+        @Test
+        @DisplayName("INACTIVE 상태를 ACTIVE로 토글할 수 있다")
+        void toggleInactiveToActive() {
+            InteractionUser inactiveInteraction = InteractionUser.builder()
+                    .id("id123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.BOOKMARK)
+                    .interactionStatus(InteractionStatus.INACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            InteractionUser result = inactiveInteraction.toggleStatus();
+
+            assertThat(result.interactionStatus()).isEqualTo(InteractionStatus.ACTIVE);
+            assertThat(result.id()).isEqualTo(inactiveInteraction.id());
+            assertThat(result.userId()).isEqualTo(inactiveInteraction.userId());
+            assertThat(result.postId()).isEqualTo(inactiveInteraction.postId());
+            assertThat(result.contentType()).isEqualTo(inactiveInteraction.contentType());
+            assertThat(result.interactionType()).isEqualTo(inactiveInteraction.interactionType());
+        }
     }
 
-    @Test
-    @DisplayName("모든 InteractionType으로 인터랙션 생성")
-    void createInteractionsWithAllTypes() {
-        //given
-        String userId = "userId";
-        String postId = "postId";
-        ContentType contentType = ContentType.POST;
+    @Nested
+    @DisplayName("InteractionUser Builder 테스트")
+    class InteractionUserBuilderTest {
 
-        //when & then
-        for (InteractionType type : InteractionType.values()) {
-            InteractionUser interaction = InteractionUser.of(userId, postId, contentType, type);
-            
-            assertThat(interaction.interactionType()).isEqualTo(type);
-            assertThat(interaction.userId()).isEqualTo(userId);
-            assertThat(interaction.postId()).isEqualTo(postId);
+        @Test
+        @DisplayName("Builder로 완전한 InteractionUser를 생성할 수 있다")
+        void createCompleteInteractionUserWithBuilder() {
+            String id = "id123";
+            String userId = "user123";
+            String postId = "post456";
+            ContentType contentType = ContentType.COMMENT;
+            InteractionType interactionType = InteractionType.LIKE;
+            InteractionStatus interactionStatus = InteractionStatus.ACTIVE;
+            LocalDateTime createdAt = LocalDateTime.now();
+
+            InteractionUser result = InteractionUser.builder()
+                    .id(id)
+                    .userId(userId)
+                    .postId(postId)
+                    .contentType(contentType)
+                    .interactionType(interactionType)
+                    .interactionStatus(interactionStatus)
+                    .createdAt(createdAt)
+                    .build();
+
+            assertThat(result.id()).isEqualTo(id);
+            assertThat(result.userId()).isEqualTo(userId);
+            assertThat(result.postId()).isEqualTo(postId);
+            assertThat(result.contentType()).isEqualTo(contentType);
+            assertThat(result.interactionType()).isEqualTo(interactionType);
+            assertThat(result.interactionStatus()).isEqualTo(interactionStatus);
+            assertThat(result.createdAt()).isEqualTo(createdAt);
+        }
+
+        @Test
+        @DisplayName("Builder로 부분적인 InteractionUser를 생성할 수 있다")
+        void createPartialInteractionUserWithBuilder() {
+            String userId = "user123";
+            String postId = "post456";
+
+            InteractionUser result = InteractionUser.builder()
+                    .userId(userId)
+                    .postId(postId)
+                    .build();
+
+            assertThat(result.userId()).isEqualTo(userId);
+            assertThat(result.postId()).isEqualTo(postId);
+            assertThat(result.id()).isNull();
+            assertThat(result.contentType()).isNull();
+            assertThat(result.interactionType()).isNull();
+            assertThat(result.interactionStatus()).isNull();
+            assertThat(result.createdAt()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("InteractionUser 동등성 테스트")
+    class InteractionUserEqualityTest {
+
+        @Test
+        @DisplayName("같은 값을 가진 InteractionUser는 동등하다")
+        void sameValueInteractionUsersAreEqual() {
+            LocalDateTime now = LocalDateTime.now();
+            InteractionUser interaction1 = InteractionUser.builder()
+                    .id("id123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(now)
+                    .build();
+
+            InteractionUser interaction2 = InteractionUser.builder()
+                    .id("id123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(now)
+                    .build();
+
+            assertThat(interaction1).isEqualTo(interaction2);
+            assertThat(interaction1.hashCode()).isEqualTo(interaction2.hashCode());
+        }
+
+        @Test
+        @DisplayName("다른 값을 가진 InteractionUser는 동등하지 않다")
+        void differentValueInteractionUsersAreNotEqual() {
+            InteractionUser interaction1 = InteractionUser.builder()
+                    .id("id123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            InteractionUser interaction2 = InteractionUser.builder()
+                    .id("id456")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            assertThat(interaction1).isNotEqualTo(interaction2);
+        }
+    }
+
+    @Nested
+    @DisplayName("InteractionUser toString 테스트")
+    class InteractionUserToStringTest {
+
+        @Test
+        @DisplayName("toString 메서드가 올바르게 동작한다")
+        void toStringWorksCorrectly() {
+            InteractionUser interaction = InteractionUser.builder()
+                    .id("id123")
+                    .userId("user123")
+                    .postId("post456")
+                    .contentType(ContentType.POST)
+                    .interactionType(InteractionType.LIKE)
+                    .interactionStatus(InteractionStatus.ACTIVE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            String result = interaction.toString();
+
+            assertThat(result).contains("InteractionUser");
+            assertThat(result).contains("id123");
+            assertThat(result).contains("user123");
+            assertThat(result).contains("post456");
+            assertThat(result).contains("POST");
+            assertThat(result).contains("LIKE");
+            assertThat(result).contains("ACTIVE");
         }
     }
 }

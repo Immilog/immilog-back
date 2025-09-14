@@ -1,15 +1,17 @@
 package com.backend.immilog.user.application.usecase;
 
 // import com.backend.immilog.image.application.usecase.UploadImageUseCase;
-import com.backend.immilog.user.application.command.UserInfoUpdateCommand;
-import com.backend.immilog.user.application.command.UserPasswordChangeCommand;
-import com.backend.immilog.user.application.result.LocationResult;
-import com.backend.immilog.user.application.services.command.UserCommandService;
-import com.backend.immilog.user.application.services.query.UserQueryService;
+
+import com.backend.immilog.image.application.usecase.UploadImageUseCase;
+import com.backend.immilog.user.application.dto.in.UserInfoUpdateCommand;
+import com.backend.immilog.user.application.dto.in.UserPasswordChangeCommand;
+import com.backend.immilog.user.application.dto.out.LocationResult;
 import com.backend.immilog.user.domain.enums.UserStatus;
 import com.backend.immilog.user.domain.model.Location;
 import com.backend.immilog.user.domain.model.Profile;
+import com.backend.immilog.user.domain.repositories.UserRepository;
 import com.backend.immilog.user.domain.service.UserPasswordPolicy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -36,23 +38,11 @@ public interface UpdateProfileUseCase {
 
     @Slf4j
     @Service
+    @RequiredArgsConstructor
     class UserUpdater implements UpdateProfileUseCase {
-        private final UserQueryService userQueryService;
-        private final UserCommandService userCommandService;
-        // private final UploadImageUseCase uploadImageUseCase;
+        private final UploadImageUseCase uploadImageUseCase;
+        private final UserRepository userRepository;
         private final UserPasswordPolicy userPasswordPolicy;
-
-        public UserUpdater(
-                UserQueryService userQueryService,
-                UserCommandService userCommandService,
-                // UploadImageUseCase uploadImageUseCase,
-                UserPasswordPolicy userPasswordPolicy
-        ) {
-            this.userQueryService = userQueryService;
-            this.userCommandService = userCommandService;
-            // this.uploadImageUseCase = uploadImageUseCase;
-            this.userPasswordPolicy = userPasswordPolicy;
-        }
 
         @Override
         public void updateInformation(
@@ -60,7 +50,7 @@ public interface UpdateProfileUseCase {
                 CompletableFuture<LocationResult> futureRegion,
                 UserInfoUpdateCommand userInfoUpdateCommand
         ) {
-            var user = userQueryService.getUserById(userId);
+            var user = userRepository.findById(userId);
             var previousProfileImage = user.getImageUrl();
             var region = getRegion(futureRegion);
             var newProfile = Profile.of(
@@ -74,8 +64,8 @@ public interface UpdateProfileUseCase {
                     .updateLocation(newLocation)
                     .changeStatus(userInfoUpdateCommand.status());
 
-            userCommandService.save(updatedUser);
-            // uploadImageUseCase.deleteImage(previousProfileImage, userInfoUpdateCommand.profileImage());
+            userRepository.save(updatedUser);
+             uploadImageUseCase.deleteImage(previousProfileImage, userInfoUpdateCommand.profileImage());
         }
 
         @Override
@@ -83,14 +73,14 @@ public interface UpdateProfileUseCase {
                 String userId,
                 UserPasswordChangeCommand command
         ) {
-            var user = userQueryService.getUserById(userId);
+            var user = userRepository.findById(userId);
             final var existingPassword = command.existingPassword();
             final var newPassword = command.newPassword();
             final var currentPassword = user.getPassword();
             userPasswordPolicy.validatePasswordMatch(existingPassword, currentPassword);
             var encodedPassword = userPasswordPolicy.encodePassword(newPassword);
             var updatedUser = user.changePassword(encodedPassword);
-            userCommandService.save(updatedUser);
+            userRepository.save(updatedUser);
         }
 
         @Override
@@ -99,9 +89,9 @@ public interface UpdateProfileUseCase {
                 String adminUserId,
                 UserStatus requestedStatus
         ) {
-            userQueryService.getUserById(adminUserId).validateAdminRole();
-            var targetUser = userQueryService.getUserById(targetUserId).changeStatus(requestedStatus);
-            userCommandService.save(targetUser);
+            userRepository.findById(adminUserId).validateAdminRole();
+            var targetUser = userRepository.findById(targetUserId).changeStatus(requestedStatus);
+            userRepository.save(targetUser);
         }
 
         private String getRegion(CompletableFuture<LocationResult> country) {
