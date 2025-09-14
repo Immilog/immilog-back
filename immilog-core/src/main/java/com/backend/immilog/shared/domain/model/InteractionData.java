@@ -1,5 +1,8 @@
 package com.backend.immilog.shared.domain.model;
 
+import lombok.Builder;
+
+@Builder
 public record InteractionData(
     String id,
     String postId,

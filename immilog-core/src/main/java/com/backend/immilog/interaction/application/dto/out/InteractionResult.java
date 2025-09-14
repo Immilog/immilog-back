@@ -1,5 +1,6 @@
 package com.backend.immilog.interaction.application.dto.out;
 
+import com.backend.immilog.interaction.domain.model.InteractionStatus;
 import com.backend.immilog.interaction.domain.model.InteractionType;
 import com.backend.immilog.interaction.domain.model.InteractionUser;
 import com.backend.immilog.interaction.presentation.payload.InteractionResponse;
@@ -13,6 +14,7 @@ public record InteractionResult(
         String postId,
         ContentType contentType,
         InteractionType interactionType,
+        InteractionStatus interactionStatus,
         LocalDateTime createdAt
 ) {
     public static InteractionResult from(InteractionUser interactionUser) {
@@ -22,6 +24,7 @@ public record InteractionResult(
                 interactionUser.postId(),
                 interactionUser.contentType(),
                 interactionUser.interactionType(),
+                interactionUser.interactionStatus(),
                 interactionUser.createdAt()
         );
     }

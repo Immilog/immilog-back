@@ -7,28 +7,17 @@ import com.backend.immilog.comment.application.usecase.CommentCreateUseCase;
 import com.backend.immilog.comment.presentation.payload.CommentCreateRequest;
 import com.backend.immilog.comment.presentation.payload.CommentResponse;
 import com.backend.immilog.shared.annotation.CurrentUser;
-import com.backend.immilog.user.application.services.query.UserQueryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/comments")
+@RequiredArgsConstructor
 public class CommentController {
     private final CommentCreateUseCase commentCreateUseCase;
     private final CommentQueryService commentQueryService;
     private final CommentCommandService commentCommandService;
-
-    public CommentController(
-            CommentCreateUseCase commentCreateUseCase,
-            CommentQueryService commentQueryService,
-            CommentCommandService commentCommandService
-    ) {
-        this.commentCreateUseCase = commentCreateUseCase;
-        this.commentQueryService = commentQueryService;
-        this.commentCommandService = commentCommandService;
-    }
 
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(

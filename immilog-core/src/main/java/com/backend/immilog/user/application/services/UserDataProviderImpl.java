@@ -18,10 +18,16 @@ public class UserDataProviderImpl implements UserDataProvider {
     public UserData getUserData(String userId) {
         try {
             var user = userRepository.findById(userId);
-            return new UserData(user.getUserId().value(), user.getNickname(), user.getImageUrl());
+            return new UserData(
+                user.getUserId().value(), 
+                user.getNickname(), 
+                user.getImageUrl(),
+                user.getCountryId(),
+                user.getRegion()
+            );
         } catch (Exception e) {
             log.warn("Failed to get user data for userId: {}", userId, e);
-            return new UserData(userId, "Unknown", null);
+            return new UserData(userId, "Unknown", null, null, null);
         }
     }
     

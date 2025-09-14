@@ -6,7 +6,6 @@ import com.backend.immilog.comment.application.services.CommentCommandService;
 import com.backend.immilog.comment.application.services.CommentQueryService;
 import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.shared.application.event.DomainEventPublisher;
-import com.backend.immilog.user.application.services.query.UserQueryService;
 import org.springframework.stereotype.Service;
 
 public interface CommentCreateUseCase {

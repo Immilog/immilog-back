@@ -8,6 +8,7 @@ import com.backend.immilog.post.domain.service.PostDomainService;
 import com.backend.immilog.post.domain.model.post.Post;
 import com.backend.immilog.post.domain.model.resource.ContentResource;
 import com.backend.immilog.post.exception.PostException;
+import com.backend.immilog.shared.domain.service.UserDataProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public interface UploadPostUseCase {
         private final PostDomainService postDomainService;
         private final UserValidationService userValidationService;
         private final BulkCommandService bulkInsertRepository;
+        private final UserDataProvider userDataProvider;
 
         @Override
         @Transactional
@@ -47,7 +49,8 @@ public interface UploadPostUseCase {
                 throw new PostException(com.backend.immilog.post.exception.PostErrorCode.INVALID_USER);
             }
 
-            final var newPost = createPost(postUploadCommand, userId);
+            final var userData = userDataProvider.getUserData(userId);
+            final var newPost = createPost(postUploadCommand, userData);
             final var savedPost = postDomainService.createPost(newPost);
             this.insertAllPostResources(postUploadCommand, savedPost.id().value());
         }
@@ -123,12 +126,12 @@ public interface UploadPostUseCase {
 
         private static Post createPost(
                 PostUploadCommand postUploadCommand,
-                String userId
+                com.backend.immilog.shared.domain.model.UserData userData
         ) {
             return Post.of(
-                    userId,
-                    null,
-                    null,
+                    userData.userId(),
+                    userData.countryId(),
+                    userData.region(),
                     postUploadCommand.title(),
                     postUploadCommand.content(),
                     postUploadCommand.category(),

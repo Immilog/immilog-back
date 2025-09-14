@@ -48,8 +48,8 @@ class PostEventServiceTest {
         void getUserDataSuccess() {
             String requestId = "user-req-123";
             List<UserData> userData = List.of(
-                    new UserData("user1", "User One", "profile1.jpg"),
-                    new UserData("user2", "User Two", "profile2.jpg")
+                    new UserData("user1", "User One", "profile1.jpg", "KR", "Seoul"),
+                    new UserData("user2", "User Two", "profile2.jpg", "US", "New York")
             );
 
             when(postConfiguration.getEventTimeout()).thenReturn(testTimeout);
@@ -85,7 +85,7 @@ class PostEventServiceTest {
         @DisplayName("사용자 데이터 직접 요청")
         void requestUserDataDirectly() {
             String requestId = "user-req-456";
-            List<UserData> userData = List.of(new UserData("user1", "User One", "profile1.jpg"));
+            List<UserData> userData = List.of(new UserData("user1", "User One", "profile1.jpg", "KR", "Seoul"));
 
             when(postConfiguration.getEventTimeout()).thenReturn(testTimeout);
             when(eventResultStorageService.generateRequestId("user")).thenReturn(requestId);

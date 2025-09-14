@@ -29,11 +29,13 @@ public class UserDataRequestedEventHandler implements DomainEventHandler<PostEve
                             return new UserData(
                                     user.getUserId().value(),
                                     user.getNickname(),
-                                    user.getImageUrl()
+                                    user.getImageUrl(),
+                                    user.getCountryId(),
+                                    user.getRegion()
                             );
                         } catch (Exception e) {
                             log.warn("Failed to get user data for userId: {}", userId, e);
-                            return new UserData(userId, "Unknown", null);
+                            return new UserData(userId, "Unknown", null, null, null);
                         }
                     })
                     .toList();
