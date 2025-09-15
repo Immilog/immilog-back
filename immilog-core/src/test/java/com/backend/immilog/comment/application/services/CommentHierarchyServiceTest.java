@@ -46,10 +46,6 @@ class CommentHierarchyServiceTest {
             var comments = List.of(comment);
             var userDataList = List.of(userData);
 
-            when(interactionUserRepository.countByCommentIdAndInteractionTypeAndInteractionStatus(
-                    "comment1", InteractionType.LIKE, InteractionStatus.ACTIVE
-            )).thenReturn(5L);
-
             when(interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     List.of("comment1"), ContentType.COMMENT, InteractionStatus.ACTIVE
             )).thenReturn(createInteractionResults());
@@ -61,12 +57,9 @@ class CommentHierarchyServiceTest {
             assertThat(commentInfo.commentId()).isEqualTo("comment1");
             assertThat(commentInfo.nickname()).isEqualTo("닉네임1");
             assertThat(commentInfo.userProfileUrl()).isEqualTo("profile1.jpg");
-            assertThat(commentInfo.likeCount()).isEqualTo(5);
+            assertThat(commentInfo.likeCount()).isEqualTo(1);
             assertThat(commentInfo.replies()).isEmpty();
 
-            verify(interactionUserRepository).countByCommentIdAndInteractionTypeAndInteractionStatus(
-                    "comment1", InteractionType.LIKE, InteractionStatus.ACTIVE
-            );
             verify(interactionUserRepository).findByPostIdListAndContentTypeAndInteractionStatus(
                     List.of("comment1"), ContentType.COMMENT, InteractionStatus.ACTIVE
             );
@@ -83,9 +76,6 @@ class CommentHierarchyServiceTest {
             var userData2 = new UserData("user2", "자식유저", "child.jpg", "KR", "Busan");
             var userDataList = List.of(userData1, userData2);
 
-            when(interactionUserRepository.countByCommentIdAndInteractionTypeAndInteractionStatus(
-                    anyString(), eq(InteractionType.LIKE), eq(InteractionStatus.ACTIVE)
-            )).thenReturn(0L);
 
             when(interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     anyList(), eq(ContentType.COMMENT), eq(InteractionStatus.ACTIVE)
@@ -118,9 +108,6 @@ class CommentHierarchyServiceTest {
             var userData3 = new UserData("user3", "레벨2유저", "level2.jpg", "JP", "Tokyo");
             var userDataList = List.of(userData1, userData2, userData3);
 
-            when(interactionUserRepository.countByCommentIdAndInteractionTypeAndInteractionStatus(
-                    anyString(), eq(InteractionType.LIKE), eq(InteractionStatus.ACTIVE)
-            )).thenReturn(0L);
 
             when(interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     anyList(), eq(ContentType.COMMENT), eq(InteractionStatus.ACTIVE)
@@ -149,9 +136,6 @@ class CommentHierarchyServiceTest {
             var comments = List.of(comment);
             var userDataList = List.<UserData>of();
 
-            when(interactionUserRepository.countByCommentIdAndInteractionTypeAndInteractionStatus(
-                    "comment1", InteractionType.LIKE, InteractionStatus.ACTIVE
-            )).thenReturn(0L);
 
             when(interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                     List.of("comment1"), ContentType.COMMENT, InteractionStatus.ACTIVE
@@ -182,10 +166,6 @@ class CommentHierarchyServiceTest {
             var comments = List.of(comment);
             var userDataList = List.of(userData);
 
-            when(interactionUserRepository.countByCommentIdAndInteractionTypeAndInteractionStatus(
-                    "comment1", InteractionType.LIKE, InteractionStatus.ACTIVE
-            )).thenReturn(3L);
-
             var interactions = List.of(
                     InteractionUser.builder().id("int1").userId("user2").postId("comment1").contentType(ContentType.COMMENT).interactionType(InteractionType.LIKE).interactionStatus(InteractionStatus.ACTIVE).createdAt(LocalDateTime.now()).build(),
                     InteractionUser.builder().id("int2").userId("user3").postId("comment1").contentType(ContentType.COMMENT).interactionType(InteractionType.LIKE).interactionStatus(InteractionStatus.ACTIVE).createdAt(LocalDateTime.now()).build(),
@@ -200,7 +180,7 @@ class CommentHierarchyServiceTest {
 
             assertThat(result).hasSize(1);
             var commentInfo = result.get(0);
-            assertThat(commentInfo.likeCount()).isEqualTo(3);
+            assertThat(commentInfo.likeCount()).isEqualTo(2);
             assertThat(commentInfo.likeUsers()).containsExactly("user2", "user3");
             assertThat(commentInfo.bookmarkUsers()).containsExactly("user4");
         }

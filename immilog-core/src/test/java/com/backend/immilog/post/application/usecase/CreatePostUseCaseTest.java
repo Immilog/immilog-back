@@ -7,6 +7,8 @@ import com.backend.immilog.post.domain.service.PostDomainService;
 import com.backend.immilog.post.domain.model.post.*;
 import com.backend.immilog.post.exception.PostErrorCode;
 import com.backend.immilog.post.exception.PostException;
+import com.backend.immilog.shared.domain.service.UserDataProvider;
+import com.backend.immilog.shared.domain.model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -38,6 +40,9 @@ class CreatePostUseCaseTest {
     @Mock
     private BulkCommandService bulkCommandService;
 
+    @Mock
+    private UserDataProvider userDataProvider;
+
     @InjectMocks
     private UploadPostUseCase.UploaderPost uploadPostUseCase;
 
@@ -67,6 +72,7 @@ class CreatePostUseCaseTest {
             );
 
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -90,6 +96,7 @@ class CreatePostUseCaseTest {
             );
 
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -111,6 +118,7 @@ class CreatePostUseCaseTest {
             );
 
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -123,6 +131,7 @@ class CreatePostUseCaseTest {
         @DisplayName("리소스 없는 게시물 생성 성공")
         void executeWithoutResources() {
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -146,6 +155,7 @@ class CreatePostUseCaseTest {
             );
 
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -191,6 +201,7 @@ class CreatePostUseCaseTest {
             );
 
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -212,6 +223,7 @@ class CreatePostUseCaseTest {
             );
 
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -233,6 +245,7 @@ class CreatePostUseCaseTest {
             );
 
             when(userValidationService.validateUser("user123")).thenReturn(true);
+            when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
             when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
             assertThatNoException()
@@ -264,6 +277,7 @@ class CreatePostUseCaseTest {
                 );
 
                 when(userValidationService.validateUser("user123")).thenReturn(true);
+                when(userDataProvider.getUserData("user123")).thenReturn(new UserData("user123", "testUser", "profile.jpg", "KR", "Seoul"));
                 when(postDomainService.createPost(any(Post.class))).thenReturn(savedPost);
 
                 assertThatNoException()
