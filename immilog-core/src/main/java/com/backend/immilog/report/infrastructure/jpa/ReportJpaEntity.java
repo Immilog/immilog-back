@@ -9,6 +9,8 @@ import com.backend.immilog.report.domain.model.ReportDescription;
 import com.backend.immilog.report.domain.model.ReportId;
 import com.backend.immilog.report.domain.model.ReportTarget;
 import jakarta.persistence.*;
+import lombok.Builder;
+import lombok.Getter;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -18,6 +20,7 @@ import java.time.LocalDateTime;
 @DynamicUpdate
 @Entity
 @Table(name = "report")
+@Getter
 public class ReportJpaEntity {
 
     @Id
@@ -65,6 +68,7 @@ public class ReportJpaEntity {
 
     protected ReportJpaEntity() {}
 
+    @Builder
     private ReportJpaEntity(
             String id,
             ReportTargetType targetType,
@@ -90,18 +94,18 @@ public class ReportJpaEntity {
     }
 
     public static ReportJpaEntity from(Report report) {
-        return new ReportJpaEntity(
-                report.getIdValue(),
-                report.getTargetType(),
-                report.getTargetId(),
-                report.getReporterId(),
-                report.getDescriptionValue(),
-                report.getReason(),
-                report.getStatus(),
-                report.getCreatedAt(),
-                report.getUpdatedAt(),
-                report.getResolvedAt()
-        );
+        return ReportJpaEntity.builder()
+                .id(report.getIdValue())
+                .targetType(report.getTargetType())
+                .targetId(report.getTargetId())
+                .reporterId(report.getReporterId())
+                .description(report.getDescriptionValue())
+                .reason(report.getReason())
+                .status(report.getStatus())
+                .createdAt(report.getCreatedAt())
+                .updatedAt(report.getUpdatedAt())
+                .resolvedAt(report.getResolvedAt())
+                .build();
     }
 
     public Report toDomain() {
@@ -122,23 +126,4 @@ public class ReportJpaEntity {
         );
     }
 
-    public String getId() {return id;}
-
-    public ReportTargetType getTargetType() {return targetType;}
-
-    public String getTargetId() {return targetId;}
-
-    public String getReporterId() {return reporterId;}
-
-    public String getDescription() {return description;}
-
-    public ReportReason getReason() {return reason;}
-
-    public ReportStatus getStatus() {return status;}
-
-    public LocalDateTime getCreatedAt() {return createdAt;}
-
-    public LocalDateTime getUpdatedAt() {return updatedAt;}
-
-    public LocalDateTime getResolvedAt() {return resolvedAt;}
 }

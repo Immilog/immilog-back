@@ -14,6 +14,8 @@ public interface ReportRepository {
 
     Optional<Report> findById(ReportId reportId);
 
+    Report getById(ReportId reportId);
+
     Optional<Report> findById(String reportId);
 
     void delete(Report report);

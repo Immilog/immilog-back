@@ -27,6 +27,13 @@ public class ReportRepositoryImpl implements ReportRepository {
     }
 
     @Override
+    public Report getById(ReportId reportId) {
+        return jpaRepository.findById(reportId.value())
+                .map(ReportJpaEntity::toDomain)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+    }
+
+    @Override
     public Optional<Report> findById(String reportId) {
         return jpaRepository.findById(reportId).map(ReportJpaEntity::toDomain);
     }
