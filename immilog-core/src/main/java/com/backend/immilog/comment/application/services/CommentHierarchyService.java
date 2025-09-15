@@ -46,29 +46,23 @@ public class CommentHierarchyService {
                 .map(reply -> buildCommentWithReplies(reply, commentsByParentId, userDataMap))
                 .toList();
 
-        Long likeCount = interactionUserRepository.countByCommentIdAndInteractionTypeAndInteractionStatus(
-                comment.id(),
-                InteractionType.LIKE,
-                InteractionStatus.ACTIVE
-        );
-
-        var likeUsers = interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
+        var interactions = interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
                 List.of(comment.id()),
                 com.backend.immilog.shared.enums.ContentType.COMMENT,
                 InteractionStatus.ACTIVE
-        ).stream()
+        );
+
+        var likeUsers = interactions.stream()
                 .filter(interaction -> InteractionType.LIKE.equals(interaction.interactionType()))
                 .map(interaction -> interaction.userId())
                 .toList();
 
-        var bookmarkUsers = interactionUserRepository.findByPostIdListAndContentTypeAndInteractionStatus(
-                List.of(comment.id()),
-                com.backend.immilog.shared.enums.ContentType.COMMENT,
-                InteractionStatus.ACTIVE
-        ).stream()
+        var bookmarkUsers = interactions.stream()
                 .filter(interaction -> InteractionType.BOOKMARK.equals(interaction.interactionType()))
                 .map(interaction -> interaction.userId())
                 .toList();
+
+        Long likeCount = (long) likeUsers.size();
 
         var userData = userDataMap.get(comment.userId());
         String nickname = userData != null ? userData.nickname() : comment.nickname();
