@@ -2,6 +2,7 @@ package com.backend.immilog.comment.presentation.payload;
 
 import com.backend.immilog.comment.application.dto.CommentCreateCommand;
 import com.backend.immilog.comment.domain.model.ReferenceType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record CommentCreateRequest(
         String postId,

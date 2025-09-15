@@ -4,16 +4,14 @@ import com.backend.immilog.comment.domain.model.Comment;
 import com.backend.immilog.comment.domain.repositories.CommentRepository;
 import com.backend.immilog.comment.exception.CommentErrorCode;
 import com.backend.immilog.comment.exception.CommentException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class CommentCommandService {
     private final CommentRepository commentRepository;
-
-    public CommentCommandService(CommentRepository commentRepository) {
-        this.commentRepository = commentRepository;
-    }
 
     @Transactional
     public Comment createComment(Comment comment) {

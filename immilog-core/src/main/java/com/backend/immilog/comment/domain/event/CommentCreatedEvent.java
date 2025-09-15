@@ -1,36 +1,32 @@
 package com.backend.immilog.comment.domain.event;
 
 import com.backend.immilog.shared.domain.event.DomainEvent;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 public class CommentCreatedEvent implements DomainEvent {
+    @Getter
     private String commentId;
+    @Getter
     private String postId;
+    @Getter
     private String userId;
-    private LocalDateTime occurredAt;
+    private final LocalDateTime occurredAt;
 
     public CommentCreatedEvent() {
         this.occurredAt = LocalDateTime.now();
     }
 
-    public CommentCreatedEvent(String commentId, String postId, String userId) {
+    public CommentCreatedEvent(
+            String commentId,
+            String postId,
+            String userId
+    ) {
         this.commentId = commentId;
         this.postId = postId;
         this.userId = userId;
         this.occurredAt = LocalDateTime.now();
-    }
-
-    public String getCommentId() {
-        return commentId;
-    }
-
-    public String getPostId() {
-        return postId;
-    }
-
-    public String getUserId() {
-        return userId;
     }
 
     @Override

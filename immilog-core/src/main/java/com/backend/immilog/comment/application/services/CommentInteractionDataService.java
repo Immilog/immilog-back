@@ -4,6 +4,7 @@ import com.backend.immilog.shared.application.event.DomainEventPublisher;
 import com.backend.immilog.shared.domain.event.InteractionDataRequestedEvent;
 import com.backend.immilog.shared.domain.model.InteractionData;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +19,12 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CommentInteractionDataService {
 
     private final DomainEventPublisher eventPublisher;
     private final EventResultStorageService eventResultStorage;
     private final Duration requestTimeout = Duration.ofSeconds(3);
-
-    public CommentInteractionDataService(
-            DomainEventPublisher eventPublisher,
-            EventResultStorageService eventResultStorage
-    ) {
-        this.eventPublisher = eventPublisher;
-        this.eventResultStorage = eventResultStorage;
-    }
 
     public CompletableFuture<List<InteractionData>> getInteractionDataAsync(List<String> commentIds) {
         var requestId = UUID.randomUUID().toString();

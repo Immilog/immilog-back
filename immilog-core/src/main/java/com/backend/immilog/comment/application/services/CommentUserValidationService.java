@@ -4,6 +4,7 @@ import com.backend.immilog.shared.application.event.DomainEventPublisher;
 import com.backend.immilog.shared.domain.event.UserValidationRequestedEvent;
 import com.backend.immilog.shared.domain.event.UserValidationResponseEvent;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -15,19 +16,12 @@ import java.util.concurrent.TimeoutException;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CommentUserValidationService {
 
     private final DomainEventPublisher eventPublisher;
     private final EventResultStorageService eventResultStorage;
     private final Duration validationTimeout = Duration.ofSeconds(5);
-
-    public CommentUserValidationService(
-            DomainEventPublisher eventPublisher,
-            EventResultStorageService eventResultStorage
-    ) {
-        this.eventPublisher = eventPublisher;
-        this.eventResultStorage = eventResultStorage;
-    }
 
     public CompletableFuture<Boolean> validateUserAsync(String userId) {
         var requestId = UUID.randomUUID().toString();
