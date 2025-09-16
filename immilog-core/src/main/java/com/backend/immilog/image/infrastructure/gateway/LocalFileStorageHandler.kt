@@ -1,6 +1,7 @@
 package com.backend.immilog.image.infrastructure.gateway
 
 import com.backend.immilog.image.domain.events.ImageEvent
+import com.backend.immilog.image.domain.service.FileStorageHandler
 import com.backend.immilog.shared.config.properties.WebProperties
 import com.backend.immilog.shared.domain.event.DomainEvents
 import com.backend.immilog.shared.exception.CommonErrorCode
