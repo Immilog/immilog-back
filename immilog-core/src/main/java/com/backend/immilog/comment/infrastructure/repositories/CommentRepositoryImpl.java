@@ -6,23 +6,17 @@ import com.backend.immilog.comment.domain.repositories.CommentRepository;
 import com.backend.immilog.comment.infrastructure.jdbc.CommentJdbcRepository;
 import com.backend.immilog.comment.infrastructure.jpa.CommentEntity;
 import com.backend.immilog.comment.infrastructure.jpa.CommentJpaRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class CommentRepositoryImpl implements CommentRepository {
     private final CommentJdbcRepository commentJdbcRepository;
     private final CommentJpaRepository commentJpaRepository;
-
-    public CommentRepositoryImpl(
-            CommentJdbcRepository commentJdbcRepository,
-            CommentJpaRepository commentJpaRepository
-    ) {
-        this.commentJdbcRepository = commentJdbcRepository;
-        this.commentJpaRepository = commentJpaRepository;
-    }
 
     @Override
     public List<CommentResult> findCommentsByPostId(String postId) {

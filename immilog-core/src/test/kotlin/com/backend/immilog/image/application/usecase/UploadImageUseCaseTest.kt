@@ -8,7 +8,7 @@ import com.backend.immilog.image.domain.model.Image
 import com.backend.immilog.image.domain.model.ImageId
 import com.backend.immilog.image.domain.model.ImageMetadata
 import com.backend.immilog.image.domain.model.ImagePath
-import com.backend.immilog.image.infrastructure.gateway.FileStorageHandler
+import com.backend.immilog.image.domain.service.FileStorageHandler
 import com.backend.immilog.shared.application.event.DomainEventPublisher
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

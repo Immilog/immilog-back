@@ -1,5 +1,8 @@
 package com.backend.immilog.comment.domain.model;
 
+import lombok.Builder;
+
+@Builder(access = lombok.AccessLevel.PRIVATE)
 public record CommentRelation(
         String postId,
         String parentId,
@@ -10,10 +13,10 @@ public record CommentRelation(
             String parentId,
             ReferenceType referenceType
     ) {
-        return new CommentRelation(
-                postId,
-                parentId,
-                referenceType
-        );
+        return CommentRelation.builder()
+                .postId(postId)
+                .parentId(parentId)
+                .referenceType(referenceType)
+                .build();
     }
 }

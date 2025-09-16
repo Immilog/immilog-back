@@ -4,7 +4,8 @@ import com.backend.immilog.report.domain.enums.ReportReason;
 import com.backend.immilog.report.domain.enums.ReportTargetType;
 import com.backend.immilog.report.domain.model.Report;
 import com.backend.immilog.report.domain.model.ReportId;
-import com.backend.immilog.report.domain.service.ReportCreationService;
+import com.backend.immilog.report.domain.model.ReportTarget;
+import com.backend.immilog.report.domain.repository.ReportRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,18 +15,18 @@ import java.util.List;
 @Transactional
 public class ReportService {
 
-    private final ReportCommandService reportCommandService;
-    private final ReportQueryService reportQueryService;
-    private final ReportCreationService reportCreationService;
+    private final ReportCreationApplicationService reportCreationApplicationService;
+    private final ReportProcessingService reportProcessingService;
+    private final ReportRepository reportRepository;
 
     public ReportService(
-            ReportCommandService reportCommandService,
-            ReportQueryService reportQueryService,
-            ReportCreationService reportCreationService
+            ReportCreationApplicationService reportCreationApplicationService,
+            ReportProcessingService reportProcessingService,
+            ReportRepository reportRepository
     ) {
-        this.reportCommandService = reportCommandService;
-        this.reportQueryService = reportQueryService;
-        this.reportCreationService = reportCreationService;
+        this.reportCreationApplicationService = reportCreationApplicationService;
+        this.reportProcessingService = reportProcessingService;
+        this.reportRepository = reportRepository;
     }
 
     public ReportId report(
@@ -34,13 +35,7 @@ public class ReportService {
             ReportReason reason,
             String customDescription
     ) {
-        if (reportQueryService.existsByTargetAndReporter(ReportTargetType.USER, targetUserId, reporterId)) {
-            throw new RuntimeException("Already reported");
-        }
-
-        var report = reportCreationService.createUserReport(targetUserId, reporterId, reason, customDescription);
-        var savedReport = reportCommandService.save(report);
-        return savedReport.getId();
+        return reportCreationApplicationService.reportUser(targetUserId, reporterId, reason, customDescription);
     }
 
     public ReportId reportPost(
@@ -49,13 +44,7 @@ public class ReportService {
             ReportReason reason,
             String customDescription
     ) {
-        if (reportQueryService.existsByTargetAndReporter(ReportTargetType.POST, postId, reporterId)) {
-            throw new RuntimeException("Already reported");
-        }
-
-        var report = reportCreationService.createPostReport(postId, reporterId, reason, customDescription);
-        var savedReport = reportCommandService.save(report);
-        return savedReport.getId();
+        return reportCreationApplicationService.reportPost(postId, reporterId, reason, customDescription);
     }
 
     public ReportId reportComment(
@@ -64,65 +53,53 @@ public class ReportService {
             ReportReason reason,
             String customDescription
     ) {
-        if (reportQueryService.existsByTargetAndReporter(ReportTargetType.COMMENT, commentId, reporterId)) {
-            throw new RuntimeException("Already reported");
-        }
-
-        var report = reportCreationService.createCommentReport(commentId, reporterId, reason, customDescription);
-        var savedReport = reportCommandService.save(report);
-        return savedReport.getId();
+        return reportCreationApplicationService.reportComment(commentId, reporterId, reason, customDescription);
     }
 
     public void processReport(ReportId reportId) {
-        var report = reportQueryService.getById(reportId);
-        var processedReport = reportCreationService.processReport(report);
-        reportCommandService.save(processedReport);
+        reportProcessingService.processReport(reportId);
     }
 
     public void resolveReport(ReportId reportId) {
-        var report = reportQueryService.getById(reportId);
-        var resolvedReport = reportCreationService.resolveReport(report);
-        reportCommandService.save(resolvedReport);
+        reportProcessingService.resolveReport(reportId);
     }
 
     public void rejectReport(ReportId reportId) {
-        var report = reportQueryService.getById(reportId);
-        var rejectedReport = reportCreationService.rejectReport(report);
-        reportCommandService.save(rejectedReport);
+        reportProcessingService.rejectReport(reportId);
     }
 
     @Transactional(readOnly = true)
     public long getReportCountByUser(String userId) {
-        return reportQueryService.countByTarget(ReportTargetType.USER, userId);
+        return reportRepository.countByTarget(ReportTarget.user(userId));
     }
 
     @Transactional(readOnly = true)
     public long getReportCountByReporter(String reporterId) {
-        return reportQueryService.countByReporter(reporterId);
+        return reportRepository.countByReporterId(reporterId);
     }
 
     @Transactional(readOnly = true)
     public List<Report> getReportsByUser(String userId) {
-        return reportQueryService.findByTarget(ReportTargetType.USER, userId);
+        return reportRepository.findByTarget(ReportTarget.user(userId));
     }
 
     @Transactional(readOnly = true)
     public List<Report> getReportsByReporter(String reporterId) {
-        return reportQueryService.findByReporter(reporterId);
+        return reportRepository.findByReporterId(reporterId);
     }
 
     @Transactional(readOnly = true)
     public List<Report> getPendingReports() {
-        return reportQueryService.findPendingReports();
+        return reportRepository.findPendingReports();
     }
 
     @Transactional(readOnly = true)
     public List<Report> getReportsUnderReview() {
-        return reportQueryService.findReportsUnderReview();
+        return reportRepository.findReportsUnderReview();
     }
 
     @Transactional(readOnly = true)
     public Report getReportById(ReportId reportId) {
-        return reportQueryService.getById(reportId);
+        return reportRepository.getById(reportId);
     }
 }

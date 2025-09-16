@@ -5,9 +5,12 @@ import com.backend.immilog.report.domain.enums.ReportStatus;
 import com.backend.immilog.report.domain.enums.ReportTargetType;
 import com.backend.immilog.report.exception.ReportErrorCode;
 import com.backend.immilog.report.exception.ReportException;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class Report {
     private final ReportId id;
     private final ReportTarget target;
@@ -19,6 +22,7 @@ public class Report {
     private LocalDateTime updatedAt;
     private LocalDateTime resolvedAt;
 
+    @Builder(access = lombok.AccessLevel.PRIVATE)
     private Report(
             ReportId id,
             ReportTarget target,
@@ -54,17 +58,15 @@ public class Report {
                 : ReportDescription.fromReason(reason);
 
         LocalDateTime now = LocalDateTime.now();
-        return new Report(
-                null,
-                target,
-                reporterId,
-                description,
-                reason,
-                ReportStatus.PENDING,
-                now,
-                now,
-                null
-        );
+        return Report.builder()
+                .target(target)
+                .reporterId(reporterId)
+                .description(description)
+                .reason(reason)
+                .status(ReportStatus.PENDING)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 
     public static Report restore(
@@ -78,17 +80,17 @@ public class Report {
             LocalDateTime updatedAt,
             LocalDateTime resolvedAt
     ) {
-        return new Report(
-                id,
-                target,
-                reporterId,
-                description,
-                reason,
-                status,
-                createdAt,
-                updatedAt,
-                resolvedAt
-        );
+        return Report.builder()
+                .id(id)
+                .target(target)
+                .reporterId(reporterId)
+                .description(description)
+                .reason(reason)
+                .status(status)
+                .createdAt(createdAt)
+                .updatedAt(updatedAt)
+                .resolvedAt(resolvedAt)
+                .build();
     }
 
     public Report updateDescription(ReportDescription newDescription) {
@@ -173,24 +175,6 @@ public class Report {
             throw new ReportException(ReportErrorCode.CANNOT_REPORT_YOURSELF);
         }
     }
-
-    public ReportId getId() {return id;}
-
-    public ReportTarget getTarget() {return target;}
-
-    public String getReporterId() {return reporterId;}
-
-    public ReportDescription getDescription() {return description;}
-
-    public ReportReason getReason() {return reason;}
-
-    public ReportStatus getStatus() {return status;}
-
-    public LocalDateTime getCreatedAt() {return createdAt;}
-
-    public LocalDateTime getUpdatedAt() {return updatedAt;}
-
-    public LocalDateTime getResolvedAt() {return resolvedAt;}
 
     public String getIdValue() {return id != null ? id.value() : null;}
 

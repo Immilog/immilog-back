@@ -1,4 +1,4 @@
-package com.backend.immilog.image.infrastructure.gateway
+package com.backend.immilog.image.domain.service
 
 import org.springframework.web.multipart.MultipartFile
 

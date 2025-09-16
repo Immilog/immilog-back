@@ -5,6 +5,7 @@ import com.backend.immilog.shared.domain.event.CommentDataRequestedEvent;
 import com.backend.immilog.shared.domain.event.DomainEventHandler;
 import com.backend.immilog.shared.domain.model.CommentData;
 import com.backend.immilog.shared.infrastructure.event.EventResultStorageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -12,17 +13,11 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CommentDataRequestedEventHandler implements DomainEventHandler<CommentDataRequestedEvent> {
 
     private final CommentQueryService commentQueryService;
     private final EventResultStorageService eventResultStorageService;
-
-    public CommentDataRequestedEventHandler(
-            CommentQueryService commentQueryService,
-            EventResultStorageService eventResultStorageService) {
-        this.commentQueryService = commentQueryService;
-        this.eventResultStorageService = eventResultStorageService;
-    }
 
     @Override
     public void handle(CommentDataRequestedEvent event) {

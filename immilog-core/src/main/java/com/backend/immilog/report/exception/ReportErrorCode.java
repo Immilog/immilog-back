@@ -8,6 +8,7 @@ public enum ReportErrorCode {
     INVALID_REPORT_DESCRIPTION("R004", "Invalid report description"),
     CANNOT_REPORT_YOURSELF("R005", "Cannot report yourself"),
     DUPLICATE_REPORT("R006", "Report already exists"),
+    ALREADY_REPORTED("R007", "Already reported"),
 
     REPORT_NOT_FOUND("R010", "Report not found"),
     INVALID_STATUS_TRANSITION("R011", "Invalid status transition"),

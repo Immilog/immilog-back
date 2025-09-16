@@ -3,12 +3,20 @@ package com.backend.immilog.comment.domain.model;
 import com.backend.immilog.comment.domain.event.CommentCreatedEvent;
 import com.backend.immilog.shared.domain.event.DomainEvents;
 import com.backend.immilog.shared.enums.ContentStatus;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.experimental.Accessors;
+
+import java.util.function.Consumer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
+@Accessors(fluent = true)
 public class Comment {
     private final String id;
     private final String userId;
@@ -20,6 +28,7 @@ public class Comment {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
+    @Builder
     public Comment(
             String id,
             String userId,
@@ -49,64 +58,45 @@ public class Comment {
             String parentId,
             ReferenceType referenceType
     ) {
-        return new Comment(
-                null,
-                userId,
-                content,
-                CommentRelation.of(postId, parentId, referenceType),
-                0,
-                ContentStatus.NORMAL,
-                new ArrayList<>(),
-                LocalDateTime.now(),
-                null
-        );
+        return Comment.builder()
+                .userId(userId)
+                .content(content)
+                .commentRelation(CommentRelation.of(postId, parentId, referenceType))
+                .replyCount(0)
+                .status(ContentStatus.NORMAL)
+                .likeUsers(new ArrayList<>())
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private Comment copyWith(Consumer<CommentBuilder> customizer) {
+        var builder = Comment.builder()
+                .id(this.id)
+                .userId(this.userId)
+                .content(this.content)
+                .commentRelation(this.commentRelation)
+                .replyCount(this.replyCount)
+                .status(this.status)
+                .likeUsers(this.likeUsers)
+                .createdAt(this.createdAt)
+                .updatedAt(this.updatedAt);
+        customizer.accept(builder);
+        return builder.build();
     }
 
     public Comment delete() {
-        return new Comment(
-                this.id,
-                this.userId,
-                this.content,
-                this.commentRelation,
-                this.replyCount,
-                ContentStatus.DELETED,
-                this.likeUsers,
-                this.createdAt,
-                LocalDateTime.now()
-        );
+        return copyWith(builder -> builder
+                .status(ContentStatus.DELETED)
+                .updatedAt(LocalDateTime.now()));
     }
 
     public Comment addLikeUser(String userId) {
         if (!Objects.isNull(this.likeUsers)) {
             var newLikeUsers = new ArrayList<>(this.likeUsers);
             newLikeUsers.add(userId);
-            return new Comment(
-                    this.id,
-                    this.userId,
-                    this.content,
-                    this.commentRelation,
-                    this.replyCount,
-                    this.status,
-                    newLikeUsers,
-                    this.createdAt,
-                    this.updatedAt
-            );
+            return copyWith(builder -> builder.likeUsers(newLikeUsers));
         }
         return this;
-    }
-
-    public Comment increaseReplyCount() {
-        return new Comment(
-                this.id,
-                this.userId,
-                this.content,
-                this.commentRelation,
-                this.replyCount + 1,
-                this.status,
-                this.likeUsers,
-                this.createdAt,
-                this.updatedAt
-        );
     }
 
     public String postId() {
@@ -121,37 +111,10 @@ public class Comment {
         return this.commentRelation.referenceType();
     }
 
-    public String id() {return id;}
-
-    public String userId() {return userId;}
-
-    public String content() {return content;}
-
-    public CommentRelation commentRelation() {return commentRelation;}
-
-    public int replyCount() {return replyCount;}
-
-
-    public ContentStatus status() {return status;}
-
-    public List<String> likeUsers() {return likeUsers;}
-
-    public LocalDateTime createdAt() {return createdAt;}
-
-    public LocalDateTime updatedAt() {return updatedAt;}
-
     public Comment updateContent(String newContent) {
-        return new Comment(
-                this.id,
-                this.userId,
-                newContent,
-                this.commentRelation,
-                this.replyCount,
-                this.status,
-                this.likeUsers,
-                this.createdAt,
-                LocalDateTime.now()
-        );
+        return copyWith(builder -> builder
+                .content(newContent)
+                .updatedAt(LocalDateTime.now()));
     }
 
     public void publishCreatedEvent() {
@@ -161,16 +124,6 @@ public class Comment {
     }
 
     public Comment withId(String id) {
-        return new Comment(
-                id,
-                this.userId,
-                this.content,
-                this.commentRelation,
-                this.replyCount,
-                this.status,
-                this.likeUsers,
-                this.createdAt,
-                this.updatedAt
-        );
+        return copyWith(builder -> builder.id(id));
     }
 }
