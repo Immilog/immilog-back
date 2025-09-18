@@ -15,9 +15,7 @@ public interface ChatRoomRepository extends ReactiveMongoRepository<ChatRoom, St
     Flux<ChatRoom> findByIsActiveTrue();
     
     Flux<ChatRoom> findByParticipantIdsContaining(String userId);
-    
-    Flux<ChatRoom> findByCreatedBy(String userId);
-    
+
     @Query("{ 'isPrivateChat': true, 'isActive': true, 'participantIds': { $all: [?0, ?1] } }")
     Mono<ChatRoom> findPrivateChatRoomByParticipants(String userId1, String userId2);
     
