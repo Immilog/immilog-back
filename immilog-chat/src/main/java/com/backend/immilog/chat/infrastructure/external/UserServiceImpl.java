@@ -3,6 +3,8 @@ package com.backend.immilog.chat.infrastructure.external;
 import com.backend.immilog.chat.application.port.UserService;
 import com.backend.immilog.chat.presentation.dto.ChatRoomDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
@@ -22,7 +24,9 @@ public class UserServiceImpl implements UserService {
     
     private final RestClient restClient;
     private final String userApiBaseUrl;
-    
+
+    private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
     public UserServiceImpl(
             @Value("${app.user-api.base-url:http://localhost:8080}") String userApiBaseUrl
     ) {
@@ -34,7 +38,6 @@ public class UserServiceImpl implements UserService {
     public Mono<ChatRoomDto.ParticipantInfo> getParticipantInfo(String userId) {
         return Mono.fromCallable(() -> {
             try {
-                System.out.println("Calling User API for userId: " + userId);
                 UserApiResponse response = restClient
                         .get()
                         .uri(userApiBaseUrl + "/api/v1/users/{userId}", userId)
@@ -47,11 +50,10 @@ public class UserServiceImpl implements UserService {
                             response.userNickname(),
                             response.userProfileUrl()
                     );
-                    System.out.println("Loaded user: " + participant);
                     return participant;
                 }
             } catch (Exception e) {
-                System.out.println("Error loading user " + userId + ": " + e.getMessage());
+                log.warn("Error loading user {}: {}", userId, e.getMessage());
             }
             return new ChatRoomDto.ParticipantInfo(userId, null, null);
         }).subscribeOn(Schedulers.boundedElastic());
@@ -59,14 +61,13 @@ public class UserServiceImpl implements UserService {
     
     @Override
     public Mono<Map<String, ChatRoomDto.ParticipantInfo>> getParticipantsInfo(List<String> userIds) {
-        System.out.println("Loading participants for userIds: " + userIds);
         return Flux.fromIterable(userIds)
                 .flatMap(this::getParticipantInfo)
                 .collectMap(
                         ChatRoomDto.ParticipantInfo::userId,
                         Function.identity()
                 )
-                .doOnNext(participants -> System.out.println("Loaded participants: " + participants));
+;
     }
     
     @JsonIgnoreProperties(ignoreUnknown = true)

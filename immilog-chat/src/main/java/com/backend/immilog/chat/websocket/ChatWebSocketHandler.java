@@ -157,6 +157,15 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     }
 
     private void cleanupSession(String chatRoomId) {
+        var sink = chatRoomSinks.get(chatRoomId);
+        if (sink != null && sink.currentSubscriberCount() == 0) {
+            chatRoomSinks.remove(chatRoomId);
+        }
+        
+        var readStatusSink = readStatusSinks.get(chatRoomId);
+        if (readStatusSink != null && readStatusSink.currentSubscriberCount() == 0) {
+            readStatusSinks.remove(chatRoomId);
+        }
     }
     
     /**

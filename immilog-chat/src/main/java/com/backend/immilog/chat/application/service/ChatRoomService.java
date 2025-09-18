@@ -4,9 +4,12 @@ import com.backend.immilog.chat.application.port.UserService;
 import com.backend.immilog.chat.domain.event.ChatRoomEvent;
 import com.backend.immilog.chat.domain.model.ChatRoom;
 import com.backend.immilog.chat.domain.model.ChatMessage;
+import com.backend.immilog.chat.infrastructure.external.UserServiceImpl;
 import com.backend.immilog.chat.infrastructure.repository.ChatRoomRepository;
 import com.backend.immilog.chat.infrastructure.repository.ChatMessageRepository;
 import com.backend.immilog.chat.presentation.dto.ChatRoomDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,7 +24,8 @@ public class ChatRoomService {
     private final ChatReadStatusService chatReadStatusService;
     private final ApplicationEventPublisher eventPublisher;
     private final UserService userService;
-    
+    private static final Logger log = LoggerFactory.getLogger(ChatRoomService.class);
+
     public ChatRoomService(
             ChatRoomRepository chatRoomRepository, 
             ChatMessageRepository chatMessageRepository,
@@ -125,14 +129,17 @@ public class ChatRoomService {
         var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds());
         
         return Mono.zip(latestMessageMono, participantsMono)
-                .map(tuple -> ChatRoomDto.from(chatRoom, tuple.getT1(), 0, tuple.getT2()))
+                .map(tuple -> ChatRoomDto.from(chatRoom)
+                        .withLatestMessage(tuple.getT1())
+                        .withParticipants(tuple.getT2())
+                        .build())
                 .switchIfEmpty(participantsMono.map(participants -> 
-                    ChatRoomDto.from(chatRoom, null, 0, participants)));
+                    ChatRoomDto.from(chatRoom)
+                            .withParticipants(participants)
+                            .build()));
     }
     
     private Mono<ChatRoomDto> enrichWithLatestMessageAndUnreadCount(ChatRoom chatRoom, String userId) {
-        System.out.println("enrichWithLatestMessageAndUnreadCount called for chatRoom: " + chatRoom.id() + ", participants: " + chatRoom.participantIds());
-        
         var latestMessageMono = chatMessageRepository
                 .findByChatRoomIdAndIsDeletedFalseOrderBySentAtDesc(chatRoom.id())
                 .take(1)
@@ -140,23 +147,28 @@ public class ChatRoomService {
                 .switchIfEmpty(Mono.empty());
         
         var unreadCountMono = chatReadStatusService.getUnreadCount(chatRoom.id(), userId);
-        var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds())
-                .doOnNext(participants -> System.out.println("Got participants: " + participants));
+        var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds());
         
         return Mono.zip(latestMessageMono, unreadCountMono, participantsMono)
-                .map(tuple -> ChatRoomDto.from(chatRoom, tuple.getT1(), tuple.getT2(), tuple.getT3()))
+                .map(tuple -> ChatRoomDto.from(chatRoom)
+                        .withLatestMessage(tuple.getT1())
+                        .withUnreadCount(tuple.getT2())
+                        .withParticipants(tuple.getT3())
+                        .build())
                 .switchIfEmpty(
                     Mono.zip(unreadCountMono, participantsMono)
-                        .map(tuple -> ChatRoomDto.from(chatRoom, null, tuple.getT1(), tuple.getT2()))
+                        .map(tuple -> ChatRoomDto.from(chatRoom)
+                                .withUnreadCount(tuple.getT1())
+                                .withParticipants(tuple.getT2())
+                                .build())
                 );
     }
     
     private Mono<ChatRoomDto> enrichWithParticipants(ChatRoom chatRoom) {
-        System.out.println("enrichWithParticipants called for chatRoom: " + chatRoom.id() + ", participants: " + chatRoom.participantIds());
+        var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds());
         
-        var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds())
-                .doOnNext(participants -> System.out.println("Got participants: " + participants));
-        
-        return participantsMono.map(participants -> ChatRoomDto.from(chatRoom, null, 0, participants));
+        return participantsMono.map(participants -> ChatRoomDto.from(chatRoom)
+                .withParticipants(participants)
+                .build());
     }
 }

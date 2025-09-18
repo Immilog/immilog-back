@@ -16,10 +16,6 @@ public interface ChatMessageRepository extends ReactiveMongoRepository<ChatMessa
     
     Flux<ChatMessage> findByChatRoomIdAndIsDeletedFalseOrderBySentAtDesc(String chatRoomId);
     
-    /**
-     * 가장 최근 메시지 조회
-     */
-    Mono<ChatMessage> findFirstByChatRoomIdOrderBySentAtDesc(String chatRoomId);
     
     /**
      * 특정 시간 이후의 메시지 수 조회
