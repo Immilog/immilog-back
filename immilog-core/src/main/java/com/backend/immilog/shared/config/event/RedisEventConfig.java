@@ -2,6 +2,7 @@ package com.backend.immilog.shared.config.event;
 
 import com.backend.immilog.shared.infrastructure.event.RedisStreamsPushEventListener;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,13 +16,14 @@ import org.springframework.data.redis.stream.StreamMessageListenerContainer;
 import org.springframework.data.redis.stream.Subscription;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Duration;
 
 @Slf4j
 @Configuration
-public class RedisEventConfig {
+public class RedisEventConfig implements DisposableBean {
 
     // Redis Streams 설정
     public static final String DOMAIN_EVENT_STREAM = "domain-events-stream";
@@ -36,6 +38,7 @@ public class RedisEventConfig {
     
     private final RedisTemplate<String, Object> eventRedisTemplate;
     private final RedisStreamsPushEventListener eventListener;
+    private StreamMessageListenerContainer listenerContainer;
 
     public RedisEventConfig(
             RedisTemplate<String, Object> eventRedisTemplate,
@@ -89,6 +92,7 @@ public class RedisEventConfig {
 
         log.info("Configured Redis Streams Push listeners with consumer: {}", consumerName);
         
+        this.listenerContainer = container;
         container.start();
         log.info("Started StreamMessageListenerContainer for Redis Streams");
 
@@ -104,13 +108,25 @@ public class RedisEventConfig {
         }
     }
 
+    @PreDestroy
+    @Override
+    public void destroy() {
+        if (listenerContainer != null) {
+            log.info("Stopping StreamMessageListenerContainer gracefully...");
+            try {
+                listenerContainer.stop();
+                log.info("StreamMessageListenerContainer stopped successfully");
+            } catch (Exception e) {
+                log.warn("Error while stopping StreamMessageListenerContainer: {}", e.getMessage());
+            }
+        }
+    }
+
     private void createStreamAndGroup(String streamName, String groupName) {
         try {
-            // Consumer Group 생성 (스트림이 없으면 자동 생성)
             eventRedisTemplate.opsForStream().createGroup(streamName, ReadOffset.from("0-0"), groupName);
             log.info("Created consumer group '{}' for stream '{}'", groupName, streamName);
         } catch (Exception e) {
-            // 이미 존재하는 경우 무시
             log.debug("Consumer group '{}' already exists for stream '{}'", groupName, streamName);
         }
     }

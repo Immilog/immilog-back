@@ -1,11 +1,13 @@
 package com.backend.immilog.report.application.service;
 
 import com.backend.immilog.report.domain.enums.ReportReason;
-import com.backend.immilog.report.domain.enums.ReportStatus;
 import com.backend.immilog.report.domain.model.Report;
 import com.backend.immilog.report.domain.model.ReportId;
 import com.backend.immilog.report.domain.model.ReportTarget;
 import com.backend.immilog.report.domain.repository.ReportRepository;
+import com.backend.immilog.report.domain.service.ReportCreationService;
+import com.backend.immilog.report.exception.ReportErrorCode;
+import com.backend.immilog.report.exception.ReportException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,22 +27,18 @@ import static org.mockito.Mockito.*;
 class ReportServiceTest {
 
     @Mock
-    private ReportCreationApplicationService reportCreationApplicationService;
-
-    @Mock
-    private ReportProcessingService reportProcessingService;
-
-    @Mock
     private ReportRepository reportRepository;
+
+    @Mock
+    private ReportCreationService reportCreationService;
 
     private ReportService reportService;
 
     @BeforeEach
     void setUp() {
         reportService = new ReportService(
-                reportCreationApplicationService,
-                reportProcessingService,
-                reportRepository
+                reportRepository,
+                reportCreationService
         );
     }
 
@@ -51,40 +49,46 @@ class ReportServiceTest {
         @Test
         @DisplayName("사용자 신고")
         void reportUser() {
-            var reportId = new ReportId("report123");
-            when(reportCreationApplicationService.reportUser("user123", "reporter456", ReportReason.SPAM, "설명"))
-                    .thenReturn(reportId);
+            var report = createMockReport();
+            when(reportRepository.existsByTargetAndReporterId(any(), any())).thenReturn(false);
+            when(reportCreationService.createUserReport("user123", "reporter456", ReportReason.SPAM, "설명"))
+                    .thenReturn(report);
+            when(reportRepository.save(report)).thenReturn(report);
 
             var result = reportService.report("user123", "reporter456", ReportReason.SPAM, "설명");
 
-            assertThat(result).isEqualTo(reportId);
-            verify(reportCreationApplicationService).reportUser("user123", "reporter456", ReportReason.SPAM, "설명");
+            assertThat(result).isEqualTo(report.getId());
+            verify(reportCreationService).createUserReport("user123", "reporter456", ReportReason.SPAM, "설명");
         }
 
         @Test
         @DisplayName("게시물 신고")
         void reportPost() {
-            var reportId = new ReportId("report123");
-            when(reportCreationApplicationService.reportPost("post123", "reporter456", ReportReason.INAPPROPRIATE_CONTENT, null))
-                    .thenReturn(reportId);
+            var report = createMockReport();
+            when(reportRepository.existsByTargetAndReporterId(any(), any())).thenReturn(false);
+            when(reportCreationService.createPostReport("post123", "reporter456", ReportReason.INAPPROPRIATE_CONTENT, null))
+                    .thenReturn(report);
+            when(reportRepository.save(report)).thenReturn(report);
 
             var result = reportService.reportPost("post123", "reporter456", ReportReason.INAPPROPRIATE_CONTENT, null);
 
-            assertThat(result).isEqualTo(reportId);
-            verify(reportCreationApplicationService).reportPost("post123", "reporter456", ReportReason.INAPPROPRIATE_CONTENT, null);
+            assertThat(result).isEqualTo(report.getId());
+            verify(reportCreationService).createPostReport("post123", "reporter456", ReportReason.INAPPROPRIATE_CONTENT, null);
         }
 
         @Test
         @DisplayName("댓글 신고")
         void reportComment() {
-            var reportId = new ReportId("report123");
-            when(reportCreationApplicationService.reportComment("comment123", "reporter456", ReportReason.HATE_SPEECH, "설명"))
-                    .thenReturn(reportId);
+            var report = createMockReport();
+            when(reportRepository.existsByTargetAndReporterId(any(), any())).thenReturn(false);
+            when(reportCreationService.createCommentReport("comment123", "reporter456", ReportReason.HATE_SPEECH, "설명"))
+                    .thenReturn(report);
+            when(reportRepository.save(report)).thenReturn(report);
 
             var result = reportService.reportComment("comment123", "reporter456", ReportReason.HATE_SPEECH, "설명");
 
-            assertThat(result).isEqualTo(reportId);
-            verify(reportCreationApplicationService).reportComment("comment123", "reporter456", ReportReason.HATE_SPEECH, "설명");
+            assertThat(result).isEqualTo(report.getId());
+            verify(reportCreationService).createCommentReport("comment123", "reporter456", ReportReason.HATE_SPEECH, "설명");
         }
     }
 
@@ -96,30 +100,48 @@ class ReportServiceTest {
         @DisplayName("신고 검토 시작")
         void processReport() {
             var reportId = new ReportId("report123");
+            var report = createMockReport();
+            var processedReport = createMockReport();
+            when(reportRepository.getById(reportId)).thenReturn(report);
+            when(reportCreationService.processReport(report)).thenReturn(processedReport);
+            when(reportRepository.save(processedReport)).thenReturn(processedReport);
 
             reportService.processReport(reportId);
 
-            verify(reportProcessingService).processReport(reportId);
+            verify(reportCreationService).processReport(report);
+            verify(reportRepository).save(processedReport);
         }
 
         @Test
         @DisplayName("신고 처리 완료")
         void resolveReport() {
             var reportId = new ReportId("report123");
+            var report = createMockReport();
+            var resolvedReport = createMockReport();
+            when(reportRepository.getById(reportId)).thenReturn(report);
+            when(reportCreationService.resolveReport(report)).thenReturn(resolvedReport);
+            when(reportRepository.save(resolvedReport)).thenReturn(resolvedReport);
 
             reportService.resolveReport(reportId);
 
-            verify(reportProcessingService).resolveReport(reportId);
+            verify(reportCreationService).resolveReport(report);
+            verify(reportRepository).save(resolvedReport);
         }
 
         @Test
         @DisplayName("신고 반려")
         void rejectReport() {
             var reportId = new ReportId("report123");
+            var report = createMockReport();
+            var rejectedReport = createMockReport();
+            when(reportRepository.getById(reportId)).thenReturn(report);
+            when(reportCreationService.rejectReport(report)).thenReturn(rejectedReport);
+            when(reportRepository.save(rejectedReport)).thenReturn(rejectedReport);
 
             reportService.rejectReport(reportId);
 
-            verify(reportProcessingService).rejectReport(reportId);
+            verify(reportCreationService).rejectReport(report);
+            verify(reportRepository).save(rejectedReport);
         }
     }
 
