@@ -14,10 +14,10 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 @RequestMapping("/api/v1/report")
 @RestController
 public class ReportController {
-    private final ReportUseCase userReporter;
+    private final ReportUseCase reportUseCase;
 
-    public ReportController(ReportUseCase userReporter) {
-        this.userReporter = userReporter;
+    public ReportController(ReportUseCase reportUseCase) {
+        this.reportUseCase = reportUseCase;
     }
 
     @PostMapping("/target/{targetId}")
@@ -26,7 +26,7 @@ public class ReportController {
             @Parameter(description = "대상 사용자/게시물 고유번호") @PathVariable("targetId") String targetId,
             @Valid @RequestBody ReportPayload.ReportRequest request
     ) {
-        userReporter.execute(targetId, request.toCommand());
+        reportUseCase.execute(targetId, request.toCommand());
         return ResponseEntity.status(NO_CONTENT).build();
     }
 

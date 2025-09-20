@@ -1,11 +1,13 @@
 package com.backend.immilog.report.application.service;
 
 import com.backend.immilog.report.domain.enums.ReportReason;
-import com.backend.immilog.report.domain.enums.ReportTargetType;
 import com.backend.immilog.report.domain.model.Report;
 import com.backend.immilog.report.domain.model.ReportId;
 import com.backend.immilog.report.domain.model.ReportTarget;
 import com.backend.immilog.report.domain.repository.ReportRepository;
+import com.backend.immilog.report.domain.service.ReportCreationService;
+import com.backend.immilog.report.exception.ReportErrorCode;
+import com.backend.immilog.report.exception.ReportException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,18 +17,15 @@ import java.util.List;
 @Transactional
 public class ReportService {
 
-    private final ReportCreationApplicationService reportCreationApplicationService;
-    private final ReportProcessingService reportProcessingService;
     private final ReportRepository reportRepository;
+    private final ReportCreationService reportCreationService;
 
     public ReportService(
-            ReportCreationApplicationService reportCreationApplicationService,
-            ReportProcessingService reportProcessingService,
-            ReportRepository reportRepository
+            ReportRepository reportRepository,
+            ReportCreationService reportCreationService
     ) {
-        this.reportCreationApplicationService = reportCreationApplicationService;
-        this.reportProcessingService = reportProcessingService;
         this.reportRepository = reportRepository;
+        this.reportCreationService = reportCreationService;
     }
 
     public ReportId report(
@@ -35,7 +34,11 @@ public class ReportService {
             ReportReason reason,
             String customDescription
     ) {
-        return reportCreationApplicationService.reportUser(targetUserId, reporterId, reason, customDescription);
+        if (reportRepository.existsByTargetAndReporterId(ReportTarget.user(targetUserId), reporterId)) {
+            throw new ReportException(ReportErrorCode.ALREADY_REPORTED);
+        }
+        var report = reportCreationService.createUserReport(targetUserId, reporterId, reason, customDescription);
+        return reportRepository.save(report).getId();
     }
 
     public ReportId reportPost(
@@ -44,7 +47,11 @@ public class ReportService {
             ReportReason reason,
             String customDescription
     ) {
-        return reportCreationApplicationService.reportPost(postId, reporterId, reason, customDescription);
+        if (reportRepository.existsByTargetAndReporterId(ReportTarget.post(postId), reporterId)) {
+            throw new ReportException(ReportErrorCode.ALREADY_REPORTED);
+        }
+        var report = reportCreationService.createPostReport(postId, reporterId, reason, customDescription);
+        return reportRepository.save(report).getId();
     }
 
     public ReportId reportComment(
@@ -53,19 +60,29 @@ public class ReportService {
             ReportReason reason,
             String customDescription
     ) {
-        return reportCreationApplicationService.reportComment(commentId, reporterId, reason, customDescription);
+        if (reportRepository.existsByTargetAndReporterId(ReportTarget.comment(commentId), reporterId)) {
+            throw new ReportException(ReportErrorCode.ALREADY_REPORTED);
+        }
+        var report = reportCreationService.createCommentReport(commentId, reporterId, reason, customDescription);
+        return reportRepository.save(report).getId();
     }
 
     public void processReport(ReportId reportId) {
-        reportProcessingService.processReport(reportId);
+        var report = reportRepository.getById(reportId);
+        var processedReport = reportCreationService.processReport(report);
+        reportRepository.save(processedReport);
     }
 
     public void resolveReport(ReportId reportId) {
-        reportProcessingService.resolveReport(reportId);
+        var report = reportRepository.getById(reportId);
+        var resolvedReport = reportCreationService.resolveReport(report);
+        reportRepository.save(resolvedReport);
     }
 
     public void rejectReport(ReportId reportId) {
-        reportProcessingService.rejectReport(reportId);
+        var report = reportRepository.getById(reportId);
+        var rejectedReport = reportCreationService.rejectReport(report);
+        reportRepository.save(rejectedReport);
     }
 
     @Transactional(readOnly = true)
