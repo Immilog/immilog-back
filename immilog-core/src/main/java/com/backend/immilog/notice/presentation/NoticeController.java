@@ -1,7 +1,6 @@
 package com.backend.immilog.notice.presentation;
 
-import com.backend.immilog.notice.application.service.NoticeQueryService;
-import com.backend.immilog.notice.application.usecase.*;
+import com.backend.immilog.notice.application.service.NoticeService;
 import com.backend.immilog.notice.domain.model.NoticeId;
 import com.backend.immilog.shared.annotation.CurrentUser;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,27 +16,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/notices")
 @RestController
 public class NoticeController {
-    private final CreateNoticeUseCase createNoticeUseCase;
-    private final NoticeQueryService noticeQueryService;
-    private final GetNoticeUseCase getNoticeUseCase;
-    private final UpdateNoticeUseCase updateNoticeUseCase;
-    private final DeleteNoticeUseCase deleteNoticeUseCase;
-    private final MarkNoticeAsReadUseCase markNoticeAsReadUseCase;
+    private final NoticeService noticeService;
 
-    public NoticeController(
-            CreateNoticeUseCase createNoticeUseCase,
-            NoticeQueryService noticeQueryService,
-            GetNoticeUseCase getNoticeUseCase,
-            UpdateNoticeUseCase updateNoticeUseCase,
-            DeleteNoticeUseCase deleteNoticeUseCase,
-            MarkNoticeAsReadUseCase markNoticeAsReadUseCase
-    ) {
-        this.createNoticeUseCase = createNoticeUseCase;
-        this.noticeQueryService = noticeQueryService;
-        this.getNoticeUseCase = getNoticeUseCase;
-        this.updateNoticeUseCase = updateNoticeUseCase;
-        this.deleteNoticeUseCase = deleteNoticeUseCase;
-        this.markNoticeAsReadUseCase = markNoticeAsReadUseCase;
+    public NoticeController(NoticeService noticeService) {
+        this.noticeService = noticeService;
     }
 
     @PostMapping
@@ -47,7 +29,7 @@ public class NoticeController {
             @RequestBody NoticeRegisterRequest noticeRegisterRequest
     ) {
         var command = noticeRegisterRequest.toCommand();
-        createNoticeUseCase.execute(
+        noticeService.createNotice(
                 userId,
                 command.title(),
                 command.content(),
@@ -64,7 +46,7 @@ public class NoticeController {
             @Parameter(description = "페이지 번호") @RequestParam("page") Integer page
     ) {
         var pageable = PageRequest.of(page, 20);
-        var notices = noticeQueryService.getNotices(userId, pageable);
+        var notices = noticeService.getNotices(userId, pageable);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeListResponse.of(notices));
     }
 
@@ -73,7 +55,7 @@ public class NoticeController {
     public ResponseEntity<NoticeDetailResponse> getNoticeDetail(
             @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId
     ) {
-        var notice = getNoticeUseCase.execute(noticeId);
+        var notice = noticeService.getNoticeById(noticeId);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeDetailResponse.of(notice));
     }
 
@@ -83,7 +65,7 @@ public class NoticeController {
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "사용자 국가") @RequestParam("countryId") String countryId
     ) {
-        var unreadNoticeExist = noticeQueryService.areUnreadNoticesExist(countryId, userId);
+        var unreadNoticeExist = noticeService.areUnreadNoticesExist(countryId, userId);
         return ResponseEntity.status(HttpStatus.OK).body(NoticeRegistrationResponse.of(unreadNoticeExist));
     }
 
@@ -94,7 +76,7 @@ public class NoticeController {
             @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId,
             @Parameter(description = "공지사항 수정바디") @RequestBody NoticeModifyRequest param
     ) {
-        updateNoticeUseCase.execute(
+        noticeService.updateNotice(
                 token,
                 NoticeId.of(noticeId),
                 param.title(),
@@ -111,7 +93,7 @@ public class NoticeController {
             @Parameter(description = "사용자 고유번호") @PathVariable("userId") String userId,
             @Parameter(description = "사용자 국가") @RequestParam("countryId") String userCountryId
     ) {
-        markNoticeAsReadUseCase.execute(noticeId, userId, userCountryId);
+        noticeService.markAsRead(NoticeId.of(noticeId), userId, userCountryId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -121,9 +103,7 @@ public class NoticeController {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String token,
             @Parameter(description = "공지사항 고유번호") @PathVariable("noticeId") String noticeId
     ) {
-        deleteNoticeUseCase.execute(token, noticeId);
+        noticeService.deleteNotice(token, NoticeId.of(noticeId));
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
-
 }
