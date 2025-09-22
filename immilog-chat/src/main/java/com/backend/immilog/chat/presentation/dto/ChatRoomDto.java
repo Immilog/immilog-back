@@ -21,7 +21,11 @@ public record ChatRoomDto(
         LatestMessageDto latestMessage,
         int unreadCount  // 안읽은 메시지 수
 ) {
-    public static Builder from(ChatRoom chatRoom) {
+    public static ChatRoomDto from(ChatRoom chatRoom) {
+        return new Builder(chatRoom).build();
+    }
+    
+    public static Builder builder(ChatRoom chatRoom) {
         return new Builder(chatRoom);
     }
 

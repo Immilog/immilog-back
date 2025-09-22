@@ -129,12 +129,12 @@ public class ChatRoomService {
         var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds());
         
         return Mono.zip(latestMessageMono, participantsMono)
-                .map(tuple -> ChatRoomDto.from(chatRoom)
+                .map(tuple -> ChatRoomDto.builder(chatRoom)
                         .withLatestMessage(tuple.getT1())
                         .withParticipants(tuple.getT2())
                         .build())
                 .switchIfEmpty(participantsMono.map(participants -> 
-                    ChatRoomDto.from(chatRoom)
+                    ChatRoomDto.builder(chatRoom)
                             .withParticipants(participants)
                             .build()));
     }
@@ -150,14 +150,14 @@ public class ChatRoomService {
         var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds());
         
         return Mono.zip(latestMessageMono, unreadCountMono, participantsMono)
-                .map(tuple -> ChatRoomDto.from(chatRoom)
+                .map(tuple -> ChatRoomDto.builder(chatRoom)
                         .withLatestMessage(tuple.getT1())
                         .withUnreadCount(tuple.getT2())
                         .withParticipants(tuple.getT3())
                         .build())
                 .switchIfEmpty(
                     Mono.zip(unreadCountMono, participantsMono)
-                        .map(tuple -> ChatRoomDto.from(chatRoom)
+                        .map(tuple -> ChatRoomDto.builder(chatRoom)
                                 .withUnreadCount(tuple.getT1())
                                 .withParticipants(tuple.getT2())
                                 .build())
@@ -167,7 +167,7 @@ public class ChatRoomService {
     private Mono<ChatRoomDto> enrichWithParticipants(ChatRoom chatRoom) {
         var participantsMono = userService.getParticipantsInfo(chatRoom.participantIds());
         
-        return participantsMono.map(participants -> ChatRoomDto.from(chatRoom)
+        return participantsMono.map(participants -> ChatRoomDto.builder(chatRoom)
                 .withParticipants(participants)
                 .build());
     }
