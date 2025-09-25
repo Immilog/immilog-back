@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -92,12 +91,12 @@ public class ChatReadStatusService {
 
         return Flux.fromIterable(participants)
                 .flatMap(userId ->
-                    readStatusRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
-                            .switchIfEmpty(chatRoomReadStatusDomainService.initializeReadStatus(chatRoomId, userId))
-                            .flatMap(readStatus -> {
-                                var updatedStatus = readStatus.incrementUnreadCount();
-                                return readStatusRepository.save(updatedStatus);
-                            })
+                        readStatusRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
+                                .switchIfEmpty(chatRoomReadStatusDomainService.initializeReadStatus(chatRoomId, userId))
+                                .flatMap(readStatus -> {
+                                    var updatedStatus = readStatus.incrementUnreadCount();
+                                    return readStatusRepository.save(updatedStatus);
+                                })
                 )
                 .then();
     }
