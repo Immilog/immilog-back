@@ -3,33 +3,41 @@ package com.backend.immilog.chat.application.service;
 import com.backend.immilog.chat.domain.model.ChatRoomReadStatus;
 import com.backend.immilog.chat.infrastructure.repository.ChatMessageRepository;
 import com.backend.immilog.chat.infrastructure.repository.ChatRoomReadStatusRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.Executor;
 
 @Service
 public class ChatReadStatusService {
-    
+    private final Logger log = LoggerFactory.getLogger(ChatReadStatusService.class);
+
     private final ChatRoomReadStatusRepository readStatusRepository;
     private final ChatMessageRepository messageRepository;
     private final UserNotificationService userNotificationService;
-    
+    private final Executor executor;
+
     public ChatReadStatusService(
             ChatRoomReadStatusRepository readStatusRepository,
             ChatMessageRepository messageRepository,
-            UserNotificationService userNotificationService
+            UserNotificationService userNotificationService,
+            @Qualifier("webfluxExecutor") Executor executor
     ) {
         this.readStatusRepository = readStatusRepository;
         this.messageRepository = messageRepository;
         this.userNotificationService = userNotificationService;
+        this.executor = executor;
     }
-    
+
     /**
      * 사용자가 채팅방에 처음 입장할 때 읽음 상태 초기화
      */
@@ -39,9 +47,13 @@ public class ChatReadStatusService {
                     var newStatus = ChatRoomReadStatus.create(chatRoomId, userId);
                     return readStatusRepository.save(newStatus);
                 }))
-                .doOnSuccess(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId).subscribe());
+                .publishOn(Schedulers.boundedElastic())
+                .doOnSuccess(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId).subscribe())
+                .doOnError(signal -> {
+                    log.error("Failed to initialize read status for user {} in chat room {}: {}", userId, chatRoomId, signal.getMessage());
+                });
     }
-    
+
     /**
      * 메시지 읽음 처리
      */
@@ -59,7 +71,7 @@ public class ChatReadStatusService {
                 .flatMap(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId))
                 .doOnSuccess(result -> { /* Marked message as read and notified */ });
     }
-    
+
     /**
      * 채팅방의 모든 메시지를 읽음 처리
      */
@@ -77,7 +89,7 @@ public class ChatReadStatusService {
                 .flatMap(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId))
                 .doOnSuccess(result -> { /* Marked all messages as read and notified */ });
     }
-    
+
     /**
      * 새 메시지 발송 시 모든 참여자의 안읽은 수 증가
      */
@@ -86,9 +98,9 @@ public class ChatReadStatusService {
         var participants = participantIds.stream()
                 .filter(userId -> !userId.equals(senderId)) // 발신자 제외
                 .toList();
-        
+
         return Flux.fromIterable(participants)
-                .flatMap(userId -> 
+                .flatMap(userId ->
                     readStatusRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
                             .switchIfEmpty(initializeReadStatus(chatRoomId, userId))
                             .flatMap(readStatus -> {
@@ -98,7 +110,7 @@ public class ChatReadStatusService {
                 )
                 .then();
     }
-    
+
     /**
      * 특정 사용자의 안읽은 메시지 수 조회
      */
@@ -107,7 +119,7 @@ public class ChatReadStatusService {
                 .map(ChatRoomReadStatus::unreadCount)
                 .defaultIfEmpty(0);
     }
-    
+
     /**
      * 사용자의 모든 채팅방 안읽은 메시지 수 조회
      */
@@ -118,7 +130,7 @@ public class ChatReadStatusService {
                         ChatRoomReadStatus::unreadCount
                 );
     }
-    
+
     /**
      * 사용자의 총 안읽은 메시지 수 조회
      */
@@ -127,7 +139,7 @@ public class ChatReadStatusService {
                 .map(ChatRoomReadStatus::unreadCount)
                 .reduce(0, Integer::sum);
     }
-    
+
     /**
      * 채팅방 나가기 시 읽음 상태 삭제
      */
@@ -135,7 +147,7 @@ public class ChatReadStatusService {
     public Mono<Void> removeReadStatus(String chatRoomId, String userId) {
         return readStatusRepository.deleteByChatRoomIdAndUserId(chatRoomId, userId);
     }
-    
+
     /**
      * 채팅방 삭제 시 모든 읽음 상태 삭제
      */
@@ -143,7 +155,7 @@ public class ChatReadStatusService {
     public Mono<Void> removeAllReadStatusForRoom(String chatRoomId) {
         return readStatusRepository.deleteByChatRoomId(chatRoomId);
     }
-    
+
     /**
      * 안읽은 메시지 수 계산 (마지막 읽은 시간 이후의 메시지 수)
      */
@@ -152,7 +164,7 @@ public class ChatReadStatusService {
             // 처음 읽는 경우, 현재 메시지까지 모든 메시지를 읽음으로 처리
             return Mono.just(0L);
         }
-        
+
         // 마지막 읽은 시간 이후의 메시지 수 계산
         return messageRepository.countByChatRoomIdAndSentAtAfter(chatRoomId, lastReadAt);
     }

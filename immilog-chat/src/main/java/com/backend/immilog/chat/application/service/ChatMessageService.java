@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class ChatMessageService {
@@ -35,6 +36,7 @@ public class ChatMessageService {
     ) {
         var message = ChatMessage.createTextMessage(chatRoomId, senderId, senderNickname, content);
         return chatMessageRepository.save(message)
+                .publishOn(Schedulers.boundedElastic())
                 .doOnSuccess(savedMessage -> {
                     // 새 메시지 발송 시 다른 참여자들의 안읽은 수 증가 및 실시간 알림
                     chatRoomService.getChatRoom(chatRoomId)
