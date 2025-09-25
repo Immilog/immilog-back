@@ -49,6 +49,23 @@ class ChatReadStatusServiceTest {
         // notification service should return Mono<Void> on notify
         when(userNotificationService.notifyUnreadCountUpdate(any(), any()))
                 .thenReturn(Mono.empty());
+
+        // switchIfEmpty requires a non-null Mono. Provide a deferred initializer that mimics real behavior:
+        // - saves default status via repository
+        // - notifies once
+        // Using defer ensures no side effects unless subscribed (i.e., only when status is actually absent).
+        when(chatRoomReadStatusDomainService.initializeReadStatus(any(), any()))
+                .thenAnswer(invocation -> {
+                    String room = invocation.getArgument(0);
+                    String user = invocation.getArgument(1);
+                    return Mono.defer(() ->
+                            readStatusRepository.save(ChatRoomReadStatus.create(room, user))
+                                    .flatMap(saved -> userNotificationService
+                                            .notifyUnreadCountUpdate(user, room)
+                                            .thenReturn(saved)
+                                    )
+                    );
+                });
     }
 
     @Nested
