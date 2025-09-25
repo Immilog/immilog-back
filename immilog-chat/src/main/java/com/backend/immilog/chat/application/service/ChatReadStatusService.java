@@ -1,6 +1,7 @@
 package com.backend.immilog.chat.application.service;
 
 import com.backend.immilog.chat.domain.model.ChatRoomReadStatus;
+import com.backend.immilog.chat.domain.service.ChatRoomReadStatusDomainService;
 import com.backend.immilog.chat.infrastructure.repository.ChatMessageRepository;
 import com.backend.immilog.chat.infrastructure.repository.ChatRoomReadStatusRepository;
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -19,19 +21,23 @@ import java.util.concurrent.Executor;
 
 @Service
 public class ChatReadStatusService {
-    private final Logger log = LoggerFactory.getLogger(ChatReadStatusService.class);
+    private static final Logger log = LoggerFactory.getLogger(ChatReadStatusService.class);
+    private static final Duration API_LATENCY = Duration.ofSeconds(5);
 
+    private final ChatRoomReadStatusDomainService chatRoomReadStatusDomainService;
     private final ChatRoomReadStatusRepository readStatusRepository;
     private final ChatMessageRepository messageRepository;
     private final UserNotificationService userNotificationService;
     private final Executor executor;
 
     public ChatReadStatusService(
+            ChatRoomReadStatusDomainService chatRoomReadStatusDomainService,
             ChatRoomReadStatusRepository readStatusRepository,
             ChatMessageRepository messageRepository,
             UserNotificationService userNotificationService,
             @Qualifier("webfluxExecutor") Executor executor
     ) {
+        this.chatRoomReadStatusDomainService = chatRoomReadStatusDomainService;
         this.readStatusRepository = readStatusRepository;
         this.messageRepository = messageRepository;
         this.userNotificationService = userNotificationService;
@@ -39,27 +45,11 @@ public class ChatReadStatusService {
     }
 
     /**
-     * 사용자가 채팅방에 처음 입장할 때 읽음 상태 초기화
-     */
-    public Mono<ChatRoomReadStatus> initializeReadStatus(String chatRoomId, String userId) {
-        return readStatusRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
-                .switchIfEmpty(Mono.defer(() -> {
-                    var newStatus = ChatRoomReadStatus.create(chatRoomId, userId);
-                    return readStatusRepository.save(newStatus);
-                }))
-                .publishOn(Schedulers.boundedElastic())
-                .doOnSuccess(result -> userNotificationService.notifyUnreadCountUpdate(userId, chatRoomId).subscribe())
-                .doOnError(signal -> {
-                    log.error("Failed to initialize read status for user {} in chat room {}: {}", userId, chatRoomId, signal.getMessage());
-                });
-    }
-
-    /**
      * 메시지 읽음 처리
      */
     public Mono<Void> markMessageAsRead(String chatRoomId, String userId, String messageId) {
         return readStatusRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
-                .switchIfEmpty(initializeReadStatus(chatRoomId, userId))
+                .switchIfEmpty(chatRoomReadStatusDomainService.initializeReadStatus(chatRoomId, userId))
                 .flatMap(readStatus -> {
                     // 안읽은 메시지 수 계산 (마지막 읽은 메시지 이후의 메시지 수)
                     return calculateUnreadCount(chatRoomId, messageId, readStatus.lastReadAt())
@@ -77,11 +67,12 @@ public class ChatReadStatusService {
      */
     public Mono<Void> markAllMessagesAsRead(String chatRoomId, String userId) {
         return readStatusRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
-                .switchIfEmpty(initializeReadStatus(chatRoomId, userId))
+                .switchIfEmpty(chatRoomReadStatusDomainService.initializeReadStatus(chatRoomId, userId))
+                .cache(API_LATENCY)
                 .flatMap(readStatus -> {
                     // 가장 최근 메시지 ID 조회
                     return messageRepository.findFirstByChatRoomIdOrderBySentAtDesc(chatRoomId)
-                            .flatMap(latestMessage -> {
+                            .map(latestMessage -> {
                                 var updatedStatus = readStatus.resetUnreadCount(latestMessage.id());
                                 return readStatusRepository.save(updatedStatus);
                             });
@@ -102,7 +93,7 @@ public class ChatReadStatusService {
         return Flux.fromIterable(participants)
                 .flatMap(userId ->
                     readStatusRepository.findByChatRoomIdAndUserId(chatRoomId, userId)
-                            .switchIfEmpty(initializeReadStatus(chatRoomId, userId))
+                            .switchIfEmpty(chatRoomReadStatusDomainService.initializeReadStatus(chatRoomId, userId))
                             .flatMap(readStatus -> {
                                 var updatedStatus = readStatus.incrementUnreadCount();
                                 return readStatusRepository.save(updatedStatus);
